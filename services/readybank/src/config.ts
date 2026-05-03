@@ -13,6 +13,10 @@ export interface Config {
   version: string;
   gitSha: string;
   sentryDsn: string | undefined;
+  /** API key HMAC pepper. Required to enable auth middleware. */
+  apiKeyPepper: string | undefined;
+  /** Redis connection URL. Required to enable rate limiting. */
+  redisUrl: string | undefined;
 }
 
 function getEnv(name: string, fallback?: string): string {
@@ -51,5 +55,7 @@ export function loadConfig(): Config {
     version: getEnv('npm_package_version', '0.0.0'),
     gitSha: getEnv('GIT_SHA', 'unknown'),
     sentryDsn: process.env.SENTRY_DSN,
+    apiKeyPepper: process.env.API_KEY_PEPPER,
+    redisUrl: process.env.REDIS_URL,
   };
 }

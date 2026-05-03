@@ -1,12 +1,16 @@
 import express from 'express';
-import type { Express } from 'express';
+import type { Express, RequestHandler } from 'express';
 import * as Sentry from '@sentry/node';
 import type { Pool } from '@qorium/db';
+import { apiKeyAuth, createMemoryRateLimiter, createRedisRateLimiter } from '@qorium/auth';
+import type { RateLimiterAbstract } from '@qorium/auth';
+import { Redis } from 'ioredis';
 import type { Config } from './config.js';
 import { createHttpLogger, createLogger } from './logger.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { notFound, problemHandler } from './middleware/problem.js';
 import { healthRouter } from './routes/health.js';
+import { questionsRouter } from './routes/questions.js';
 import type { Logger } from 'pino';
 
 export interface ServerDeps {
@@ -14,6 +18,8 @@ export interface ServerDeps {
   pool?: Pool;
   /** Override for tests; injects a pre-built logger so test output stays quiet. */
   logger?: Logger;
+  /** Override the auth middleware (e.g., open access in tests). */
+  authMiddleware?: RequestHandler;
 }
 
 export interface ServerHandle {
@@ -48,11 +54,50 @@ export function createServer(deps: ServerDeps): ServerHandle {
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
+  // Health endpoints are unauthenticated (PM2 / load balancer probes).
   app.use(healthRouter({ config: deps.config, pool: deps.pool }));
+
+  // /v1/* requires API key auth + per-key rate limiting.
+  // Auth + repository routes are skipped when no pool is configured (dev /
+  // smoke runs without a DB) so /healthz still works.
+  if (deps.pool) {
+    const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
+    app.use('/v1', auth, questionsRouter({ pool: deps.pool }));
+  }
 
   // 404 + RFC 7807 problem handler must be last.
   app.use(notFound);
   app.use(problemHandler());
 
   return { app, logger };
+}
+
+/**
+ * Wire the auth middleware from config. If `API_KEY_PEPPER` is unset the
+ * service refuses to start /v1 routes — fail-loud rather than ship an
+ * unauthenticated API in production.
+ */
+function buildAuthMiddleware(config: Config, pool: Pool): RequestHandler {
+  if (!config.apiKeyPepper) {
+    throw new Error(
+      'API_KEY_PEPPER environment variable is required to enable /v1 routes. ' +
+        'Set it to a 32+ character random string.',
+    );
+  }
+
+  let rateLimiter: RateLimiterAbstract;
+  if (config.redisUrl) {
+    const redis = new Redis(config.redisUrl, {
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      lazyConnect: false,
+    });
+    rateLimiter = createRedisRateLimiter(redis);
+  } else {
+    // Fallback so dev / single-instance deployments still rate-limit.
+    // Production should always provide REDIS_URL — tracked in build log.
+    rateLimiter = createMemoryRateLimiter();
+  }
+
+  return apiKeyAuth({ pool, pepper: config.apiKeyPepper, rateLimiter });
 }
