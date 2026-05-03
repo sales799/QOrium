@@ -299,6 +299,64 @@ module.exports = {
       error_file: '/var/log/pm2/qorium-leak-crawler-err.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
+
+    /**
+     * =====================================================================
+     * IRT CALIBRATION PIPELINE (Fork Mode + Daily Cron)
+     * =====================================================================
+     * Purpose: Nightly 2PL/3PL Item Response Theory parameter estimation
+     *   - Loads questions in `calibrating` status with N >= 30 responses
+     *   - Fits (a, b) via Newton-Raphson MLE; c per format default
+     *   - Detects parameter drift; transitions to `released` or `sme_review`
+     *   - Audits every fit attempt to content.calibration_history
+     *
+     * Mode: Fork (single instance; CPU-bound numerical job)
+     * Port: None (internal)
+     * Schedule: Cron — daily restart at 03:00 IST, after the leak crawler
+     *
+     * Spec: infra/IRT-Calibration-Pipeline-v0-Spec.md (CTO Office, 2026-05-02)
+     * Constitutional gate: SO-21 (IRT mandatory before release)
+     *
+     * NOTE: This entry was added by Sprint 1.5 (Stream B autonomous build).
+     * Logged as infra/CTO-deltas/CTO-DELTA-b10-irt-calibration-entry.md.
+     */
+    {
+      name: 'qorium-irt-calibration',
+      script: './dist/workers/irt-calibration.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '1024M',
+      exp_backoff_restart_delay: 500,
+
+      // Cold restart daily at 03:00 IST (21:30 UTC) — after leak crawler @ 02:00
+      cron_restart: '0 3 * * *',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-irt-calibration',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-irt-calibration',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+        IRT_MIN_RESPONSES: '30',
+        IRT_MAX_QUESTIONS_PER_RUN: '1000',
+        IRT_MAX_ITERATIONS: '50',
+      },
+
+      out_file: '/var/log/pm2/qorium-irt-calibration-out.log',
+      error_file: '/var/log/pm2/qorium-irt-calibration-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
   ],
 
   // ========================================================================

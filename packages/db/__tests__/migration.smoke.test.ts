@@ -48,6 +48,7 @@ describeOrSkip('migration smoke test', () => {
     const tables = result.rows.map((r) => r.table_name);
     expect(tables).toEqual(
       expect.arrayContaining([
+        'calibration_history',
         'leak_alerts',
         'question_variants',
         'questions',
@@ -59,6 +60,16 @@ describeOrSkip('migration smoke test', () => {
         'sub_skills',
       ]),
     );
+  });
+
+  it('content.calibration_history enforces the flag CHECK constraint', async () => {
+    await expect(
+      pool.query(
+        `INSERT INTO content.calibration_history
+           (run_id, question_id, n_responses, converged, flag)
+         VALUES (gen_random_uuid(), gen_random_uuid(), 30, true, 'definitely-not-a-flag')`,
+      ),
+    ).rejects.toThrow();
   });
 
   it('content.review_decisions enforces the decision CHECK constraint', async () => {

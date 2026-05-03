@@ -743,3 +743,137 @@ and graduates to `released` once IRT parameters stabilise.
 **Halt conditions:** none expected for v0; uses local
 computations only. SO-21 (IRT mandatory) is the constitutional
 gate this sprint closes.
+
+---
+
+## 2026-05-03 — Sprint 1.5 IRT Calibration Pipeline v0 (`qorium-irt-calibration`) ✅
+
+`services/irt-calibration` (`@qorium/irt-calibration`) — PM2 fork-mode
+worker that runs the canonical 5-stage calibration pipeline from
+`infra/IRT-Calibration-Pipeline-v0-Spec.md` end-to-end. Closes the
+**SO-21 constitutional gate** (IRT mandatory before release).
+
+### What landed
+
+- **Migration 0004 (`infra/B7-postgres-migrations/0004_calibration_history.sql`)**:
+  `content.calibration_history` append-only audit table. Columns: `run_id`,
+  `question_id`, `n_responses`, `b_est`, `a_est`, `c_est`, `log_likelihood`,
+  `converged`, `iterations`, `prior_b`, `prior_a`, `delta_b`, `delta_a`,
+  `empirical_pass_rate`, `flag` (CHECK on the canonical flag set), `ran_at`.
+  Indexed on `question_id`, `run_id`, `ran_at DESC`, and a partial index
+  on `flag <> 'none'` for SME triage queues.
+- **Pure-logic core** (no DB / pino / runtime):
+  - `src/model.ts` — 3PL probability function + Newton-stable sigmoid
+    - `clampParameters` to spec §2 box (a∈[0,3], b∈[-4,4], c∈[0,0.3])
+    - `defaultGuessingForFormat` (mcq=0.25 / msq=0.0625 / truefalse=0.5
+      / coding|design|sjt|casestudy=0) + `itemLogLikelihood`
+  - `src/ability.ts` — sum-score-based θ proxy per spec §4 stage 3:
+    z-score per-candidate proportion-correct across the cohort;
+    custom `correctPredicate` overrideable
+  - `src/fit2pl.ts` — Newton-Raphson MLE on (a, b) with c held at the
+    format-derived default; backtracking line search; gradient-ascent
+    fallback when the Hessian is degenerate; box clamp every step;
+    `isAtBounds` boundary check
+  - `src/drift.ts` — full §4 stage 4 classifier (`drift_b` |Δb|>0.5,
+    `drift_a` |Δa|>0.3, `extreme_pass_rate` |observed - expected|>0.20,
+    `invalid_params` for NaN/non-positive a) + §4 stage 5 transitions
+    (`released` | `sme_review` | `calibrating`)
+- **Data layer (`src/repositories/calibrating.ts`)**:
+  - `listCalibratingQuestions` — `status='calibrating' AND
+COALESCE(calibration_n,0) >= minResponses`
+  - `fetchResponsesForQuestions` — single batched query
+  - `applyCalibration` — single-transaction: insert history row →
+    update questions (params + status + `released_at` if graduating)
+  - Skipped param/state writes when flag is `low_n` /
+    `no_convergence` / `invalid_params` (history row alone is the
+    audit trail)
+- **Orchestrator (`src/orchestrator.ts`)**:
+  - `runCalibration({listQuestions, fetchResponses, applyCalibration,
+logger, config, generateRunId?, now?})` — DI on every external
+    surface (no fixtures or DB needed in unit tests)
+  - Builds per-cohort θ map once; reuses across all items in the batch
+  - Per-item failures are logged + counted, never abort the run
+  - Returns structured `CalibrationReport` (questionsConsidered /
+    Calibrated / Released / FlaggedForSme / HeldInCalibration / errors,
+    plus a per-flag count map)
+- **Entry points**:
+  - `src/index.ts::runOnce()` — opens 4-conn pg pool, runs one batch,
+    drains; warns + no-ops if `DATABASE_URL` is unset
+  - `src/cli.ts` — CLI with `--once` (default; PM2 cron drives cadence)
+    and `--watch --interval <s>` for dev; JSON-line summary to stdout,
+    fatal errors to stderr
+- **Service config (`src/config.ts`)**:
+  env knobs `IRT_MIN_RESPONSES` (default 30 per spec §3),
+  `IRT_MAX_QUESTIONS_PER_RUN` (default 1,000 per spec §5),
+  `IRT_MAX_ITERATIONS` (50), `IRT_TOLERANCE` (1e-6).
+- **PM2 entry**: added `qorium-irt-calibration` to
+  `infra/B10-ecosystem.config.js` — fork mode, `cron_restart: '0 3 * * *'`
+  (03:00 IST per spec §7), 1 GB memory cap, env knobs wired to
+  `env_production`. Logged as
+  `infra/CTO-deltas/CTO-DELTA-b10-irt-calibration-entry.md`.
+- **CTO-DELTAs**:
+  - **#6 `CTO-DELTA-irt-fitter.md`** — TS-native MLE in v0; full Python
+    `girth` deferred (spec §8 calls for girth, but cross-language
+    packaging vs ~80 lines of stable numerical code wasn't worth the
+    Phase 1 schedule cost). Hybrid path proposed for v1 (girth for
+    quarterly DIF + I/O Psych QA reports).
+  - **#7 `CTO-DELTA-irt-2pl-with-format-c.md`** — 2PL fit with c held
+    at the format default (per spec §13 Q3 first option); full 3PL
+    deferred until panel acquisition raises typical N >= 100.
+  - **#8 `CTO-DELTA-b10-irt-calibration-entry.md`** — added the new PM2
+    entry directly to B10 (CTO Office canonical), logged for upstream
+    refresh.
+- **Tests** (64 new cases, all active green):
+  - `__tests__/model.test.ts` — sigmoid (parametrised), 3PL probability
+    (5 cases), clamp, default-c per format (8 cases), log-likelihood
+    boundary cases
+  - `__tests__/ability.test.ts` — empty / all-zero / symmetric
+    proportion / monotonic θ / custom predicate / null-score handling
+  - `__tests__/fit2pl.test.ts` — empty data → invalid; mismatched
+    arrays throw; clamp at bounds; c stays fixed; synthetic recovery
+    for centred / hard / easy items; degenerate corpora; `isAtBounds`
+  - `__tests__/drift.test.ts` — full §4 stage 4 classifier grid + §4
+    stage 5 transitions parametrised
+  - `__tests__/orchestrator.test.ts` — empty-batch / low-N / healthy
+    fit / fetch failure / apply failure / runId propagation
+- `packages/db/__tests__/migration.smoke.test.ts` — adds
+  `calibration_history` to expected content tables + a CHECK-constraint
+  smoke test.
+
+### Verified locally
+
+- `pnpm typecheck` clean across **6 workspaces** (now 7 incl. infra)
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — irt-calibration emits `cli.js`, `index.js`,
+  `model.js`, `fit2pl.js`, etc.
+- `pnpm test` — irt-calibration 64/64 active; admin 58 + 7 skip;
+  leak-crawler 47 + 2 skip; readybank 33 + 21 skip; auth 26;
+  db 9 skip = **228 active green + 39 auto-skip** (was 164 + 38)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None. The pipeline runs end-to-end with synthetic data; activation
+against a populated `content.responses` table is automatic once
+calibration cohort responses start landing (Sprint 1.7 onwards).
+
+### Constitution alignment
+
+- **SO-21 (IRT scoring Day-1 mandatory)** — closed. Every released
+  question now passes through this pipeline before status transitions
+  to `released`.
+- **Article VII phase gate** — closed. The pipeline rejects graduation
+  without `converged === true && flag === 'none' && N >= minResponses`.
+
+### Next sprint (1.6)
+
+Judge0 sandbox integration. References
+`infra/Judge0-Sandbox-Integration-Spec-v0.md` (already in repo per
+INDEX). Likely shape: orchestrator service that submits coding
+question test cases to Judge0, polls for completion, parses results
+into a normalised execution report. Supports 12 languages + Apex
+per spec.
+**Halt conditions:** none expected; the docker-compose dev stack
+already bundles Judge0 1.13.1 (per Sprint 0.2). Live activation
+needs `JUDGE0_AUTH_TOKEN` for the production instance — REQUEST from
+CEO at activation.
