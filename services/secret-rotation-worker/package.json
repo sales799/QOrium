@@ -1,0 +1,25 @@
+{
+  "name": "@qorium/secret-rotation-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QOrium secret rotation worker per infra/B6-Secret-Rotation-Calendar.md. Cron-driven; emits reminders + audit log entries; per-resource-type rotators (Stub default, Real on-demand).",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@qorium/db": "workspace:*",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

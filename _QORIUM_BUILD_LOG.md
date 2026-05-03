@@ -1955,3 +1955,85 @@ reading the spec markdown.
 
 `services/billing` v0 MVP per `infra/Billing-Service-v0-Spec.md`.
 Halt: real Razorpay test sandbox credentials (CTO-DELTA #24).
+
+## 2026-05-03 — Sprint 2.6 Billing Service v0 MVP ✅
+
+Migration `0011_billing.sql` ships 6 tables (customers, subscriptions,
+invoices, line_items, payments, usage_records) with comprehensive
+CHECK constraints. `@qorium/billing` (port 5112) ships pure-logic
+invoice math, dunning state machine, Razorpay client (Stub-vs-Real)
+with HMAC webhook verifier, and Express endpoints for customer upsert,
+invoice preview/create/list, and Razorpay payment webhook ingestion.
+CTO-DELTA #24 documents Razorpay KYB account, Stripe, ledger, refunds,
+customer portal, Zoho Books, PDF generation as activation halts. 38
+new test cases (680 active green total). Pushed as `d4ad069`.
+
+## 2026-05-03 — Sprint 2.7 Customer Zero Deployment Readiness ✅
+
+Migration `0012_api_key_scopes.sql` extends `app.api_keys` with rate
+limit + rotation columns. `@qorium/api-key-mgmt` (port 5113) ships
+issuance/revocation/list/rotation-due endpoints + scope catalogue per
+D3 §3 + scope-enforcement helper. `infra/deployment/{staging,production}.env.template`
+
+- `infra/runbooks/customer-zero-day-1.md` give the deploy operator a
+  turnkey checklist. PM2 ecosystem extended with billing + api-key-mgmt.
+  CTO-DELTA #25 covers VPS / DNS / TLS / pepper / admin-JWT halts. 28
+  new test cases (708 active green total). Pushed as `dfb4d7c`.
+
+## 2026-05-03 — Sprint 2.8 Secret Rotation Automation ✅
+
+### What landed
+
+- **Migration `0013_secret_rotations.sql`** —
+  `app.secret_rotations` (rotation ledger keyed on `resource_key`) +
+  `app.secret_rotation_log` (audit trail). CHECK constraints enforce
+  the resource_type / status vocabularies derived from B6 §2.
+- **`@qorium/secret-rotation-worker`** (PM2 fork, 6h tick) — pure-logic
+  policy evaluator (`evaluatePolicy`: send_reminder / mark_overdue /
+  no_op based on `next_rotation_due` + reminder lead + grace days).
+  Per-resource rotators with the Stub-vs-Real pattern: the
+  `webhook_subscription_secret` rotator is interface-complete (live
+  flip needs `WEBHOOKS_ADMIN_TOKEN`); `database_url`, `api_key`,
+  etc. ship as stubs that just reschedule.
+- **`runTick()`** scans rows due within `lookAheadDays` (default 14),
+  decides per row, and writes a `secret_rotation_log` event for every
+  state transition.
+- **PM2 ecosystem updated** — adds `qorium-secret-rotation` fork
+  entry; `SECRET_ROTATION_PERFORM` defaults to `false` so v0 only
+  emits reminders + marks overdue.
+- **CTO-DELTA #26** — `CTO-DELTA-secret-rotation-worker-stub.md` —
+  flags the live provider rotation APIs (Anthropic, Razorpay, OpenAI,
+  Cloudflare R2, GitHub PAT, Postgres password) as activation halts.
+
+### Tests (21 new cases, all green)
+
+- `services/secret-rotation-worker/__tests__/policy.test.ts` — 11
+  cases (paused / healthy / reminder / overdue / grace days /
+  default-policy lookup)
+- `services/secret-rotation-worker/__tests__/rotators.test.ts` —
+  5 cases (stub rotator, webhook rotator with + without token,
+  registry, throw-on-unknown)
+- `services/secret-rotation-worker/__tests__/runner.test.ts` —
+  5 cases (reminder, overdue, paused skip, perform=false, log emit)
+- `migration.smoke.test.ts` — verifies migration 0013 (two tables +
+  resource_type CHECK)
+
+### Verified locally
+
+- `pnpm typecheck` clean across **21 workspaces**
+- `pnpm lint` + `pnpm format:check` clean
+- `pnpm --filter @qorium/secret-rotation-worker build` clean
+- `pnpm --filter @qorium/secret-rotation-worker test` 21/21 green
+
+### Halt conditions
+
+- Live Anthropic / Razorpay / OpenAI / Cloudflare R2 / GitHub PAT
+  rotation APIs (CEO action; per-provider account access).
+- `WEBHOOKS_ADMIN_TOKEN` for the webhook rotator (Sprint 2.9).
+- Slack webhook URL for reminder notifications (Sprint 2.9).
+
+### Next sprint (2.9)
+
+`packages/observability` + `services/uptime-monitor` per CTO
+Architecture §13 + `governance/Operating-Rituals-v1.md`.
+Halt: Sentry DSN, Grafana Cloud token, Talpro Sentinel webhook.
