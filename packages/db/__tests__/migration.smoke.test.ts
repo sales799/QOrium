@@ -52,12 +52,22 @@ describeOrSkip('migration smoke test', () => {
         'question_variants',
         'questions',
         'responses',
+        'review_decisions',
         'role_skills',
         'roles',
         'skills',
         'sub_skills',
       ]),
     );
+  });
+
+  it('content.review_decisions enforces the decision CHECK constraint', async () => {
+    await expect(
+      pool.query(
+        `INSERT INTO content.review_decisions (question_id, reviewer_email, decision, prior_status, next_status)
+         VALUES (gen_random_uuid(), 'sme@qorium.test', 'maybe', 'sme_review', 'calibrating')`,
+      ),
+    ).rejects.toThrow();
   });
 
   it('has the audit.events table', async () => {

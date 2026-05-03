@@ -533,3 +533,90 @@ plus accept/edit/reject decision flow. Will need a content-engine
 schema decision — likely add a `content.review_decisions` table.
 References CTO Architecture §6.3 (already in repo per INDEX).
 **Halt conditions:** none expected; pure backend + UI work.
+
+---
+
+## 2026-05-03 — Sprint 1.3 SME review queue + decision workflow ✅
+
+Live SME review workflow against `content.questions` in `sme_review`
+status. Decisions persisted to a new audit table and applied as
+status transitions inside a single transaction. Wired into the
+`/admin/queue` page via Next.js Server Actions.
+
+### What landed
+
+- **Migration 0003 (`infra/B7-postgres-migrations/0003_review_decisions.sql`)**:
+  `content.review_decisions` table — `id` UUID PK, `question_id` FK
+  (cascade delete), `reviewer_email`, `decision` CHECK
+  `('accept', 'edit', 'reject')`, `notes`, `prior_status`,
+  `next_status`, `created_at`. Indexes on `question_id`,
+  `reviewer_email`, `created_at DESC`.
+- **Workflow encoding in `apps/admin/src/server/decisions.ts`**:
+  status transitions live as a frozen map (`accept→calibrating`,
+  `edit→draft`, `reject→deprecated`); `validateDecisionInput`
+  enforces shape + the rule that `edit` requires non-empty notes;
+  100 % pure functions, no DB / Next.js dependency.
+- **Data layer (`apps/admin/src/server/queue.ts`)**:
+  `listReviewQueue` (clamps limit to 200), `getReviewable`
+  (returns null for non-`sme_review` rows), `recordDecision`
+  (transactional: SELECT … FOR UPDATE → INSERT decision → UPDATE
+  question status; stamps `deprecated_at` on reject; returns null
+  if the row was actioned by someone else mid-flight).
+- **Pool singleton (`apps/admin/src/server/db.ts`)**:
+  `getAdminPool()` caches a single `pg.Pool` on `globalThis` keyed
+  by a Symbol so Next.js dev hot-reload doesn't leak pools.
+- **Server Action (`apps/admin/src/app/admin/queue/_actions.ts`)**:
+  `recordDecisionAction` — uses `useActionState` contract; reads
+  the SME's email from `await auth()` so the form can't spoof
+  the reviewer; UUID-validates the questionId; calls
+  `validateDecisionInput`; `revalidatePath('/admin/queue')` on
+  success; surfaces RFC-style error states (`error`, `stale`,
+  `success`).
+- **Client form (`apps/admin/src/app/admin/queue/_components/decision-form.tsx`)**:
+  three submit buttons (Accept / Send back for edits / Reject)
+  sharing one `<textarea>` for notes. Disabled while the action
+  is pending. `useActionState` shows per-row success / stale /
+  error messages.
+- **Live page (`apps/admin/src/app/admin/queue/page.tsx`)**:
+  loads the queue from Postgres on each request (`force-dynamic`);
+  gracefully degrades when `DATABASE_URL` is absent (shows an
+  amber banner instead of crashing the route); empty-state when
+  the queue is clear; renders body markdown in a scroll container.
+- **`apps/admin/package.json`**: adds `@qorium/db: workspace:*`.
+- **Tests**:
+  - `apps/admin/__tests__/decisions.test.ts` — 21 vitest cases
+    (status transitions parametrised; validator boundary cases;
+    whitespace-only notes; max-length; non-string rejection).
+  - `apps/admin/__tests__/queue.integration.test.ts` — 7 vitest
+    cases (queue ordering, limit clamp, getReviewable visibility,
+    accept/edit/reject transitions with audit-row verification,
+    stale-row handling). Auto-skips when `DATABASE_URL` unset.
+  - `packages/db/__tests__/migration.smoke.test.ts` — appended
+    `review_decisions` to the expected content tables list and
+    added a CHECK-constraint smoke for the `decision` column.
+
+### Verified locally
+
+- `pnpm typecheck` clean across 5 workspaces
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — `/admin/queue` route bundle now 1.13 kB
+  (was 150 B stub); middleware bundle 81.4 kB
+- `pnpm test` — admin 58/58 + 7 skipped; db 8 skipped (no DB);
+  auth 26/26; readybank 33/33 + 21 skipped =
+  **117 active green + 36 auto-skip**
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None. Pure backend + UI sprint, no external service deps.
+
+### Next sprint (1.4)
+
+Anti-Leak Engine v0 service (`qorium-leak-crawler`, fork mode per
+B10). References `infra/Anti-Leak-Engine-v0-Design.md` (already
+in repo per INDEX). Will request `Serper.dev` API key from CEO
+when activating real crawls; until then, a stub source-poller
+is sufficient for the service skeleton + scheduling + signal
+ingestion to `content.leak_alerts`.
+**Halt condition:** real Serper.dev API key required for live
+crawls → REQUEST from CEO at activation time.
