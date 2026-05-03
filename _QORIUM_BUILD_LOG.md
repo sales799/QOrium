@@ -284,12 +284,86 @@ emitted `RateLimit-*` headers, and the `audit.events` table got
 - Root `pnpm typecheck` / `lint` / `format:check` / `build` all clean
 - gitleaks clean (7 commits, 0 leaks)
 
+---
+
+## 2026-05-03 — Sprint 1.4 ReadyBank packs + export ✅
+
+`POST /v1/packs/generate` + `GET /v1/packs/{id}/export` per architecture
+§6.3 + handoff §5 Item 1.4. Closes the Sprint 1 ReadyBank API alpha.
+
+### What landed
+
+- **Migration 0002 (`infra/B7-postgres-migrations/0002_packs.sql`)** —
+  `app.packs` table: `id`, `tenant_id` (FK), `api_key_id` (FK), `name`,
+  `filters` (jsonb), `question_ids` (uuid[]), `question_count`, `status`
+  (CHECK), `expires_at`, `created_at`, `last_exported_at`, `export_count`.
+  Indexed on tenant_id, api_key_id (partial), and (status, expires_at)
+  partial for "ready & live" queries.
+- `services/readybank/src/repositories/packs.ts` — `createPack` (snapshots
+  `searchQuestions` result into `app.packs`), `getPackByIdForTenant` (RLS
+  via tenant_id WHERE clause + expiry check), `streamPackQuestions`
+  (async generator chunked at 50; preserves pack ordering even though
+  `WHERE id = ANY()` doesn't), `recordExport` (fire-and-forget update)
+- `services/readybank/src/exporters/csv.ts` — RFC 4180 streaming writer
+  with proper escaping (`""` for embedded quotes, quoted cells when
+  needed), nested JSON serialised as JSON-encoded cells
+- `services/readybank/src/exporters/json.ts` — single document
+  `{ pack: {...}, questions: [...] }` streamed lazily so 100-row pack
+  never buffers
+- `services/readybank/src/exporters/hackerrank-yaml.ts` — js-yaml-based
+  multi-document YAML stream; format-aware mapping for MCQ/MSQ
+  (`multiple_choice_single|multiple` with `text` + `correct` choices),
+  coding-fn (`reference_solution` + `test_cases`), generic fallback
+- `services/readybank/src/routes/packs.ts` — both endpoints; zod
+  validation; tenant isolation in 404 (no leak of pack existence across
+  tenants); audit-log `pack.generated` + `pack.exported`; safe streaming
+  error handling (mid-stream errors surface to express default rather
+  than producing malformed half-documents)
+- `services/readybank/src/server.ts` — wires `packsRouter` onto the same
+  `/v1` mount as `questionsRouter`
+- `__tests__/exporters.unit.test.ts` — 10 cases covering CSV escaping
+  (quotes, commas, nested JSON, null), JSON pack header + lazy
+  questions array, HackerRank YAML MCQ/coding/multi-doc/content-type
+- `__tests__/packs.integration.test.ts` — 11 live-DB cases:
+  POST 401 unauth / 201 happy / 400 bad difficulty / 400 limit > 100;
+  GET 404 unknown / 400 non-uuid / 200 JSON default / 200 CSV with
+  header rows / 200 HackerRank YAML / 404 cross-tenant (no leak) /
+  export_count increments
+
+### Verified locally
+
+- `pnpm typecheck` clean across all 4 workspaces
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean
+- Tests: **80/80 active green** (db smoke 7, auth 26, readybank 47)
+  - Without DATABASE_URL: 33 active + 21 auto-skip (integration suites)
+  - With DATABASE_URL: all 80 pass in <2s
+- Migration applied cleanly: `pnpm migrate:up` shows
+  "Applied 1 migration(s): 0002_packs"; `\d app.packs` confirms schema
+- gitleaks clean (8 commits, 0 leaks)
+
+### Phase 1 ReadyBank API alpha — DONE per handoff §12 success criteria
+
+| Criteria                        | Status                                          |
+| ------------------------------- | ----------------------------------------------- |
+| ReadyBank API alpha live        | ✅ skeleton + `/v1/questions/*` + `/v1/packs/*` |
+| Bulk export CSV/JSON/HackerRank | ✅ all three streaming                          |
+| API key auth                    | ✅ `@qorium/auth` HMAC-SHA256 + audit log       |
+| Rate limiting                   | ✅ Redis-backed with memory fallback            |
+
+Still missing for full Phase 1 IdeaForge re-gate:
+
+- 5,000 validated questions seeded (manual content op + SME workflow)
+- IRT calibration pipeline (Sprint 3.5 — needs reference panel)
+- Anti-leak engine v0 (Sprint 4)
+- 20+ programming languages (Judge0 sandbox integration)
+- Admin console (Sprint 2)
+
 ### Out of scope (next sprints)
 
-- Sprint 1.4 — `POST /v1/packs/generate` (build a pack from query criteria,
-  store as `app.packs` row) + `GET /v1/packs/{id}/export`
-  (CSV/JSON/HackerRank-YAML)
-- Role-graph traversal for `/v1/role-graph/search` and `?role=` query
-  param on `/v1/questions/search` — needs `role_skills` join logic
-- Tags filter — schema doesn't have a tags column; defer until either
-  `body_json.tags` becomes canonical or a `content.tags` table lands
+- Sprint 2 — `apps/admin` Next.js scaffold (SME review queue + calibration panel)
+- Sprint 3 — Content Engine 7-stage pipeline orchestrator (Spec → AI → Critique → SME → Calibrate → Release → Post-Deploy)
+- Sprint 4 — Anti-Leak Engine v0 (per `infra/Anti-Leak-Engine-v0-Design.md`)
+- Sprint 5 — JD-Forge service (per `infra/JD-Forge-v0-Design.md`)
+- Role-graph traversal endpoints (`/v1/role-graph/search`, `?role=` filter)
+- Tags filter (needs schema decision: `body_json.tags` vs `content.tags`)
