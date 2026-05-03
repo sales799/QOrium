@@ -367,3 +367,60 @@ Still missing for full Phase 1 IdeaForge re-gate:
 - Sprint 5 — JD-Forge service (per `infra/JD-Forge-v0-Design.md`)
 - Role-graph traversal endpoints (`/v1/role-graph/search`, `?role=` filter)
 - Tags filter (needs schema decision: `body_json.tags` vs `content.tags`)
+
+---
+
+## 2026-05-03 — Sprint 0+1 PR stack merged to `main` (execute-mode)
+
+CTO Office authorisation to land the 7-PR build stack on `main`. Triggered by
+CEO authorisation (Bhaskar Anand, 2026-05-03) closing the three Phase-1
+unblockers:
+
+- **CC-01** — ₹50L sub-budget QORIUM tagged in Talpro India books
+- **CC-02-A** — K&S Partners IP counsel engagement email sent
+- **CC-04** — `qorium.online` domain registered
+
+### Merges (strict dependency order, all squash-merged to `main`)
+
+| #   | Commit    | Title                                                             | Merged at (UTC)     |
+| --- | --------- | ----------------------------------------------------------------- | ------------------- |
+| 1   | `d401018` | chore: bootstrap QOrium monorepo (Sprint 0.1 + 0.2)               | 2026-05-03 09:51:13 |
+| 2   | `9b1a035` | chore: ingest binding specs + wire canonical configs              | 2026-05-03 09:52:40 |
+| 3   | `0a74e6f` | feat(db): @qorium/db with custom migration runner                 | 2026-05-03 09:53:16 |
+| 4   | `e07108c` | feat(readybank): service skeleton on :5101                        | 2026-05-03 09:53:45 |
+| 5   | `dec8578` | feat(auth): @qorium/auth — API keys + rate limit + audit          | 2026-05-03 09:54:16 |
+| 6   | `ab8847b` | feat(readybank): /v1/questions/{uuid} + /v1/questions/search      | 2026-05-03 09:54:38 |
+| 7   | `3528232` | feat(readybank): /v1/packs + bulk export CSV/JSON/HackerRank-YAML | 2026-05-03 09:55:05 |
+
+`main` HEAD now at `3528232`. No conflicts, no force-resolves. All seven head
+branches preserved for audit (`claude/setup-qorium-build-hKTHq`,
+`claude/ingest-specs`, `claude/sprint-0.3-db-package`,
+`claude/sprint-1.1-readybank-skeleton`, `claude/sprint-1.2-auth`,
+`claude/sprint-1.3-readybank-questions`, `claude/sprint-1.4-packs-export`).
+
+### Post-merge verification on `main`
+
+- `pnpm install` — clean (404 packages, lockfile unchanged)
+- `pnpm -r build` — clean across all 3 buildable workspaces (db, auth, readybank)
+- `pnpm test` — green:
+  - `@qorium/db` smoke: 7 auto-skip (no `DATABASE_URL` in this sandbox)
+  - `@qorium/auth`: **26/26 passed**
+  - `@qorium/readybank` unit: **33/33 passed** (server 7 + questions.unit 16 + exporters.unit 10)
+  - `@qorium/readybank` integration: 21 auto-skip (no `DATABASE_URL` / `REDIS_URL`)
+  - **59 active tests passing, 28 auto-skipping** — matches the documented
+    "without DATABASE_URL: green" path. With DB up locally the full 87
+    cases execute (66 unit + 21 integration); 0 failures expected.
+
+### CI workflow
+
+`.github/workflows/ci.yml` is already on `main` (landed in PR #2 from the
+canonical `infra/B5-CI-Pipeline.github-actions.yml`, ported npm → pnpm with
+`infra/CTO-deltas/CTO-DELTA-CI-pnpm-adoption.md`). The note in the CTO
+authorisation about a "missing B5 CI workflow" predates PR #2; CI is wired
+and will activate on the next push to `main`.
+
+### Status
+
+Phase 0 + Phase 1 ReadyBank API alpha — **shipped to `main`**. Build is
+execute-mode. Next sprint items (Sprint 2 admin scaffold, Sprint 3 Content
+Engine, Sprint 4 Anti-Leak v0, Sprint 5 JD-Forge) remain on the roadmap above.
