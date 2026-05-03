@@ -877,3 +877,144 @@ per spec.
 already bundles Judge0 1.13.1 (per Sprint 0.2). Live activation
 needs `JUDGE0_AUTH_TOKEN` for the production instance — REQUEST from
 CEO at activation.
+
+---
+
+## 2026-05-03 — Sprint 1.6 Judge0 Sandbox Orchestrator v0 (`qorium-judge0-orchestrator`) ✅
+
+`services/judge0-orchestrator` (`@qorium/judge0-orchestrator`) — PM2
+fork-mode worker that runs candidate code submissions through the
+Judge0 sandbox per `infra/Judge0-Sandbox-Integration-Spec-v0.md`.
+Handles all 12 baseline languages (Java, Python, Node, TypeScript,
+C++, Rust, Go, C, SQL, Bash, Shell/AWK); Apex deferred to v0.1
+(separate worker).
+
+### What landed
+
+- **Migration 0005 (`infra/B7-postgres-migrations/0005_judge0_sandbox.sql`)**:
+  adds `content.questions.sandbox_config` (JSONB) per spec §4 (test
+  cases, language, memory/time limits, expected_output_pattern,
+  weights, rubric) and `content.responses.execution_metadata` (JSONB)
+  per spec §3.2 (test_results, compilation_error, runtime_error,
+  exit_code, timeout, memory_kb, language). Adds a partial index
+  `responses_pending_execution_idx` on rows where execution hasn't
+  completed — used by the v0 polling shim.
+- **Pure-logic modules**:
+  - `src/languages.ts` — full §5 language profile table mapping QOrium
+    language identifiers (`java21`, `python3`, etc.) to Judge0 numeric
+    language IDs + per-language memory/time/compile budgets. Exposes
+    `isSupportedLanguage`, `judge0IdFor`, `routesToJudge0` (false for
+    Apex).
+  - `src/scoring.ts` — `matchesExpected` (auto-anchored regex per
+    spec §4 patterns like `"^8$"`; trailing-whitespace tolerant on
+    actual output; literal-fallback on regex compile failure);
+    `scoreSubmission` (weighted total 0–100, per-test reason ∈
+    `match | mismatch | compile_error | runtime_error | timeout |
+no_output`, stderr summary truncation).
+  - `src/anti-fraud.ts` — §6.5 signal computation
+    (`paste_vs_typed_ratio`, `time_on_task_too_low`,
+    `language_mismatch`, `suspicious_ip_change`,
+    `identical_submission`, `execution_failed`); pure logic.
+  - `src/submission.ts` — submission validator (50 KB code limit,
+    UUID question_id, allowlisted language) + `validateSandboxConfig`
+    that parses both snake_case (spec form) and camelCase, enforces
+    weights ~ 1.0 and ≤ 50 test cases.
+- **Judge0 HTTP client**:
+  - `src/judge0/types.ts` — Judge0 v1.13+ submission shape +
+    `TERMINAL_STATUS_IDS` (3, 4, 5, 6, 7…14)
+  - `src/judge0/client.ts` — `Judge0Client` with injectable `fetchImpl`,
+    POST `/submissions?wait=false`, GET `/submissions/{token}` polling
+    with terminal-status detection, `X-Auth-Token` support, per-request
+    AbortSignal + timeout, parent-signal propagation, configurable
+    poll interval / timeout
+- **Orchestrator (`src/orchestrator.ts`)**:
+  `executeSubmission({candidateCode, language, config, judge0,
+antiFraud?, logger?, signal?})` — runs each test case through the
+  client, accumulates outputs, scores, computes anti-fraud signals,
+  builds the `execution_metadata` payload. Per-test client failures
+  are recorded as `runtime_error` and the pipeline continues.
+- **Data layer + entry**:
+  - `src/repositories/responses.ts` — `listPendingResponses` (uses
+    the 0005 partial index), `applyExecutionOutcome` (single UPDATE
+    setting score / time_taken_ms / execution_metadata /
+    suspicious_signals)
+  - `src/index.ts::runOnce` — opens 4-conn pg pool, drains a bounded
+    batch of pending responses (default 100), runs each, persists;
+    skips unsupported languages and questions without
+    `sandbox_config`. Warns and no-ops if `DATABASE_URL` unset.
+  - `src/cli.ts` — `--once` (default) and `--watch --interval`
+- **Service config (`src/config.ts`)**:
+  env knobs `JUDGE0_URL` (defaults to `http://localhost:2358` —
+  matches docker-compose dev), `JUDGE0_AUTH_TOKEN` (prod-only),
+  `JUDGE0_POLL_INTERVAL_MS` (500), `JUDGE0_POLL_TIMEOUT_MS` (60_000),
+  `JUDGE0_MAX_RESPONSES_PER_RUN` (100).
+- **PM2 entry**: added `qorium-judge0-orchestrator` to
+  `infra/B10-ecosystem.config.js` — fork mode, port 5108, env knobs
+  wired. Logged as
+  `infra/CTO-deltas/CTO-DELTA-judge0-bullmq-deferred.md`.
+- **CTO-DELTAs**:
+  - **#9 `CTO-DELTA-judge0-bullmq-deferred.md`** — v0 polls Postgres
+    via the partial index added in migration 0005; BullMQ + Redis
+    dispatch deferred to Sprint ≥1.7 alongside the submissions API.
+    The orchestrator's I/O contract is BullMQ-ready
+    (`(pendingRow) → executeSubmission → applyExecutionOutcome`), so
+    swapping the producer is a one-file change.
+  - **#10 `CTO-DELTA-judge0-apex-deferred.md`** — Apex execution path
+    deferred to v0.1; v0 throws a clear error if `apex` is mis-routed
+    to Judge0. Wave 1 corpus has no Apex questions.
+- **Tests** (68 new cases, all active green):
+  - `__tests__/languages.test.ts` — list/profile/isSupported (13)
+  - `__tests__/scoring.test.ts` — auto-anchored regex, weighted
+    scoring, all reason classifications, stderr truncation (12)
+  - `__tests__/anti-fraud.test.ts` — every flag boundary +
+    edge-case clamping (11)
+  - `__tests__/submission.test.ts` — validators + sandbox config
+    parsing (13)
+  - `__tests__/judge0/client.test.ts` — POST shape, X-Auth-Token,
+    polling past non-terminal statuses, terminal short-circuit,
+    poll-timeout, parent-signal abort (11)
+  - `__tests__/orchestrator.test.ts` — 100% pass / partial credit /
+    compile error / TLE / per-test client failure / language
+    mismatch / apex rejection / empty test_cases (8)
+- `packages/db/__tests__/migration.smoke.test.ts` — adds verification
+  that migration 0005 created both `sandbox_config` and
+  `execution_metadata` columns (auto-skips without DB).
+
+### Verified locally
+
+- `pnpm typecheck` clean across **7 workspaces** (admin, db, auth,
+  irt-calibration, judge0-orchestrator, leak-crawler, readybank)
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — judge0-orchestrator emits `cli.js`, `index.js`,
+  `orchestrator.js`, `judge0/client.js`, etc.
+- `pnpm test` — judge0-orchestrator 68/68; admin 58 + 7 skip;
+  irt-calibration 64; leak-crawler 47 + 2 skip; readybank 33 + 21 skip;
+  auth 26; db 10 skip = **296 active green + 40 auto-skip**
+  (was 228 + 39)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None at v0 scope. The orchestrator runs end-to-end against a stubbed
+Judge0 in tests; in dev the docker-compose stack from Sprint 0.2
+provides a real Judge0 1.13.1 at `http://localhost:2358`.
+
+**Activation halts** for prod operation:
+
+- `JUDGE0_AUTH_TOKEN` for the production Judge0 instance — REQUEST
+  from CEO when standing up the Mac Mini sandbox host
+- Apex path (Wave 2) — REQUEST Salesforce developer org credentials
+
+### Next sprint (1.7)
+
+TestForge QA Pipeline orchestrator. References
+`governance/TestForge-QA-Pipeline-v1.md` (already in repo per INDEX).
+Likely shape: a coordinator service that runs the 6 QA gates
+(spec → AI generate → AI critique → SME review → IRT calibrate → release)
+sequentially per question, with stage-fail handling and
+per-gate audit trails. Supporting spec:
+`governance/AI-Plagiarism-Benchmark-Protocol-v1.md` (SO-22 ≥93% gate).
+**Halt conditions:** none expected for v0; the gates are mostly
+already in place (review-decisions from 1.3, IRT from 1.5,
+anti-leak from 1.4) — TestForge wires them into a pipeline + adds
+the AI plagiarism check stage.

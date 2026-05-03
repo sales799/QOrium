@@ -357,6 +357,60 @@ module.exports = {
       error_file: '/var/log/pm2/qorium-irt-calibration-err.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
+
+    /**
+     * =====================================================================
+     * JUDGE0 ORCHESTRATOR (Fork Mode)
+     * =====================================================================
+     * Purpose: Sandboxed code execution for coding questions (12 langs +
+     *   Apex deferred to v0.1)
+     * Mode: Fork (single instance; manages execution + scoring + persistence)
+     * Port: 5108 (internal healthcheck only; not exposed via Nginx)
+     *
+     * Spec: infra/Judge0-Sandbox-Integration-Spec-v0.md (CTO Office, 2026-05-02)
+     *
+     * v0 deferrals (logged):
+     *   - infra/CTO-deltas/CTO-DELTA-judge0-bullmq-deferred.md
+     *     (Postgres polling now; BullMQ in Sprint ≥1.7)
+     *   - infra/CTO-deltas/CTO-DELTA-judge0-apex-deferred.md
+     *     (Salesforce CLI path defers to v0.1 when Wave 2 needs Apex)
+     */
+    {
+      name: 'qorium-judge0-orchestrator',
+      script: './dist/workers/judge0-orchestrator.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '768M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-judge0-orchestrator',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-judge0-orchestrator',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        JUDGE0_URL: process.env.JUDGE0_URL,
+        JUDGE0_AUTH_TOKEN: process.env.JUDGE0_AUTH_TOKEN,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+        JUDGE0_POLL_INTERVAL_MS: '500',
+        JUDGE0_POLL_TIMEOUT_MS: '60000',
+        JUDGE0_MAX_RESPONSES_PER_RUN: '100',
+      },
+
+      out_file: '/var/log/pm2/qorium-judge0-orchestrator-out.log',
+      error_file: '/var/log/pm2/qorium-judge0-orchestrator-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
   ],
 
   // ========================================================================

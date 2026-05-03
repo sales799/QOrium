@@ -72,6 +72,20 @@ describeOrSkip('migration smoke test', () => {
     ).rejects.toThrow();
   });
 
+  it('migration 0005 added sandbox_config and execution_metadata columns', async () => {
+    const cols = await pool.query<{ table_name: string; column_name: string }>(
+      `SELECT table_name, column_name
+         FROM information_schema.columns
+        WHERE table_schema = 'content'
+          AND ((table_name = 'questions' AND column_name = 'sandbox_config')
+            OR (table_name = 'responses' AND column_name = 'execution_metadata'))`,
+    );
+    const seen = cols.rows.map((r) => `${r.table_name}.${r.column_name}`);
+    expect(seen).toEqual(
+      expect.arrayContaining(['questions.sandbox_config', 'responses.execution_metadata']),
+    );
+  });
+
   it('content.review_decisions enforces the decision CHECK constraint', async () => {
     await expect(
       pool.query(
