@@ -125,9 +125,57 @@ Will ship as PR #3 stacked on PR #2.
 
 ---
 
-## Next up — Sprint 1.1 ReadyBank service skeleton
+---
 
-- `services/readybank` Express + TS workspace
-- Pino structured logging, Sentry instrumentation
-- `GET /healthz` returns 200 + version + git SHA
-- PM2-compatible (port 5101 per B10)
+## 2026-05-03 — Sprint 1.1 ReadyBank service skeleton ✅
+
+Express 5 + TS service skeleton on port 5101 (per B10 `qorium-api`).
+Endpoints not yet implemented; skeleton ships the boilerplate every later
+sprint depends on: structured logging, security headers, RFC 7807 errors,
+graceful shutdown, healthz/readyz.
+
+### What landed
+
+- `services/readybank/src/server.ts` — `createServer({ config, pool?, logger? })`
+  app factory. `disable('x-powered-by')`, `trust proxy 1` (Nginx).
+- `services/readybank/src/index.ts` — entry: load config, build pool (tolerates
+  absence in dev), start listener, install SIGINT/SIGTERM graceful shutdown
+  that drains the pg pool.
+- `services/readybank/src/config.ts` — env validation, fail-fast on bad port,
+  `NODE_ENV` parsed to typed union.
+- `services/readybank/src/logger.ts` — Pino structured logging per CTO
+  Architecture §11.1 (service, request_id, version, git_sha, env baked in
+  via `base`), pino-http for request logging with auto-generated UUID
+  request IDs (echoes caller's `x-request-id` if present), redaction of
+  `authorization`, `x-talpro-api-key`, `cookie`, password fields.
+- `services/readybank/src/middleware/security-headers.ts` — helmet with
+  HSTS (2y, includeSubDomains, preload), strict CSP (no `unsafe-inline`),
+  X-Frame-Options DENY, no-referrer, COOP/CORP same-origin.
+- `services/readybank/src/middleware/problem.ts` — `HttpProblem` class +
+  RFC 7807 `application/problem+json` error/404 handlers per architecture §6.
+- `services/readybank/src/routes/health.ts` — `GET /healthz` (liveness) +
+  `GET /readyz` (readiness with pool ping; 503 on DB unreachable).
+- `services/readybank/__tests__/server.test.ts` — 7 supertest cases (healthz,
+  readyz, request-id propagation, security headers, x-powered-by removal,
+  RFC 7807 404).
+
+### Verified locally
+
+- `pnpm typecheck` clean across 2 of 3 workspaces (apps/\* still empty)
+- `pnpm lint` clean
+- `pnpm format:check` clean
+- `pnpm build` clean (db + readybank)
+- `pnpm test` (no DB env): db smoke 7 skipped, readybank 7/7 pass
+- Live smoke: server starts on port 15101, `/healthz` returns 200 JSON,
+  `/readyz` returns 200 with all security headers, `/v1/nope` returns 404
+  with `application/problem+json` content-type
+- gitleaks clean (5 commits, 0 leaks)
+
+### Out of scope (next sprints)
+
+- Sprint 1.2 — `packages/auth` API key middleware (`X-Talpro-API-Key` HMAC
+  validation against `app.api_keys`, Redis rate limit 10r/s burst 20)
+- Sprint 1.3 — `GET /v1/questions/search` + `GET /v1/questions/{uuid}` per
+  architecture §6.3
+- Sprint 1.4 — `POST /v1/packs/generate` + `GET /v1/packs/{id}/export`
+  (CSV/JSON/HackerRank)
