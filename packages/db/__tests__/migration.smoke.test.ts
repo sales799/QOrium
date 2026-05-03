@@ -118,6 +118,28 @@ describeOrSkip('migration smoke test', () => {
     ).rejects.toThrow();
   });
 
+  it('migration 0007 added jd_forge_orders + jd_forge_source_id', async () => {
+    const ordersExists = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app' AND table_name = 'jd_forge_orders'`,
+    );
+    expect(ordersExists.rows).toHaveLength(1);
+
+    const lineageCol = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'content' AND table_name = 'questions'
+          AND column_name = 'jd_forge_source_id'`,
+    );
+    expect(lineageCol.rows).toHaveLength(1);
+
+    await expect(
+      pool.query(
+        `INSERT INTO app.jd_forge_orders (tenant_id, tier, jd_text, jd_hash, status)
+           VALUES (gen_random_uuid(), 'gold-tier', 'jd', 'h', 'pending')`,
+      ),
+    ).rejects.toThrow();
+  });
+
   it('migration 0006 added testforge_status + testforge_runs', async () => {
     const cols = await pool.query<{ column_name: string }>(
       `SELECT column_name FROM information_schema.columns

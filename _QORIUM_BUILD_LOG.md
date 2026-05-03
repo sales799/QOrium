@@ -1332,3 +1332,70 @@ the QA gates.
 **Halt conditions:** Anthropic API budget expansion (the JD-to-
 questions step is LLM-heavy); REQUEST from CEO when activating live
 generation.
+
+---
+
+## 2026-05-03 — Sprint 2.0 JD-Forge MVP (`qorium-jd-forge`) ✅
+
+`services/jd-forge` (`@qorium/jd-forge`) — PM2 cluster service on
+port 5102 implementing the 5-stage JD-Forge pipeline per
+`infra/JD-Forge-v0-Design.md`. Standard tier only (per spec §12 MVP
+scope); Reviewed + Enterprise deferred to M5+. **Phase 2 begins.**
+
+### What landed
+
+- **Migration 0007** — `app.jd_forge_orders` order lifecycle table
+  - `content.questions.jd_forge_source_id` FK lineage column
+- **5-stage pipeline (every external surface DI-injected):**
+  - `parser.ts` — `JdParser` interface + Stub (regex/dictionary) +
+    Anthropic real impl (throws on missing API key)
+  - `mapper.ts` — `RoleGraphMapper` interface + StringMatch v0
+    (Dice-coefficient on bigrams, threshold 0.55); embedding impl
+    deferred
+  - `spec.ts` — `buildSpec` deterministic largest-remainder allocation
+    across format / difficulty per spec §3.3
+  - `generator.ts` — `AIQuestionGenerator` interface + Stub +
+    Anthropic real impl (parallel calls; format-specific prompts)
+  - `validator.ts` — per spec §7 standard-tier criteria
+    (accept/regenerate/reject + leak-deny-list)
+  - `exporters.ts` — JSON + CSV + Mettl-CSV (Mettl-required column
+    order; XLSX deferred per CTO-DELTA)
+- **Orchestrator** — `runOrder` dependency-injected; per-question
+  failures don't abort
+- **Express service** — `POST /v1/jd-forge/generate`,
+  `GET /requests/{id}`, `POST /requests/{id}/feedback`, `/healthz`;
+  zod-validated bodies; RFC 7807 errors; 503 when no DB
+- **Repository** (`app.jd_forge_orders` writer + cache lookup helper)
+- **Entry** picks Stub vs Anthropic per `ANTHROPIC_API_KEY` env
+
+### CTO-DELTAs (3 logged)
+
+- **#14 Anthropic deferred** — Stub default; real Anthropic gated on
+  CEO-provisioned key; throws on missing key (fail loud)
+- **#15 Embeddings deferred** — string-match v0; cosine impl when
+  pgvector + embedding budget land (Sprint ≥2.x)
+- **#16 XLSX deferred** — Mettl-CSV in v0; real XLSX when spreadsheet
+  library is approved or first XLSX-only customer arrives
+
+### Verified locally
+
+- `pnpm typecheck` clean across **10 workspaces**
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean
+- `pnpm test` — jd-forge 73/73 + 8 other workspaces =
+  **441 active green + 46 auto-skip** (was 368 + 45)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None at v0 scope. Activation halts: `ANTHROPIC_API_KEY` (CEO action),
+embedding API, spreadsheet library decision.
+
+### Next sprint (2.1)
+
+Stack-Vault MVP. References
+`05-QOrium-Three-Use-Cases-SKU-Architecture.md` §3. Per-customer
+namespace API with watermarked variants; reuses the watermark seed +
+marker derivation from `services/leak-crawler/src/watermark.ts`
+(Sprint 1.4). Probable new service `services/stack-vault/` on port
+5103 (per B10 entry).
