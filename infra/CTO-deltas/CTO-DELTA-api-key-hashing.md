@@ -2,8 +2,26 @@
 
 **Date:** 2026-05-03
 **Author:** Claude Code (parallel build session)
-**Status:** Provisional — pending CTO Office reconciliation
+**Status:** **RATIFIED 2026-05-03** by CTO Office (Sprint 1.1)
 **Reconcile against:** `infra/D3-Talpro-Internal-API-Key-Spec.md` §2.2 + `infra/B7-postgres-migrations/0001_initial_schema.sql`
+
+## Ratification (CTO Office, 2026-05-03)
+
+**Decision: HMAC-SHA256(pepper, key) is canonical for QOrium API key at-rest hashing. D3 §2.2 will be amended in the next refresh to reflect this.**
+
+Rationale (full reasoning):
+
+- D3 §2.2 originally specified Argon2id, but the storage schema (`UNIQUE` on `app.api_keys.hashed_key`) requires deterministic hashing — Argon2id's per-key random salt makes UNIQUE collision-detection structurally impossible.
+- HMAC-SHA256 with a server-side pepper satisfies the UNIQUE constraint, enables O(1) lookup-by-hash (vs O(N) Argon2 verify across the table), and is OWASP-acceptable for high-entropy random API keys (≥128-bit-entropy tokens; QOrium tokens carry ~165 bits).
+- Crypto cost: HMAC-SHA256 is microseconds per verify; Argon2id at the originally-spec'd parameters (64 MB / 3 iter / 4 par) is ~100 ms — would blow architecture §6.2's per-request budget.
+- This pattern is industry-standard for high-entropy API tokens: GitHub (`ghp_*`), Stripe, Vercel (`vc_*`), Cloudflare. Argon2id is reserved for password-class secrets per OWASP 2024 cheat-sheet.
+- Server-side pepper (env `API_KEY_PEPPER`, ≥32 chars) prevents rainbow-table precomputation by an attacker with read-only DB access; compromise of either DB or pepper alone is insufficient.
+
+**Constitutional amendment:** D3 §2.2 will be updated in the next refresh to:
+
+> **At Rest:** Hashed using **HMAC-SHA256(pepper, key)** with a server-side pepper of ≥32 chars stored in env (`API_KEY_PEPPER`). Argon2id is reserved for password-class secrets per OWASP 2024.
+
+**Operational impact:** None. `packages/auth/src/api-key.ts` already implements HMAC-SHA256 hashing; 26 tests in `packages/auth/__tests__/` cover hash determinism, pepper sensitivity, and constant-time comparison.
 
 ## Background
 

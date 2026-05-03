@@ -2,8 +2,21 @@
 
 **Date:** 2026-05-03
 **Author:** Claude Code (parallel build session)
-**Status:** Provisional — pending CTO Office reconciliation
-**Reconcile against:** `infra/B5-CI-Pipeline.github-actions.yml` (canonical)
+**Status:** **RATIFIED 2026-05-03** by CTO Office (Sprint 1.1)
+**Reconcile against:** `infra/B5-CI-Pipeline.github-actions.yml` (canonical, archival)
+
+## Ratification (CTO Office, 2026-05-03)
+
+**Decision: pnpm 10.x is the canonical package manager for QOrium.**
+
+Rationale:
+
+- pnpm matches Bhaskar's Talpro Universe stack and the broader Talpro India tooling baseline; npm is treated as legacy.
+- Workspace semantics (apps/_, services/_, packages/\*) are first-class in pnpm and avoid the hoisting hazards of npm/yarn-classic.
+- Frozen-lockfile installs in CI are deterministic and faster than `npm ci` against this monorepo size.
+- B5's npm-flavoured wording is preserved in `infra/B5-CI-Pipeline.github-actions.yml` for archival reference; future B5 revisions will reflect pnpm-canonical commands.
+
+**Operational impact:** None. `.github/workflows/ci.yml` already runs the pnpm pipeline; no migration required.
 
 ## Background
 

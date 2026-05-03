@@ -2,8 +2,22 @@
 
 **Date:** 2026-05-03
 **Author:** Claude Code (parallel build session)
-**Status:** Provisional — pending CTO Office reconciliation
-**Reconcile against:** `infra/B7-postgres-migrations/README.md`
+**Status:** **RATIFIED 2026-05-03** by CTO Office (Sprint 1.1)
+**Reconcile against:** `infra/B7-postgres-migrations/README.md` (canonical layout preserved)
+
+## Ratification (CTO Office, 2026-05-03)
+
+**Decision: `packages/db/src/migrate.ts` — the thin custom runner — is the canonical migration tool for QOrium at this scale.**
+
+Rationale:
+
+- The custom runner is ~150 lines of TS we own and can extend (RLS policies, partitioning, multi-tenancy guards) without fighting an upstream CLI parser.
+- It consumes the canonical `NNNN_name.sql` filename layout from `infra/B7-postgres-migrations/` exactly — no rename of Cowork-authored content required.
+- State is tracked in `public.pgmigrations`, the same table `node-pg-migrate` uses, so a future switch (if ever justified by scale) is a cheap drop-in.
+- sqitch is heavier than QOrium needs at this scale and is not TypeScript-native; deferred indefinitely.
+- B7 README's intent (SQL-first, sequential numbering, in-file rollback comments, single-transaction atomicity) is preserved verbatim.
+
+**Operational impact:** None. `pnpm migrate:up` / `pnpm migrate:status` are already wired and verified across 2 migrations (0001, 0002). Future enhancement: `down` subcommand when a migration first needs to be rolled back; punted until a real need surfaces.
 
 ## Background
 

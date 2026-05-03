@@ -367,3 +367,72 @@ Still missing for full Phase 1 IdeaForge re-gate:
 - Sprint 5 — JD-Forge service (per `infra/JD-Forge-v0-Design.md`)
 - Role-graph traversal endpoints (`/v1/role-graph/search`, `?role=` filter)
 - Tags filter (needs schema decision: `body_json.tags` vs `content.tags`)
+
+---
+
+## 2026-05-03 — Sprint 1.1 spec INDEX + 4 CTO-DELTA ratifications ✅
+
+Per CTO Office authorisation (Stream B handoff, 2026-05-03), Sprint 1.1
+establishes the canonical spec-ingest pattern and closes out the four
+provisional CTO-DELTAs raised during Sprint 0–1.0.
+
+### What landed
+
+- `docs/specs/README.md` — documents the spec-ingest pattern: agent looks
+  for canonical specs in `docs/specs/` → `infra/` → `governance/` → repo
+  root; missing specs trigger a `REQUEST: <name> from CTO Office` halt.
+- `docs/specs/INDEX.md` — single lookup table mapping every spec the
+  build agent depends on (across phases 1–4) to its canonical path,
+  organised by sprint dependency. New specs ingested in future sprints
+  land in `docs/specs/<filename>` and are appended here.
+- `infra/CTO-deltas/CTO-DELTA-CI-pnpm-adoption.md` — RATIFIED. pnpm 10.x
+  is canonical; B5 yaml is archival.
+- `infra/CTO-deltas/CTO-DELTA-gitleaks-v8-syntax.md` — RATIFIED.
+  `.gitleaks.toml` is canonical; B6 yaml is archival intent-of-record.
+- `infra/CTO-deltas/CTO-DELTA-migration-runner.md` — RATIFIED. Custom
+  ~150-line runner is canonical at QOrium scale; switch path to
+  `node-pg-migrate` preserved (same `public.pgmigrations` table).
+- `infra/CTO-deltas/CTO-DELTA-api-key-hashing.md` — RATIFIED.
+  HMAC-SHA256(pepper, key) is canonical; D3 §2.2 will be amended in
+  the next spec refresh. Argon2id reserved for password-class secrets.
+
+### Why a registry, not a copy
+
+All 25+ canonical specs were already ingested into the repo by PR #2 at
+the paths the toolchain expects (`infra/B7-postgres-migrations/` is read
+by the migration runner; `governance/Quality-Gate-92pt-Scorecard.md` is
+referenced by the release-gate workflow; etc.). Duplicating them under
+`docs/specs/` would create drift the moment the Cowork session pushes a
+revision. Instead, `docs/specs/INDEX.md` is the single source of truth
+for "where does spec X live?"; new specs ingested by future agent
+flows land directly under `docs/specs/<filename>`.
+
+### CTO-DELTA reconciliation summary
+
+| #   | Topic                   | Default position                | Ratified outcome                                     |
+| --- | ----------------------- | ------------------------------- | ---------------------------------------------------- |
+| 1   | CI npm → pnpm           | Match handoff §3 (pnpm)         | RATIFIED — pnpm 10.x canonical                       |
+| 2   | gitleaks v8 syntax      | Preserve B6 intent in valid v8  | RATIFIED — `.gitleaks.toml` canonical                |
+| 3   | Custom migration runner | Match canonical filename layout | RATIFIED — thin custom runner; switch path preserved |
+| 4   | API key hashing         | HMAC-SHA256 (deterministic)     | RATIFIED — D3 §2.2 amended in next refresh           |
+
+### Verified locally
+
+- `pnpm typecheck` clean across all 4 workspaces
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean
+- `pnpm test` (no DATABASE_URL): 31 active green + 28 auto-skip = 59 cases
+- gitleaks clean
+- No code changes; documentation-only PR. CI parity with `main`.
+
+### Halt-conditions encountered
+
+None. Sprint 1.1 closes within the autonomous-mode delegation envelope.
+
+### Next sprint
+
+Sprint 1.2 — `apps/admin` Next.js 15 scaffold with NextAuth (Google OAuth
+stubbed, real credentials deferred), shadcn/ui + Tailwind, route stubs
+at `/admin/queue` and `/admin/calibration`, guard middleware tests.
+References `07-CTO-Architecture-v1.md` (already in repo per INDEX).
+**Halt condition:** real Google OAuth client credentials → REQUEST from CEO.
