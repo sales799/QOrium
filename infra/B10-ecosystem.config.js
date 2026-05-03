@@ -704,6 +704,88 @@ module.exports = {
       max_restarts: 10,
       min_uptime: '10s',
     },
+
+    /**
+     * =====================================================================
+     * SECRET ROTATION WORKER (Fork Mode + 6h tick)
+     * =====================================================================
+     */
+    {
+      name: 'qorium-secret-rotation',
+      script: './services/secret-rotation-worker/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-secret-rotation',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-secret-rotation',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SECRET_ROTATION_LOOK_AHEAD_DAYS: '14',
+        SECRET_ROTATION_PERFORM: 'false',
+        SECRET_ROTATION_TICK_INTERVAL_MS: String(6 * 3_600_000),
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-secret-rotation-out.log',
+      error_file: '/var/log/pm2/qorium-secret-rotation-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
+     * UPTIME MONITOR (Cluster Mode)
+     * =====================================================================
+     */
+    {
+      name: 'qorium-uptime-monitor',
+      script: './services/uptime-monitor/dist/index.js',
+      instances: 1,
+      exec_mode: 'cluster',
+      port: 5114,
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        UPTIME_PORT: 5114,
+        UPTIME_TICK_INTERVAL_MS: '60000',
+        SERVICE_NAME: 'qorium-uptime-monitor',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        UPTIME_PORT: 5114,
+        UPTIME_TICK_INTERVAL_MS: '60000',
+        SERVICE_NAME: 'qorium-uptime-monitor',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-uptime-monitor-out.log',
+      error_file: '/var/log/pm2/qorium-uptime-monitor-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
   ],
 
   // ========================================================================

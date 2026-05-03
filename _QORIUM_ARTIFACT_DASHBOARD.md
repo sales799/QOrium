@@ -28,7 +28,7 @@ It is updated at the end of every sprint by the autonomous build agent.
 | 2.6    | `services/billing` v0 MVP                            | shipped | 38        | 680       |
 | 2.7    | `services/api-key-mgmt` + Customer Zero readiness    | shipped | 28        | 708       |
 | 2.8    | `services/secret-rotation-worker`                    | shipped | 21        | 729       |
-| 2.9    | `packages/observability` + `services/uptime-monitor` | pending | —         | —         |
+| 2.9    | `packages/observability` + `services/uptime-monitor` | shipped | 24        | 753       |
 | 2.10   | `services/ai-pair-coding-orchestrator` (Wave 3)      | pending | —         | —         |
 
 ## Workspace inventory

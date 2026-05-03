@@ -63,6 +63,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             >
               Customers
             </Link>
+            <Link
+              href="/admin/uptime"
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
+            >
+              Uptime
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-3 text-sm">
