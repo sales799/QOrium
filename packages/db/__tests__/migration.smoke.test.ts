@@ -117,4 +117,30 @@ describeOrSkip('migration smoke test', () => {
       ),
     ).rejects.toThrow();
   });
+
+  it('migration 0006 added testforge_status + testforge_runs', async () => {
+    const cols = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'content' AND table_name = 'questions'
+          AND column_name IN ('testforge_status', 'testforge_last_check', 'testforge_audit')`,
+    );
+    expect(cols.rows.map((r) => r.column_name).sort()).toEqual([
+      'testforge_audit',
+      'testforge_last_check',
+      'testforge_status',
+    ]);
+
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'content' AND table_name = 'testforge_runs'`,
+    );
+    expect(tables.rows).toHaveLength(1);
+
+    await expect(
+      pool.query(
+        `INSERT INTO content.testforge_runs (run_type, status)
+           VALUES ('not-a-real-type', 'running')`,
+      ),
+    ).rejects.toThrow();
+  });
 });

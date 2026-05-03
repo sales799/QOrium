@@ -1018,3 +1018,175 @@ per-gate audit trails. Supporting spec:
 already in place (review-decisions from 1.3, IRT from 1.5,
 anti-leak from 1.4) — TestForge wires them into a pipeline + adds
 the AI plagiarism check stage.
+
+---
+
+## 2026-05-03 — Sprint 1.7 TestForge QA Pipeline Orchestrator v0 (`qorium-testforge-orchestrator`) ✅
+
+`services/testforge-orchestrator` (`@qorium/testforge-orchestrator`) —
+PM2 fork-mode coordinator that runs the 6 QA gates per
+`governance/TestForge-QA-Pipeline-v1.md`. Closes the **SO-22
+constitutional gate** (AI plagiarism public benchmark ≥93%; v0 partial
+ensemble; full ensemble queued for Sprint ≥1.8 / Sprint ≥2.0). Plus
+adds the pre-calibration AI prior stage (§3.2) which the IRT pipeline
+expects but no prior sprint owned.
+
+### What landed
+
+- **Migration 0006 (`infra/B7-postgres-migrations/0006_testforge.sql`)**:
+  - `content.questions.testforge_status` (sibling to `status`; CHECK
+    on the union of 8 pipeline states per spec §2.3)
+  - `content.questions.testforge_last_check` (timestamp)
+  - `content.questions.testforge_audit` (JSONB rolling per-gate audit)
+  - `content.testforge_runs` (append-only coordinator-pass log; CHECK on
+    `run_type` ∈ {sme_validation, irt_calibration, bias_dif, leak_crawl,
+    plagiarism_benchmark, gate_scorecard, pre_calibration_prior,
+    orchestrator_pass})
+  - Indexed for J5 dashboard queries (`run_type, status, triggered_at DESC`)
+- **Pure-logic core (no DB / runtime)**:
+  - `src/gates.ts` — 6-gate state machine: `nextActionFor(state)`
+    returns `await_sme_decision | compute_pre_calibration_prior |
+await_calibration_responses | await_irt_calibration_run |
+await_bias_dif_check | graduate_to_released | request_sme_re_review |
+terminal`. Includes `applySmeDecision` (accept/revise/reject) and
+    `customerFacingStatusFor` (mirrors testforge_status onto
+    `content.questions.status`).
+  - `src/prior.ts` — pre-calibration AI prior per §3.2. Nearest-
+    neighbor by `(skill_id, sub_skill_id, format)` over items with
+    `calibration_n ≥ 30`; weighted by IRT discrimination.
+    `selectNeighbours` + `computePrior`; falls back to format
+    defaults when no neighbours match.
+  - `src/format-defaults.ts` — mirrors `services/irt-calibration`'s
+    per-format guessing parameter so this workspace doesn't depend
+    on the IRT calibration package directly.
+  - `src/plagiarism/text.ts` — token / sentence / n-gram helpers.
+  - `src/plagiarism/signals.ts` — 4 pure-logic signals matching
+    spec thresholds: `burstinessScore`, `ngramEntropyScore`,
+    `lexicalDiversityScore`, `sentenceLengthVarianceScore`. All
+    return AI-likelihood ∈ [0, 1].
+  - `src/plagiarism/ensemble.ts` — `scoreEnsemble` (statistical +
+    stylometric live in v0; weights renormalised when behavioural /
+    direct-model / self-check are absent so the score stays on
+    a [0, 1] scale and `activeWeightSum` reports which signals
+    contributed); `runBenchmark` returns the SO-22 detection /
+    false-positive numbers.
+- **Data layer**:
+  - `src/repositories/questions.ts` — list orchestration candidates
+    (any non-terminal `testforge_status`); fetch prior neighbours
+    (released items with `calibration_n ≥ 30`); apply prior +
+    transition; sync status (writes both pipeline + customer-facing
+    columns transactionally).
+  - `src/repositories/runs.ts` — `startRun` / `finishRun` for the
+    `content.testforge_runs` audit log.
+- **Orchestrator (`src/orchestrator.ts`)**:
+  - `runOrchestratorPass({pool, logger, config, generateRunId?,
+now?})` — DI on every external surface. For each candidate
+    question, dispatches to the right gate handler; per-item failures
+    are logged + counted, never abort the pass.
+  - Owns the **pre-calibration prior** stage end-to-end (no other
+    service does this).
+  - Drives the **graduation** (`testforge_status='released'`) and
+    **SME re-review escalation** (drift / bias flag) status changes
+    that other services produce signals for.
+- **Entry points**:
+  - `src/index.ts::runOnce` — opens 4-conn pg pool, runs one pass,
+    drains; warns + no-ops if `DATABASE_URL` unset
+  - `src/cli.ts` — `--once` (default) and `--watch --interval`
+- **PM2 entry**: added `qorium-testforge-orchestrator` to
+  `infra/B10-ecosystem.config.js` — fork mode, port 5110, env knob
+  `TESTFORGE_MAX_ITEMS_PER_RUN`.
+- **CTO-DELTAs (3 logged)**:
+  - **#11 `CTO-DELTA-testforge-plagiarism-perplexity-deferred.md`** —
+    v0 ships statistical (burstiness, n-gram entropy) + stylometric
+    (lexical-diversity, sentence-length-variance); perplexity-via-LM,
+    GPT-Zero, Pangram, self-check deferred. Weights renormalised so
+    v0 score is on the same scale as the future full ensemble.
+    SO-22 implications: until direct-model signals land, the public
+    benchmark may not hit 93%; the orchestrator transparently records
+    `runBenchmark` results in `content.testforge_runs`. CTO + CDO
+    should plan to ship at least one direct-model signal before the
+    first quarterly external benchmark.
+  - **#12 `CTO-DELTA-testforge-plagiarism-detector-colocated.md`** —
+    spec §2.2 names two services (qorium-plagiarism-detector,
+    qorium-testforge-orchestrator); v0 co-locates them in one
+    workspace. Single PM2 entry. Split deferred to Phase 2 when
+    perplexity-via-LM justifies a separate process.
+  - **#13 `CTO-DELTA-testforge-status-column.md`** — `testforge_status`
+    is a sibling column to `content.questions.status` (per spec §2.3
+    verbatim). The customer-facing `status` is mirrored
+    transactionally; existing API filters in ReadyBank stay correct
+    without defensive updates.
+- **Tests** (52 new cases, all active green):
+  - `__tests__/gates.test.ts` — 17 cases: terminal states, pre-pipeline
+    awaits, accepted (with/without prior), calibrating (N<30, IRT not
+    yet, IRT done with N<200, IRT done with N≥200 awaiting bias, full
+    pipeline graduated), drift escalation, SME decision, customer-
+    facing status mirror.
+  - `__tests__/prior.test.ts` — 9 cases: neighbour filtering by
+    `calibration_n / format / skill / sub_skill`, null-param drops,
+    format-default fallback, weighted average vs single neighbour,
+    discrimination weighting, median fallback.
+  - `__tests__/plagiarism/signals.test.ts` — 11 cases: AI vs human
+    text relative scoring for each signal, edge cases (single
+    sentence, empty input, short sample).
+  - `__tests__/plagiarism/ensemble.test.ts` — 8 cases: aiLikelihood
+    range, activeWeightSum reporting, optional-signal blending,
+    flag threshold (≥0.6), clamping, benchmark report shape, empty-
+    samples handling.
+- `packages/db/__tests__/migration.smoke.test.ts` — adds verification
+  that migration 0006 created the testforge columns + table + CHECK
+  constraints (auto-skips without DB).
+
+### Verified locally
+
+- `pnpm typecheck` clean across **8 workspaces** (admin, db, auth,
+  irt-calibration, judge0-orchestrator, leak-crawler, readybank,
+  testforge-orchestrator)
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — testforge-orchestrator emits `cli.js`,
+  `index.js`, `orchestrator.js`, `gates.js`, `plagiarism/*.js`, etc.
+- `pnpm test` — testforge-orchestrator 52/52; judge0-orchestrator
+  68/68; admin 58 + 7 skip; irt-calibration 64/64; leak-crawler
+  47 + 2 skip; readybank 33 + 21 skip; auth 26/26; db 11 skip =
+  **348 active green + 41 auto-skip** (was 296 + 40)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None at v0 scope. Activation halts for prod operation:
+
+- **#11** — first quarterly SO-22 benchmark may need direct-model
+  signal (GPT-Zero or Pangram API key) → REQUEST from CEO when
+  CTO/CDO plan the first public benchmark window
+- **#11** — perplexity signal needs Hugging Face transformer infra
+  (Python sidecar OR `@xenova/transformers` heavy bundle)
+
+### Constitution alignment
+
+- **SO-22 (AI plagiarism ≥93% public benchmark)**: pipeline is in
+  place; v0 partial ensemble is honest about which signals are live
+  via `activeWeightSum`. The 93% gate is enforced by `runBenchmark`
+  reporting `passesSO22Threshold`.
+- **Article VII Quality Gate auto-fail**: `runBenchmark` is the
+  hook the Gatekeeper office (Sprint ≥1.8) consumes to enforce
+  release halts on <93%.
+
+### Next sprint (1.8)
+
+Customer Zero deployment readiness — final integration tests + smoke
+tests against the deployed service stack. Likely shape: end-to-end
+test suite that exercises the 7 services together (readybank,
+admin, leak-crawler, irt-calibration, judge0-orchestrator,
+testforge-orchestrator, db) against a docker-compose-running
+postgres + redis + judge0. Plus a deployment readiness checklist.
+References:
+
+- `governance/Operating-Rituals-v1.md` (J5 monthly close + J6 Friday Eng)
+- `infra/B1-VPS-Capacity-and-Topology-Plan.md` (target deploy infra)
+- `infra/B10-ecosystem.config.js` (PM2 ecosystem)
+- `customer-zero/SME-Lead-Onboarding-Day-1.md` (operational runbook)
+
+**Halt conditions:** none expected for the readiness suite (it runs
+against docker-compose). Real Customer Zero activation is gated on
+CEO actions — Talpro India onboarding, MSG91 OTP, Mac Mini Tailscale
+wiring — REQUEST list from CEO at that time.

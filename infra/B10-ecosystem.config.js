@@ -411,6 +411,56 @@ module.exports = {
       error_file: '/var/log/pm2/qorium-judge0-orchestrator-err.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
+
+    /**
+     * =====================================================================
+     * TESTFORGE QA PIPELINE ORCHESTRATOR (Fork Mode)
+     * =====================================================================
+     * Purpose: Coordinator for the 6 QA gates (SME validation,
+     *   pre-calibration prior, IRT calibration, bias DIF, anti-leak,
+     *   plagiarism benchmark, quality scorecard) per
+     *   governance/TestForge-QA-Pipeline-v1.md.
+     *
+     * Mode: Fork (single instance; coordinator + plagiarism detector
+     *   co-located; see CTO-DELTA-testforge-plagiarism-detector-colocated.md)
+     * Port: 5110 (internal healthcheck only; not exposed via Nginx)
+     *
+     * Spec: governance/TestForge-QA-Pipeline-v1.md
+     * Constitutional gates: SO-22 (AI plagiarism ≥93% public benchmark),
+     *   Article VII Quality Gate (auto-fail on benchmark <93%).
+     */
+    {
+      name: 'qorium-testforge-orchestrator',
+      script: './dist/workers/testforge-orchestrator.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '768M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-testforge-orchestrator',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-testforge-orchestrator',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+        TESTFORGE_MAX_ITEMS_PER_RUN: '500',
+      },
+
+      out_file: '/var/log/pm2/qorium-testforge-orchestrator-out.log',
+      error_file: '/var/log/pm2/qorium-testforge-orchestrator-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
   ],
 
   // ========================================================================
