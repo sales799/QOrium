@@ -76,16 +76,58 @@ is blocking Sprint 0.3 onward.
 
 ---
 
-## Next up — Sprint 0.3 Database package
+---
 
-Per handoff §5 Item 0.3, adapted to canonical specs:
+## 2026-05-03 — Sprint 0.3 db package ✅
 
-- `packages/db` workspace
-- `node-pg-migrate` runner (per `infra/B7-postgres-migrations/README.md`)
-- Move/symlink `infra/B7-postgres-migrations/0001_initial_schema.sql` into the
-  `node-pg-migrate` directory layout (`db/migrations/`)
-- Typed `pg` connection pool (postgres.js or `pg`); ORM choice deferred to first
-  consuming sprint
-- Smoke test: migrate up against ephemeral Postgres, verify table count, migrate down
+Built `packages/db` (`@qorium/db`): typed `pg` pool, env resolution, custom
+migration runner pointing at canonical `infra/B7-postgres-migrations/`,
+vitest smoke suite.
+
+### What landed
+
+- `packages/db/src/client.ts` — `createPool()`, `ping()`, typed re-exports of
+  `Pool`, `PoolClient`, `QueryResult`
+- `packages/db/src/env.ts` — `resolveDatabaseUrl()` with `DATABASE_URL` priority,
+  fallback to composed `POSTGRES_*` vars, fail-fast on missing config
+- `packages/db/src/migrate.ts` — custom runner: reads `*.sql` from
+  `infra/B7-postgres-migrations/`, sorts lexically, tracks state in
+  `public.pgmigrations` (same table node-pg-migrate uses → future switch is a no-op),
+  detects pre-wrapped `BEGIN/COMMIT` migrations and runs them raw
+- `packages/db/src/cli.ts` — `qorium-db up` / `qorium-db status` CLI
+- `packages/db/__tests__/migration.smoke.test.ts` — 7 vitest cases:
+  pool reachable, three schemas exist, app/content tables present, audit.events
+  exists, content.questions SKU CHECK constraint enforced, app.users role CHECK
+  constraint enforced
+- Make targets: `db-migrate`, `db-status`, `db-test`
+
+### Why a custom runner instead of node-pg-migrate
+
+The B7 README recommends `node-pg-migrate`, but its filename parser rejects
+the canonical `NNNN_name.sql` format (it expects ms-epoch timestamps). Renaming
+the canonical file would modify Cowork-authored content (read-only per handoff §6).
+Built a thin ~150-line runner that consumes the canonical layout exactly.
+Tracking table is compatible if we ever switch back. Logged as
+`infra/CTO-deltas/CTO-DELTA-migration-runner.md`.
+
+### Verified locally
+
+- `pnpm migrate:up` clean against fresh Postgres 16 (all 13 tables created
+  across `app`, `content`, `audit` schemas)
+- Idempotent: re-run says "No pending migrations. 1 already applied."
+- `pnpm migrate:status` reports applied vs pending correctly
+- `pnpm test` (with DATABASE_URL): 7/7 pass in 49ms
+- `pnpm test` (without DATABASE_URL): all 7 cases auto-skip — green
+- Root `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm build` all clean
+- `gitleaks detect` clean
 
 Will ship as PR #3 stacked on PR #2.
+
+---
+
+## Next up — Sprint 1.1 ReadyBank service skeleton
+
+- `services/readybank` Express + TS workspace
+- Pino structured logging, Sentry instrumentation
+- `GET /healthz` returns 200 + version + git SHA
+- PM2-compatible (port 5101 per B10)

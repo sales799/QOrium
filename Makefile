@@ -1,4 +1,4 @@
-.PHONY: help install dev-up dev-down dev-reset dev-logs dev-ps typecheck lint format test build secrets-scan compose-config
+.PHONY: help install dev-up dev-down dev-reset dev-logs dev-ps typecheck lint format test build secrets-scan compose-config db-migrate db-status db-test
 
 COMPOSE := docker compose -f infra/docker/docker-compose.dev.yml
 
@@ -44,3 +44,12 @@ build: ## Build all workspaces
 
 secrets-scan: ## Run gitleaks against the working tree
 	pnpm secrets:scan
+
+db-migrate: ## Apply pending DB migrations (DATABASE_URL or POSTGRES_* required)
+	pnpm --filter @qorium/db migrate:up
+
+db-status: ## Show DB migration status
+	pnpm --filter @qorium/db migrate:status
+
+db-test: ## Run the @qorium/db smoke test (requires migrated DB)
+	pnpm --filter @qorium/db test
