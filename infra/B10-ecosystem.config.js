@@ -605,6 +605,105 @@ module.exports = {
       max_restarts: 10,
       min_uptime: '10s',
     },
+
+    /**
+     * =====================================================================
+     * BILLING SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: Subscriptions + invoices + Razorpay webhooks
+     * Mode: Cluster (2 instances)
+     * Port: 5112
+     * Spec: infra/Billing-Service-v0-Spec.md
+     * Razorpay live wire-up deferred per CTO-DELTA #24.
+     */
+    {
+      name: 'qorium-billing',
+      script: './services/billing/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5112,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        BILLING_PORT: 5112,
+        SERVICE_NAME: 'qorium-billing',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        BILLING_PORT: 5112,
+        SERVICE_NAME: 'qorium-billing',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+        RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
+        BILLING_DEFAULT_GST_BPS: '1800',
+        BILLING_DEFAULT_CURRENCY: 'INR',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-billing-out.log',
+      error_file: '/var/log/pm2/qorium-billing-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * API KEY MANAGEMENT (Cluster Mode)
+     * =====================================================================
+     * Purpose: Issue/revoke/rotate API keys; expose scope catalogue
+     * Mode: Cluster (2 instances; stateless once pepper resolved)
+     * Port: 5113
+     * Spec: infra/D3-Talpro-Internal-API-Key-Spec.md
+     */
+    {
+      name: 'qorium-api-key-mgmt',
+      script: './services/api-key-mgmt/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5113,
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        API_KEY_MGMT_PORT: 5113,
+        SERVICE_NAME: 'qorium-api-key-mgmt',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        API_KEY_MGMT_PORT: 5113,
+        SERVICE_NAME: 'qorium-api-key-mgmt',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        API_KEY_PEPPER: process.env.API_KEY_PEPPER,
+        API_KEY_CUSTOMER_ROTATION_DAYS: '365',
+        API_KEY_INTERNAL_ROTATION_DAYS: '180',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-api-key-mgmt-out.log',
+      error_file: '/var/log/pm2/qorium-api-key-mgmt-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
   ],
 
   // ========================================================================

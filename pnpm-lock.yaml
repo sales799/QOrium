@@ -210,6 +210,49 @@ importers:
         specifier: ^2.1.4
         version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)
 
+  services/api-key-mgmt:
+    dependencies:
+      '@qorium/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@qorium/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      express:
+        specifier: ^5.0.1
+        version: 5.2.1
+      helmet:
+        specifier: ^8.0.0
+        version: 8.1.0
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+      pino-http:
+        specifier: ^10.3.0
+        version: 10.5.0
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.6
+      '@types/supertest':
+        specifier: ^6.0.2
+        version: 6.0.3
+      supertest:
+        specifier: ^7.0.0
+        version: 7.2.2
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)
+
   services/ats-bridge:
     dependencies:
       '@qorium/ats-connectors':
