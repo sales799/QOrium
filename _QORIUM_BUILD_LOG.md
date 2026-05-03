@@ -1190,3 +1190,145 @@ References:
 against docker-compose). Real Customer Zero activation is gated on
 CEO actions — Talpro India onboarding, MSG91 OTP, Mac Mini Tailscale
 wiring — REQUEST list from CEO at that time.
+
+---
+
+## 2026-05-03 — Sprint 1.8 Customer Zero deployment readiness ✅
+
+`packages/smoke` (`@qorium/smoke`) — `qorium-smoke` CLI that gates
+Customer Zero activation. Closes the **Phase 1 Engine MVP**: 8
+workspaces shipped, 368 tests active green, deployment-readiness
+runner verifies the cross-workspace import graph + infra healthchecks
+in one command.
+
+### What landed
+
+- **`packages/smoke`** workspace:
+  - `src/checks.ts` — `Check` primitive: `() => Promise<CheckResult>`
+    with structured `{name, status, durationMs, details, skipReason}`.
+    Implementations: `postgresPing` (SELECT 1), `postgresSchema`
+    (verifies the 9 required tables across `app/content/audit`),
+    `tcpReachable` (Redis or arbitrary host:port), `httpHealth`
+    (Judge0 `/about` etc.; configurable accept-status set).
+    `runChecks(checks[])` aggregates a `RunSummary`.
+  - `src/import-graph.ts` — `exerciseImportGraph()` exercises 9 cross-
+    workspace public APIs from leak-crawler / irt-calibration /
+    judge0-orchestrator / testforge-orchestrator. Catches drift
+    where a service builds in isolation but fails to resolve when
+    consumed (e.g. missing public re-exports).
+  - `src/render.ts` — `renderHumanText` (multi-line ASCII for `make
+ready`) + `renderJsonLine` (single-line JSON for CI) +
+    `exitCodeFor` (1 if any check or graph entry failed, else 0).
+  - `src/cli.ts` — `qorium-smoke` CLI with subcommands `healthchecks`
+    / `import-graph` / `ready` (default), flags `--json` and `--quiet`.
+- **Service public-API exports** added (sourced by the import graph
+  - future admin UI proofs):
+  * `services/leak-crawler/src/index.ts` — `extractDistinctiveNGrams`,
+    `normaliseTextForNGrams`, `scoreEvidence`, `jaccardSimilarity`,
+    `lexicalOverlap`, `tokeniseToSet`, `classifyEvidence`,
+    `compositeSimilarity`, `deriveWatermarkSeed`,
+    `deriveWatermarkMarkers`, `attributeLeak`
+  * `services/irt-calibration/src/index.ts` — `fit2PL`, `isAtBounds`,
+    `classifyDrift`, `expectedPassRateAtMeanAbility`,
+    `nextStatusForFlag`, `defaultGuessingForFormat`,
+    `probability3PL`, `itemLogLikelihood`, `abilitiesFromResponses`,
+    `estimateAbilities`
+  * `services/judge0-orchestrator/src/index.ts` — `isSupportedLanguage`,
+    `judge0IdFor`, `getLanguageProfile`, `listSupportedLanguages`,
+    `scoreSubmission`, `matchesExpected`, `computeAntiFraudSignals`,
+    `validateSubmission`, `validateSandboxConfig`
+  * `services/testforge-orchestrator/src/index.ts` already exposed the
+    needed surface from Sprint 1.7
+- **`customer-zero/Customer-Zero-Day-1-Runbook.md`** — operational
+  runbook covering pre-flight (`make ready`), PM2 service start
+  sequence, first-candidate end-to-end smoke, cron schedule
+  verification, on-call escalation triggers, rollback procedures
+  (PM2, migration, PostgreSQL hot-restore), end-of-Day-1 close-out,
+  and the activation halt list (REQUESTs from CEO).
+- **`Makefile`**: `make smoke` (runs `qorium-smoke smoke`) and
+  `make ready` (full `qorium-smoke ready`).
+- **`README.md`**: Phase 1 status block with workspace inventory;
+  added the new make targets.
+- **Tests** (20 new + 4 auto-skip):
+  - `__tests__/checks.test.ts` — postgres ping/schema (mock pool
+    fixture), httpHealth (mock fetch), tcpReachable (real refused
+    connect), runChecks aggregation
+  - `__tests__/render.test.ts` — human-text renderer (header, skip,
+    fail, import-graph section), JSON-line renderer (single-line
+    JSON, importGraph propagation), exitCodeFor logic
+  - `__tests__/e2e.integration.test.ts` — auto-skips without DB; when
+    enabled, verifies all required Phase 1 tables exist, sandbox_config
+    accepts the spec payload, testforge_runs accepts the
+    orchestrator_pass type, and every cross-workspace import-graph
+    entry returns `ok: true`
+
+### Verified locally
+
+- `pnpm typecheck` clean across **9 workspaces**
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — smoke emits `cli.js`, `index.js`, etc.
+- `pnpm test` — smoke 20 + 4 skip; testforge 52; judge0 68; admin
+  58 + 7 skip; irt 64; leak 47 + 2 skip; readybank 33 + 21 skip;
+  auth 26; db 11 skip = **368 active green + 45 auto-skip**
+  (was 348 + 41)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None. Pure tooling sprint — packages a deploy gate that the CTO
+office runs before flipping the Customer Zero switch.
+
+### Phase 1 Engine MVP — feature-complete
+
+8 workspaces shipped:
+
+| Workspace                         | Sprint  | Function                                    |
+| --------------------------------- | ------- | ------------------------------------------- |
+| `packages/db`                     | 0.3     | Typed pg pool + custom migration runner     |
+| `packages/auth`                   | 1.2     | API-key HMAC + Redis rate limit + audit log |
+| `services/readybank`              | 1.0     | REST API: search / packs / export           |
+| `apps/admin`                      | 1.2/1.3 | Next.js 15 SME review queue + auth          |
+| `services/leak-crawler`           | 1.4     | Anti-Leak Engine v0 (PM2 fork)              |
+| `services/irt-calibration`        | 1.5     | IRT 2-PL nightly batch                      |
+| `services/judge0-orchestrator`    | 1.6     | Sandboxed code execution                    |
+| `services/testforge-orchestrator` | 1.7     | 6-gate QA pipeline coordinator              |
+| `packages/smoke`                  | 1.8     | Deployment readiness runner                 |
+
+Constitutional gates closed:
+
+- **SO-21** (IRT mandatory before release) — Sprint 1.5
+- **Article VII phase gate** (no release without converged IRT
+  - flag=none + N≥minResponses) — Sprint 1.5
+- **SO-22** (AI plagiarism ≥93% public benchmark) — Sprint 1.7
+  (v0 partial ensemble + reporting hook live; full ensemble
+  upgrade queued)
+
+13 CTO-DELTAs filed across the 8 sprints, all with default
+"ratify" actions if no CTO Office reconciliation arrives by next
+sprint review.
+
+### Activation halts (REQUEST list for CEO)
+
+Final inventory before Customer Zero Day-1:
+
+1. **Postgres + Redis + Judge0 hosts provisioned** (Mac Mini + VPS;
+   B1 plan)
+2. **MSG91 credentials** for admin auth (#5)
+3. **`SERPER_API_KEY`** for live anti-leak crawls (Sprint 1.4)
+4. **`JUDGE0_AUTH_TOKEN`** for production Judge0 (#9)
+5. **Salesforce dev-org credentials** for Apex (deferred to Wave 2; #10)
+6. **GPT-Zero / Pangram API key** for first SO-22 quarterly benchmark (#11)
+7. **Tailscale link** between VPS and Mac Mini (per spec §2.2)
+8. **Talpro Customer Zero tenant + first 100 candidates seeded**
+
+### Next phase (2.0)
+
+Phase 2 — JD-Forge MVP. References
+`infra/JD-Forge-v0-Design.md` (already in repo per INDEX). 3-tier
+service: Standard / Reviewed / Enterprise; AI-powered JD-to-questions
+pipeline; integrates with the Sprint 1.7 testforge-orchestrator for
+the QA gates.
+
+**Halt conditions:** Anthropic API budget expansion (the JD-to-
+questions step is LLM-heavy); REQUEST from CEO when activating live
+generation.

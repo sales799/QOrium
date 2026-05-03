@@ -68,3 +68,7 @@ export async function runOnce(
 export { runCrawl } from './orchestrator.js';
 export { loadConfig } from './config.js';
 export { buildLogger } from './logger.js';
+export { extractDistinctiveNGrams, normaliseTextForNGrams } from './ngrams.js';
+export { scoreEvidence, jaccardSimilarity, lexicalOverlap, tokeniseToSet } from './similarity.js';
+export { classifyEvidence, compositeSimilarity } from './severity.js';
+export { deriveWatermarkSeed, deriveWatermarkMarkers, attributeLeak } from './watermark.js';

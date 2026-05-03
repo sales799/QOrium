@@ -1,4 +1,4 @@
-.PHONY: help install dev-up dev-down dev-reset dev-logs dev-ps typecheck lint format test build secrets-scan compose-config db-migrate db-status db-test
+.PHONY: help install dev-up dev-down dev-reset dev-logs dev-ps typecheck lint format test build secrets-scan compose-config db-migrate db-status db-test smoke ready
 
 COMPOSE := docker compose -f infra/docker/docker-compose.dev.yml
 
@@ -53,3 +53,10 @@ db-status: ## Show DB migration status
 
 db-test: ## Run the @qorium/db smoke test (requires migrated DB)
 	pnpm --filter @qorium/db test
+
+smoke: ## Run @qorium/smoke healthchecks (requires DATABASE_URL etc.)
+	pnpm --filter @qorium/smoke smoke
+
+ready: ## Run full deployment-readiness suite (healthchecks + import graph)
+	pnpm --filter @qorium/smoke build
+	pnpm --filter @qorium/smoke exec qorium-smoke ready

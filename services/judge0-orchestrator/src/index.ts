@@ -133,6 +133,20 @@ export { executeSubmission } from './orchestrator.js';
 export { Judge0Client } from './judge0/client.js';
 export { loadConfig } from './config.js';
 export { buildLogger } from './logger.js';
+export {
+  isSupportedLanguage,
+  judge0IdFor,
+  getLanguageProfile,
+  listSupportedLanguages,
+  type QOriumLanguage,
+} from './languages.js';
+export { scoreSubmission, matchesExpected } from './scoring.js';
+export {
+  computeAntiFraudSignals,
+  type AntiFraudSignals,
+  type AntiFraudFlag,
+} from './anti-fraud.js';
+export { validateSubmission, validateSandboxConfig, type SandboxConfig } from './submission.js';
 
 // Re-export types for sibling consumers (e.g., admin UI proofs)
 export type { PendingResponseRow };

@@ -129,6 +129,34 @@ importers:
         specifier: ^2.1.4
         version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)
 
+  packages/smoke:
+    dependencies:
+      '@qorium/db':
+        specifier: workspace:*
+        version: link:../db
+      '@qorium/irt-calibration':
+        specifier: workspace:*
+        version: link:../../services/irt-calibration
+      '@qorium/judge0-orchestrator':
+        specifier: workspace:*
+        version: link:../../services/judge0-orchestrator
+      '@qorium/leak-crawler':
+        specifier: workspace:*
+        version: link:../../services/leak-crawler
+      '@qorium/testforge-orchestrator':
+        specifier: workspace:*
+        version: link:../../services/testforge-orchestrator
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)
+
   services/irt-calibration:
     dependencies:
       '@qorium/db':

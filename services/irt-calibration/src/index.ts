@@ -69,3 +69,17 @@ export async function runOnce(overrides: { config?: IrtConfig } = {}): Promise<C
 export { runCalibration } from './orchestrator.js';
 export { loadConfig } from './config.js';
 export { buildLogger } from './logger.js';
+export { fit2PL, isAtBounds, type FitResult } from './fit2pl.js';
+export {
+  classifyDrift,
+  expectedPassRateAtMeanAbility,
+  nextStatusForFlag,
+  type CalibrationFlag,
+} from './drift.js';
+export {
+  defaultGuessingForFormat,
+  probability3PL,
+  itemLogLikelihood,
+  type ItemParameters,
+} from './model.js';
+export { abilitiesFromResponses, estimateAbilities } from './ability.js';
