@@ -13,10 +13,18 @@ export default tseslint.config(
       '**/coverage/**',
       '**/*.tsbuildinfo',
       'infra/docker/data/**',
+      // Canonical Cowork-authored configs (read-only per handoff §6)
+      'infra/B10-ecosystem.config.js',
     ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ['**/*.cjs', '**/*.config.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   {
     languageOptions: {
       ecmaVersion: 2022,

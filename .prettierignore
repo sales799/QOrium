@@ -7,3 +7,36 @@ coverage/
 pnpm-lock.yaml
 *.tsbuildinfo
 infra/docker/data/
+
+# Cowork-authored specs (read-only per handoff §6 coordination protocol).
+# Reformatting would be an edit to Cowork's owned files.
+04-*.md
+05-*.md
+07-*.md
+09-*.md
+CONSTITUTION-*.md
+task_plan_*.md
+customer-zero/
+governance/
+infra/*-Spec*.md
+infra/*-Design*.md
+infra/B*.md
+infra/API-*.md
+infra/ATS-*.md
+infra/Audit-*.md
+infra/Billing-*.md
+infra/D3-*.md
+infra/SSO-*.md
+infra/Wave-*.md
+infra/Webhooks-*.md
+infra/Anti-Leak-*.md
+infra/IRT-*.md
+infra/JD-Forge-*.md
+infra/Judge0-*.md
+infra/B5-CI-Pipeline.github-actions.yml
+infra/B6-gitleaks-config.yaml
+infra/B7-postgres-migrations/
+infra/B10-ecosystem.config.js
+*.docx
+*.xlsx
+

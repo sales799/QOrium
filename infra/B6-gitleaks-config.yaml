@@ -1,0 +1,201 @@
+# QOrium Gitleaks Configuration
+# Authored by CTO Office 2026-05-02
+# Lives at: .gitleaks.toml at repo root (or use --config-path if .yaml extension)
+#
+# Purpose: Detect and prevent API keys, database credentials, and other secrets
+# from being committed to the repository. Runs in CI gate (B5-CI-Pipeline.yml).
+#
+# Configuration: gitleaks v8+ format
+# Entropy threshold: 4.5 (reduces noise from random strings in test fixtures)
+# Exclusions: *.md, docs/, test fixtures, binary Office files
+#
+# Custom rules added for QOrium:
+# - qorium-internal-key-prefix (qor_live_*, qor_test_*)
+# - razorpay-key (rzp_live_*, rzp_test_*)
+# - anthropic-key (sk-ant-api03-*)
+# - openai-key (sk-proj-*)
+# - openrouter-key (sk-or-*)
+# - serper-key (Serper.dev API)
+# - github-pat (ghp_*)
+
+title = "QOrium Gitleaks Config v1.0"
+version = "1.0"
+
+[build]
+  dbpath = ""
+  append = false
+  max_depth = 50
+  max_target_meg = 20
+  timeout = "5m"
+  workers = 1
+
+[report]
+  paths = [""]
+  exclude_paths = ["docs/", "**/*.md"]
+  output = ""
+
+[allowlist]
+  # Don't flag these false positives:
+  use_regex = true
+  regexes = [
+    # npm package-lock.json sha256 hashes (not secrets)
+    "^[a-f0-9]{64}$",
+    # Dummy test-only markers
+    "_test_only_dummy_",
+    # Common placeholders in examples
+    "^example.*",
+  ]
+
+  # Specific files to ignore:
+  files = [
+    "package-lock.json",
+    "**/*.docx",
+    "**/*.xlsx",
+    "Competitive-Capabilities-Workbook.xlsx",
+  ]
+
+  # Commits to ignore (if git history ever contains known leaks):
+  commits = []
+
+# ============================================================================
+# DEFAULT RULES (gitleaks built-ins)
+# ============================================================================
+
+[[rules]]
+  description = "AWS Access Key"
+  regex = '''(AKIA[0-9A-Z]{16})'''
+  entropy = 3.5
+  keywords = ["aws", "access", "key"]
+
+[[rules]]
+  description = "Generic API Key (High Entropy)"
+  regex = '''api[_-]?key["\s:=]+([0-9a-zA-Z\-_]{32,})'''
+  entropy = 4.0
+  keywords = ["api", "key"]
+
+[[rules]]
+  description = "Slack Bot Token"
+  regex = '''(xoxb-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)'''
+  entropy = 3.0
+  keywords = ["slack", "bot", "token"]
+
+# ============================================================================
+# QORIUM CUSTOM RULES
+# ============================================================================
+
+[[rules]]
+  id = "qorium-internal-key-prefix"
+  description = "QOrium Internal API Key (qor_live_* or qor_test_*)"
+  regex = '''qor_(live|test)_[a-z0-9]{32}'''
+  entropy = 2.0
+  keywords = ["qorium", "internal", "key"]
+
+[[rules]]
+  id = "razorpay-key"
+  description = "Razorpay API Key (Live or Test)"
+  regex = '''rzp_(live|test)_[a-zA-Z0-9]{14,}'''
+  entropy = 2.5
+  keywords = ["razorpay", "payment", "key"]
+
+[[rules]]
+  id = "anthropic-api-key"
+  description = "Anthropic API Key (Claude)"
+  regex = '''sk-ant-api03-[a-zA-Z0-9\-_]{32,}'''
+  entropy = 3.5
+  keywords = ["anthropic", "claude", "sk-ant"]
+
+[[rules]]
+  id = "openai-api-key"
+  description = "OpenAI API Key"
+  regex = '''sk-proj-[a-zA-Z0-9\-_]{20,}'''
+  entropy = 3.5
+  keywords = ["openai", "gpt", "sk-proj"]
+
+[[rules]]
+  id = "openrouter-key"
+  description = "OpenRouter API Key"
+  regex = '''sk-or-[a-zA-Z0-9\-_]{20,}'''
+  entropy = 3.5
+  keywords = ["openrouter", "router", "sk-or"]
+
+[[rules]]
+  id = "serper-api-key"
+  description = "Serper.dev API Key"
+  regex = '''serper[_-]?key["\s:=]+([a-f0-9]{32,})'''
+  entropy = 3.5
+  keywords = ["serper", "search", "api"]
+
+[[rules]]
+  id = "github-personal-token"
+  description = "GitHub Personal Access Token (ghp_*)"
+  regex = '''(ghp_[0-9a-zA-Z]{36,})'''
+  entropy = 3.5
+  keywords = ["github", "token", "ghp"]
+
+[[rules]]
+  id = "cloudflare-r2-credentials"
+  description = "Cloudflare R2 Access Key ID or Secret"
+  regex = '''(cloudflare[_-]?r2|s3[_-]?access[_-]?key)["\s:=]+([a-zA-Z0-9\-_]{20,})'''
+  entropy = 3.5
+  keywords = ["cloudflare", "r2", "s3"]
+
+[[rules]]
+  id = "sentry-dsn"
+  description = "Sentry DSN (error tracking)"
+  regex = '''(https?://[a-f0-9]+@sentry\.io/[0-9]+)'''
+  entropy = 2.0
+  keywords = ["sentry", "dsn"]
+
+[[rules]]
+  id = "database-url"
+  description = "Database Connection String (postgres, mysql, mongodb)"
+  regex = '''(postgresql|postgres|mysql|mongodb)://[a-zA-Z0-9:@\.\-_/]+'''
+  entropy = 3.5
+  keywords = ["database", "postgres", "password"]
+
+# ============================================================================
+# ENTROPY THRESHOLD
+# ============================================================================
+#
+# Global entropy threshold: 4.5
+# (Raised from default 3.7 to reduce false positives in test fixtures)
+#
+# Entropy scoring: Shannon entropy of the matched string.
+# Higher = more random = more likely a secret.
+# 4.5+ typically indicates real API keys; < 4.0 often noise.
+
+[default]
+  entropy = 4.5
+
+# ============================================================================
+# PATH EXCLUSIONS
+# ============================================================================
+#
+# Paths excluded from scanning:
+exclude_paths = [
+  "docs/",
+  "**/*.md",
+  "**/*.txt",
+  "**/README*",
+  "**/*.lock",
+  "node_modules/",
+  "coverage/",
+  "dist/",
+  ".next/",
+  ".git/",
+]
+
+# ============================================================================
+# USAGE
+# ============================================================================
+#
+# Manual scan:
+#   gitleaks detect --config .gitleaks.toml
+#
+# Pre-commit hook (add to .git/hooks/pre-commit):
+#   gitleaks protect --config .gitleaks.toml --staged
+#
+# CI integration (see B5-CI-Pipeline.yml):
+#   gitleaks-action runs this config automatically on every PR
+#
+# ============================================================================

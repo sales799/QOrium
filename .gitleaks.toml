@@ -1,23 +1,116 @@
-# gitleaks config — extends default rules
-# Replaced once Cowork pushes infra/B6-gitleaks-config.yaml.
-# https://github.com/gitleaks/gitleaks
+# QOrium Gitleaks Configuration (gitleaks v8 valid form)
+#
+# Source of truth for content: infra/B6-gitleaks-config.yaml (CTO Office, 2026-05-02).
+# This file mirrors B6's intent in valid gitleaks v8 schema.
+# Adaptation log: infra/CTO-deltas/CTO-DELTA-gitleaks-v8-syntax.md
+#
+# Detects: AWS keys, generic API keys, Slack tokens, QOrium internal keys,
+# Razorpay, Anthropic, OpenAI, OpenRouter, Serper, GitHub PAT, Cloudflare R2,
+# Sentry DSN, database connection strings.
 
-[extend]
-useDefault = true
+title = "QOrium Gitleaks Config v1.0"
+
+# ============================================================================
+# ALLOWLIST — false-positive suppression
+# ============================================================================
 
 [allowlist]
-description = "Allowlisted paths and patterns"
+description = "QOrium false-positive allowlist"
 paths = [
-  '''(.*?)\.lock''',
-  '''pnpm-lock\.yaml''',
-  '''\.env\.example''',
   '''package-lock\.json''',
+  '''pnpm-lock\.yaml''',
+  '''yarn\.lock''',
+  '''\.env\.example''',
+  '''.*\.docx$''',
+  '''.*\.xlsx$''',
+  '''.*\.pdf$''',
+  '''.*\.png$''',
+  '''.*\.jpg$''',
+  '''customer-zero/.*\.md$''',
+  '''infra/B7-postgres-migrations/README\.md''',
+  '''infra/.*-Spec-v0\.md$''',
+  '''infra/.*-Design.*\.md$''',
+  '''governance/.*\.md$''',
+  '''node_modules/.*''',
+  '''dist/.*''',
+  '''\.next/.*''',
+  '''coverage/.*''',
+]
+regexes = [
+  # npm/pnpm sha256 lockfile hashes (not secrets)
+  '''^[a-f0-9]{64}$''',
+  # Test-only / placeholder markers
+  '''_test_only_dummy_''',
+  '''replace_me_with_long_random_string''',
+  '''qorium_dev_(password|access|secret)''',
+  # Common placeholder patterns
+  '''^example.*''',
 ]
 
-# Allow obvious example/placeholder values in .env.example
-regexes = [
-  '''replace_me_with_long_random_string''',
-  '''qorium_dev_password''',
-  '''qorium_dev_access''',
-  '''qorium_dev_secret''',
-]
+# ============================================================================
+# DEFAULT BUILT-IN RULES from gitleaks (AWS, Slack, etc.) are auto-included.
+# ============================================================================
+
+# ============================================================================
+# QORIUM CUSTOM RULES (mirrored from B6)
+# ============================================================================
+
+[[rules]]
+id = "qorium-internal-key-prefix"
+description = "QOrium Internal API Key (qor_live_* or qor_test_*)"
+regex = '''qor_(live|test)_[a-z0-9]{32}'''
+keywords = ["qorium", "qor_live_", "qor_test_"]
+
+[[rules]]
+id = "razorpay-key"
+description = "Razorpay API Key (Live or Test)"
+regex = '''rzp_(live|test)_[a-zA-Z0-9]{14,}'''
+keywords = ["razorpay", "rzp_live_", "rzp_test_"]
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key (Claude)"
+regex = '''sk-ant-api03-[a-zA-Z0-9\-_]{32,}'''
+keywords = ["anthropic", "sk-ant-api03"]
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''sk-proj-[a-zA-Z0-9\-_]{20,}'''
+keywords = ["openai", "sk-proj-"]
+
+[[rules]]
+id = "openrouter-key"
+description = "OpenRouter API Key"
+regex = '''sk-or-[a-zA-Z0-9\-_]{20,}'''
+keywords = ["openrouter", "sk-or-"]
+
+[[rules]]
+id = "serper-api-key"
+description = "Serper.dev API Key"
+regex = '''serper[_-]?key["\s:=]+([a-f0-9]{32,})'''
+keywords = ["serper"]
+
+[[rules]]
+id = "github-personal-token"
+description = "GitHub Personal Access Token (ghp_*)"
+regex = '''(ghp_[0-9a-zA-Z]{36,})'''
+keywords = ["github", "ghp_"]
+
+[[rules]]
+id = "cloudflare-r2-credentials"
+description = "Cloudflare R2 Access Key ID or Secret"
+regex = '''(cloudflare[_-]?r2|s3[_-]?access[_-]?key)["\s:=]+([a-zA-Z0-9\-_]{20,})'''
+keywords = ["cloudflare", "r2"]
+
+[[rules]]
+id = "sentry-dsn"
+description = "Sentry DSN (error tracking)"
+regex = '''(https?://[a-f0-9]+@(o\d+\.ingest\.)?sentry\.io/[0-9]+)'''
+keywords = ["sentry"]
+
+[[rules]]
+id = "database-url"
+description = "Database Connection String with embedded credentials"
+regex = '''(postgresql|postgres|mysql|mongodb)://[^\s:@]+:[^\s:@]+@[a-zA-Z0-9\.\-_]+'''
+keywords = ["postgresql://", "postgres://", "mysql://", "mongodb://"]

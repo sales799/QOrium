@@ -1,0 +1,6 @@
+{
+  "name": "@qorium/infra",
+  "private": true,
+  "type": "commonjs",
+  "description": "Infra configs (PM2, gitleaks, CI). Scoped as CommonJS so B10-ecosystem.config.js works under root type=module."
+}
