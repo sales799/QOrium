@@ -1513,3 +1513,142 @@ connectors (Ashby / Darwinbox / Workday) plug into the same
 `AtsConnector` interface. Likely shape: a connector framework
 package (`packages/ats`) defining the abstract operations
 (post-job, fetch-candidates, push-results) + a Greenhouse adapter.
+
+---
+
+## 2026-05-03 — Sprint 2.2 ATS Connector Framework v0 + Greenhouse adapter ✅
+
+`packages/ats-connectors` (`@qorium/ats-connectors`) — connector framework
+
+- all four v0 adapters per `infra/ATS-Connector-Framework-v0.md`.
+  `services/ats-bridge` (`@qorium/ats-bridge`) — PM2 cluster service on
+  port 5105 implementing the webhook receiver per spec §2.2 + §5.1.
+
+### What landed
+
+- **Migration 0009**:
+  - `app.ats_integrations` — per-tenant ATS connection (CHECK on platform
+    ∈ {greenhouse, ashby, darwinbox, workday, lever, bamboohr, ...} per
+    spec §1.2 roadmap; status ∈ {pending, active, auth_required,
+    degraded, suspended}; encrypted token / api_key / webhook secret
+    columns)
+  - `app.ats_webhook_log` — append-only audit + idempotency cache
+    (UNIQUE (integration_id, idempotency_key) per spec §6 replay safety)
+  - `app.ats_candidate_links` — UNIQUE (tenant_id, ats_platform,
+    external_candidate_id) per spec §6
+- **Pure-logic framework** (`packages/ats-connectors/src/`):
+  - `types.ts` — `AtsConnector` interface + canonical `Candidate` /
+    `Job` / `AssessmentResult` / `IntegrationCredentials` /
+    `InboundEvent` (`candidate | assessment-trigger | job | noop |
+error`) / `PostScoreInput|Outcome` / `SignatureVerificationResult`
+  - `signature.ts` — `verifyHmacSignature` (HMAC-SHA256, prefix-aware,
+    constant-time compare) + `computeHmacSignature` for outbound
+  - `idempotency.ts` — `deriveIdempotencyKey` (header lookup with
+    Idempotency-Key / X-Greenhouse-Event / etc. fallback chain; body-
+    hash sha256 + minute-bucket synthesised key as last resort) +
+    `InMemoryIdempotencyCache` (TTL-evicted)
+  - `registry.ts` — `ConnectorRegistry` + `defaultRegistry()` with
+    Greenhouse / Ashby / Darwinbox / Workday pre-populated
+- **Greenhouse adapter (live, M6 target)** —
+  `src/adapters/greenhouse.ts`:
+  - HMAC-SHA256 signature verify on `Signature: sha256=<hex>` header
+  - Webhook mapper: `candidate.created` / `application.created` →
+    assessment-trigger; `candidate.updated` → candidate;
+    `job.opened|updated` → job; everything else → noop with reason
+  - Outbound: `PATCH /v1/candidates/{id}` with Basic auth (Harvest
+    convention) + custom-field updates (`qorium_assessment_score` /
+    `qorium_assessment_status` / `qorium_assessment_url`)
+  - Recovery hints: `reauth` on 401/403, `permanent` on 404/422,
+    `retry` on 5xx + 429
+- **Stub adapters (interface-complete)** for Ashby (`src/adapters/ashby.ts`),
+  Darwinbox (`src/adapters/darwinbox.ts`), Workday
+  (`src/adapters/workday.ts`):
+  - All three implement the full `AtsConnector` interface
+  - Webhook signature verification + payload mapper are live (HMAC for
+    Ashby/Darwinbox; Workday rejects until M9 certification)
+  - Outbound `postScore` / `postAssessmentUrl` return
+    `{ ok: false, status: 501, recovery: 'permanent' }` until their
+    respective milestones (M7 Ashby, M8 Darwinbox, M9 Workday per spec §8)
+- **`services/ats-bridge` Express service** (port 5105 per spec §2.2):
+  - `GET /healthz` — service status + registered adapter list
+  - `POST /webhooks/:platform/:tenantId` — raw-body capture for
+    signature integrity; verifies signature → derives idempotency key →
+    records to `app.ats_webhook_log` (UNIQUE constraint enforces
+    replay-safety) → maps payload via the registered adapter → returns
+    202 + idempotency_key + event_kind
+  - 401 invalid signature, 403 inactive integration, 404 unknown
+    platform / no integration, 400 invalid tenant uuid / non-JSON body,
+    422 malformed payload, 503 no DB; RFC 7807 throughout
+- **Logger redaction** for cipher columns + plaintext credentials
+- **CTO-DELTAs (2 logged)**:
+  - **#18 `CTO-DELTA-ats-real-oauth-deferred.md`** — Greenhouse outbound
+    is live; Ashby / Darwinbox / Workday outbound deferred to their
+    rollout milestones. Per-tenant OAuth credentials are CEO-only; v0
+    framework is provably pluggable today.
+  - **#19 `CTO-DELTA-ats-workday-certification-deferred.md`** — Workday
+    signature verifier returns `{valid: false, reason: 'M9 certification'}`
+    on every webhook today. Outbound returns 501. The interface stays
+    unchanged when certification ships.
+- **Tests** (55 new cases, all active green):
+  - `packages/ats-connectors/__tests__/`:
+    - `signature.test.ts` — 9 cases (valid sig, tampered body, missing
+      secret, missing header, non-hex, array-shaped header, computeHmac,
+      custom prefix)
+    - `idempotency.test.ts` — 9 cases (header chain, body-hash fallback,
+      collision avoidance, array headers, cache TTL)
+    - `registry.test.ts` — 3 cases (default populated, throw on unknown,
+      list)
+    - `adapters/greenhouse.test.ts` — 14 cases (signature verify happy +
+      tampered + wrong secret; payload mappers for candidate.created /
+      .updated / job.opened / unknown / malformed / non-object;
+      postScore happy + 401 + 503 + missing-token; postAssessmentUrl)
+    - `adapters/stubs.test.ts` — 10 cases (Ashby + Darwinbox + Workday
+      signature verify, payload mappers, postScore-501)
+  - `services/ats-bridge/__tests__/server.test.ts` — 10 cases (healthz,
+    unknown platform, invalid tenant, missing pool, missing integration,
+    invalid signature, accepted candidate.created, replay→duplicate,
+    422 malformed, 403 inactive)
+  - `migration.smoke.test.ts` — adds verification that migration 0009
+    created `ats_integrations` + `ats_webhook_log` + `ats_candidate_links`
+    - platform CHECK constraint
+
+### Verified locally
+
+- `pnpm typecheck` clean across **13 workspaces**
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — ats-connectors emits dist; ats-bridge emits dist
+- `pnpm test` — ats-bridge 10/10; ats-connectors 45/45; stack-vault
+  25/25; jd-forge 73; smoke 20 + 4 skip; testforge 52; judge0 68; admin
+  58 + 7 skip; irt 64; leak 47 + 2 skip; readybank 33 + 21 skip;
+  auth 26; db 14 skip = **521 active green + 48 auto-skip**
+  (was 466 + 47)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None at v0 scope.
+
+**Activation halts** added by Sprint 2.2:
+
+- Greenhouse OAuth client id + secret + return URL allowlisting (M6)
+- Ashby per-tenant API keys (M7)
+- Darwinbox per-tenant API keys + tenant domain (M8)
+- Workday certification + signing keys + tenant client credentials (M9)
+
+### Phase 2 progress
+
+| Sprint | Workspace                                         | Status      |
+| ------ | ------------------------------------------------- | ----------- |
+| 2.0    | `services/jd-forge`                               | shipped     |
+| 2.1    | `services/stack-vault`                            | shipped     |
+| 2.2    | `packages/ats-connectors` + `services/ats-bridge` | **shipped** |
+| 2.3    | `services/{webhooks,sso,audit}` (planned)         | next        |
+
+### Next sprint (2.3)
+
+Webhooks + SSO + Audit-Log services. References
+`infra/Webhooks-Service-v0-Spec.md`, `infra/SSO-SAML-Enterprise-Spec-v0.md`,
+`infra/Audit-Log-API-Spec-v0.md` (all in repo per INDEX). Likely shape:
+three small workspaces sharing the same auth + telemetry stack.
+**Halt conditions:** SAML IdP credentials for SSO live tests
+(REQUEST from CEO at activation).

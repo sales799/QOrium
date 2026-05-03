@@ -160,6 +160,27 @@ describeOrSkip('migration smoke test', () => {
     ).rejects.toThrow();
   });
 
+  it('migration 0009 added ats_integrations + webhook_log + candidate_links', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app'
+          AND table_name IN ('ats_integrations', 'ats_webhook_log', 'ats_candidate_links')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'ats_candidate_links',
+      'ats_integrations',
+      'ats_webhook_log',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO app.ats_integrations (tenant_id, ats_platform, status)
+           VALUES (gen_random_uuid(), 'taleo', 'active')`,
+      ),
+    ).rejects.toThrow();
+  });
+
   it('migration 0006 added testforge_status + testforge_runs', async () => {
     const cols = await pool.query<{ column_name: string }>(
       `SELECT column_name FROM information_schema.columns
