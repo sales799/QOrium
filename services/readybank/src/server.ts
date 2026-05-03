@@ -11,6 +11,7 @@ import { securityHeaders } from './middleware/security-headers.js';
 import { notFound, problemHandler } from './middleware/problem.js';
 import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
+import { packsRouter } from './routes/packs.js';
 import type { Logger } from 'pino';
 
 export interface ServerDeps {
@@ -62,7 +63,7 @@ export function createServer(deps: ServerDeps): ServerHandle {
   // smoke runs without a DB) so /healthz still works.
   if (deps.pool) {
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
-    app.use('/v1', auth, questionsRouter({ pool: deps.pool }));
+    app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }));
   }
 
   // 404 + RFC 7807 problem handler must be last.
