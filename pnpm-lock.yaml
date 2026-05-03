@@ -88,6 +88,9 @@ importers:
 
   services/readybank:
     dependencies:
+      '@qorium/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@qorium/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -100,12 +103,18 @@ importers:
       helmet:
         specifier: ^8.0.0
         version: 8.1.0
+      ioredis:
+        specifier: ^5.4.1
+        version: 5.10.1
       pino:
         specifier: ^9.5.0
         version: 9.14.0
       pino-http:
         specifier: ^10.3.0
         version: 10.5.0
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
     devDependencies:
       '@types/express':
         specifier: ^5.0.0
@@ -2244,6 +2253,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
 snapshots:
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -4370,3 +4382,5 @@ snapshots:
   yaml@2.8.4: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.25.76: {}

@@ -222,10 +222,74 @@ and OWASP-acceptable for high-entropy random tokens (165 bits). Logged at
   readybank (7 pass), auth (26 pass) = 33 active green
 - gitleaks clean (6 commits, 0 leaks)
 
+---
+
+## 2026-05-03 — Sprint 1.3 ReadyBank /v1/questions ✅
+
+Wired `@qorium/auth` into the readybank service and shipped the first two
+production endpoints from architecture §6.3.
+
+### What landed
+
+- `services/readybank/src/types/question.ts` — `QuestionPublic` response
+  shape (distinct from DB row, excludes internal fields like
+  `watermark_id`, `ai_critique_scores`); `difficultyBToBand()` /
+  `bandToBRange()` translating IRT b parameter ↔ user-facing 1–5 difficulty
+  bands per architecture §3
+- `services/readybank/src/types/cursor.ts` — opaque base64url-encoded
+  `(released_at, id)` cursor for stable pagination under writes;
+  `InvalidCursorError`
+- `services/readybank/src/repositories/questions.ts` — `getQuestionByUuid()`
+  - `searchQuestions()`; queries restrict to `status='released'` AND
+    `sku='readybank'` so draft / SME-review / JD-Forge ephemerals never leak
+    via the public API
+- `services/readybank/src/routes/questions.ts` — Express router with
+  zod-validated query params (skill, sub_skill, format enum, difficulty
+  1–5, language regex, limit 1–100, cursor); RFC 7807 problem responses
+  on bad input
+- `services/readybank/src/server.ts` — wires `apiKeyAuth` (with Redis or
+  memory rate limiter depending on env) at `/v1/*`; health stays
+  unauthenticated; fail-loud if `API_KEY_PEPPER` unset and pool present
+- `services/readybank/src/config.ts` — adds `apiKeyPepper` + `redisUrl`
+- `__tests__/questions.unit.test.ts` — 16 unit tests for difficulty
+  mapping (boundary values + round-trip) and cursor encode/decode
+  (round-trip + 5 rejection paths)
+- `__tests__/questions.integration.test.ts` — 10 live-DB tests against
+  seeded fixtures: auth gate (401 / 200), get-by-uuid (200 / 404 / 400),
+  search filters (skill / format), difficulty band filtering, cursor
+  pagination across two pages, malformed cursor 400, invalid difficulty 400.
+  Auto-skip when DATABASE_URL unset
+
+### Verified end-to-end
+
+Built a real tenant + API key + question in Postgres, started the
+service, hit it via curl:
+
+```
+GET /v1/questions/search                          → 401 (no auth)
+GET /v1/questions/search  Bearer qor_live_...     → 200 + JSON list
+GET /v1/questions/{uuid}  Bearer qor_live_...     → 200 + full question
+```
+
+Response computed `difficulty_band: 3` from `difficulty_b: 0.0`,
+emitted `RateLimit-*` headers, and the `audit.events` table got
+`api_key.auth.success` rows for each authenticated call.
+
+### Stats
+
+- 66/66 tests pass across all workspaces
+  - db smoke 7/7 (live DB)
+  - auth: 26/26
+  - readybank: 33/33 (7 server + 16 unit + 10 integration)
+- Root `pnpm typecheck` / `lint` / `format:check` / `build` all clean
+- gitleaks clean (7 commits, 0 leaks)
+
 ### Out of scope (next sprints)
 
-- Sprint 1.3 — wire `apiKeyAuth` into `services/readybank` `/v1/*` router;
-  implement `GET /v1/questions/search` + `GET /v1/questions/{uuid}` per
-  architecture §6.3
-- Sprint 1.4 — `POST /v1/packs/generate` + `GET /v1/packs/{id}/export`
-  (CSV/JSON/HackerRank)
+- Sprint 1.4 — `POST /v1/packs/generate` (build a pack from query criteria,
+  store as `app.packs` row) + `GET /v1/packs/{id}/export`
+  (CSV/JSON/HackerRank-YAML)
+- Role-graph traversal for `/v1/role-graph/search` and `?role=` query
+  param on `/v1/questions/search` — needs `role_skills` join logic
+- Tags filter — schema doesn't have a tags column; defer until either
+  `body_json.tags` becomes canonical or a `content.tags` table lands
