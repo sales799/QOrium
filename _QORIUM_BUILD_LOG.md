@@ -620,3 +620,126 @@ is sufficient for the service skeleton + scheduling + signal
 ingestion to `content.leak_alerts`.
 **Halt condition:** real Serper.dev API key required for live
 crawls → REQUEST from CEO at activation time.
+
+---
+
+## 2026-05-03 — Sprint 1.4 Anti-Leak Engine v0 (`qorium-leak-crawler`) ✅
+
+`services/leak-crawler` (`@qorium/leak-crawler`) — PM2 fork-mode
+worker that scans released questions for leakage signals and
+records `content.leak_alerts` rows. Implements the v0 design from
+`infra/Anti-Leak-Engine-v0-Design.md` end-to-end: n-gram query
+extraction (§2.1) → multi-source poller fan-out → lexical scoring
+(§2.2) → severity classification (§6) → idempotent alert insert.
+Real cosine/embedding scoring + Anthropic variant rotation are
+deliberately deferred; the design is dependency-injected so they
+slot in cleanly in 1.4.x / 1.5.
+
+### What landed
+
+- **Pure-logic core (no DB / HTTP)**:
+  - `src/ngrams.ts` — markdown-aware text normalisation (drops
+    fenced + inline code, strips punctuation), distinctiveness-ranked
+    n-gram extraction (9–15 word window, top-K, no substring dupes)
+  - `src/similarity.ts` — Jaccard token-set overlap with stopword
+    pruning + min-token-length filter; `scoreEvidence` returns the
+    bichannel record (cosine deferred = 0; lexical live)
+  - `src/severity.ts` — full §6 classifier (`critical|high|medium|low|none`)
+    - `compositeSimilarity` weighted blend (cosine 0.6 / lexical 0.4)
+  - `src/watermark.ts` — `deriveWatermarkSeed` (HMAC-SHA256 per §3),
+    `deriveMarkers` (5 forensic markers: variable suffix / test-value
+    %-shift / synonym index / comment style / helper-reorder parity),
+    `attributeLeak` (per-marker match → composite confidence),
+    `seedsEqual` (constant-time)
+- **Source pollers**:
+  - `src/sources/types.ts` — `SourcePoller` interface + `SourceType`
+    union
+  - `src/sources/serper.ts` — real Serper.dev client (POST
+    `https://google.serper.dev/search`, `X-API-KEY`, AbortSignal +
+    15s timeout, payload validation, bounded `maxResults`); fetch
+    impl is injectable for testing
+  - `src/sources/stub.ts` — fixture-driven poller for tests + dev
+    when `SERPER_API_KEY` is absent
+- **Data layer**:
+  - `src/repositories/questions.ts` — `listReleasedQuestions`
+    (status='released' only; spec §10 5K cap with 20K hard ceiling)
+  - `src/repositories/alerts.ts` — `recordAlertIfNew` (de-dup by
+    `(question_id, source_url)` at the application level; full
+    evidence_jsonb payload with snippet / classifier reason / matched
+    n-grams)
+- **Orchestrator** (`src/orchestrator.ts`):
+  - `runCrawl({listQuestions, recordAlert, pollers, logger,
+ngramsPerQuestion, resultsPerQuery, signal?, now?})` — DI on
+    every external surface
+  - For each released question → top-K n-grams → fan out across
+    pollers → score each result → classify → persist if above floor
+  - Per-poller failures are logged + counted, never abort the pass
+  - Cooperative cancel via `AbortSignal`
+  - Returns a structured `CrawlReport` (questionsScanned, queriesIssued,
+    resultsScored, alertsCreated, alertsSkippedDuplicate, errors)
+- **Entry points**:
+  - `src/index.ts` — `runOnce` builds Serper poller from env (or
+    StubPoller in non-prod when key is unset, no-op + warning in
+    prod), opens a 4-conn pg pool, runs one pass, drains pool
+  - `src/cli.ts` — CLI with `--once` (default; PM2 cron-restart drives
+    cadence) and `--watch --interval <s>` (dev), JSON-line summary on
+    stdout, fatal-error JSON to stderr
+- **Service config**:
+  - `src/config.ts` — env-driven knobs (`LEAK_CRAWLER_MAX_QUESTIONS`,
+    `LEAK_CRAWLER_NGRAMS_PER_QUESTION`, `LEAK_CRAWLER_QPM`, etc.) with
+    sensible defaults that match spec §10
+  - `src/logger.ts` — pino with `service`/`git_sha` base + redaction of
+    `SERPER_API_KEY` / `ANTHROPIC_API_KEY` / `DATABASE_URL` / `REDIS_URL`
+- **Tests** (49 cases across 7 files; 47 active + 2 auto-skip):
+  - `__tests__/ngrams.test.ts` — 5 cases (normalisation, K-bound,
+    too-short rejection, substring de-dup, distinctiveness preference)
+  - `__tests__/similarity.test.ts` — 9 cases (stopword/short-token
+    drop, identifier preservation, Jaccard correctness, body-vs-snippet
+    scoring on real prose)
+  - `__tests__/severity.test.ts` — 8 cases (full classification grid +
+    threshold boundary determinism + composite blend)
+  - `__tests__/watermark.test.ts` — 14 cases (determinism, input
+    sensitivity, 64-hex shape, marker ranges, attribution match/mismatch,
+    constant-time equality, throw-on-bad-input)
+  - `__tests__/sources/serper.test.ts` — 6 cases (POST shape + headers,
+    organic-hit parsing, missing-link/snippet skip, maxResults bound,
+    non-2xx → throw, missing-apiKey rejection)
+  - `__tests__/orchestrator.test.ts` — 6 cases (no pollers → empty
+    report, high-overlap → alert created, below-floor → no persistence,
+    duplicate counted separately, poller throw counted but doesn't abort,
+    AbortSignal honoured)
+  - `__tests__/orchestrator.integration.test.ts` — 2 cases against
+    live Postgres: end-to-end alert creation, idempotent re-crawl no-op.
+    Auto-skips when `DATABASE_URL` unset.
+
+### Verified locally
+
+- `pnpm typecheck` clean across 6 workspaces
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — leak-crawler dist emits `cli.js`,
+  `index.js`, `orchestrator.js` etc.; Next.js admin build unchanged
+- `pnpm test` — leak-crawler 47/47 + 2 skip; admin 58 + 7 skip;
+  auth 26/26; db 8 skip; readybank 33 + 21 skip =
+  **164 active green + 38 auto-skip** (was 117 + 36)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None at v0 scope. **Activation halt for live operation:** real
+`SERPER_API_KEY` is required to run crawls against production
+search; until provisioned by CEO, the service runs end-to-end
+against the StubPoller in dev / falls through with a warning in
+prod. Anthropic-driven variant generation (spec §7) is reserved
+for Sprint ≥1.5.
+
+### Next sprint (1.5)
+
+IRT Calibration Pipeline v0. References
+`infra/IRT-Calibration-Pipeline-v0-Spec.md` (already in repo per
+INDEX). Likely shape: nightly cron service that runs 2-PL fits
+on questions in `calibrating` status against accumulated
+`content.responses`, updates `difficulty_b` / `discrimination_a`,
+and graduates to `released` once IRT parameters stabilise.
+**Halt conditions:** none expected for v0; uses local
+computations only. SO-21 (IRT mandatory) is the constitutional
+gate this sprint closes.

@@ -1,0 +1,51 @@
+/**
+ * Runtime config for the leak-crawler service. Like other QOrium services,
+ * env validation is done at boot; missing pieces produce a helpful message
+ * rather than letting the program limp on.
+ */
+
+export interface LeakCrawlerConfig {
+  nodeEnv: 'development' | 'test' | 'staging' | 'production';
+  databaseUrl: string | undefined;
+  serperApiKey: string | undefined;
+  anthropicApiKey: string | undefined;
+  /** Maximum questions scanned per crawl pass. Per spec §10 v0 default is 5,000. */
+  maxQuestions: number;
+  /** Top-K most distinctive n-grams to query per question (spec §2.1). */
+  ngramsPerQuestion: number;
+  /** Soft per-source rate limit (queries per minute). Spec §2.1: Serper = 60. */
+  queriesPerMinute: number;
+  /** Maximum results per query to scrape (spec §2.1: top 3). */
+  resultsPerQuery: number;
+  /** Lexical-only short-circuit: don't even score below this. */
+  minLexicalToScore: number;
+}
+
+function parsePositiveInt(raw: string | undefined, fallback: number): number {
+  if (!raw) return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  return n;
+}
+
+function parseFraction(raw: string | undefined, fallback: number): number {
+  if (!raw) return fallback;
+  const n = Number.parseFloat(raw);
+  if (!Number.isFinite(n) || n < 0 || n > 1) return fallback;
+  return n;
+}
+
+export function loadConfig(): LeakCrawlerConfig {
+  const nodeEnv = (process.env.NODE_ENV ?? 'development') as LeakCrawlerConfig['nodeEnv'];
+  return {
+    nodeEnv,
+    databaseUrl: process.env.DATABASE_URL || undefined,
+    serperApiKey: process.env.SERPER_API_KEY || undefined,
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || undefined,
+    maxQuestions: parsePositiveInt(process.env.LEAK_CRAWLER_MAX_QUESTIONS, 5_000),
+    ngramsPerQuestion: parsePositiveInt(process.env.LEAK_CRAWLER_NGRAMS_PER_QUESTION, 5),
+    queriesPerMinute: parsePositiveInt(process.env.LEAK_CRAWLER_QPM, 60),
+    resultsPerQuery: parsePositiveInt(process.env.LEAK_CRAWLER_RESULTS_PER_QUERY, 3),
+    minLexicalToScore: parseFraction(process.env.LEAK_CRAWLER_MIN_LEXICAL, 0.6),
+  };
+}
