@@ -786,6 +786,53 @@ module.exports = {
       max_restarts: 10,
       min_uptime: '10s',
     },
+
+    /**
+     * =====================================================================
+     * AI PAIR-CODING ORCHESTRATOR (Cluster Mode)
+     * =====================================================================
+     * Purpose: Wave 3 AI pair-coding session orchestrator + 6-dim grader
+     * Mode: Cluster (stateless; sessions persisted to Postgres)
+     * Port: 5115 (spec called for 5111 but that's audit-log per CTO-DELTA #28)
+     * Spec: infra/Wave-3-AI-Pair-Coding-Format-Prototype-Spec-v0.md
+     * Anthropic live wire-up deferred per CTO-DELTA #29.
+     */
+    {
+      name: 'qorium-ai-pair-coding-orchestrator',
+      script: './services/ai-pair-coding-orchestrator/dist/index.js',
+      instances: 1,
+      exec_mode: 'cluster',
+      port: 5115,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        AI_PAIR_CODING_PORT: 5115,
+        SERVICE_NAME: 'qorium-ai-pair-coding-orchestrator',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        AI_PAIR_CODING_PORT: 5115,
+        SERVICE_NAME: 'qorium-ai-pair-coding-orchestrator',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-ai-pair-coding-out.log',
+      error_file: '/var/log/pm2/qorium-ai-pair-coding-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
   ],
 
   // ========================================================================

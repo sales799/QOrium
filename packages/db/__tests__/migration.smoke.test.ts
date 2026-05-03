@@ -207,6 +207,56 @@ describeOrSkip('migration smoke test', () => {
     ).rejects.toThrow();
   });
 
+  it('migration 0014 added content.ai_pair_coding_sessions + messages', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'content'
+          AND table_name IN ('ai_pair_coding_sessions', 'ai_pair_coding_messages')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'ai_pair_coding_messages',
+      'ai_pair_coding_sessions',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO content.ai_pair_coding_sessions
+           (candidate_id, tenant_id, status)
+           VALUES ('cand-1', gen_random_uuid(), 'made-up-status')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0013 added app.secret_rotations + secret_rotation_log', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app'
+          AND table_name IN ('secret_rotations', 'secret_rotation_log')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'secret_rotation_log',
+      'secret_rotations',
+    ]);
+  });
+
+  it('migration 0012 extended app.api_keys with rate-limit + rotation columns', async () => {
+    const cols = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'app' AND table_name = 'api_keys'
+          AND column_name IN ('rate_limit_per_min', 'rate_limit_burst',
+                              'rotation_due_at', 'last_rotated_at', 'metadata')`,
+    );
+    expect(cols.rows.map((r) => r.column_name).sort()).toEqual([
+      'last_rotated_at',
+      'metadata',
+      'rate_limit_burst',
+      'rate_limit_per_min',
+      'rotation_due_at',
+    ]);
+  });
+
   it('migration 0011 added billing schema with 6 tables', async () => {
     const schemas = await pool.query<{ schema_name: string }>(
       "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'billing'",
