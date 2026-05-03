@@ -25,13 +25,43 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               href="/admin/queue"
               className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
             >
-              SME review queue
+              SME queue
             </Link>
             <Link
               href="/admin/calibration"
               className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
             >
               IRT calibration
+            </Link>
+            <Link
+              href="/admin/sso"
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
+            >
+              SSO
+            </Link>
+            <Link
+              href="/admin/webhooks"
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
+            >
+              Webhooks
+            </Link>
+            <Link
+              href="/admin/audit"
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
+            >
+              Audit log
+            </Link>
+            <Link
+              href="/admin/ats"
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
+            >
+              ATS
+            </Link>
+            <Link
+              href="/admin/customers"
+              className="text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
+            >
+              Customers
             </Link>
           </nav>
         </div>

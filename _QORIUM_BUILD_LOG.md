@@ -1851,30 +1851,72 @@ None at v0 scope.
 | 2.0    | `services/jd-forge`                               | shipped     |
 | 2.1    | `services/stack-vault`                            | shipped     |
 | 2.2    | `packages/ats-connectors` + `services/ats-bridge` | shipped     |
-| 2.3    | `services/{webhooks,sso,audit-log}`               | **shipped** |
+| 2.3    | `services/{webhooks,sso,audit-log}`               | shipped     |
+| 2.4    | `apps/admin` dashboards                           | **shipped** |
 
-### Next sprint (2.4)
+## 2026-05-03 — Sprint 2.4 Customer Onboarding Dashboards ✅
 
-Per the 16-sprint plan, Sprint 2.4 is the first sprint that touches
-infrastructure that depends on real customer-side state (live
-deployment, M3 ramp, real SSO IdP). Pending CEO direction, the
-likely next workstream is one of:
+Per CEO directive (autonomous-continuous mode, this session). Builds the
+admin UI surface that consumes the v0 services shipped in Sprint 2.3.
 
-- **Customer onboarding flows** — the admin-side
-  `/admin/sso` configuration screen, webhook subscription dashboard,
-  audit log viewer; depends on apps/admin and the three v0 services
-  shipped this sprint.
-- **Observability + ops** — Sentry wire-up, Grafana Loki log
-  shipment, watchdog health check registration, uptime SLO
-  dashboards.
-- **Customer Zero (Talpro India) deployment** — full end-to-end
-  migration from staging to a real production environment with the
-  live Postgres, real SSO IdP, real ATS integration, real customer
-  data flowing through.
+### What landed
 
-The first two are autonomous-mode-eligible. Customer Zero deployment
-requires CEO + Cowork CTO Office sign-off (real DNS, real customer
-contracts, real SSO IdP credentials).
+- **Service URL resolver** + tagged `callService<T>()` fetch wrapper at
+  `apps/admin/src/lib/clients/services.ts`. Reads service URLs from env
+  with localhost defaults per `infra/B10-ecosystem.config.js`. Returns
+  `{ ok, status, body, error }` rather than throwing — dashboards
+  render errors inline.
+- **Tenant resolver** at `apps/admin/src/lib/tenant.ts`:
+  `resolveAdminTenantId()` reads `ADMIN_DEFAULT_TENANT_ID`. Multi-tenant
+  switching follows once api-key-mgmt issues per-user JWTs (Sprint 2.7).
+- **Typed clients** for sso, webhooks, audit, ats
+  (`apps/admin/src/lib/clients/{sso,webhooks,audit,ats}.ts`).
+- **`/admin/sso`** — config form (read+upsert), status pill (draft /
+  test_mode / active / disabled), JSON editor for attribute_mapping,
+  link to download SP metadata.
+- **`/admin/webhooks`** — subscriptions list (event_type, endpoint_url,
+  is_active, consecutive_failures); create form with HTTPS validator
+  - canonical event_type dropdown; reveal-once signing secret; toggle
+    active; delete confirmation.
+- **`/admin/audit`** — audit log viewer with filters (action,
+  resource_type, actor_id, start_date, end_date) + paginated table
+  with expandable JSON detail.
+- **`/admin/ats`** — ATS adapter list from ats-bridge `/healthz`;
+  status pills (live=Greenhouse, M9=Workday, stub=others); per-tenant
+  credential management deferred to Sprint 2.7.
+- **`/admin/customers`** — onboarding checklist (SSO configured?
+  Webhook subscribed? Audit events flowing? API key issued? Billing?).
+- **Layout nav** updated to surface all 7 admin sections.
+
+### Tests (16 new cases, all green)
+
+- `apps/admin/__tests__/clients.test.ts` — 7 cases (env-driven URL
+  resolution, OK/ERR fetch results, tenant header forwarding, JSON
+  body, error capture)
+- `apps/admin/__tests__/tenant.test.ts` — 5 cases (UUID validation,
+  env reading, fallback)
+- `apps/admin/__tests__/sso-client.test.ts` — 4 cases (header
+  forwarding, JSON serialisation, list parsing)
+
+### Verified locally
+
+- `pnpm --filter @qorium/admin typecheck` clean
+- `pnpm --filter @qorium/admin test` 74 passed + 7 skipped (was 58 + 7)
+- `pnpm typecheck` workspace-wide clean
+- `pnpm lint` clean
+- `pnpm format:check` clean
+- `pnpm --filter @qorium/admin build` clean
+
+### Halt conditions
+
+None at v0 scope. Real IdP credentials, real per-tenant ATS
+credentials, and real `ADMIN_DEFAULT_TENANT_ID` for production are
+already captured in Sprint 2.2 + 2.3 deltas.
+
+### Next sprint (2.5)
+
+`apps/docs` Next.js docs site + `packages/qorium-sdk` typed client.
+Halt: real `docs.qorium.io` DNS + cert (CTO-DELTA #23).
 
 **Halt conditions for Sprint 2.4 await CEO signal:**
 which workstream advances next.
