@@ -140,6 +140,26 @@ describeOrSkip('migration smoke test', () => {
     ).rejects.toThrow();
   });
 
+  it('migration 0008 added stack_vaults + stack_vault_access_log', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app'
+          AND table_name IN ('stack_vaults', 'stack_vault_access_log')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'stack_vault_access_log',
+      'stack_vaults',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO app.stack_vaults (tenant_id, tier, library_size, watermark_secret, status)
+           VALUES (gen_random_uuid(), 'platinum', 100, 'secret', 'active')`,
+      ),
+    ).rejects.toThrow();
+  });
+
   it('migration 0006 added testforge_status + testforge_runs', async () => {
     const cols = await pool.query<{ column_name: string }>(
       `SELECT column_name FROM information_schema.columns

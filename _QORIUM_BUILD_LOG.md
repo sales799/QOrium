@@ -1399,3 +1399,117 @@ namespace API with watermarked variants; reuses the watermark seed +
 marker derivation from `services/leak-crawler/src/watermark.ts`
 (Sprint 1.4). Probable new service `services/stack-vault/` on port
 5103 (per B10 entry).
+
+---
+
+## 2026-05-03 — Sprint 2.1 Stack-Vault MVP (`qorium-stack-vault`) ✅
+
+`services/stack-vault` (`@qorium/stack-vault`) — PM2 cluster service
+on port 5103 implementing the per-customer namespace API for the
+Stack-Vault SKU per `05-QOrium-Three-Use-Cases-SKU-Architecture.md` §4
+
+- CTO Architecture §6.3.
+
+### What landed
+
+- **Migration 0008**:
+  - `app.stack_vaults` — per-customer subscription record (CHECK on
+    tier ∈ {department, enterprise, group}; status ∈ {provisioning,
+    active, suspended, churned}; `watermark_secret` server-side only)
+  - `app.stack_vault_access_log` — append-only audit per spec §4.7
+    ("technical access logging" mitigation for the customer-pirates-
+    own-vault risk); records vault_id, tenant_id, question_id,
+    watermark_id, candidate_id, api_key_id, request_ip, user_agent,
+    occurred_at
+- **Pure-logic variant builder** (`src/variant.ts`):
+  - `deriveWatermarkId` — first 16 hex chars of the
+    HMAC-SHA256(watermark_secret, tenant_id|question_id|"watermark")
+    seed from `@qorium/leak-crawler` (Sprint 1.4)
+  - `buildVariant({vault, master})` — returns the master payload
+    unchanged + `watermarkId` (customer-facing handle) +
+    `watermarkMarkers` (the 5 forensic markers from the watermark spec)
+  - `attributeLeakToVault({vault, questionId, observed})` — composes
+    `attributeLeak` from leak-crawler with the vault identity to score
+    a candidate vault against observed leaked-question markers
+- **Data layer**:
+  - `repositories/vaults.ts` — `getVaultByTenant` (tenant_id → vault) +
+    `toPublicView` (strips `watermark_secret` before exposure)
+  - `repositories/questions.ts` — `searchVaultQuestions` (released-only;
+    format / difficulty filters; clamped limit) + `getReleasedQuestion`
+  - `repositories/access-log.ts` — `recordAccess` (one row per read) +
+    `summarisePerQuestion` (J5 dashboard fuel)
+- **Express service** (`src/server.ts`, port 5103):
+  - `GET /healthz`
+  - `GET /v1/vaults/me` — vault metadata (public view; no secrets)
+  - `GET /v1/vaults/me/questions/search` — search within the vault;
+    returns variants with `watermarkId`; logs every variant returned
+  - `GET /v1/vaults/me/questions/:uuid` — single watermarked variant
+  - `POST /v1/vaults/me/refresh-request` — async-acknowledge
+    out-of-cycle refresh requests
+  - `POST /v1/vaults/me/leak-report` — async-acknowledge customer-
+    reported suspected leaks
+  - 401 if tenant unresolved; 403 if vault not active; 404 if no
+    vault; 503 if no DB; RFC 7807 problem JSON throughout
+- **Logger redaction** — `watermark_secret` / `watermarkSecret` /
+  `DATABASE_URL` / `REDIS_URL` / `API_KEY_PEPPER` paths are removed
+  from log output
+- **CTO-DELTA #17** — `CTO-DELTA-stackvault-marker-substitution-deferred.md`:
+  v0 attaches watermarkId + watermarkMarkers metadata to every
+  read; mechanical body substitution (variable-suffix replacement,
+  test-value scaling, comment-style swap, etc.) deferred to a
+  dedicated sprint before Logo #1 onboarding (M4 target). Forensic
+  attribution is preserved via the access-log + watermarkId pairing.
+- **Public-API exports** — added `VariantMarkers` + `WatermarkInputs`
+  type re-exports from `@qorium/leak-crawler` so the cross-workspace
+  contract is type-stable
+- **Tests** (25 new cases, all active green):
+  - `variant.test.ts` — 11 (deterministic seed, per-tenant /
+    per-question / per-secret variation, payload preservation, IRT
+    passthrough, attribution at confidence 1.0 vs lower for wrong vault)
+  - `server.test.ts` — 14 (auth, vault lookup, search returns
+    variants with watermarkId, single-question fetch + 400/404,
+    refresh-request + leak-report acknowledgments + 400 invalid
+    bodies, RFC 7807 errors, secret never surfaces in responses)
+  - `migration.smoke.test.ts` — adds verification that migration 0008
+    created `app.stack_vaults` + `app.stack_vault_access_log` + tier
+    CHECK constraint
+
+### Verified locally
+
+- `pnpm typecheck` clean across **11 workspaces**
+- `pnpm lint` / `pnpm format:check` clean
+- `pnpm build` clean — stack-vault dist emits server, variant,
+  repositories, types
+- `pnpm test` — stack-vault 25/25; jd-forge 73; smoke 20 + 4 skip;
+  testforge 52; judge0 68; admin 58 + 7 skip; irt 64; leak 47 + 2 skip;
+  readybank 33 + 21 skip; auth 26; db 13 skip =
+  **466 active green + 47 auto-skip** (was 441 + 46)
+- `gitleaks protect --staged` clean
+
+### Halt-conditions encountered
+
+None at v0 scope. Activation halts:
+
+- Real Bosch / GCC customer onboarding (the 90-day discovery pipeline
+  per spec §4.3 is operational work; the API surface is testable today)
+- Mechanical marker substitution body-rewrite (CTO-DELTA #17;
+  scheduled for the sprint immediately preceding Logo #1)
+
+### Phase 2 progress
+
+| Sprint | Workspace                                 | Status      |
+| ------ | ----------------------------------------- | ----------- |
+| 2.0    | `services/jd-forge`                       | shipped     |
+| 2.1    | `services/stack-vault`                    | **shipped** |
+| 2.2    | `services/ats-connectors` (planned)       | next        |
+| 2.3    | `services/{webhooks,sso,audit}` (planned) | upcoming    |
+
+### Next sprint (2.2)
+
+ATS Connector Framework v0. References
+`infra/ATS-Connector-Framework-v0.md` (already in repo per INDEX).
+First connector: Greenhouse (per the SKU architecture); subsequent
+connectors (Ashby / Darwinbox / Workday) plug into the same
+`AtsConnector` interface. Likely shape: a connector framework
+package (`packages/ats`) defining the abstract operations
+(post-job, fetch-candidates, push-results) + a Greenhouse adapter.
