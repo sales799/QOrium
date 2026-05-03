@@ -171,11 +171,61 @@ graceful shutdown, healthz/readyz.
   with `application/problem+json` content-type
 - gitleaks clean (5 commits, 0 leaks)
 
+---
+
+## 2026-05-03 — Sprint 1.2 packages/auth ✅
+
+`@qorium/auth` — API key authentication + Redis-backed rate limiting +
+audit logging per CTO Architecture §6.1/§6.2 + D3 Talpro Internal API
+Key Spec.
+
+### What landed
+
+- `src/api-key.ts` — `parseApiKey()` (validates `qor_(live|test|internal)_*`
+  format), `hashApiKey(raw, pepper)` (HMAC-SHA256), `lookupApiKey(pool, raw,
+pepper)` (queries `app.api_keys` by hash, rejects revoked/expired),
+  `touchLastUsed()` (fire-and-forget last_used_at update),
+  `timingSafeEqualHex()` (defence-in-depth)
+- `src/rate-limit.ts` — `createRedisRateLimiter()` + `createMemoryRateLimiter()`
+  via `rate-limiter-flexible`; defaults to 20-point burst per 1s window
+  (architecture §6.2)
+- `src/audit.ts` — `recordAuditEvent()` async writer to `audit.events`;
+  fire-and-forget contract: never throws, optional `onError` callback
+- `src/middleware.ts` — `apiKeyAuth({ pool, pepper, rateLimiter?, audit?,
+requiredScopes? })` Express factory; accepts `Authorization: Bearer` or
+  `X-Talpro-API-Key` headers; emits RFC 7807 problem JSON on 401/403/429
+  with `RateLimit-*` headers + `Retry-After`; attaches `req.auth`
+- `src/types.ts` — `AuthContext`, `AuthenticatedRequest`
+- `__tests__/api-key.test.ts` — 17 unit tests for parse, hash determinism,
+  pepper sensitivity, hex comparison
+- `__tests__/middleware.test.ts` — 9 integration tests via supertest +
+  mock pool: happy path (Bearer + alias header + audit insert), failure
+  modes (missing/malformed/unknown/scope-denied), rate limiting (429 +
+  Retry-After + RateLimit-\* headers)
+
+### CTO-DELTA: HMAC-SHA256 not Argon2id
+
+D3 §2.2 specifies Argon2id at rest, but the `app.api_keys.hashed_key UNIQUE`
+constraint is structurally incompatible with salted Argon2 outputs (every
+hash differs even for the same input). Argon2 verify cost (~100ms at the
+spec'd parameters) also exceeds architecture §6.2's per-request budget.
+HMAC-SHA256(pepper, key) is deterministic, satisfies UNIQUE, sub-microsecond,
+and OWASP-acceptable for high-entropy random tokens (165 bits). Logged at
+`infra/CTO-deltas/CTO-DELTA-api-key-hashing.md`.
+
+### Verified locally
+
+- `pnpm --filter @qorium/auth typecheck` clean
+- `pnpm --filter @qorium/auth test`: 26/26 pass
+- Root `pnpm typecheck` / `lint` / `format:check` / `build` / `test` all clean
+- Total tests across workspaces: db smoke (7 skipped without DB),
+  readybank (7 pass), auth (26 pass) = 33 active green
+- gitleaks clean (6 commits, 0 leaks)
+
 ### Out of scope (next sprints)
 
-- Sprint 1.2 — `packages/auth` API key middleware (`X-Talpro-API-Key` HMAC
-  validation against `app.api_keys`, Redis rate limit 10r/s burst 20)
-- Sprint 1.3 — `GET /v1/questions/search` + `GET /v1/questions/{uuid}` per
+- Sprint 1.3 — wire `apiKeyAuth` into `services/readybank` `/v1/*` router;
+  implement `GET /v1/questions/search` + `GET /v1/questions/{uuid}` per
   architecture §6.3
 - Sprint 1.4 — `POST /v1/packs/generate` + `GET /v1/packs/{id}/export`
   (CSV/JSON/HackerRank)

@@ -30,7 +30,13 @@ paths = [
   '''infra/B7-postgres-migrations/README\.md''',
   '''infra/.*-Spec-v0\.md$''',
   '''infra/.*-Design.*\.md$''',
+  '''infra/D\d+-.*\.md$''',
+  '''infra/CTO-deltas/.*\.md$''',
   '''governance/.*\.md$''',
+  '''.*/__tests__/.*''',
+  '''.*\.test\.ts$''',
+  '''.*\.spec\.ts$''',
+  '''packages/auth/README\.md''',
   '''node_modules/.*''',
   '''dist/.*''',
   '''\.next/.*''',
@@ -43,6 +49,9 @@ regexes = [
   '''_test_only_dummy_''',
   '''replace_me_with_long_random_string''',
   '''qorium_dev_(password|access|secret)''',
+  # Documented test-fixture API keys (a7f3b2c1... and 9e2d7c4b... appear in
+  # D3 §2.1 + §8 examples and downstream test fixtures verbatim)
+  '''qor_(live|test|internal)_[a-z0-9_]*?(a7f3b2c1|9e2d7c4b|b7f3b2c1)[a-z0-9_]*''',
   # Common placeholder patterns
   '''^example.*''',
 ]
