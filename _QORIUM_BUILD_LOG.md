@@ -436,3 +436,100 @@ stubbed, real credentials deferred), shadcn/ui + Tailwind, route stubs
 at `/admin/queue` and `/admin/calibration`, guard middleware tests.
 References `07-CTO-Architecture-v1.md` (already in repo per INDEX).
 **Halt condition:** real Google OAuth client credentials → REQUEST from CEO.
+
+---
+
+## 2026-05-03 — Sprint 1.2 apps/admin Next.js scaffold ✅
+
+`apps/admin` (`@qorium/admin`) — Next.js 15 + React 19 + TypeScript +
+Tailwind v4 + NextAuth v5. Listens on :5104 (per B10 `qorium-admin`).
+Guard-middleware-protected route stubs for SME review queue + IRT
+calibration; auth scaffold designed for runtime swap to real provider
+once CTO Office picks between MSG91 OTP / Google OAuth / both.
+
+### What landed
+
+- `apps/admin/package.json` + `tsconfig.json` + `next.config.mjs` +
+  `postcss.config.mjs` + `vitest.config.ts` — Next.js 15.0.4 with App
+  Router, src directory, typed routes, Tailwind v4 via
+  `@tailwindcss/postcss`. Engine port 5104 per B10.
+- `src/auth-config.ts` — pure logic separated from NextAuth wiring:
+  `parseEmailAllowlist`, `isEmailAllowed`, `isWellFormedEmail`,
+  `buildAdminUser`, `isProtectedPath`, `buildLoginRedirect`. All
+  pure functions, fully unit-testable without runtime.
+- `src/env.ts` — `loadAdminEnv()` returns dev fallback for
+  `AUTH_SECRET` so `next build` works without prod secrets;
+  separate `assertProdEnv()` for runtime startup guards.
+- `src/auth.ts` — NextAuth v5 config with Credentials provider stub
+  whose `authorize` callback delegates to `isEmailAllowed`. Empty
+  allowlist = no access (secure-by-default for fresh clones).
+  `authorized` callback gates `/`, `/admin/*` to authed sessions;
+  `/login`, `/api/auth/*`, `/healthz` are public.
+- `src/middleware.ts` — exports `auth` as default; matcher excludes
+  `/api/auth`, `_next/*`, `favicon.ico`, `/healthz`.
+- `src/app/api/auth/[...nextauth]/route.ts` — re-exports
+  `handlers.GET` / `handlers.POST` per NextAuth v5 convention.
+- `src/app/layout.tsx` — root HTML shell with Tailwind globals.
+  `robots: noindex,nofollow` (admin console must never be indexed).
+- `src/app/login/page.tsx` — server-component login page with a
+  React server action calling `signIn('credentials', { email,
+redirectTo })`. Honours `?from=…` for post-login redirect; ignores
+  non-relative `from` values to prevent open-redirect.
+- `src/app/admin/layout.tsx` — protected shell with header nav
+  (queue / calibration links + sign-out form posting to a
+  server action calling `signOut`). Reads session via `await auth()`.
+- `src/app/admin/queue/page.tsx` — SME review queue stub
+  (placeholder until Sprint 1.3 wires `GET /admin/v1/sme/review-queue`).
+- `src/app/admin/calibration/page.tsx` — IRT calibration panel stub
+  (placeholder until Sprint 1.5 wires the calibration pipeline).
+- `src/app/page.tsx` — `/` redirects to `/admin/queue`.
+- `src/app/healthz/route.ts` — `GET /healthz` returns
+  `{ status: 'ok', service: 'qorium-admin' }`; public.
+- `__tests__/auth-config.test.ts` — 30 vitest cases (allowlist
+  parsing edge cases, email format validation parametrised,
+  case-insensitive matching, malformed email rejection,
+  protected-path classification, login redirect URL building).
+- `__tests__/env.test.ts` — 7 vitest cases (dev fallback,
+  override, build-time tolerance, allowlist passthrough,
+  `assertProdEnv` boundary cases).
+- `.env.example` — added `AUTH_SECRET`, `ADMIN_EMAIL_ALLOWLIST`,
+  `MSG91_*` placeholders.
+
+### CTO-DELTA: admin auth provider
+
+Architecture §6.1 specifies email + OTP via MSG91; the Stream B handoff
+specifies Google OAuth. Both require CEO-only secrets that are halt
+conditions. The scaffold ships a Credentials provider stub gated by an
+empty-by-default email allowlist; `auth-config.ts` is pure logic so the
+provider swap is a one-file change in `auth.ts`. Logged at
+`infra/CTO-deltas/CTO-DELTA-admin-auth-provider.md` with three
+reconciliation options (MSG91 / Google OAuth / both env-gated).
+
+### Verified locally
+
+- `pnpm typecheck` clean across 5 workspaces (apps/admin now compiles)
+- `pnpm lint` clean
+- `pnpm format:check` clean
+- `pnpm build` clean — Next.js production build emits 7 routes:
+  `/` (static redirect), `/admin/calibration` (dynamic),
+  `/admin/queue` (dynamic), `/api/auth/[...nextauth]` (dynamic),
+  `/healthz` (dynamic), `/login` (dynamic), `/_not-found` (static).
+  Middleware bundle: 81.4 kB.
+- `pnpm test` — admin: 37/37, db: 7 skipped, auth: 26/26,
+  readybank: 33/33 + 21 skipped = **96 active green + 28 auto-skip**
+- `gitleaks protect --staged` clean for this PR's content
+
+### Halt-conditions encountered
+
+None. The scaffold ships fully without external service deps; real
+provider integration is gated on CTO Office reconciliation +
+provisioning of MSG91 / Google OAuth credentials.
+
+### Next sprint (1.3)
+
+SME review queue UI wired to a real `GET /admin/v1/sme/review-queue`
+endpoint on the readybank service (or a new `services/admin-api`),
+plus accept/edit/reject decision flow. Will need a content-engine
+schema decision — likely add a `content.review_decisions` table.
+References CTO Architecture §6.3 (already in repo per INDEX).
+**Halt conditions:** none expected; pure backend + UI work.
