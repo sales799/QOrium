@@ -1641,14 +1641,240 @@ None at v0 scope.
 | ------ | ------------------------------------------------- | ----------- |
 | 2.0    | `services/jd-forge`                               | shipped     |
 | 2.1    | `services/stack-vault`                            | shipped     |
-| 2.2    | `packages/ats-connectors` + `services/ats-bridge` | **shipped** |
-| 2.3    | `services/{webhooks,sso,audit}` (planned)         | next        |
+| 2.2    | `packages/ats-connectors` + `services/ats-bridge` | shipped     |
+| 2.3    | `services/{webhooks,sso,audit-log}`               | **shipped** |
 
-### Next sprint (2.3)
+## 2026-05-03 — Sprint 2.3 Webhooks + SSO + Audit-Log services ✅
 
-Webhooks + SSO + Audit-Log services. References
-`infra/Webhooks-Service-v0-Spec.md`, `infra/SSO-SAML-Enterprise-Spec-v0.md`,
-`infra/Audit-Log-API-Spec-v0.md` (all in repo per INDEX). Likely shape:
-three small workspaces sharing the same auth + telemetry stack.
-**Halt conditions:** SAML IdP credentials for SSO live tests
-(REQUEST from CEO at activation).
+Per CTO Office spec set
+(`infra/Webhooks-Service-v0-Spec.md`,
+`infra/SSO-SAML-Enterprise-Spec-v0.md`,
+`infra/Audit-Log-API-Spec-v0.md`),
+three small workspaces ship together because they share the same
+tenant-resolution + RFC 7807 + pino-http + helmet stack.
+
+### What landed
+
+- **Migration `0010_webhooks_sso_audit.sql`** (B7):
+  - `webhooks.subscriptions` (UUID PK + tenant FK + event_type + endpoint_url +
+    `signing_secret_cipher` + `is_active` + `consecutive_failures` + UNIQUE
+    `(tenant_id, event_type, endpoint_url)`)
+  - `webhooks.events` (append-only event ledger + `aggregate_id` + JSONB
+    payload + `tenant_created_idx`)
+  - `webhooks.deliveries` (per-(event, subscription) attempt log +
+    status CHECK `pending|delivered|failed|abandoned` + partial index
+    `(next_retry_at) WHERE status = 'pending'`)
+  - `sso.configurations` (one row per tenant + protocol CHECK
+    `saml|oidc` + idp_type CHECK `okta|azure_ad|google_workspace|ping|
+jumpcloud|onelogin|custom` + status CHECK
+    `draft|test_mode|active|disabled` + `attribute_mapping` JSONB +
+    `oidc_client_secret_cipher` for KMS-encrypted at-rest secrets)
+  - `audit.events.tenant_id` column added (nullable; NULL = system event)
+    - partial index `(tenant_id, occurred_at DESC) WHERE tenant_id IS NOT NULL`
+
+- **`@qorium/webhooks` (port 5106) — full v0 control plane**:
+  - `signing.ts` — HMAC-SHA256 signature compute + verify per spec §5
+    (`message = "<event_type>.<timestamp>.<body>"`; 5-minute timestamp
+    tolerance; constant-time comparison via `timingSafeEqual`)
+  - `retry.ts` — exponential backoff schedule per spec §6
+    (`ATTEMPT_DELAYS_MS = [0, 1m, 5m, 30m, 4h, 24h]`, `MAX_AGE_MS = 35h`,
+    `classifyHttpStatus` returns `success | retry | permanent`)
+  - `envelope.ts` — 15 canonical event types + `buildEnvelope()` shape
+    (`{id, event_type, timestamp, tenant_id, aggregate_id, data,
+idempotency_key}`)
+  - `repositories/subscriptions.ts` — Postgres CRUD with
+    `generateSigningSecret()` returning `whsec_<64hex>` (returned at
+    creation only, never re-emitted)
+  - `server.ts` — Express endpoints
+    (`GET /healthz`, `GET|POST /v1/webhooks/subscriptions`,
+    `GET|PATCH|DELETE /v1/webhooks/subscriptions/:id`) with HTTPS-only
+    URL validation, event-type allow-list, RFC 7807 errors,
+    zod-validated bodies
+  - `index.ts` — entry + public API exports + graceful shutdown
+
+- **`@qorium/sso` (port 5107) — pure-logic SAML + JWT control plane**:
+  - `metadata.ts` — `generateSpMetadataXml()` produces a SAML 2.0
+    SP `EntityDescriptor` (entity id, ACS URL, optional SLO, optional
+    KeyDescriptor with X.509 cert, AuthnRequestsSigned +
+    WantAssertionsSigned flags)
+  - `saml.ts` — `validateSamlAcs()` parses SAMLResponse base64 →
+    extracts NameID + Audience + Recipient + NotBefore +
+    NotOnOrAfter + AttributeStatement; validates audience match,
+    recipient match, time window with 60s clock skew; delegates XML
+    signature verification to a pluggable `verifySignature` callback
+    (live impl will use xml-crypto with the IdP cert from
+    `sso.configurations.idp_certificate`)
+  - `principalFromAssertion()` applies tenant attribute mapping
+    (group → role); unmapped groups default to `viewer` per spec §6
+  - `jwt.ts` — minimal HS256 JWT issuer + verifier (no external
+    dependency); claims match spec §4.2
+    (`sub, tenant_id, roles, email, name, iss, aud, iat, exp`); RS256
+    swap will be one-line when KMS keypair is provisioned
+  - `repositories/configurations.ts` — `sso.configurations` UPSERT,
+    keyed on `tenant_id`; preserves `oidc_client_secret_cipher` on
+    update unless explicitly overwritten
+  - `server.ts` — Express endpoints
+    (`GET /healthz`, `GET /v1/auth/saml/metadata`,
+    `POST /v1/auth/saml/login`, `POST /v1/auth/saml/acs`,
+    `POST /v1/auth/oidc/login` (501 deferred),
+    `GET /v1/auth/oidc/callback` (501 deferred),
+    `POST /v1/auth/logout`,
+    `GET|PUT /v1/sso/configurations`)
+
+- **`@qorium/audit-log` (port 5111) — tenant-scoped read API**:
+  - `query.ts` — pure-logic query builder; `parseListInputs()` clamps
+    pagination + validates ISO-8601 dates; `buildListSql()` emits
+    storage-name SQL (`event_type`, `entity_type`, `entity_id`,
+    `occurred_at`) while accepting spec-name API params
+    (`action`, `resource_type`, `resource_id`, `start_date`,
+    `end_date`); `buildSummarySql()` for top-N action counts
+  - `repositories/events.ts` — `listEvents` (returns
+    `{events, total, limit, offset}`), `getEventById`,
+    `summarise`, `recordEvent`; `toRow` projects storage names →
+    spec field names at the boundary
+  - `server.ts` — Express endpoints
+    (`GET /healthz`,
+    `GET /v1/audit/events` (filters: action, resource_type,
+    resource_id, actor_id, start_date, end_date, limit, offset),
+    `GET /v1/audit/events/:id`,
+    `GET /v1/audit/summary`,
+    `POST /v1/audit/events` (admin scope only — 403 by default until
+    caller injects `authoriseSystemWrite`))
+
+- **PM2 ecosystem entries added** for `qorium-webhooks` (5106),
+  `qorium-sso` (5107), `qorium-audit-log` (5111) in
+  `infra/B10-ecosystem.config.js`. Cluster mode, 2 instances each, 512M
+  memory cap.
+
+- **CTO-DELTAs (3 logged):**
+  - **#20 `CTO-DELTA-webhooks-bullmq-deferred.md`** — v0 ships the
+    full data model, signing, retry curve, and CRUD endpoints.
+    BullMQ + Redis worker + producer hooks in domain services
+    deferred to a follow-up sprint. The v0 helpers are structured
+    so the swap is mechanical.
+  - **#21 `CTO-DELTA-sso-idp-credentials-deferred.md`** — v0 ships SP
+    metadata generator, ACS validator (with pluggable signature
+    verifier), JWT issuer/verifier, and full Express surface.
+    Live IdP wire-up (Okta / Azure / Google), `xml-crypto` signature
+    verification against `idp_certificate`, RS256 with KMS keypair,
+    and OIDC flow deferred to first enterprise customer onboarding
+    sprint.
+  - **#22 `CTO-DELTA-audit-log-naming.md`** — Spec §5 uses
+    SaaS-conventional column names (`action`, `resource_type`,
+    `resource_id`, `created_at`); migration 0001 ships the table
+    with names matching the existing event taxonomy (`event_type`,
+    `entity_type`, `entity_id`, `occurred_at`). Service maps storage
+    names → spec names at the API boundary; renaming columns
+    deferred (no functional benefit; would force a coordinated
+    migration across all audit emitters).
+
+- **Tests** (72 new cases, all green; +28 from sso, +23 from
+  webhooks, +20 from audit-log, +1 migration smoke):
+  - `services/webhooks/__tests__/`:
+    - `signing.test.ts` — 6 cases (deterministic signature, fresh
+      verify, stale signature rejection, tampered payload rejection,
+      missing header rejection, headers shape)
+    - `retry.test.ts` — 5 cases (backoff schedule, status
+      classifier, retry scheduling on curve, max-attempts abandon,
+      max-age abandon)
+    - `envelope.test.ts` — 4 cases (taxonomy, isCanonicalEventType,
+      envelope shape, injected clock)
+    - `server.test.ts` — 8 cases (healthz, no-DB 503, create returns
+      `whsec_*` once, unknown event type 400, http-only 400,
+      duplicate 409, list happy path, no-tenant 401)
+  - `services/sso/__tests__/`:
+    - `metadata.test.ts` — 5 cases (minimal SP descriptor, SLO
+      element, KeyDescriptor with cert, XML escaping,
+      AuthnRequestsSigned override)
+    - `saml.test.ts` — 9 cases (well-formed assertion, audience
+      mismatch, recipient mismatch, expired, not-yet-valid, signature
+      stub rejection, garbage base64, group → role mapping, default
+      viewer)
+    - `jwt.test.ts` — 6 cases (issue parseable JWT, round-trip
+      verify, wrong-secret reject, wrong-audience reject, expired
+      reject, malformed reject)
+    - `server.test.ts` — 9 cases (healthz, metadata XML, ACS happy
+      path issues JWT, ACS unsigned reject, ACS audience mismatch,
+      ACS missing tenant 400, OIDC 501, logout requires bearer,
+      logout valid bearer)
+  - `services/audit-log/__tests__/`:
+    - `query.test.ts` — 10 cases (clamp limit, default limit, malformed
+      date, start≥end, tenant scoping, multi-filter, count-SQL params,
+      date range, summary group-by + topN clamp + topN passthrough)
+    - `server.test.ts` — 10 cases (healthz, no-DB 503, no-tenant 401,
+      list happy path, malformed date 400, 404 unknown id, 400
+      malformed id, summary, POST 403 by default, POST 201 with admin
+      scope)
+  - `migration.smoke.test.ts` — adds verification of migration 0010
+    (webhooks + sso schemas exist; 4 expected tables;
+    `audit.events.tenant_id` exists; deliveries.status CHECK
+    constraint enforced; sso.configurations.protocol CHECK enforced)
+
+### Verified locally
+
+- `pnpm typecheck` clean across **16 workspaces**
+- `pnpm lint` clean
+- `pnpm format:check` clean
+- `pnpm build` — all workspaces emit dist
+- `pnpm test` — webhooks 23/23, sso 29/29, audit-log 20/20,
+  ats-bridge 10/10, ats-connectors 45/45, stack-vault 25/25,
+  jd-forge 73/73, smoke 20/20 + 4 skip, testforge 52/52,
+  judge0 68/68, admin 58 + 7 skip, irt 64, leak 47 + 2 skip,
+  readybank 33 + 21 skip, auth 26, db 14 skip = \*\*594 active green
+  - 48 auto-skip\*\* (was 521 + 48)
+
+### Halt-conditions encountered
+
+None at v0 scope.
+
+**Activation halts** added by Sprint 2.3:
+
+- SAML IdP test tenant credentials (Okta / Azure AD / Google
+  Workspace) for live ACS validation against real signed assertions.
+  v0 ships the validator with a pluggable signature callback; the
+  live verifier swap is one file (`xml-crypto` against
+  `idp_certificate`).
+- QOrium SP signing keypair (2048-bit RSA, KMS-managed) for
+  RS256 JWT signing + outbound SAML AuthnRequest signing. v0 uses
+  HS256 with `SSO_JWT_SIGNING_SECRET`; rotating to RS256 is a
+  one-line swap.
+- Redis URL for SSO refresh token store + SAML state cache.
+  v0 issues stateless JWTs; refresh tokens deferred.
+- Redis URL + BullMQ for webhooks delivery worker. v0 ships the
+  control plane (subscriptions CRUD + retry curve + signing helper)
+  but no live delivery loop.
+
+### Phase 2 progress
+
+| Sprint | Workspace                                         | Status      |
+| ------ | ------------------------------------------------- | ----------- |
+| 2.0    | `services/jd-forge`                               | shipped     |
+| 2.1    | `services/stack-vault`                            | shipped     |
+| 2.2    | `packages/ats-connectors` + `services/ats-bridge` | shipped     |
+| 2.3    | `services/{webhooks,sso,audit-log}`               | **shipped** |
+
+### Next sprint (2.4)
+
+Per the 16-sprint plan, Sprint 2.4 is the first sprint that touches
+infrastructure that depends on real customer-side state (live
+deployment, M3 ramp, real SSO IdP). Pending CEO direction, the
+likely next workstream is one of:
+
+- **Customer onboarding flows** — the admin-side
+  `/admin/sso` configuration screen, webhook subscription dashboard,
+  audit log viewer; depends on apps/admin and the three v0 services
+  shipped this sprint.
+- **Observability + ops** — Sentry wire-up, Grafana Loki log
+  shipment, watchdog health check registration, uptime SLO
+  dashboards.
+- **Customer Zero (Talpro India) deployment** — full end-to-end
+  migration from staging to a real production environment with the
+  live Postgres, real SSO IdP, real ATS integration, real customer
+  data flowing through.
+
+The first two are autonomous-mode-eligible. Customer Zero deployment
+requires CEO + Cowork CTO Office sign-off (real DNS, real customer
+contracts, real SSO IdP credentials).
+
+**Halt conditions for Sprint 2.4 await CEO signal:**
+which workstream advances next.

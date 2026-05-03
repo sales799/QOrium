@@ -461,6 +461,150 @@ module.exports = {
       error_file: '/var/log/pm2/qorium-testforge-orchestrator-err.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
+
+    /**
+     * =====================================================================
+     * WEBHOOKS SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: Outbound webhook subscriptions + signed delivery
+     * Mode: Cluster (CRUD plane stateless; delivery worker is fork mode +
+     *   BullMQ in v1, deferred per
+     *   infra/CTO-deltas/CTO-DELTA-webhooks-bullmq-deferred.md)
+     * Port: 5106
+     * Spec: infra/Webhooks-Service-v0-Spec.md
+     */
+    {
+      name: 'qorium-webhooks',
+      script: './services/webhooks/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5106,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        WEBHOOKS_PORT: 5106,
+        SERVICE_NAME: 'qorium-webhooks',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        WEBHOOKS_PORT: 5106,
+        SERVICE_NAME: 'qorium-webhooks',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-webhooks-out.log',
+      error_file: '/var/log/pm2/qorium-webhooks-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * SSO SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: SAML 2.0 + OIDC enterprise authentication
+     * Mode: Cluster (stateless; JWT-only sessions in v0)
+     * Port: 5107
+     * Spec: infra/SSO-SAML-Enterprise-Spec-v0.md
+     * Deferred: live IdP wire-up + RS256 KMS keys per
+     *   infra/CTO-deltas/CTO-DELTA-sso-idp-credentials-deferred.md
+     */
+    {
+      name: 'qorium-sso',
+      script: './services/sso/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5107,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        SSO_PORT: 5107,
+        SERVICE_NAME: 'qorium-sso',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SSO_PORT: 5107,
+        SERVICE_NAME: 'qorium-sso',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SSO_JWT_SIGNING_SECRET: process.env.SSO_JWT_SIGNING_SECRET,
+        SSO_BASE_URL: 'https://api.qorium.io',
+        SSO_JWT_AUDIENCE: 'https://app.qorium.io',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-sso-out.log',
+      error_file: '/var/log/pm2/qorium-sso-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * AUDIT LOG SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: Tenant-scoped read API for audit.events
+     * Mode: Cluster (read-only; bulk export deferred per
+     *   infra/CTO-deltas/CTO-DELTA-audit-log-naming.md)
+     * Port: 5111
+     * Spec: infra/Audit-Log-API-Spec-v0.md
+     */
+    {
+      name: 'qorium-audit-log',
+      script: './services/audit-log/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5111,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        AUDIT_LOG_PORT: 5111,
+        SERVICE_NAME: 'qorium-audit-log',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        AUDIT_LOG_PORT: 5111,
+        SERVICE_NAME: 'qorium-audit-log',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-audit-log-out.log',
+      error_file: '/var/log/pm2/qorium-audit-log-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
   ],
 
   // ========================================================================

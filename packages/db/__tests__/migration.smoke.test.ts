@@ -206,4 +206,43 @@ describeOrSkip('migration smoke test', () => {
       ),
     ).rejects.toThrow();
   });
+
+  it('migration 0010 added webhooks + sso schemas + audit.events.tenant_id', async () => {
+    const schemas = await pool.query<{ schema_name: string }>(
+      "SELECT schema_name FROM information_schema.schemata WHERE schema_name IN ('webhooks', 'sso') ORDER BY schema_name",
+    );
+    expect(schemas.rows.map((r) => r.schema_name)).toEqual(['sso', 'webhooks']);
+
+    const tables = await pool.query<{ table_schema: string; table_name: string }>(
+      `SELECT table_schema, table_name FROM information_schema.tables
+        WHERE table_schema IN ('webhooks', 'sso')
+        ORDER BY table_schema, table_name`,
+    );
+    expect(tables.rows.map((r) => `${r.table_schema}.${r.table_name}`)).toEqual([
+      'sso.configurations',
+      'webhooks.deliveries',
+      'webhooks.events',
+      'webhooks.subscriptions',
+    ]);
+
+    const tenantCol = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'audit' AND table_name = 'events' AND column_name = 'tenant_id'`,
+    );
+    expect(tenantCol.rows).toHaveLength(1);
+
+    await expect(
+      pool.query(
+        `INSERT INTO webhooks.deliveries (event_id, subscription_id, status)
+           VALUES (gen_random_uuid(), gen_random_uuid(), 'not-a-status')`,
+      ),
+    ).rejects.toThrow();
+
+    await expect(
+      pool.query(
+        `INSERT INTO sso.configurations (tenant_id, protocol)
+           VALUES (gen_random_uuid(), 'kerberos')`,
+      ),
+    ).rejects.toThrow();
+  });
 });
