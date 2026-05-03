@@ -1918,5 +1918,40 @@ already captured in Sprint 2.2 + 2.3 deltas.
 `apps/docs` Next.js docs site + `packages/qorium-sdk` typed client.
 Halt: real `docs.qorium.io` DNS + cert (CTO-DELTA #23).
 
-**Halt conditions for Sprint 2.4 await CEO signal:**
-which workstream advances next.
+## 2026-05-03 — Sprint 2.5 Public API Documentation Site + TS SDK ✅
+
+Per CEO directive (autonomous-continuous mode). Builds the public-facing
+docs site + canonical TypeScript SDK so customers can integrate without
+reading the spec markdown.
+
+### What landed
+
+- **`@qorium/sdk`** — typed client for the v0 public API
+  (`QoriumClient`, `ReadyBankResource`, `JdForgeResource`,
+  `StackVaultResource`, `WebhooksResource`, `AuditLogResource`,
+  `signRequest()` HMAC-SHA256 helper).
+- **`apps/docs`** (port 5108) — Next.js 15 static-export-ready
+  reference site with 14 hand-curated sections + hand-written
+  OpenAPI 3.1 fragments per service.
+- **CTO-DELTA #23** — `CTO-DELTA-docs-site-dns-deferred.md`.
+
+### Tests (32 new cases, all green)
+
+- SDK: 21 cases (client + resources + signing).
+- Docs: 11 cases (sections catalogue + OpenAPI fragment validation).
+
+### Verified locally
+
+- `pnpm typecheck` clean across 18 workspaces (was 16)
+- `pnpm lint` + `pnpm format:check` clean
+- `pnpm --filter @qorium/sdk build` clean
+- `pnpm --filter @qorium/docs build` clean (14 SSG routes)
+
+### Halt conditions
+
+- Real `docs.qorium.io` DNS + cert (CTO-DELTA #23) — CEO action.
+
+### Next sprint (2.6)
+
+`services/billing` v0 MVP per `infra/Billing-Service-v0-Spec.md`.
+Halt: real Razorpay test sandbox credentials (CTO-DELTA #24).

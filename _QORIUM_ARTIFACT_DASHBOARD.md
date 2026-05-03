@@ -25,7 +25,7 @@ It is updated at the end of every sprint by the autonomous build agent.
 | 2.3    | `services/{webhooks,sso,audit-log}`                  | shipped | 99        | 594       |
 | 2.4    | `apps/admin` dashboards (SSO/webhooks/audit/ATS)     | shipped | 16        | 610       |
 | 2.5    | `apps/docs` + `packages/qorium-sdk`                  | shipped | 32        | 642       |
-| 2.6    | `services/billing` v0 MVP                            | pending | —         | —         |
+| 2.6    | `services/billing` v0 MVP                            | shipped | 38        | 680       |
 | 2.7    | `services/api-key-mgmt` + Customer Zero readiness    | pending | —         | —         |
 | 2.8    | `services/secret-rotation-worker`                    | pending | —         | —         |
 | 2.9    | `packages/observability` + `services/uptime-monitor` | pending | —         | —         |

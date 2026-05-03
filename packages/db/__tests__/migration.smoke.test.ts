@@ -207,6 +207,40 @@ describeOrSkip('migration smoke test', () => {
     ).rejects.toThrow();
   });
 
+  it('migration 0011 added billing schema with 6 tables', async () => {
+    const schemas = await pool.query<{ schema_name: string }>(
+      "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'billing'",
+    );
+    expect(schemas.rows).toHaveLength(1);
+
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'billing' ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'customers',
+      'invoices',
+      'line_items',
+      'payments',
+      'subscriptions',
+      'usage_records',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO billing.subscriptions (customer_id, sku, tier, unit_amount_cents, current_period_start, current_period_end)
+           VALUES (gen_random_uuid(), 'fake-sku', 'tier_1', 1000, NOW(), NOW())`,
+      ),
+    ).rejects.toThrow();
+
+    await expect(
+      pool.query(
+        `INSERT INTO billing.invoices (customer_id, invoice_number, subtotal_cents, total_cents, status)
+           VALUES (gen_random_uuid(), 'INV-2026-99999', 1000, 1000, 'not-a-status')`,
+      ),
+    ).rejects.toThrow();
+  });
+
   it('migration 0010 added webhooks + sso schemas + audit.events.tenant_id', async () => {
     const schemas = await pool.query<{ schema_name: string }>(
       "SELECT schema_name FROM information_schema.schemata WHERE schema_name IN ('webhooks', 'sso') ORDER BY schema_name",
