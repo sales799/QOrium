@@ -1,0 +1,23 @@
+# gitleaks config — extends default rules
+# Replaced once Cowork pushes infra/B6-gitleaks-config.yaml.
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlisted paths and patterns"
+paths = [
+  '''(.*?)\.lock''',
+  '''pnpm-lock\.yaml''',
+  '''\.env\.example''',
+  '''package-lock\.json''',
+]
+
+# Allow obvious example/placeholder values in .env.example
+regexes = [
+  '''replace_me_with_long_random_string''',
+  '''qorium_dev_password''',
+  '''qorium_dev_access''',
+  '''qorium_dev_secret''',
+]

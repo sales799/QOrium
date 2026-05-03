@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+# Run prettier + eslint on staged files
+pnpm exec lint-staged || exit 1
+
+# Secret scan on staged content. If gitleaks isn't installed, fail with
+# install instructions — the handoff makes secrets-scanning a hard quality bar.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner || {
+    echo ""
+    echo "gitleaks found a potential secret in staged changes. Aborting commit."
+    echo "If this is a false positive, add an allowlist rule in .gitleaks.toml."
+    exit 1
+  }
+else
+  echo ""
+  echo "ERROR: gitleaks is not installed but is required for pre-commit secret scanning."
+  echo "Install it:"
+  echo "  macOS:  brew install gitleaks"
+  echo "  Linux:  see https://github.com/gitleaks/gitleaks/releases"
+  echo ""
+  echo "To bypass once (NOT recommended), run: git commit --no-verify"
+  exit 1
+fi
