@@ -13,6 +13,8 @@ import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from "./routes/packs.js";
 import { resultsRouter } from "./routes/results.js";
+import { sessionsRouter } from "./routes/sessions.js";
+import { takeRouter } from "./routes/take.js";
 import type { Logger } from 'pino';
 
 export interface ServerDeps {
@@ -64,7 +66,9 @@ export function createServer(deps: ServerDeps): ServerHandle {
   // smoke runs without a DB) so /healthz still works.
   if (deps.pool) {
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
-    app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }), resultsRouter({ pool: deps.pool }));
+    app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }), resultsRouter({ pool: deps.pool }), sessionsRouter({ pool: deps.pool }));
+    // /take/* is public; bearer is the session_token in the URL itself.
+    app.use(takeRouter({ pool: deps.pool }));
   }
 
   // 404 + RFC 7807 problem handler must be last.
