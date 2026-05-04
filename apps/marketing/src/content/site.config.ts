@@ -1,11 +1,11 @@
 export const siteConfig = {
   name: 'Qorium',
-  domain: 'qorium.in',
-  url: process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://qorium.in',
+  domain: 'qorium.online',
+  url: process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://qorium.online',
   tagline: "The world's question bank for hiring.",
   description:
     'QOrium is the world’s first enterprise-grade Question-Bank-as-a-Service. IRT-calibrated, anti-leak-rotated, watermark-per-candidate libraries for assessment platforms, enterprise hiring teams, and recruiters.',
-  contactEmail: 'hello@qorium.in',
+  contactEmail: 'hello@qorium.online',
   legalEntity: 'Talpro India Pvt Ltd',
   social: {
     linkedin: 'https://www.linkedin.com/company/qorium',
