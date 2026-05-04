@@ -2173,8 +2173,67 @@ notes are in the corresponding `infra/CTO-deltas/CTO-DELTA-*.md` files.
   is to (a) re-run bootstrap with the corrected curl command, then
   (b) merge PR #9 to main so the canonical URL works.
 
-### Next sprint (2.18)
+### Next sprint (2.18) [PLANNED → SHIPPED below]
 
-`packages/audit-emitter` — shared library so domain services emit
-audit events to audit-log with idempotency keys + standard taxonomy.
-Wire into api-key-mgmt, billing, sso, webhooks. ~25 new tests.
+---
+
+## 2026-05-04 — Sprint 2.18 `packages/audit-emitter` + api-key-mgmt integration ✅
+
+- **`packages/audit-emitter`** — new pure-logic + thin-fetch package:
+  - Taxonomy: 9 resource buckets (api_key, ats, billing, pack,
+    question, secret, session, sso, webhooks); 39 well-known actions
+    in `resource.verb` form; auto-tightening `AuditAction` union;
+    `isKnownAction`, `actionResource`, `actionsFor` helpers
+  - Idempotency: `canonicalJson` (recursive key-sorted serialisation),
+    `deriveIdempotencyKey` (sha256 over canonical bytes; optional
+    bucket-window for time-bucketed dedup), `freshIdempotencyKey`
+    (UUID-based)
+  - Emitter: `createAuditEmitter({ mode: 'stub' | 'real' })` factory.
+    Stub = in-memory ring buffer (default 1000) + sliding-window
+    dedup (5 min). Real = HTTP POST to `/v1/audit/events` with
+    `Authorization: Bearer ${adminToken}` + `Idempotency-Key` header,
+    `AbortController` timeout (default 5s), 409 → deduplicated, 5xx
+    → `delivered:false` + warning (so audit hiccups don't fail the
+    primary mutation)
+- **`services/api-key-mgmt`** — first reference integration:
+  - Adds `@qorium/audit-emitter` workspace dep
+  - `createServer({ ..., auditEmitter? })` defaults to a stub
+  - `POST /v1/api-keys` emits `api_key.created` with payload
+    (family, name, scopes, rate limits, rotation_due_at)
+  - `POST /v1/api-keys/:id/revoke` emits `api_key.revoked` with
+    prefix + revoked_at
+  - 2 new tests confirm emission shape + skip on validation failure
+- **CTO-DELTA #33** — `CTO-DELTA-audit-emitter.md` documents the
+  framework + the deferral of wholesale wire-up across billing/sso/
+  webhooks (mechanical follow-up; pattern is now in place).
+
+### Tests (33 new cases, all green)
+
+- `packages/audit-emitter/__tests__/taxonomy.test.ts` (8)
+- `packages/audit-emitter/__tests__/idempotency.test.ts` (9)
+- `packages/audit-emitter/__tests__/emitter.stub.test.ts` (8)
+- `packages/audit-emitter/__tests__/emitter.real.test.ts` (6)
+- `services/api-key-mgmt/__tests__/server.test.ts` (+2 audit tests)
+
+### Verified locally
+
+- `pnpm typecheck` clean across **28 workspaces**
+- `pnpm lint` + `pnpm format:check` clean
+- `pnpm --filter @qorium/audit-emitter build` clean (emits dist for
+  consumer resolution)
+- `pnpm test` workspace-wide: **963 active green + ~53 auto-skip**
+  (was 930; +33 net = 31 new in audit-emitter + 2 new in api-key-mgmt)
+
+### Halt conditions
+
+- Wholesale wire-up across billing / sso / webhooks (mechanical;
+  follow-up sprint)
+- CTO-policy decision on which `actor_type` values each service is
+  authorised to write
+- `AUDIT_LOG_ADMIN_TOKEN` for the production-mode emitter
+
+### Next sprint (2.19)
+
+`apps/my` — Next.js customer self-service portal (port TBD; likely
+5118): invoice list, payment intent flow, subscription overview,
+API key management. Reuses `@qorium/qorium-sdk`. ~30 new tests.

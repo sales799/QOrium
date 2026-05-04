@@ -154,6 +154,15 @@ importers:
         specifier: ^2.1.4
         version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)
 
+  packages/audit-emitter:
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)
+
   packages/auth:
     dependencies:
       '@qorium/db':
@@ -296,6 +305,9 @@ importers:
 
   services/api-key-mgmt:
     dependencies:
+      '@qorium/audit-emitter':
+        specifier: workspace:*
+        version: link:../../packages/audit-emitter
       '@qorium/auth':
         specifier: workspace:*
         version: link:../../packages/auth

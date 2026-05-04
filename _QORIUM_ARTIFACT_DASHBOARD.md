@@ -1,11 +1,11 @@
 # QOrium Artifact Dashboard
 
-**Last updated:** 2026-05-04 03:45 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 · **HEAD:** `ebc004f` (Sprint 2.17 staged, pending commit)
+**Last updated:** 2026-05-04 04:00 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 (ready-for-review) · **HEAD:** `4a1e8c8` (Sprint 2.18 staged, pending commit)
 
 This dashboard is the **single source of truth** for the QOrium build state.
 It is updated at the end of every sprint by the autonomous build agent.
 
-## Sprint state (28 sprints — Phase 1 + Phase 2 + Phase 2.5 complete)
+## Sprint state (29 sprints — Phase 1 + Phase 2 + Phase 2.5 complete)
 
 | Sprint | Workspace                                            | Status  | Tests new | Cum tests |
 | ------ | ---------------------------------------------------- | ------- | --------- | --------- |
@@ -39,12 +39,13 @@ It is updated at the end of every sprint by the autonomous build agent.
 | 2.16   | JD-Forge XLSX export pathway (pure-Node OOXML)       | shipped | 11        | 910       |
 | 2.16.5 | Setu 100% auto-mode bootstrap (single curl)          | shipped | 0         | 910       |
 | 2.17   | Wave 3 question-authoring framework v0               | shipped | 20        | 930       |
+| 2.18   | `packages/audit-emitter` + api-key-mgmt integration  | shipped | 33        | 963       |
 
-**Workspace totals:** 27 workspaces · 14 Postgres migrations · 32 CTO-DELTAs · **930 active green tests** + ~53 auto-skip (vitest reports 941 total summing per-file, including overlap from re-runs).
+**Workspace totals:** 28 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **963 active green tests** (vitest reports 974 total summing per-file, including overlap from re-runs) + ~53 auto-skip.
 
 ## Workspace inventory
 
-### Packages (libraries) — 6
+### Packages (libraries) — 7
 
 | Workspace                | Description                                            | Tests     |
 | ------------------------ | ------------------------------------------------------ | --------- |
@@ -54,6 +55,7 @@ It is updated at the end of every sprint by the autonomous build agent.
 | `@qorium/ats-connectors` | ATS adapter framework + 4 v0 adapters                  | 45        |
 | `@qorium/qorium-sdk`     | Public TS SDK (HTTP client + HMAC signing + resources) | 21        |
 | `@qorium/observability`  | Sentry / Loki / OpenTelemetry shims (Stub-vs-Real)     | 14        |
+| `@qorium/audit-emitter`  | Audit-log emitter + canonical taxonomy + idempotency   | 31        |
 
 ### Apps — 3
 
@@ -168,7 +170,7 @@ from Stub → Real is a single env-var (or single credential) action.
 - Question authoring framework (Wave 3 sub-skill 4 — 50 Qs by M9)
 - Senior Engineer #1 architectural review (Wave 3 hire pending)
 
-## CTO-DELTA registry — 32 deltas across 28 sprints
+## CTO-DELTA registry — 33 deltas across 29 sprints
 
 See `infra/CTO-deltas/` for the full catalogue.
 
@@ -206,6 +208,7 @@ See `infra/CTO-deltas/` for the full catalogue.
 | 30  | 2.15.1 | `CTO-DELTA-domain-rebrand-qorium-online.md`             |
 | 31  | 2.16.5 | `CTO-DELTA-setu-100-percent-auto-mode.md`               |
 | 32  | 2.17   | `CTO-DELTA-aipc-question-authoring-framework.md`        |
+| 33  | 2.18   | `CTO-DELTA-audit-emitter.md`                            |
 
 ## Constitutional gates closed
 
@@ -221,8 +224,8 @@ See `infra/CTO-deltas/` for the full catalogue.
 | Component                 | State                                                                                  |
 | ------------------------- | -------------------------------------------------------------------------------------- |
 | Monorepo bootstrap        | ready                                                                                  |
-| Workspace builds          | clean across **27 workspaces**                                                         |
-| Test suite                | **930 active green + ~53 auto-skip**                                                   |
+| Workspace builds          | clean across **28 workspaces**                                                         |
+| Test suite                | **963 active green + ~53 auto-skip**                                                   |
 | Lint / format             | clean                                                                                  |
 | Postgres migrations       | 0001 → 0014 (14 migrations)                                                            |
 | PM2 ecosystem             | 18+ service entries registered (5101–5117)                                             |
@@ -257,7 +260,8 @@ See `infra/CTO-deltas/` for the full catalogue.
 | 2026-05-04T02:xxZ | Sprint 2.15.1 — domain rebrand qorium.io → qorium.online          | (mid-batch)   | pushed     |
 | 2026-05-04T03:xxZ | Sprint 2.16 — JD-Forge XLSX export pathway                        | `6cbc263`     | pushed     |
 | 2026-05-04T03:xxZ | Sprint 2.16.5 — Setu 100% auto-mode bootstrap                     | `ebc004f`     | pushed     |
-| 2026-05-04T03:50Z | Sprint 2.17 — Wave 3 question authoring framework + bootstrap fix | (this commit) | (pushing)  |
+| 2026-05-04T03:50Z | Sprint 2.17 — Wave 3 question authoring framework + bootstrap fix | `4a1e8c8`     | pushed     |
+| 2026-05-04T04:05Z | Sprint 2.18 — packages/audit-emitter + api-key-mgmt integration   | (this commit) | (pushing)  |
 
 (New rows appended after each sprint commit.)
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import pino from 'pino';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter } from '@qorium/audit-emitter';
 import { createServer } from '../src/server';
 
 const silent = pino({ level: 'silent' });
@@ -176,5 +177,48 @@ describe('api-key-mgmt express server', () => {
     const r = await request(app).get('/v1/api-keys/rotation-due').set('x-tenant-id', TENANT_ID);
     expect(r.status).toBe(200);
     expect(r.body).toMatchObject({ count: expect.any(Number), within_days: 14 });
+  });
+
+  it('emits api_key.created on successful issuance', async () => {
+    const pool = fixturePool();
+    const auditEmitter = createAuditEmitter({ mode: 'stub' });
+    const app = createServer({
+      config,
+      logger: silent,
+      pool,
+      authoriseAdmin: () => true,
+      auditEmitter,
+    });
+    const r = await request(app)
+      .post('/v1/api-keys')
+      .set('x-tenant-id', TENANT_ID)
+      .send({ family: 'live', bundle: 'readonly', name: 'audit-test-key' });
+    expect(r.status).toBe(201);
+    const recent = auditEmitter.recent?.() ?? [];
+    expect(recent).toHaveLength(1);
+    const evt = recent[0]!;
+    expect(evt.action).toBe('api_key.created');
+    expect(evt.tenantId).toBe(TENANT_ID);
+    expect(evt.resourceType).toBe('api_key');
+    expect(evt.resourceId).toBe(r.body.key.id);
+    expect((evt.payload as { family: string }).family).toBe('live');
+  });
+
+  it('does not emit when issuance fails validation', async () => {
+    const pool = fixturePool();
+    const auditEmitter = createAuditEmitter({ mode: 'stub' });
+    const app = createServer({
+      config,
+      logger: silent,
+      pool,
+      authoriseAdmin: () => true,
+      auditEmitter,
+    });
+    const r = await request(app)
+      .post('/v1/api-keys')
+      .set('x-tenant-id', TENANT_ID)
+      .send({ family: 'internal' }); // missing tenant_prefix → 400
+    expect(r.status).toBe(400);
+    expect(auditEmitter.recent?.()).toHaveLength(0);
   });
 });

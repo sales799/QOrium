@@ -19,6 +19,7 @@ import { pinoHttp } from 'pino-http';
 import type { Logger } from 'pino';
 import { z } from 'zod';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter, type AuditEmitter } from '@qorium/audit-emitter';
 import type { ApiKeyMgmtConfig } from './config.js';
 import { issueKey, nextRotationDueAt } from './issuance.js';
 import { insertKey, listKeys, listKeysDueForRotation, revokeKey } from './repositories/keys.js';
@@ -30,6 +31,13 @@ export interface CreateServerOptions {
   pool?: Pool;
   resolveTenantId?: (req: Request) => string | null;
   authoriseAdmin?: (req: Request) => boolean;
+  /**
+   * Optional pre-built audit emitter. If omitted, a stub is created so
+   * dev/test runs do not require a live audit-log service. Set
+   * `AUDIT_LOG_BASE_URL` + `AUDIT_LOG_ADMIN_TOKEN` in production +
+   * pass a real emitter from index.ts.
+   */
+  auditEmitter?: AuditEmitter;
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -60,18 +68,20 @@ export function createServer(opts: CreateServerOptions): express.Express {
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(pinoHttp({ logger: opts.logger }));
 
+  const audit = opts.auditEmitter ?? createAuditEmitter({ mode: 'stub' });
+
   app.get('/healthz', (_req, res) => {
     res.json({ status: 'ok', service: 'qorium-api-key-mgmt' });
   });
 
   app.post('/v1/api-keys', (req, res) => {
-    void handleIssue(opts, req, res);
+    void handleIssue(opts, audit, req, res);
   });
   app.get('/v1/api-keys', (req, res) => {
     void handleList(opts, req, res);
   });
   app.post('/v1/api-keys/:id/revoke', (req, res) => {
-    void handleRevoke(opts, req, res);
+    void handleRevoke(opts, audit, req, res);
   });
   app.get('/v1/api-keys/rotation-due', (req, res) => {
     void handleRotationDue(opts, req, res);
@@ -88,7 +98,12 @@ export function createServer(opts: CreateServerOptions): express.Express {
   return app;
 }
 
-async function handleIssue(opts: CreateServerOptions, req: Request, res: Response): Promise<void> {
+async function handleIssue(
+  opts: CreateServerOptions,
+  audit: AuditEmitter,
+  req: Request,
+  res: Response,
+): Promise<void> {
   const ctx = ensureAdminContext(opts, req, res);
   if (!ctx) return;
   const parsed = issueSchema.safeParse(req.body);
@@ -136,6 +151,23 @@ async function handleIssue(opts: CreateServerOptions, req: Request, res: Respons
     expiresAt: parsed.data.expires_at ? new Date(parsed.data.expires_at) : null,
   });
 
+  await audit.emit({
+    tenantId: ctx.tenantId,
+    actorId: resolveActorId(req),
+    actorType: 'admin',
+    action: 'api_key.created',
+    resourceType: 'api_key',
+    resourceId: stored.id,
+    payload: {
+      family: parsed.data.family,
+      name: parsed.data.name ?? null,
+      scopes,
+      rate_limit_per_min: stored.rateLimitPerMin,
+      rate_limit_burst: stored.rateLimitBurst,
+      rotation_due_at: stored.rotationDueAt,
+    },
+  });
+
   res.status(201).json({
     key: stored,
     raw: issued.raw,
@@ -151,7 +183,12 @@ async function handleList(opts: CreateServerOptions, req: Request, res: Response
   res.json({ count: keys.length, keys });
 }
 
-async function handleRevoke(opts: CreateServerOptions, req: Request, res: Response): Promise<void> {
+async function handleRevoke(
+  opts: CreateServerOptions,
+  audit: AuditEmitter,
+  req: Request,
+  res: Response,
+): Promise<void> {
   const ctx = ensureAdminContext(opts, req, res);
   if (!ctx) return;
   const id = String(req.params.id ?? '');
@@ -164,6 +201,15 @@ async function handleRevoke(opts: CreateServerOptions, req: Request, res: Respon
     sendProblem(res, 404, 'Key not found or already revoked');
     return;
   }
+  await audit.emit({
+    tenantId: ctx.tenantId,
+    actorId: resolveActorId(req),
+    actorType: 'admin',
+    action: 'api_key.revoked',
+    resourceType: 'api_key',
+    resourceId: row.id,
+    payload: { prefix: row.prefix, revoked_at: row.revokedAt },
+  });
   res.json(row);
 }
 
@@ -222,6 +268,14 @@ function defaultResolveTenant(req: Request): string | null {
   if (auth?.tenantId) return auth.tenantId;
   const header = req.headers['x-tenant-id'];
   return typeof header === 'string' && UUID_REGEX.test(header) ? header : null;
+}
+
+function resolveActorId(req: Request): string | null {
+  const auth = (req as Request & { auth?: { actorId?: string; userId?: string } }).auth;
+  if (auth?.actorId) return auth.actorId;
+  if (auth?.userId) return auth.userId;
+  const header = req.headers['x-actor-id'];
+  return typeof header === 'string' ? header : null;
 }
 
 function sendProblem(res: Response, status: number, title: string, detail?: string): void {

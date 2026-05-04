@@ -14,6 +14,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@qorium/audit-emitter": "workspace:*",
     "@qorium/auth": "workspace:*",
     "@qorium/db": "workspace:*",
     "express": "^5.0.1",
