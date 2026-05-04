@@ -49,7 +49,27 @@ export {
   type SessionPrincipal,
   type AttributeMapping,
 } from './saml.js';
-export { issueSessionJwt, verifySessionJwt, type SessionClaims, type VerifyResult } from './jwt.js';
+export {
+  issueSessionJwt,
+  verifySessionJwt,
+  detectAlg,
+  type SessionClaims,
+  type VerifyResult,
+  type JwtAlg,
+} from './jwt.js';
+export {
+  buildAuthorizeUrl,
+  decodeIdTokenClaims,
+  exchangeCode,
+  generatePkce,
+  generateState,
+  inMemoryStateStore,
+  type OidcConfig,
+  type OidcStateRecord,
+  type OidcStateStore,
+  type OidcTokenResponse,
+  type PkcePair,
+} from './oidc.js';
 export {
   getConfigByTenantId,
   upsertConfig,

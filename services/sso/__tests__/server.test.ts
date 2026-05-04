@@ -107,10 +107,18 @@ describe('SSO express server', () => {
     expect(r.status).toBe(400);
   });
 
-  it('OIDC endpoints return 501 (deferred)', async () => {
+  it('POST /v1/auth/oidc/login returns 503 without DB', async () => {
     const app = createServer({ config, logger: silent });
     const r = await request(app).post('/v1/auth/oidc/login').send({ tenant_id: TENANT_ID });
-    expect(r.status).toBe(501);
+    expect(r.status).toBe(503);
+  });
+
+  it('GET /v1/auth/oidc/callback rejects when state is unknown', async () => {
+    const app = createServer({ config, logger: silent });
+    const r = await request(app)
+      .get('/v1/auth/oidc/callback')
+      .query({ code: 'auth-code', state: 'never-stored' });
+    expect(r.status).toBe(401);
   });
 
   it('POST /v1/auth/logout requires bearer token', async () => {

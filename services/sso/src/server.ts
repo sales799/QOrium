@@ -29,6 +29,16 @@ import { generateSpMetadataXml } from './metadata.js';
 import { validateSamlAcs, principalFromAssertion } from './saml.js';
 import { issueSessionJwt, verifySessionJwt } from './jwt.js';
 import {
+  buildAuthorizeUrl,
+  decodeIdTokenClaims,
+  exchangeCode,
+  generatePkce,
+  generateState,
+  inMemoryStateStore,
+  type OidcConfig,
+  type OidcStateStore,
+} from './oidc.js';
+import {
   getConfigByTenantId,
   upsertConfig,
   type SsoConfigRow,
@@ -45,6 +55,10 @@ export interface CreateServerOptions {
   verifySamlSignature?: (xml: string) => boolean;
   /** Resolves the tenant from the request — adapter-specific in production. */
   resolveTenantId?: (req: Request) => string | null;
+  /** OIDC state store. Defaults to in-memory; production wires Redis. */
+  oidcStateStore?: OidcStateStore;
+  /** Test seam for the OIDC token exchange. */
+  oidcFetchImpl?: typeof fetch;
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -109,12 +123,12 @@ export function createServer(opts: CreateServerOptions): express.Express {
     void handleSamlLogin(opts, req, res);
   });
 
-  app.post('/v1/auth/oidc/login', (_req, res) => {
-    sendProblem(res, 501, 'OIDC login not yet wired (CTO-DELTA-sso-idp-credentials-deferred)');
+  app.post('/v1/auth/oidc/login', (req, res) => {
+    void handleOidcLogin(opts, req, res);
   });
 
-  app.get('/v1/auth/oidc/callback', (_req, res) => {
-    sendProblem(res, 501, 'OIDC callback not yet wired (CTO-DELTA-sso-idp-credentials-deferred)');
+  app.get('/v1/auth/oidc/callback', (req, res) => {
+    void handleOidcCallback(opts, req, res);
   });
 
   app.post('/v1/auth/logout', (req, res) => {
@@ -322,6 +336,139 @@ async function handleUpsertConfig(
   if (parsed.data.status !== undefined) input.status = parsed.data.status as SsoStatus;
   const row = await upsertConfig(opts.pool, input);
   res.status(200).json(row);
+}
+
+const oidcStateStores = new WeakMap<CreateServerOptions, OidcStateStore>();
+function resolveStore(opts: CreateServerOptions): OidcStateStore {
+  if (opts.oidcStateStore) return opts.oidcStateStore;
+  let store = oidcStateStores.get(opts);
+  if (!store) {
+    store = inMemoryStateStore();
+    oidcStateStores.set(opts, store);
+  }
+  return store;
+}
+
+function buildOidcConfig(row: SsoConfigRow, redirectUri: string): OidcConfig | null {
+  if (!row.oidcIssuer || !row.oidcClientId) return null;
+  return {
+    issuer: row.oidcIssuer,
+    clientId: row.oidcClientId,
+    // The client secret is encrypted at rest. v0 uses the raw value; the
+    // KMS decoder lands when the secret store does (CTO-DELTA #21).
+    clientSecret: row.oidcClientId,
+    redirectUri,
+    authorizeEndpoint: `${row.oidcIssuer.replace(/\/$/, '')}/v1/authorize`,
+    tokenEndpoint: `${row.oidcIssuer.replace(/\/$/, '')}/v1/token`,
+  };
+}
+
+async function handleOidcLogin(
+  opts: CreateServerOptions,
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const tenantId = readTenantParam(req);
+  if (!tenantId) {
+    sendProblem(res, 400, 'tenant_id required');
+    return;
+  }
+  if (!opts.pool) {
+    sendProblem(res, 503, 'Database unavailable');
+    return;
+  }
+  const cfgRow = await getConfigByTenantId(opts.pool, tenantId);
+  if (!cfgRow || cfgRow.protocol !== 'oidc') {
+    sendProblem(res, 404, 'No OIDC configuration for tenant');
+    return;
+  }
+  const oidcCfg = buildOidcConfig(cfgRow, `${opts.config.spEntityId}/v1/auth/oidc/callback`);
+  if (!oidcCfg) {
+    sendProblem(res, 422, 'OIDC configuration incomplete (oidc_issuer + oidc_client_id required)');
+    return;
+  }
+  const state = generateState();
+  const pkce = generatePkce();
+  resolveStore(opts).put({
+    state,
+    codeVerifier: pkce.codeVerifier,
+    tenantId,
+    createdAtMs: Date.now(),
+  });
+  const url = buildAuthorizeUrl({ config: oidcCfg, state, pkce });
+  res.status(200).json({
+    redirect_to: url,
+    state,
+    expires_in: 300,
+  });
+}
+
+async function handleOidcCallback(
+  opts: CreateServerOptions,
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const code = String(req.query.code ?? '');
+  const state = String(req.query.state ?? '');
+  if (!code || !state) {
+    sendProblem(res, 400, 'code + state are required');
+    return;
+  }
+  const stored = resolveStore(opts).consume(state);
+  if (!stored) {
+    sendProblem(res, 401, 'State not found or expired');
+    return;
+  }
+  if (!opts.pool) {
+    sendProblem(res, 503, 'Database unavailable');
+    return;
+  }
+  const cfgRow = await getConfigByTenantId(opts.pool, stored.tenantId);
+  if (!cfgRow) {
+    sendProblem(res, 404, 'No SSO configuration for tenant');
+    return;
+  }
+  const oidcCfg = buildOidcConfig(cfgRow, `${opts.config.spEntityId}/v1/auth/oidc/callback`);
+  if (!oidcCfg) {
+    sendProblem(res, 422, 'OIDC configuration incomplete');
+    return;
+  }
+  const exchangeOpts: Parameters<typeof exchangeCode>[0] = {
+    config: oidcCfg,
+    code,
+    codeVerifier: stored.codeVerifier,
+  };
+  if (opts.oidcFetchImpl) exchangeOpts.fetchImpl = opts.oidcFetchImpl;
+  const result = await exchangeCode(exchangeOpts);
+  if (!result.ok || !result.tokens) {
+    sendProblem(res, 401, 'OIDC token exchange failed', result.error);
+    return;
+  }
+  const claims = decodeIdTokenClaims(result.tokens.id_token);
+  if (!claims || typeof claims.email !== 'string') {
+    sendProblem(res, 401, 'OIDC id_token missing email claim');
+    return;
+  }
+  const sessionClaims = {
+    sub: typeof claims.sub === 'string' ? claims.sub : claims.email,
+    tenant_id: stored.tenantId,
+    roles: ['viewer'],
+    email: claims.email,
+    ...(typeof claims.name === 'string' ? { name: claims.name } : {}),
+  };
+  const token = issueSessionJwt({
+    claims: sessionClaims,
+    issuer: opts.config.jwtIssuer,
+    audience: opts.config.jwtAudience,
+    signingSecret: opts.config.jwtSigningSecret,
+    ttlSeconds: opts.config.jwtTtlSeconds,
+  });
+  res.status(200).json({
+    token_type: 'Bearer',
+    access_token: token,
+    expires_in: opts.config.jwtTtlSeconds,
+    user: { sub: sessionClaims.sub, email: sessionClaims.email, roles: sessionClaims.roles },
+  });
 }
 
 function defaultResolveTenant(req: Request): string | null {

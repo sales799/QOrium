@@ -1,16 +1,30 @@
 /**
- * Minimal HS256 JWT issuer + verifier per spec §4 (Session Token).
+ * JWT issuer + verifier per spec §4 (Session Token).
  *
- * This is a deliberately small implementation that covers the v0 surface:
- *  - HS256 only (RS256 deferred to live KMS-key wire-up).
- *  - iss, aud, exp, iat, sub, plus tenant_id + roles + name + email.
+ * Supports two algorithms:
+ *  - HS256 (default; symmetric secret)
+ *  - RS256 (asymmetric; PEM-encoded RSA private/public key pair)
  *
- * Why not use `jsonwebtoken`? We want zero dependencies in the auth path
- * to keep the supply chain small; HS256 is ~30 lines and the upgrade to
- * RS256 only swaps the signer.
+ * Selection is automatic from the `signingSecret` shape:
+ *  - PEM string starting with `-----BEGIN ...-----` → RS256
+ *  - everything else → HS256
+ *
+ * Spec §7.3 calls for 2048-bit RSA + KMS once the live key is
+ * provisioned. The interface stays the same; callers swap the env
+ * var content from a hex secret to a PEM private key.
  */
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import {
+  createHmac,
+  createPrivateKey,
+  createPublicKey,
+  sign as cryptoSign,
+  verify as cryptoVerify,
+  timingSafeEqual,
+  type KeyObject,
+} from 'node:crypto';
+
+export type JwtAlg = 'HS256' | 'RS256';
 
 export interface SessionClaims {
   sub: string;
@@ -24,10 +38,26 @@ export interface IssueOptions {
   claims: SessionClaims;
   issuer: string;
   audience: string;
+  /** HS256 = shared secret. RS256 = PEM-encoded RSA private key. */
   signingSecret: string;
   ttlSeconds: number;
   /** Override `now` for tests. */
   now?: () => Date;
+}
+
+export function detectAlg(secret: string): JwtAlg {
+  return secret.includes('-----BEGIN') ? 'RS256' : 'HS256';
+}
+
+function loadPrivateKey(pem: string): KeyObject {
+  return createPrivateKey({ key: pem, format: 'pem' });
+}
+
+function loadPublicKey(pemOrPrivate: string): KeyObject {
+  if (pemOrPrivate.includes('PRIVATE KEY')) {
+    return createPublicKey(loadPrivateKey(pemOrPrivate));
+  }
+  return createPublicKey({ key: pemOrPrivate, format: 'pem' });
 }
 
 export function issueSessionJwt(opts: IssueOptions): string {
@@ -41,17 +71,26 @@ export function issueSessionJwt(opts: IssueOptions): string {
     iat,
     exp,
   };
-  const header = { alg: 'HS256', typ: 'JWT' };
+  const alg = detectAlg(opts.signingSecret);
+  const header = { alg, typ: 'JWT' };
   const headerSeg = base64url(JSON.stringify(header));
   const payloadSeg = base64url(JSON.stringify(payload));
   const signingInput = `${headerSeg}.${payloadSeg}`;
-  const sig = createHmac('sha256', opts.signingSecret).update(signingInput).digest();
+  const sig =
+    alg === 'HS256'
+      ? createHmac('sha256', opts.signingSecret).update(signingInput).digest()
+      : cryptoSign(
+          'RSA-SHA256',
+          Buffer.from(signingInput, 'utf8'),
+          loadPrivateKey(opts.signingSecret),
+        );
   const sigSeg = base64urlBuf(sig);
   return `${signingInput}.${sigSeg}`;
 }
 
 export interface VerifyOptions {
   token: string;
+  /** HS256 = shared secret. RS256 = PEM-encoded RSA public key (or the private key — public will be derived). */
   signingSecret: string;
   issuer: string;
   audience: string;
@@ -75,19 +114,42 @@ export function verifySessionJwt(opts: VerifyOptions): VerifyResult {
   const [headerSeg, payloadSeg, sigSeg] = parts as [string, string, string];
 
   const header = decodeJson(headerSeg);
-  if (!header || (header as { alg?: string }).alg !== 'HS256') {
+  const headerAlg = header && (header as { alg?: string }).alg;
+  if (headerAlg !== 'HS256' && headerAlg !== 'RS256') {
     return { ok: false, reason: 'unsupported algorithm' };
   }
+  const expectedAlg = detectAlg(opts.signingSecret);
+  if (headerAlg !== expectedAlg) {
+    return {
+      ok: false,
+      reason: `algorithm mismatch: expected ${expectedAlg}, token says ${headerAlg}`,
+    };
+  }
 
-  const expected = createHmac('sha256', opts.signingSecret)
-    .update(`${headerSeg}.${payloadSeg}`)
-    .digest();
-  const actual = Buffer.from(
+  const signingInput = `${headerSeg}.${payloadSeg}`;
+  const sigBuf = Buffer.from(
     sigSeg.replace(/-/g, '+').replace(/_/g, '/') + padBase64(sigSeg),
     'base64',
   );
-  if (expected.length !== actual.length) return { ok: false, reason: 'signature length mismatch' };
-  if (!timingSafeEqual(expected, actual)) return { ok: false, reason: 'signature mismatch' };
+
+  if (headerAlg === 'HS256') {
+    const expected = createHmac('sha256', opts.signingSecret).update(signingInput).digest();
+    if (expected.length !== sigBuf.length)
+      return { ok: false, reason: 'signature length mismatch' };
+    if (!timingSafeEqual(expected, sigBuf)) return { ok: false, reason: 'signature mismatch' };
+  } else {
+    let publicKey: KeyObject;
+    try {
+      publicKey = loadPublicKey(opts.signingSecret);
+    } catch (err) {
+      return {
+        ok: false,
+        reason: `invalid RS256 key: ${err instanceof Error ? err.message : String(err)}`,
+      };
+    }
+    const ok = cryptoVerify('RSA-SHA256', Buffer.from(signingInput, 'utf8'), publicKey, sigBuf);
+    if (!ok) return { ok: false, reason: 'RS256 signature mismatch' };
+  }
 
   const payload = decodeJson(payloadSeg);
   if (!payload || typeof payload !== 'object') return { ok: false, reason: 'invalid payload' };
