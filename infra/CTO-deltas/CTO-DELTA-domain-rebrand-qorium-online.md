@@ -94,3 +94,24 @@ infra/B5-CI-Pipeline.github-actions.yml infra/B10-ecosystem.config.js
 - **SSO SP metadata** XML download at
   `https://api.qorium.online/v1/auth/saml/metadata` matches the entity
   ID embedded in the document.
+
+## Appendix — additional domain `qorium.in` (2026-05-04)
+
+The CEO has registered a second domain: **`qorium.in`**.
+
+Recommended split (pending CEO ratification):
+
+- **`qorium.in`** — customer-facing brand domain, matches the India-
+  first positioning in the spec set. Suggested subdomains:
+  - `app.qorium.in` — admin app + candidate portal
+  - `docs.qorium.in` — public API docs
+  - `my.qorium.in` — billing portal
+- **`qorium.online`** — operational/API surface. Already wired:
+  - `api.qorium.online` — HTTP API + Setu webhook target
+  - `setu.qorium.online` (or proxied via api) — auto-deploy
+
+If the CEO prefers a single canonical domain, every hostname in the
+build is overridable via env vars (`SSO_BASE_URL`, `NEXTAUTH_URL`,
+`AI_PAIR_CODING_URL`, `SETU_WEBHOOK_URL`, etc.) so flipping is one
+env-template edit. The autonomous build keeps `qorium.online` as the
+code default until further direction.

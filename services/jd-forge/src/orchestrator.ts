@@ -115,7 +115,7 @@ export async function runOrder(
     };
   }
 
-  let exportPayload: string | undefined;
+  let exportPayload: string | Buffer | undefined;
   let exportContentType: string | undefined;
   try {
     const exported = exportFor(order.exportFormat, order, parsedJd, questions);

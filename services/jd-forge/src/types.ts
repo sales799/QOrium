@@ -4,7 +4,14 @@
  */
 
 export type Tier = 'standard' | 'reviewed' | 'enterprise';
-export type ExportFormat = 'json' | 'csv' | 'mettl-csv' | 'hackerrank-yaml' | 'pdf';
+export type ExportFormat =
+  | 'json'
+  | 'csv'
+  | 'mettl-csv'
+  | 'xlsx'
+  | 'mettl-xlsx'
+  | 'hackerrank-yaml'
+  | 'pdf';
 
 export type QuestionFormat =
   | 'mcq'
