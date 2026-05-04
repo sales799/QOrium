@@ -1,0 +1,101 @@
+---
+title: "The 7 stages every QOrium question passes through before you see it"
+description: "Spec → AI Draft → Self-Critique → SME Review → Calibrate → Release → Post-Deploy. With latency budgets and quality gates per stage."
+date: '2026-05-04'
+author: 'QOrium Engineering'
+tags: ['architecture', 'content-engine']
+---
+
+## The pipeline
+
+Every question — whether it ends up in ReadyBank, JD-Forge, or Stack-Vault — runs the same seven stages. The stages flex (JD-Forge skips human review on the Standard tier; Stack-Vault doubles SME validation), but the topology is constant.
+
+```
+1. SPEC IN          ← role · skill · difficulty · format · constraints
+2. AI DRAFT         ← Claude Opus, structured JSON, format-specific guardrails
+3. AI SELF-CRITIQUE ← same model, second pass, scores per dimension
+4. SME REVIEW       ← paid contractor + in-house, accept · edit · reject
+5. CALIBRATE        ← Reference Panel sample → IRT difficulty estimate
+6. RELEASE          ← tagged in role-graph, indexed, watermarked
+7. POST-DEPLOY      ← performance + leak monitor, auto-retire, regenerate
+```
+
+## Stage 1: Spec in
+
+A typed payload. Format, role, skill, difficulty, optional sub-topic constraint, optional excluded concepts (for diversity), optional client-id (for Stack-Vault per-client variants), optional language (default English; supports Hindi, Tamil, Telugu, etc.), optional JD text (for JD-Forge).
+
+Specs are batched for ReadyBank wave authoring; real-time singleton for JD-Forge and Stack-Vault.
+
+The spec is where most quality comes from. A vague spec produces a vague question. We have format-specific spec templates, and in-house SMEs review the spec list before it enters the pipeline at scale.
+
+## Stage 2: AI Draft
+
+Claude Opus with structured JSON output. The system prompt includes:
+
+- **Format-specific authoring guidelines.** MCQ rules: one correct + three plausible distractors with stated reasoning. Coding rules: include sample I/O + 5 hidden test cases + reference solution + complexity analysis.
+- **Anti-leak filter.** Explicit instruction not to generate questions matching our known leaked-question corpus. Post-generation, we run a semantic similarity check against the leaked corpus. Hits are auto-rejected with a re-prompt.
+- **Difficulty calibration prompt.** The 5-point scale is anchored with reference exemplars per format.
+
+The output is parsed against a strict JSON schema. Malformed output triggers a re-prompt with self-correction. Latency budget at this stage: ~10s for a 20-question parallel batch.
+
+## Stage 3: AI Self-Critique
+
+Same model, second pass. The prompt asks the AI to critique its own draft against:
+
+- **Ambiguity.** Would any reasonable test-taker reading the question understand what's being asked?
+- **Distractor quality.** Are wrong answers genuinely plausible? Or is one obviously the answer?
+- **Edge cases.** Does the test case suite cover boundaries?
+- **Bias.** Any gendered, regional, cultural assumptions baked in?
+- **Leak risk.** Does this look like a textbook public problem?
+
+Each dimension scores 0–10. If any dimension scores below 7, the question is auto-regenerated with the critique fed in as context. Maximum 2 retries before the question goes to SME stage anyway with the critique scores attached for human review.
+
+## Stage 4: SME Review
+
+Internal admin app. SMEs see the question, the AI self-critique scores, suggested edits highlighted, and three buttons: Accept, Edit, Reject. Time-to-review is tracked.
+
+SMEs are paid per validated question (₹500–₹2,000 by complexity). For Stack-Vault, a senior-SME review is mandatory at the higher end of the rate.
+
+This is the stage where JD-Forge tiers diverge:
+
+- **Standard tier:** SKIP. AI-only, ship in 30 seconds.
+- **Reviewed tier:** Async with a 4-hour SLA.
+- **Enterprise tier:** Reviewed + IP-protection contractual lock.
+
+For ReadyBank: mandatory.
+For Stack-Vault: mandatory + senior SME.
+
+## Stage 5: Calibrate
+
+Sample the question against the QOrium Reference Panel — paid candidates representative of the target population. The IRT model produces a difficulty estimate (and a discrimination parameter) within statistical confidence. This is calibration grounded in data, not in the SME's gut.
+
+For Stack-Vault, calibration also runs against the customer's own candidate pool (under NDA) so the difficulty estimate is anchored to the customer's specific cohort.
+
+Latency: depends on panel scheduling. ReadyBank questions calibrate in 7-14 days; JD-Forge questions ship without panel-calibration on Standard tier (the 30-second SLA forbids it) and pick up calibration data passively from production usage.
+
+## Stage 6: Release
+
+Tag in the role-graph. Index for search retrieval. Inject watermark (cryptographic per-customer marker for Stack-Vault, attribution footer for ReadyBank exports). Make available via the appropriate API.
+
+This is also where post-deploy hooks register: the question's fingerprint goes into the anti-leak crawl rotation, IRT calibration history starts logging.
+
+## Stage 7: Post-deploy
+
+The most overlooked stage. Once a question is live:
+
+- **Performance monitoring.** Did the question discriminate as expected? Did it cluster the high performers?
+- **Leak monitor.** Did the fingerprint show up in our public-source crawl? If so, trigger regeneration (back to Stage 1 with the leaked variant in the spec).
+- **Customer feedback loop.** Customers can flag questions; flags route to SME for review.
+- **Retirement criteria.** A question retires when (a) leaked beyond SLA, (b) calibration drift exceeds threshold, (c) format goes out of relevance for the role-graph node, (d) customer feedback flags it as ambiguous.
+
+Retirement triggers regeneration of a semantic variant for the same role-graph node. The graph stays full.
+
+## Why all seven matter
+
+You can short-circuit any stage and ship a question. We've watched competitors do it. The result is always the same: high screen-pass rates and low interview-pass rates, because the question doesn't actually discriminate skill.
+
+Every stage in the seven is the difference between a question and a *trustworthy* question. The ratio is what enterprise buyers pay for.
+
+---
+
+*See the engine in action: [Platform overview](/product) · [Book a demo](/demo)*

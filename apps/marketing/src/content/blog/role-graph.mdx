@@ -1,0 +1,82 @@
+---
+title: "What is a role-graph and why does your assessment library need one?"
+description: "A normalized graph of roles → skills → questions. Why it changes coverage, calibration, and JD parsing."
+date: '2026-05-04'
+author: 'QOrium Engineering'
+tags: ['architecture', 'role-graph']
+---
+
+## The flat-list problem
+
+Most assessment libraries are a flat list of questions tagged with a skill name. Java. SQL. Python. System design.
+
+This works until you try to do anything beyond exact-skill lookup. "Senior Backend Engineer with Spring Boot, 5+ years, must know `@Transactional` propagation." A flat list can't tell you that.
+
+So the platforms ask the customer to tag questions manually — pick from a dropdown of 200 skills. Coverage gaps stay invisible. The question marked "java.spring" is doing the work of "java.spring.security" and "java.spring.transactional" and "java.spring.config" all at once. Difficulty calibration is anchored to "the Java tag" instead of to the specific concept.
+
+## What a role-graph is
+
+A role-graph is a normalized tree where:
+
+- **Roles** decompose into **skills**.
+- **Skills** decompose into **sub-skills** (and sub-sub-skills, until the leaf is a coherent topic).
+- Each leaf has tagged **format-mix preferences** (how much MCQ vs coding vs SJT for that topic) and **difficulty bands** (which levels are reasonable to test for that topic).
+- Each leaf points to the **questions** authored for it, with their IRT calibration metadata.
+
+A real example for a real role:
+
+```
+Senior Backend Engineer (Java Spring Boot, 5+ yrs)
+├── Java 21 fundamentals (band: 3-4 · MCQ × 4, Coding × 2)
+├── Spring Boot
+│   ├── @Transactional propagation (band: 4 · SJT × 2, Coding × 1)
+│   ├── Configuration & profiles (band: 3 · MCQ × 3)
+│   └── Security & filters (band: 4 · SJT × 1, Coding × 1)
+├── JPA / Hibernate
+│   ├── N+1 query patterns (band: 4 · Coding × 2)
+│   └── Optimistic vs pessimistic locks (band: 5 · SJT × 1)
+├── PostgreSQL
+│   ├── Index design (band: 4 · MCQ × 2, SQL × 1)
+│   └── Explain plans (band: 5 · SQL × 2)
+└── System design
+    ├── Idempotency (band: 4 · SJT × 1)
+    └── Rate limiting (band: 4 · SJT × 1)
+```
+
+That's not "the Java tag." That's a structured map of what you're actually testing. Different concept entirely.
+
+## Why this matters
+
+### 1. Coverage gaps surface automatically.
+
+Walk the graph. Every leaf either has questions or doesn't. The empty cells are your authoring backlog. With a flat list, you don't know what you don't know — every "Java" question looks like coverage.
+
+### 2. Calibration becomes scientific.
+
+IRT difficulty estimates anchor to specific concepts. "How hard is `@Transactional` propagation in Spring Boot at band 4" is a real question with a real answer measured against a real reference panel. "How hard is Java" isn't.
+
+### 3. JD parsing becomes mechanical.
+
+When a customer uploads a JD, the parser doesn't have to guess at "what is this role." It walks the JD's stated skills against the role-graph, picks the matching subtree, and generates a format-mix that mirrors the role's expected depth. JD-Forge's 30-second SLA is only possible because the role-graph turns parsing into traversal.
+
+### 4. The graph compounds.
+
+Every JD parsed adds nodes the graph didn't have before. Every successful customer drive teaches us that one node calibrates harder/easier than the IRT estimate. Every leak retiring questions adds new variants to the leaves. The graph is the moat.
+
+## What it doesn't do
+
+A role-graph does not magically tell you what questions are good. SME validation still happens. Bias detection still happens. Anti-leak rotation still happens. The graph is the *organization* — a precondition for all the other operations to be efficient.
+
+A role-graph isn't a knowledge graph in the academic sense (no edges across concepts, no inference). It's a routing tree for a content engine. Pragmatic, not philosophical.
+
+## How we built ours
+
+It started as a flat list of 200 skills. We onboarded 18 SMEs across Tech Core and India Stack, gave each one a role and asked them to break it into sub-skills. The result was inconsistent — different SMEs decomposed differently. So we wrote a SME-onboarding doc with worked examples and a structured template. Now the variance is controlled.
+
+The role-graph is in PostgreSQL with a `role_graph_node` table and self-referencing `parent_id`. It's nothing exotic. The work is in the discipline of authoring it.
+
+We expose graph traversal in the ReadyBank API: pass a role string, get the matching subtree, get the questions. JD-Forge uses the same traversal internally. Stack-Vault customers get a private overlay of the graph mapped to their stack.
+
+---
+
+*See it work: [ReadyBank deep-dive](/features/readybank) · [JD-Forge](/features/jd-forge) · [Stack-Vault](/features/stack-vault)*
