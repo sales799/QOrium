@@ -1,0 +1,71 @@
+name: Setu auto-deploy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - 'claude/**'
+  workflow_dispatch:
+    inputs:
+      env:
+        description: Target environment
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: setu-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ping-setu:
+    name: Trigger Setu webhook
+    runs-on: ubuntu-latest
+    if: ${{ vars.SETU_WEBHOOK_URL != '' }}
+    steps:
+      - name: Notify Setu
+        env:
+          SETU_WEBHOOK_URL: ${{ vars.SETU_WEBHOOK_URL }}
+          SETU_WEBHOOK_SECRET: ${{ secrets.SETU_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          payload=$(printf '{"ref":"%s","before":"%s","after":"%s","repository":{"full_name":"%s"}}' \
+            "${GITHUB_REF}" \
+            "${GITHUB_EVENT_BEFORE:-0000000000000000000000000000000000000000}" \
+            "${GITHUB_SHA}" \
+            "${GITHUB_REPOSITORY}")
+          sig="sha256=$(printf '%s' "$payload" | openssl dgst -sha256 -hmac "$SETU_WEBHOOK_SECRET" | sed 's/^.* //')"
+          curl -sS -X POST "$SETU_WEBHOOK_URL" \
+            -H "content-type: application/json" \
+            -H "x-github-event: push" \
+            -H "x-hub-signature-256: $sig" \
+            -d "$payload" \
+            --retry 3 --retry-connrefused --max-time 60
+
+  ssh-deploy:
+    name: SSH deploy (fallback when Setu unreachable)
+    runs-on: ubuntu-latest
+    if: ${{ vars.SETU_WEBHOOK_URL == '' && vars.QORIUM_SSH_HOST != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy via SSH
+        env:
+          QORIUM_SSH_HOST: ${{ vars.QORIUM_SSH_HOST }}
+          QORIUM_SSH_USER: ${{ vars.QORIUM_SSH_USER }}
+          QORIUM_SSH_KEY: ${{ secrets.QORIUM_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$QORIUM_SSH_KEY" > ~/.ssh/qorium_deploy_key
+          chmod 600 ~/.ssh/qorium_deploy_key
+          ssh -i ~/.ssh/qorium_deploy_key -o StrictHostKeyChecking=accept-new \
+            "${QORIUM_SSH_USER}@${QORIUM_SSH_HOST}" \
+            "/opt/qorium/services/setu/bin/setu-deploy.sh ${{ inputs.env || 'staging' }} ${{ github.ref_name }} ${{ github.sha }}"

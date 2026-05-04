@@ -1,0 +1,703 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-04T02:51:17.235Z",
+  "branch": "claude/setup-qorium-build-agent-zA0l5",
+  "prNumber": 9,
+  "head": "d609e12",
+  "hero": {
+    "phase0CompletionPercent": 100,
+    "contentInventory": {
+      "questions": 0,
+      "m3Target": 5000
+    },
+    "constitution": {
+      "version": "v2.0",
+      "ratified": true,
+      "standingOrders": 25
+    },
+    "openCeoCards": 0
+  },
+  "phases": [
+    {
+      "index": 0,
+      "name": "Foundation",
+      "status": "shipped",
+      "completion": 1
+    },
+    {
+      "index": 1,
+      "name": "Engine MVP",
+      "status": "shipped",
+      "completion": 1
+    },
+    {
+      "index": 2,
+      "name": "SKU Maturity",
+      "status": "shipped",
+      "completion": 1
+    },
+    {
+      "index": 3,
+      "name": "India Stack",
+      "status": "pending",
+      "completion": 0
+    },
+    {
+      "index": 4,
+      "name": "Year-1 Close",
+      "status": "pending",
+      "completion": 0
+    },
+    {
+      "index": 5,
+      "name": "Y2 International",
+      "status": "pending",
+      "completion": 0
+    },
+    {
+      "index": 6,
+      "name": "Y3 Multi-Region",
+      "status": "pending",
+      "completion": 0
+    },
+    {
+      "index": 7,
+      "name": "Y5 Outcome",
+      "status": "pending",
+      "completion": 0
+    }
+  ],
+  "punchlist": [
+    {
+      "key": "A",
+      "title": "Capital & Legal",
+      "done": 0,
+      "total": 8,
+      "notes": "Tracked outside the engineering repo (CEO + Legal).",
+      "completion": 0
+    },
+    {
+      "key": "B",
+      "title": "Infrastructure",
+      "done": 21,
+      "total": 21,
+      "notes": "21/21 sprints shipped to GitHub PR #9",
+      "completion": 1
+    },
+    {
+      "key": "C",
+      "title": "People & Hiring",
+      "done": 0,
+      "total": 14,
+      "notes": "Tracked outside the engineering repo (CEO + HR).",
+      "completion": 0
+    },
+    {
+      "key": "D",
+      "title": "Customer Zero",
+      "done": 1,
+      "total": 5,
+      "notes": "Day-1 runbook + env templates shipped (Sprint 2.7); awaiting VPS provisioning.",
+      "completion": 0.2
+    },
+    {
+      "key": "E",
+      "title": "Bosch GCC Outreach",
+      "done": 0,
+      "total": 4,
+      "notes": "Tracked outside the engineering repo (CEO + BizDev).",
+      "completion": 0
+    },
+    {
+      "key": "F",
+      "title": "Constitutional Compliance",
+      "done": 5,
+      "total": 5,
+      "notes": "SO-21 + SO-22 + SO-24 + Article VII + Article IX framework all satisfied.",
+      "completion": 1
+    }
+  ],
+  "sprints": [
+    {
+      "id": "0.1",
+      "name": "Monorepo bootstrap",
+      "status": "shipped",
+      "testsAdded": 0,
+      "cumulativeTests": 0
+    },
+    {
+      "id": "0.2",
+      "name": "Dev orchestration",
+      "status": "shipped",
+      "testsAdded": 0,
+      "cumulativeTests": 0
+    },
+    {
+      "id": "1.1",
+      "name": "`services/readybank` skeleton",
+      "status": "shipped",
+      "testsAdded": 33,
+      "cumulativeTests": 33
+    },
+    {
+      "id": "1.2",
+      "name": "`packages/auth` + `apps/admin` scaffold",
+      "status": "shipped",
+      "testsAdded": 26,
+      "cumulativeTests": 59
+    },
+    {
+      "id": "1.3",
+      "name": "SME review queue + decision workflow",
+      "status": "shipped",
+      "testsAdded": 32,
+      "cumulativeTests": 91
+    },
+    {
+      "id": "1.4",
+      "name": "`services/leak-crawler` (Anti-Leak Engine v0)",
+      "status": "shipped",
+      "testsAdded": 47,
+      "cumulativeTests": 138
+    },
+    {
+      "id": "1.5",
+      "name": "`services/irt-calibration` (IRT Pipeline v0)",
+      "status": "shipped",
+      "testsAdded": 64,
+      "cumulativeTests": 202
+    },
+    {
+      "id": "1.6",
+      "name": "`services/judge0-orchestrator`",
+      "status": "shipped",
+      "testsAdded": 68,
+      "cumulativeTests": 270
+    },
+    {
+      "id": "1.7",
+      "name": "`services/testforge-orchestrator`",
+      "status": "shipped",
+      "testsAdded": 52,
+      "cumulativeTests": 322
+    },
+    {
+      "id": "1.8",
+      "name": "`packages/smoke` (Customer Zero readiness)",
+      "status": "shipped",
+      "testsAdded": 20,
+      "cumulativeTests": 342
+    },
+    {
+      "id": "2.0",
+      "name": "`services/jd-forge`",
+      "status": "shipped",
+      "testsAdded": 73,
+      "cumulativeTests": 415
+    },
+    {
+      "id": "2.1",
+      "name": "`services/stack-vault`",
+      "status": "shipped",
+      "testsAdded": 25,
+      "cumulativeTests": 440
+    },
+    {
+      "id": "2.2",
+      "name": "`packages/ats-connectors` + `services/ats-bridge`",
+      "status": "shipped",
+      "testsAdded": 55,
+      "cumulativeTests": 495
+    },
+    {
+      "id": "2.3",
+      "name": "`services/{webhooks,sso,audit-log}`",
+      "status": "shipped",
+      "testsAdded": 99,
+      "cumulativeTests": 594
+    },
+    {
+      "id": "2.4",
+      "name": "`apps/admin` dashboards (SSO/webhooks/audit/ATS)",
+      "status": "shipped",
+      "testsAdded": 16,
+      "cumulativeTests": 610
+    },
+    {
+      "id": "2.5",
+      "name": "`apps/docs` + `packages/qorium-sdk`",
+      "status": "shipped",
+      "testsAdded": 32,
+      "cumulativeTests": 642
+    },
+    {
+      "id": "2.6",
+      "name": "`services/billing` v0 MVP",
+      "status": "shipped",
+      "testsAdded": 38,
+      "cumulativeTests": 680
+    },
+    {
+      "id": "2.7",
+      "name": "`services/api-key-mgmt` + Customer Zero readiness",
+      "status": "shipped",
+      "testsAdded": 28,
+      "cumulativeTests": 708
+    },
+    {
+      "id": "2.8",
+      "name": "`services/secret-rotation-worker`",
+      "status": "shipped",
+      "testsAdded": 21,
+      "cumulativeTests": 729
+    },
+    {
+      "id": "2.9",
+      "name": "`packages/observability` + `services/uptime-monitor`",
+      "status": "shipped",
+      "testsAdded": 24,
+      "cumulativeTests": 753
+    },
+    {
+      "id": "2.10",
+      "name": "`services/ai-pair-coding-orchestrator` (Wave 3)",
+      "status": "shipped",
+      "testsAdded": 29,
+      "cumulativeTests": 782
+    }
+  ],
+  "tests": {
+    "activeGreen": 781,
+    "autoSkip": 53,
+    "workspaces": 24
+  },
+  "migrations": {
+    "count": 14,
+    "latestId": "0014"
+  },
+  "pm2Services": 17,
+  "halts": [
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Real `DATABASE_URL` — Postgres 16 instance for live migrations + integration tests"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Real `REDIS_URL` — for BullMQ queues + session stores"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Real `JUDGE0_URL` + `JUDGE0_AUTH_TOKEN` — Judge0 sandbox host"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "`ANTHROPIC_API_KEY` — TestForge plagiarism + JD-Forge + AI pair-coding"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "`OPENAI_API_KEY`, `GEMINI_API_KEY` — fallback LLM providers"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "`SERPER_API_KEY` — anti-leak crawls"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "`MSG91_API_KEY` — SMS / OTP"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Salesforce dev-org — Apex sandbox (Wave 2)"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "GPT-Zero / Pangram API keys — SO-22 plagiarism benchmark (third-party detector)"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Tailscale credentials — VPS access"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Talpro Customer Zero seed — real questions + real users"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Embedding API + pgvector extension — JD-Forge similarity search"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Spreadsheet library license — xlsx export pathway"
+    },
+    {
+      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
+      "description": "Stack-Vault marker substitution — body rewrite before Logo #1"
+    },
+    {
+      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
+      "description": "Greenhouse OAuth client id + secret + return URL allowlist (M6)"
+    },
+    {
+      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
+      "description": "Ashby per-tenant API keys (M7)"
+    },
+    {
+      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
+      "description": "Darwinbox per-tenant API keys + tenant domain (M8)"
+    },
+    {
+      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
+      "description": "Workday certification + signing keys + tenant client credentials (M9; Article IX gate)"
+    },
+    {
+      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
+      "description": "SAML IdP test tenant credentials (Okta / Azure AD / Google Workspace)"
+    },
+    {
+      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
+      "description": "QOrium SP signing keypair (2048-bit RSA, KMS-managed) for RS256 JWT"
+    },
+    {
+      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
+      "description": "`REDIS_URL` for SSO refresh tokens + SAML state cache"
+    },
+    {
+      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
+      "description": "`REDIS_URL` + BullMQ for webhooks delivery worker"
+    },
+    {
+      "bucket": "Phase 2 — Documentation site (Sprint 2.5)",
+      "description": "`docs.qorium.io` DNS A/AAAA record + TLS certificate"
+    },
+    {
+      "bucket": "Phase 2 — Documentation site (Sprint 2.5)",
+      "description": "(M6+) Live API \"Try it\" panel — needs Swagger/Redoc UI wire-up"
+    },
+    {
+      "bucket": "Phase 2 — Documentation site (Sprint 2.5)",
+      "description": "(M6+) Multi-language SDKs (Python, Go, Java)"
+    },
+    {
+      "bucket": "Phase 2 — Billing (Sprint 2.6)",
+      "description": "Real Razorpay business KYB-completed account → `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` + `RAZORPAY_WEBHOOK_SECRET`"
+    },
+    {
+      "bucket": "Phase 2 — Billing (Sprint 2.6)",
+      "description": "Stripe account for international customers"
+    },
+    {
+      "bucket": "Phase 2 — Billing (Sprint 2.6)",
+      "description": "`my.qorium.io` DNS for the customer self-service portal"
+    },
+    {
+      "bucket": "Phase 2 — Billing (Sprint 2.6)",
+      "description": "Zoho Books integration for monthly tax remittance (Month 9)"
+    },
+    {
+      "bucket": "Phase 2 — Billing (Sprint 2.6)",
+      "description": "PDF invoice generation via wkhtmltopdf or Puppeteer"
+    },
+    {
+      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
+      "description": "Hostinger VPS account + SSH key (Tailscale-fronted)"
+    },
+    {
+      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
+      "description": "`api.qorium.io` + `admin.qorium.io` DNS records"
+    },
+    {
+      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
+      "description": "Let's Encrypt TLS certificates via certbot + nginx"
+    },
+    {
+      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
+      "description": "Real Talpro India contract sign-off"
+    },
+    {
+      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
+      "description": "Real `API_KEY_PEPPER` minted via `openssl rand -hex 32` (≥32 chars)"
+    },
+    {
+      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
+      "description": "Real CTO admin JWT for api-key-mgmt issuance calls"
+    },
+    {
+      "bucket": "Phase 2 — Secret rotation (Sprint 2.8)",
+      "description": "Vault / KMS provisioning decision (HashiCorp Vault vs cloud KMS)"
+    },
+    {
+      "bucket": "Phase 2 — Secret rotation (Sprint 2.8)",
+      "description": "Live upstream rotation APIs: Anthropic dashboard, Razorpay, OpenAI,"
+    },
+    {
+      "bucket": "Phase 2 — Secret rotation (Sprint 2.8)",
+      "description": "`WEBHOOKS_ADMIN_TOKEN` for the webhook subscription rotator"
+    },
+    {
+      "bucket": "Phase 2 — Observability (Sprint 2.9)",
+      "description": "`SENTRY_DSN` for error tracking"
+    },
+    {
+      "bucket": "Phase 2 — Observability (Sprint 2.9)",
+      "description": "Grafana Cloud account + API token (or self-hosted Loki URL)"
+    },
+    {
+      "bucket": "Phase 2 — Observability (Sprint 2.9)",
+      "description": "Slack webhook URL for ops alerts"
+    },
+    {
+      "bucket": "Phase 2 — Observability (Sprint 2.9)",
+      "description": "Talpro Sentinel webhook URL for SO-9 anti-leak alerts"
+    },
+    {
+      "bucket": "Phase 2 — Observability (Sprint 2.9)",
+      "description": "Pagerduty integration for SO-9 24-hour leak rotation"
+    },
+    {
+      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
+      "description": "`ANTHROPIC_API_KEY` for live Claude Sonnet calls (shared with Phase 1)"
+    },
+    {
+      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
+      "description": "CodeMirror 6 + AI sidebar UX (frontend deliverable; future `apps/candidate-portal`)"
+    },
+    {
+      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
+      "description": "Anti-cheat enforcement (clipboard monitoring, secondary monitor detection)"
+    },
+    {
+      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
+      "description": "Question authoring framework (Wave 3 sub-skill 4 — 50 Qs by M9)"
+    },
+    {
+      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
+      "description": "Senior Engineer #1 architectural review (Wave 3 hire pending)"
+    }
+  ],
+  "ctoDeltas": [
+    {
+      "number": 1,
+      "sprint": "—",
+      "file": "CTO-DELTA-CI-pnpm-adoption.md",
+      "title": "CI pnpm adoption"
+    },
+    {
+      "number": 2,
+      "sprint": "—",
+      "file": "CTO-DELTA-admin-auth-provider.md",
+      "title": "admin auth provider"
+    },
+    {
+      "number": 3,
+      "sprint": "—",
+      "file": "CTO-DELTA-ai-pair-coding-anthropic-deferred.md",
+      "title": "ai pair coding anthropic deferred"
+    },
+    {
+      "number": 4,
+      "sprint": "—",
+      "file": "CTO-DELTA-api-key-hashing.md",
+      "title": "api key hashing"
+    },
+    {
+      "number": 5,
+      "sprint": "—",
+      "file": "CTO-DELTA-ats-real-oauth-deferred.md",
+      "title": "ats real oauth deferred"
+    },
+    {
+      "number": 6,
+      "sprint": "—",
+      "file": "CTO-DELTA-ats-workday-certification-deferred.md",
+      "title": "ats workday certification deferred"
+    },
+    {
+      "number": 7,
+      "sprint": "—",
+      "file": "CTO-DELTA-audit-log-naming.md",
+      "title": "audit log naming"
+    },
+    {
+      "number": 8,
+      "sprint": "—",
+      "file": "CTO-DELTA-b10-irt-calibration-entry.md",
+      "title": "b10 irt calibration entry"
+    },
+    {
+      "number": 9,
+      "sprint": "—",
+      "file": "CTO-DELTA-billing-razorpay-deferred.md",
+      "title": "billing razorpay deferred"
+    },
+    {
+      "number": 10,
+      "sprint": "—",
+      "file": "CTO-DELTA-customer-zero-vps-deferred.md",
+      "title": "customer zero vps deferred"
+    },
+    {
+      "number": 11,
+      "sprint": "—",
+      "file": "CTO-DELTA-docs-site-dns-deferred.md",
+      "title": "docs site dns deferred"
+    },
+    {
+      "number": 12,
+      "sprint": "—",
+      "file": "CTO-DELTA-gitleaks-v8-syntax.md",
+      "title": "gitleaks v8 syntax"
+    },
+    {
+      "number": 13,
+      "sprint": "—",
+      "file": "CTO-DELTA-irt-2pl-with-format-c.md",
+      "title": "irt 2pl with format c"
+    },
+    {
+      "number": 14,
+      "sprint": "—",
+      "file": "CTO-DELTA-irt-fitter.md",
+      "title": "irt fitter"
+    },
+    {
+      "number": 15,
+      "sprint": "—",
+      "file": "CTO-DELTA-jdforge-anthropic-deferred.md",
+      "title": "jdforge anthropic deferred"
+    },
+    {
+      "number": 16,
+      "sprint": "—",
+      "file": "CTO-DELTA-jdforge-embeddings-deferred.md",
+      "title": "jdforge embeddings deferred"
+    },
+    {
+      "number": 17,
+      "sprint": "—",
+      "file": "CTO-DELTA-jdforge-xlsx-deferred.md",
+      "title": "jdforge xlsx deferred"
+    },
+    {
+      "number": 18,
+      "sprint": "—",
+      "file": "CTO-DELTA-judge0-apex-deferred.md",
+      "title": "judge0 apex deferred"
+    },
+    {
+      "number": 19,
+      "sprint": "—",
+      "file": "CTO-DELTA-judge0-bullmq-deferred.md",
+      "title": "judge0 bullmq deferred"
+    },
+    {
+      "number": 20,
+      "sprint": "—",
+      "file": "CTO-DELTA-migration-runner.md",
+      "title": "migration runner"
+    },
+    {
+      "number": 21,
+      "sprint": "—",
+      "file": "CTO-DELTA-observability-credentials-deferred.md",
+      "title": "observability credentials deferred"
+    },
+    {
+      "number": 22,
+      "sprint": "—",
+      "file": "CTO-DELTA-secret-rotation-worker-stub.md",
+      "title": "secret rotation worker stub"
+    },
+    {
+      "number": 23,
+      "sprint": "—",
+      "file": "CTO-DELTA-setu-auto-deploy.md",
+      "title": "setu auto deploy"
+    },
+    {
+      "number": 24,
+      "sprint": "—",
+      "file": "CTO-DELTA-sso-idp-credentials-deferred.md",
+      "title": "sso idp credentials deferred"
+    },
+    {
+      "number": 25,
+      "sprint": "—",
+      "file": "CTO-DELTA-stackvault-marker-substitution-deferred.md",
+      "title": "stackvault marker substitution deferred"
+    },
+    {
+      "number": 26,
+      "sprint": "—",
+      "file": "CTO-DELTA-testforge-plagiarism-detector-colocated.md",
+      "title": "testforge plagiarism detector colocated"
+    },
+    {
+      "number": 27,
+      "sprint": "—",
+      "file": "CTO-DELTA-testforge-plagiarism-perplexity-deferred.md",
+      "title": "testforge plagiarism perplexity deferred"
+    },
+    {
+      "number": 28,
+      "sprint": "—",
+      "file": "CTO-DELTA-testforge-status-column.md",
+      "title": "testforge status column"
+    },
+    {
+      "number": 29,
+      "sprint": "—",
+      "file": "CTO-DELTA-webhooks-bullmq-deferred.md",
+      "title": "webhooks bullmq deferred"
+    }
+  ],
+  "buildHistory": [
+    {
+      "timestamp": "2026-05-03T18:49Z",
+      "sprint": "2.3",
+      "commit": "2b90c27",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:01Z",
+      "sprint": "2.4",
+      "commit": "382dd20",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:11Z",
+      "sprint": "2.5",
+      "commit": "4fb45d8",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:20Z",
+      "sprint": "2.6",
+      "commit": "d4ad069",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:28Z",
+      "sprint": "2.7",
+      "commit": "dfb4d7c",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:34Z",
+      "sprint": "2.8",
+      "commit": "02ebb55",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:38Z",
+      "sprint": "2.9",
+      "commit": "7648fc1",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-03T19:46Z",
+      "sprint": "2.10",
+      "commit": "fc0e391",
+      "pushed": true
+    }
+  ]
+}

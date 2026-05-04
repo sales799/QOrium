@@ -789,6 +789,59 @@ module.exports = {
 
     /**
      * =====================================================================
+     * SETU — AUTO-DEPLOYMENT BRIDGE (Cluster Mode)
+     * =====================================================================
+     * Purpose: GitHub push webhook receiver + status JSON for the
+     *   external QOrium Live Progress Dashboard MCP.
+     * Mode: Cluster (1 instance to keep in-memory deploy history coherent)
+     * Port: 5117
+     * Spec: infra/CTO-deltas/CTO-DELTA-setu-auto-deploy.md
+     * Bootstrap halt: CEO must set SETU_WEBHOOK_SECRET +
+     *   SETU_DEPLOY_ENABLED=true on the VPS before auto-deploy fires.
+     */
+    {
+      name: 'qorium-setu',
+      script: './services/setu/dist/index.js',
+      instances: 1,
+      exec_mode: 'cluster',
+      port: 5117,
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        SETU_PORT: 5117,
+        SETU_DEPLOY_ENABLED: 'false',
+        SERVICE_NAME: 'qorium-setu',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SETU_PORT: 5117,
+        SETU_DEPLOY_ENABLED: 'true',
+        SETU_WEBHOOK_SECRET: process.env.SETU_WEBHOOK_SECRET,
+        SETU_MANUAL_DEPLOY_TOKEN: process.env.SETU_MANUAL_DEPLOY_TOKEN,
+        SETU_REPO_ROOT: '/opt/qorium',
+        SETU_DEPLOY_SCRIPT_PATH: '/opt/qorium/services/setu/bin/setu-deploy.sh',
+        SERVICE_NAME: 'qorium-setu',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-setu-out.log',
+      error_file: '/var/log/pm2/qorium-setu-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
      * AI PAIR-CODING ORCHESTRATOR (Cluster Mode)
      * =====================================================================
      * Purpose: Wave 3 AI pair-coding session orchestrator + 6-dim grader
