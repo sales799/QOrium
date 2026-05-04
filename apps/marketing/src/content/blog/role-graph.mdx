@@ -1,6 +1,6 @@
 ---
-title: "What is a role-graph and why does your assessment library need one?"
-description: "A normalized graph of roles → skills → questions. Why it changes coverage, calibration, and JD parsing."
+title: 'What is a role-graph and why does your assessment library need one?'
+description: 'A normalized graph of roles → skills → questions. Why it changes coverage, calibration, and JD parsing.'
 date: '2026-05-04'
 author: 'QOrium Engineering'
 tags: ['architecture', 'role-graph']
@@ -65,7 +65,7 @@ Every JD parsed adds nodes the graph didn't have before. Every successful custom
 
 ## What it doesn't do
 
-A role-graph does not magically tell you what questions are good. SME validation still happens. Bias detection still happens. Anti-leak rotation still happens. The graph is the *organization* — a precondition for all the other operations to be efficient.
+A role-graph does not magically tell you what questions are good. SME validation still happens. Bias detection still happens. Anti-leak rotation still happens. The graph is the _organization_ — a precondition for all the other operations to be efficient.
 
 A role-graph isn't a knowledge graph in the academic sense (no edges across concepts, no inference). It's a routing tree for a content engine. Pragmatic, not philosophical.
 
@@ -79,4 +79,4 @@ We expose graph traversal in the ReadyBank API: pass a role string, get the matc
 
 ---
 
-*See it work: [ReadyBank deep-dive](/features/readybank) · [JD-Forge](/features/jd-forge) · [Stack-Vault](/features/stack-vault)*
+_See it work: [ReadyBank deep-dive](/features/readybank) · [JD-Forge](/features/jd-forge) · [Stack-Vault](/features/stack-vault)_
