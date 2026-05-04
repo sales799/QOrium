@@ -3,12 +3,21 @@
 # Setu one-shot bootstrap — turns a fresh Linux VPS at 147.93.103.194 into
 # a fully-running QOrium production environment in a single command:
 #
-#   curl -fsSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh \
-#     || curl -fsSL https://raw.githubusercontent.com/sales799/qorium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh
-#   sudo bash /tmp/setu-bootstrap.sh
+#   URL_MAIN="https://raw.githubusercontent.com/sales799/QOrium/main/services/setu/bin/setu-bootstrap.sh"
+#   URL_BRANCH="https://raw.githubusercontent.com/sales799/QOrium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh"
+#   curl -fsSL "$URL_MAIN" -o /tmp/qorium-bootstrap || curl -fsSL "$URL_BRANCH" -o /tmp/qorium-bootstrap
+#   sudo bash /tmp/qorium-bootstrap
 #
-# (-f makes curl exit non-zero on HTTP errors; the second URL is a
-# fallback for the window between sprint commits and merge to main.)
+# Notes:
+#   - Repo name is case-sensitive on raw.githubusercontent.com — must be QOrium
+#     (capital Q + O), not lowercase qorium, or you get a 404.
+#   - `-f` makes curl exit non-zero on HTTP errors instead of writing the
+#     response body to disk (which would give you `404: command not found`
+#     if you piped a 404 page directly into bash).
+#   - Temp-file `qorium-bootstrap` (no `.sh` suffix) avoids a gotcha
+#     where some chat clients auto-linkify `*.sh` filenames during paste.
+#   - The second URL is a fallback for the window between sprint commits
+#     and the merge to main.
 #
 # Idempotent: re-runs are safe (skip-if-installed, skip-if-configured).
 # What it does:
@@ -27,7 +36,7 @@
 
 set -euo pipefail
 
-REPO_URL="${SETU_BOOTSTRAP_REPO:-https://github.com/sales799/qorium.git}"
+REPO_URL="${SETU_BOOTSTRAP_REPO:-https://github.com/sales799/QOrium.git}"
 REPO_BRANCH="${SETU_BOOTSTRAP_BRANCH:-main}"
 REPO_ROOT="${SETU_BOOTSTRAP_ROOT:-/opt/qorium}"
 APEX_DOMAIN="${QORIUM_DOMAIN:-qorium.online}"

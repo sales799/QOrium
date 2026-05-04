@@ -99,11 +99,12 @@ disable auto-deploy with one `sed` + `pm2 restart`).
 
 ```bash
 # On the VPS at 147.93.103.194
-curl -fsSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh \
-  || curl -fsSL https://raw.githubusercontent.com/sales799/qorium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh
-sudo bash /tmp/setu-bootstrap.sh
+URL_MAIN="https://raw.githubusercontent.com/sales799/QOrium/main/services/setu/bin/setu-bootstrap.sh"
+URL_BRANCH="https://raw.githubusercontent.com/sales799/QOrium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh"
+curl -fsSL "$URL_MAIN" -o /tmp/qorium-bootstrap || curl -fsSL "$URL_BRANCH" -o /tmp/qorium-bootstrap
+sudo bash /tmp/qorium-bootstrap
 cat /opt/qorium/.SETU_GITHUB_PASTE_ME.txt
-# Paste the two values into github.com/sales799/qorium/settings/secrets/actions
+# Paste the two values into github.com/sales799/QOrium/settings/secrets/actions
 # Done. Every push auto-deploys from now on.
 ```
 
@@ -111,11 +112,25 @@ cat /opt/qorium/.SETU_GITHUB_PASTE_ME.txt
 
 The first CEO bootstrap attempt hit `bash: line 1: 404:: command not
 found` because the original `curl -sSL` pattern silently downloaded a
-404 page and piped it to `bash`. Two fixes shipped in this same
-delta:
+404 page and piped it to `bash`. The second attempt (after the `-f`
+flag fix shipped) hit a fresh 404 because **the URL had the wrong case
+for the repo name** — `sales799/qorium` instead of `sales799/QOrium`.
+`raw.githubusercontent.com` is case-sensitive on path components, so
+the lowercase form 404s.
 
-1. The `curl -f` flag now makes curl exit non-zero on any HTTP error
-   (so a 404 fails loud at the curl step, not at bash interpretation).
-2. The two-URL fallback covers the window between sprint commits and
+Three fixes shipped together:
+
+1. **Repo casing.** All bootstrap URLs use `sales799/QOrium` (capital
+   Q + O) — the canonical name from `git remote -v`. The lowercase form
+   only works on the GitHub website (which is case-insensitive); raw
+   content is case-sensitive.
+2. **`curl -f` flag.** Makes curl exit non-zero on any HTTP error (so
+   a 404 fails loud at the curl step, not at bash interpretation).
+3. **Two-URL fallback.** Covers the window between sprint commits and
    merge of the branch to `main`. Once PR #9 merges, the first URL is
    the only one needed; the fallback becomes a no-op.
+
+Bonus gotcha: temp file is now `/tmp/qorium-bootstrap` (no `.sh`
+suffix). Some chat/terminal clients auto-linkify `*.sh` filenames as
+URLs when copied, mangling the paste into markdown link syntax. The
+no-suffix name avoids that trigger.

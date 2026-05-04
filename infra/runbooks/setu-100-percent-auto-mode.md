@@ -31,18 +31,29 @@ Or, if your provider doesn't support wildcards, add these explicitly:
 SSH into `147.93.103.194` as `root` (or any user with sudo) and run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh \
-  || curl -fsSL https://raw.githubusercontent.com/sales799/qorium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh
-sudo bash /tmp/setu-bootstrap.sh
+URL_MAIN="https://raw.githubusercontent.com/sales799/QOrium/main/services/setu/bin/setu-bootstrap.sh"
+URL_BRANCH="https://raw.githubusercontent.com/sales799/QOrium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh"
+curl -fsSL "$URL_MAIN" -o /tmp/qorium-bootstrap || curl -fsSL "$URL_BRANCH" -o /tmp/qorium-bootstrap
+sudo bash /tmp/qorium-bootstrap
 ```
 
-The `-f` flag makes curl exit non-zero on HTTP errors instead of writing
-the response body to disk (which would give you the obscure
-`404: command not found` if you piped a 404 page directly into `bash`).
+Two important details:
+
+1. **Repo name casing matters.** The canonical name is `sales799/QOrium`
+   (capital Q + O). `raw.githubusercontent.com` is case-sensitive on the
+   path — `sales799/qorium/...` will 404. Always use the canonical case.
+2. **`-f` makes curl fail loud.** Without `-f`, a 404 silently writes
+   the HTML body to stdout, which (when piped into `bash`) gets parsed
+   as the literal command `404:` — producing the obscure
+   `404: command not found`.
 
 The fallback to the feature branch is a belt-and-braces guard for the
 window between sprint commits and the merge to `main`. Once PR #9 is
-merged, the first URL is the only one you'll need.
+merged, the first URL alone is sufficient.
+
+The temp-file name `qorium-bootstrap` (no `.sh` suffix) avoids a
+gotcha where some chat clients auto-linkify `*.sh` filenames as URLs
+when you copy them, mangling the paste.
 
 What happens (idempotent — re-runs are safe):
 
@@ -68,7 +79,7 @@ After step 1, the script writes a `paste-me` file:
 cat /opt/qorium/.SETU_GITHUB_PASTE_ME.txt
 ```
 
-Open <https://github.com/sales799/qorium/settings/secrets/actions> and add:
+Open <https://github.com/sales799/QOrium/settings/secrets/actions> and add:
 
 - **Repository variable** `SETU_WEBHOOK_URL` =
   `https://api.qorium.online/setu/v1/setu/deploys/webhook`

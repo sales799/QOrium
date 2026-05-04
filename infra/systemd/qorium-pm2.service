@@ -1,6 +1,6 @@
 [Unit]
 Description=QOrium PM2 process manager (auto-resurrect on reboot)
-Documentation=https://github.com/sales799/qorium/blob/main/infra/runbooks/customer-zero-day-1.md
+Documentation=https://github.com/sales799/QOrium/blob/main/infra/runbooks/customer-zero-day-1.md
 After=network.target postgresql.service redis-server.service
 Wants=postgresql.service redis-server.service
 
