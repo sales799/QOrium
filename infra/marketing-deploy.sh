@@ -108,34 +108,42 @@ else
   ok "$ENV_FILE already exists, leaving untouched"
 fi
 
-# ── 7. PM2 ecosystem ───────────────────────────────────────────────────────
+# ── 7. PM2 process ─────────────────────────────────────────────────────────
 log "Configuring PM2"
-PM2_CFG="$APP_DIR/infra/qorium-marketing.pm2.cjs"
-cat > "$PM2_CFG" <<EOF
-module.exports = {
-  apps: [{
-    name: 'qorium-marketing',
-    cwd: '${APP_DIR}/apps/marketing',
-    script: 'node_modules/next/dist/bin/next',
-    args: 'start -H 127.0.0.1 -p ${APP_PORT}',
-    instances: 1,
-    exec_mode: 'fork',
-    max_memory_restart: '600M',
-    env_file: '.env.production',
-    env: { NODE_ENV: 'production', PORT: '${APP_PORT}', HOSTNAME: '127.0.0.1' },
-    log_date_format: 'YYYY-MM-DD HH:mm:ss',
-    out_file: '/var/log/qorium-marketing.out.log',
-    error_file: '/var/log/qorium-marketing.err.log',
-    merge_logs: true,
-    time: true,
-  }],
-};
-EOF
-pm2 startOrReload "$PM2_CFG" --update-env
+
+# Tiny launcher script — most reliable across PM2 versions, avoids the
+# ecosystem-file format brittleness we hit earlier.
+LAUNCHER="$APP_DIR/apps/marketing/.pm2-start.sh"
+cat > "$LAUNCHER" <<LAUNCHER_EOF
+#!/usr/bin/env bash
+set -e
+cd "$APP_DIR/apps/marketing"
+export NODE_ENV=production
+export PORT=${APP_PORT}
+export HOSTNAME=127.0.0.1
+# Next.js 15 auto-loads .env.production from cwd
+exec ./node_modules/next/dist/bin/next start -H 127.0.0.1 -p ${APP_PORT}
+LAUNCHER_EOF
+chmod +x "$LAUNCHER"
+
+# If a previous attempt left a broken entry, clean it up.
+pm2 delete qorium-marketing >/dev/null 2>&1 || true
+# Remove any stale ecosystem file from the previous version of this script.
+rm -f "$APP_DIR/infra/qorium-marketing.pm2.cjs"
+
+pm2 start "$LAUNCHER" \
+  --name qorium-marketing \
+  --max-memory-restart 600M \
+  --log-date-format 'YYYY-MM-DD HH:mm:ss' \
+  --merge-logs \
+  --time \
+  --output /var/log/qorium-marketing.out.log \
+  --error /var/log/qorium-marketing.err.log
+
 pm2 save >/dev/null
 pm2 startup systemd -u root --hp /root >/dev/null 2>&1 || true
 sleep 3
-pm2 describe qorium-marketing | grep -E "status|pid|uptime" | head -5 || true
+pm2 describe qorium-marketing | grep -E "status|pid|uptime|memory" | head -5 || true
 curl -s -m 5 -o /dev/null -w "  local probe :${APP_PORT} → HTTP %{http_code}\n" "http://127.0.0.1:${APP_PORT}" || warn "local probe failed"
 
 # ── 8. nginx vhost ─────────────────────────────────────────────────────────
