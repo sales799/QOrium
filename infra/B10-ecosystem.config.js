@@ -197,7 +197,7 @@ module.exports = {
      * =====================================================================
      * Purpose: Next.js admin web app (SME review, customer management)
      * Mode: Cluster (multiple instances)
-     * Port: 5104 (reverse-proxied via Nginx :443 as admin.qorium.io)
+     * Port: 5104 (reverse-proxied via Nginx :443 as admin.qorium.online)
      *
      * Watchdog health check:
      *   talpro_watchdog_add \
@@ -230,7 +230,7 @@ module.exports = {
         SERVICE_NAME: 'qorium-admin',
         DATABASE_URL: process.env.DATABASE_URL_PROD,
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-        NEXTAUTH_URL: 'https://admin.qorium.io',
+        NEXTAUTH_URL: 'https://admin.qorium.online',
         SENTRY_DSN: process.env.SENTRY_DSN,
         LOG_LEVEL: 'info',
       },
@@ -545,8 +545,8 @@ module.exports = {
         SERVICE_NAME: 'qorium-sso',
         DATABASE_URL: process.env.DATABASE_URL_PROD,
         SSO_JWT_SIGNING_SECRET: process.env.SSO_JWT_SIGNING_SECRET,
-        SSO_BASE_URL: 'https://api.qorium.io',
-        SSO_JWT_AUDIENCE: 'https://app.qorium.io',
+        SSO_BASE_URL: 'https://api.qorium.online',
+        SSO_JWT_AUDIENCE: 'https://app.qorium.online',
         SENTRY_DSN: process.env.SENTRY_DSN,
         LOG_LEVEL: 'info',
       },
@@ -939,7 +939,7 @@ module.exports = {
   deploy: {
     production: {
       user: 'node',
-      host: 'api.qorium.io',
+      host: 'api.qorium.online',
       ref: 'origin/main',
       repo: 'git@github.com:qorium/qorium-platform.git',
       path: '/opt/qorium',
@@ -954,7 +954,7 @@ module.exports = {
 
     staging: {
       user: 'node',
-      host: 'staging.qorium.io',
+      host: 'staging.qorium.online',
       ref: 'origin/main',
       repo: 'git@github.com:qorium/qorium-platform.git',
       path: '/opt/qorium-staging',

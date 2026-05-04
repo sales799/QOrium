@@ -36,7 +36,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
               QOrium API docs
             </Link>
             <p style={{ marginTop: 4, fontSize: 11, color: '#666' }}>
-              v0.1.0 · base URL: api.qorium.io/v1
+              v0.1.0 · base URL: api.qorium.online/v1
             </p>
 
             <NavGroup title="Getting started" items={categories['getting-started']} />

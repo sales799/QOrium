@@ -27,7 +27,7 @@ export default function Home() {
             overflowX: 'auto',
           }}
         >
-          {`curl https://api.qorium.io/v1/questions \\
+          {`curl https://api.qorium.online/v1/questions \\
   -H "Authorization: Bearer qor_readybank_acme_<32hex>" \\
   -H "Accept: application/json"`}
         </pre>

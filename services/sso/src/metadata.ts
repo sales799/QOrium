@@ -7,7 +7,7 @@
  */
 
 export interface SpMetadataInputs {
-  /** Public-facing entity id, e.g. https://api.qorium.io */
+  /** Public-facing entity id, e.g. https://api.qorium.online */
   entityId: string;
   /** ACS endpoint URL */
   acsUrl: string;

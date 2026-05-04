@@ -14,7 +14,7 @@ export const READYBANK_OPENAPI: OpenApiFragment = {
   spec: {
     openapi: '3.1.0',
     info: { title: 'QOrium ReadyBank API', version: '0.1.0' },
-    servers: [{ url: 'https://api.qorium.io/v1' }],
+    servers: [{ url: 'https://api.qorium.online/v1' }],
     paths: {
       '/questions': {
         get: {

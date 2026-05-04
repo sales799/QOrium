@@ -14,7 +14,7 @@ const CONFIG: OidcConfig = {
   issuer: 'https://example.okta.com/oauth2/default',
   clientId: 'client-1',
   clientSecret: 'secret-1',
-  redirectUri: 'https://api.qorium.io/v1/auth/oidc/callback',
+  redirectUri: 'https://api.qorium.online/v1/auth/oidc/callback',
   authorizeEndpoint: 'https://example.okta.com/oauth2/default/v1/authorize',
   tokenEndpoint: 'https://example.okta.com/oauth2/default/v1/token',
 };

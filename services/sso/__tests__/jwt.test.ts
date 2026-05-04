@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { issueSessionJwt, verifySessionJwt } from '../src/jwt.js';
 
 const SECRET = 'session-test-secret-for-hs256';
-const ISSUER = 'https://api.qorium.io';
-const AUDIENCE = 'https://app.qorium.io';
+const ISSUER = 'https://api.qorium.online';
+const AUDIENCE = 'https://app.qorium.online';
 
 function fixedNow(): Date {
   return new Date('2026-05-01T12:00:00Z');

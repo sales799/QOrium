@@ -39,15 +39,15 @@ export function renderSection(section: DocSection): string {
     case 'overview':
       return [
         P(
-          'All requests are made to <code>https://api.qorium.io/v1</code>. ' +
+          'All requests are made to <code>https://api.qorium.online/v1</code>. ' +
             'TLS 1.3 or higher is required; plain HTTP is rejected with HTTP 426.',
         ),
         H2('Regional endpoints'),
         TABLE([
           ['Region', 'URL'],
-          ['India (primary)', '<code>https://api.qorium.io/v1</code>'],
-          ['US (fallback)', '<code>https://us-api.qorium.io/v1</code>'],
-          ['APAC (M8 roadmap)', '<code>https://apac-api.qorium.io/v1</code>'],
+          ['India (primary)', '<code>https://api.qorium.online/v1</code>'],
+          ['US (fallback)', '<code>https://us-api.qorium.online/v1</code>'],
+          ['APAC (M8 roadmap)', '<code>https://apac-api.qorium.online/v1</code>'],
         ]),
       ].join('');
     case 'authentication':
@@ -55,7 +55,7 @@ export function renderSection(section: DocSection): string {
         H2('API keys'),
         P('Bearer tokens follow the format <code>qor_[SKU]_[TENANT]_[32_HEX]</code>.'),
         PRE(
-          `curl -X GET https://api.qorium.io/v1/questions \\
+          `curl -X GET https://api.qorium.online/v1/questions \\
   -H "Authorization: Bearer qor_readybank_acme_a1b2c3d4..." \\
   -H "Accept: application/json"`,
         ),
@@ -104,7 +104,7 @@ X-QOR-Date: 2026-05-03T10:30:00Z`,
             'Replays of the same key return the original response without re-execution.',
         ),
         PRE(
-          `curl -X POST https://api.qorium.io/v1/jd-forge/orders \\
+          `curl -X POST https://api.qorium.online/v1/jd-forge/orders \\
   -H "Authorization: Bearer qor_jdforge_acme_..." \\
   -H "Idempotency-Key: 9f0a3b1e-..." \\
   -d '{"jd_text":"...","tier":"standard"}'`,
@@ -213,7 +213,7 @@ X-QOR-Date: 2026-05-03T10:30:00Z`,
           `import { QoriumClient, ReadyBankResource } from '@qorium/sdk';
 
 const client = new QoriumClient({
-  baseUrl: 'https://api.qorium.io/v1',
+  baseUrl: 'https://api.qorium.online/v1',
   apiKey: process.env.QORIUM_API_KEY,
   tenantId: '11111111-2222-3333-4444-555555555555',
 });

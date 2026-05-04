@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { principalFromAssertion, validateSamlAcs } from '../src/saml.js';
 
-const ACS_URL = 'https://api.qorium.io/v1/auth/saml/acs';
-const ENTITY_ID = 'https://api.qorium.io';
+const ACS_URL = 'https://api.qorium.online/v1/auth/saml/acs';
+const ENTITY_ID = 'https://api.qorium.online';
 
 function fixtureXml(
   opts: {
@@ -82,7 +82,7 @@ describe('validateSamlAcs', () => {
   });
 
   it('rejects when recipient does not match ACS URL', () => {
-    const xml = fixtureXml({ recipient: 'https://api.qorium.io/wrong' });
+    const xml = fixtureXml({ recipient: 'https://api.qorium.online/wrong' });
     const samlResponse = Buffer.from(xml).toString('base64');
     const result = validateSamlAcs({
       samlResponse,

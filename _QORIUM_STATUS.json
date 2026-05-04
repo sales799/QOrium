@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-04T03:14:51.177Z",
+  "generatedAt": "2026-05-04T03:23:43.647Z",
   "branch": "claude/setup-qorium-build-agent-zA0l5",
   "prNumber": 9,
-  "head": "d983ec9",
+  "head": "5ff625d",
   "hero": {
     "phase0CompletionPercent": 100,
     "contentInventory": {
@@ -544,107 +544,113 @@
     {
       "number": 12,
       "sprint": "—",
+      "file": "CTO-DELTA-domain-rebrand-qorium-online.md",
+      "title": "domain rebrand qorium online"
+    },
+    {
+      "number": 13,
+      "sprint": "—",
       "file": "CTO-DELTA-gitleaks-v8-syntax.md",
       "title": "gitleaks v8 syntax"
     },
     {
-      "number": 13,
+      "number": 14,
       "sprint": "—",
       "file": "CTO-DELTA-irt-2pl-with-format-c.md",
       "title": "irt 2pl with format c"
     },
     {
-      "number": 14,
+      "number": 15,
       "sprint": "—",
       "file": "CTO-DELTA-irt-fitter.md",
       "title": "irt fitter"
     },
     {
-      "number": 15,
+      "number": 16,
       "sprint": "—",
       "file": "CTO-DELTA-jdforge-anthropic-deferred.md",
       "title": "jdforge anthropic deferred"
     },
     {
-      "number": 16,
+      "number": 17,
       "sprint": "—",
       "file": "CTO-DELTA-jdforge-embeddings-deferred.md",
       "title": "jdforge embeddings deferred"
     },
     {
-      "number": 17,
+      "number": 18,
       "sprint": "—",
       "file": "CTO-DELTA-jdforge-xlsx-deferred.md",
       "title": "jdforge xlsx deferred"
     },
     {
-      "number": 18,
+      "number": 19,
       "sprint": "—",
       "file": "CTO-DELTA-judge0-apex-deferred.md",
       "title": "judge0 apex deferred"
     },
     {
-      "number": 19,
+      "number": 20,
       "sprint": "—",
       "file": "CTO-DELTA-judge0-bullmq-deferred.md",
       "title": "judge0 bullmq deferred"
     },
     {
-      "number": 20,
+      "number": 21,
       "sprint": "—",
       "file": "CTO-DELTA-migration-runner.md",
       "title": "migration runner"
     },
     {
-      "number": 21,
+      "number": 22,
       "sprint": "—",
       "file": "CTO-DELTA-observability-credentials-deferred.md",
       "title": "observability credentials deferred"
     },
     {
-      "number": 22,
+      "number": 23,
       "sprint": "—",
       "file": "CTO-DELTA-secret-rotation-worker-stub.md",
       "title": "secret rotation worker stub"
     },
     {
-      "number": 23,
+      "number": 24,
       "sprint": "—",
       "file": "CTO-DELTA-setu-auto-deploy.md",
       "title": "setu auto deploy"
     },
     {
-      "number": 24,
+      "number": 25,
       "sprint": "—",
       "file": "CTO-DELTA-sso-idp-credentials-deferred.md",
       "title": "sso idp credentials deferred"
     },
     {
-      "number": 25,
+      "number": 26,
       "sprint": "—",
       "file": "CTO-DELTA-stackvault-marker-substitution-deferred.md",
       "title": "stackvault marker substitution deferred"
     },
     {
-      "number": 26,
+      "number": 27,
       "sprint": "—",
       "file": "CTO-DELTA-testforge-plagiarism-detector-colocated.md",
       "title": "testforge plagiarism detector colocated"
     },
     {
-      "number": 27,
+      "number": 28,
       "sprint": "—",
       "file": "CTO-DELTA-testforge-plagiarism-perplexity-deferred.md",
       "title": "testforge plagiarism perplexity deferred"
     },
     {
-      "number": 28,
+      "number": 29,
       "sprint": "—",
       "file": "CTO-DELTA-testforge-status-column.md",
       "title": "testforge status column"
     },
     {
-      "number": 29,
+      "number": 30,
       "sprint": "—",
       "file": "CTO-DELTA-webhooks-bullmq-deferred.md",
       "title": "webhooks bullmq deferred"

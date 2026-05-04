@@ -137,7 +137,7 @@ describe('GreenhouseAdapter — postScore', () => {
         externalCandidateId: 'cand-42',
         score: 87,
         status: 'completed',
-        assessmentUrl: 'https://qorium.io/results/abc',
+        assessmentUrl: 'https://qorium.online/results/abc',
       },
     );
     expect(r.ok).toBe(true);
@@ -186,7 +186,7 @@ describe('GreenhouseAdapter — postAssessmentUrl', () => {
       const body = JSON.parse(String(init?.body ?? '{}')) as {
         custom_fields: Record<string, unknown>;
       };
-      expect(body.custom_fields.qorium_assessment_url).toBe('https://qorium.io/take/xyz');
+      expect(body.custom_fields.qorium_assessment_url).toBe('https://qorium.online/take/xyz');
       expect(body.custom_fields.qorium_assessment_status).toBe('invited');
       return new Response('{}', { status: 200 });
     }) as unknown as typeof fetch;
@@ -194,7 +194,7 @@ describe('GreenhouseAdapter — postAssessmentUrl', () => {
     const r = await adapter.postAssessmentUrl(
       { accessToken: 'gh-token' },
       'cand-42',
-      'https://qorium.io/take/xyz',
+      'https://qorium.online/take/xyz',
     );
     expect(r.ok).toBe(true);
   });

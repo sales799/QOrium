@@ -11,13 +11,13 @@ const config = {
   nodeEnv: 'test' as const,
   port: 0,
   databaseUrl: undefined,
-  jwtIssuer: 'https://api.qorium.io',
-  jwtAudience: 'https://app.qorium.io',
+  jwtIssuer: 'https://api.qorium.online',
+  jwtAudience: 'https://app.qorium.online',
   jwtSigningSecret: 'test-secret-do-not-ship',
   jwtTtlSeconds: 3600,
-  spEntityId: 'https://api.qorium.io',
-  acsUrl: 'https://api.qorium.io/v1/auth/saml/acs',
-  sloUrl: 'https://api.qorium.io/v1/auth/saml/slo',
+  spEntityId: 'https://api.qorium.online',
+  acsUrl: 'https://api.qorium.online/v1/auth/saml/acs',
+  sloUrl: 'https://api.qorium.online/v1/auth/saml/slo',
 };
 
 function fixtureXml(opts: { audience?: string; recipient?: string; email?: string } = {}) {
@@ -60,7 +60,7 @@ describe('SSO express server', () => {
     expect(r.status).toBe(200);
     expect(r.headers['content-type']).toMatch(/samlmetadata/);
     expect(r.text).toContain('<EntityDescriptor');
-    expect(r.text).toContain('https://api.qorium.io/v1/auth/saml/acs');
+    expect(r.text).toContain('https://api.qorium.online/v1/auth/saml/acs');
   });
 
   it('POST /v1/auth/saml/acs issues a JWT for a valid assertion', async () => {

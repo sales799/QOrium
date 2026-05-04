@@ -10,8 +10,8 @@ function generateRsaKeys(): { privatePem: string; publicPem: string } {
   };
 }
 
-const ISSUER = 'https://api.qorium.io';
-const AUDIENCE = 'https://app.qorium.io';
+const ISSUER = 'https://api.qorium.online';
+const AUDIENCE = 'https://app.qorium.online';
 const NOW = (): Date => new Date('2026-05-03T20:00:00Z');
 
 describe('detectAlg', () => {

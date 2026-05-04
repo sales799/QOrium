@@ -13,7 +13,7 @@
 import type { ErrorBody } from './types.js';
 
 export interface ClientOptions {
-  /** Base URL, e.g. `https://api.qorium.io/v1`. */
+  /** Base URL, e.g. `https://api.qorium.online/v1`. */
   baseUrl: string;
   /** Bearer token (API key or JWT). */
   apiKey?: string;

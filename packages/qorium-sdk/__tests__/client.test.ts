@@ -11,7 +11,7 @@ const okResponse =
 
 describe('QoriumClient', () => {
   it('strips trailing slashes from baseUrl', () => {
-    const c = new QoriumClient({ baseUrl: 'https://api.qorium.io/v1///' });
+    const c = new QoriumClient({ baseUrl: 'https://api.qorium.online/v1///' });
     // If we then call something, the URL should be assembled correctly.
     // We probe by passing a stub fetch and inspecting the captured URL.
     let capturedUrl: string | null = null;
@@ -20,7 +20,7 @@ describe('QoriumClient', () => {
       return new Response('null', { status: 200 });
     }) as never;
     return c.get('/hello').then(() => {
-      expect(capturedUrl).toBe('https://api.qorium.io/v1/hello');
+      expect(capturedUrl).toBe('https://api.qorium.online/v1/hello');
     });
   });
 

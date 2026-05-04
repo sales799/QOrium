@@ -5,7 +5,7 @@
  *   import { QoriumClient, ReadyBankResource } from '@qorium/sdk';
  *
  *   const client = new QoriumClient({
- *     baseUrl: 'https://api.qorium.io/v1',
+ *     baseUrl: 'https://api.qorium.online/v1',
  *     apiKey: process.env.QORIUM_API_KEY,
  *     tenantId: '11111111-2222-3333-4444-555555555555',
  *   });

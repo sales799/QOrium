@@ -6,7 +6,7 @@ import { recordAuditEvent } from './audit.js';
 import type { RateLimiterAbstract, RateLimiterRes } from './rate-limit.js';
 import type { AuthenticatedRequest, AuthContext } from './types.js';
 
-const PROBLEM_TYPE_BASE = 'https://qorium.io/problems/';
+const PROBLEM_TYPE_BASE = 'https://qorium.online/problems/';
 const BEARER_PREFIX = 'bearer ';
 const ALIAS_HEADER = 'x-talpro-api-key';
 

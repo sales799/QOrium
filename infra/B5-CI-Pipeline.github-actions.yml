@@ -236,7 +236,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: staging
-      url: https://staging.qorium.io
+      url: https://staging.qorium.online
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -248,7 +248,7 @@ jobs:
 
       - name: Deploy to staging
         run: |
-          echo "Deploying to staging.qorium.io..."
+          echo "Deploying to staging.qorium.online..."
 
           # Example: Use SSH to trigger PM2 restart on staging server
           # In practice, replace with your staging deploy command:
@@ -260,7 +260,7 @@ jobs:
           echo "Deployment trigger (placeholder). Replace with actual deploy logic."
         env:
           DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
-          STAGING_HOST: staging.qorium.io
+          STAGING_HOST: staging.qorium.online
 
       - name: Run smoke tests on staging
         run: |
@@ -268,8 +268,8 @@ jobs:
           sleep 10
 
           # Example health checks:
-          curl -f https://staging.qorium.io/health || exit 1
-          curl -f https://staging.qorium.io/api/v1/health || exit 1
+          curl -f https://staging.qorium.online/health || exit 1
+          curl -f https://staging.qorium.online/api/v1/health || exit 1
         continue-on-error: true
 
       - name: Notify deployment
@@ -296,7 +296,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://qorium.io
+      url: https://qorium.online
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -316,7 +316,7 @@ jobs:
 
       - name: Deploy to production
         run: |
-          echo "Deploying to production (qorium.io, api.qorium.io, app.qorium.io)..."
+          echo "Deploying to production (qorium.online, api.qorium.online, app.qorium.online)..."
 
           # Example production deploy (customize per your infrastructure):
           # - PM2 reload on VPS (zero-downtime rolling restart)
@@ -327,7 +327,7 @@ jobs:
           echo "Deployment trigger (placeholder). Replace with actual deploy logic."
         env:
           DEPLOY_KEY: ${{ secrets.PRODUCTION_DEPLOY_KEY }}
-          PRODUCTION_HOST: api.qorium.io
+          PRODUCTION_HOST: api.qorium.online
 
       - name: Run smoke tests on production
         run: |
@@ -335,9 +335,9 @@ jobs:
           sleep 10
 
           # Health checks:
-          curl -f https://qorium.io/ || exit 1
-          curl -f https://api.qorium.io/health || exit 1
-          curl -f https://app.qorium.io/health || exit 1
+          curl -f https://qorium.online/ || exit 1
+          curl -f https://api.qorium.online/health || exit 1
+          curl -f https://app.qorium.online/health || exit 1
 
       - name: Create production deployment record
         uses: actions/github-script@v7

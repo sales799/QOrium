@@ -9,7 +9,7 @@ export interface SsoConfig {
   jwtSigningSecret: string;
   /** Default JWT lifetime (seconds). Spec §7.2 → 1 hour. */
   jwtTtlSeconds: number;
-  /** Public-facing entity id, e.g. https://api.qorium.io */
+  /** Public-facing entity id, e.g. https://api.qorium.online */
   spEntityId: string;
   /** ACS endpoint URL. */
   acsUrl: string;
@@ -26,13 +26,13 @@ function parsePositiveInt(raw: string | undefined, fallback: number): number {
 
 export function loadConfig(): SsoConfig {
   const nodeEnv = (process.env.NODE_ENV ?? 'development') as SsoConfig['nodeEnv'];
-  const baseUrl = process.env.SSO_BASE_URL ?? 'https://api.qorium.io';
+  const baseUrl = process.env.SSO_BASE_URL ?? 'https://api.qorium.online';
   return {
     nodeEnv,
     port: parsePositiveInt(process.env.SSO_PORT ?? process.env.PORT, 5107),
     databaseUrl: process.env.DATABASE_URL || undefined,
     jwtIssuer: process.env.SSO_JWT_ISSUER ?? baseUrl,
-    jwtAudience: process.env.SSO_JWT_AUDIENCE ?? 'https://app.qorium.io',
+    jwtAudience: process.env.SSO_JWT_AUDIENCE ?? 'https://app.qorium.online',
     jwtSigningSecret: process.env.SSO_JWT_SIGNING_SECRET ?? 'dev-only-do-not-ship-this',
     jwtTtlSeconds: parsePositiveInt(process.env.SSO_JWT_TTL_SECONDS, 3600),
     spEntityId: process.env.SSO_SP_ENTITY_ID ?? baseUrl,

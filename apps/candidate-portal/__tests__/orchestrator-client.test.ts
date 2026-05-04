@@ -10,9 +10,9 @@ describe('resolveOrchestratorUrl', () => {
   it('honours AI_PAIR_CODING_URL', () => {
     expect(
       resolveOrchestratorUrl({
-        AI_PAIR_CODING_URL: 'https://prod.qorium.io/wave3',
+        AI_PAIR_CODING_URL: 'https://prod.qorium.online/wave3',
       } as unknown as NodeJS.ProcessEnv),
-    ).toBe('https://prod.qorium.io/wave3');
+    ).toBe('https://prod.qorium.online/wave3');
   });
 });
 
