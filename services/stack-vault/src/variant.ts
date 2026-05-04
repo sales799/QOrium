@@ -8,13 +8,11 @@
  * server-side and used by the Anti-Leak forensics pipeline to attribute
  * leaked questions back to the customer that read them.
  *
- * Mechanical marker substitution (variable-name suffix replacement,
- * test-value perturbation, comment-style swap, etc. per the watermark
- * spec) is **deferred** — see
- * `infra/CTO-deltas/CTO-DELTA-stackvault-marker-substitution-deferred.md`.
- * v0 ships the watermark_id metadata; the body / test-cases stay master-
- * canonical. The substitution upgrade ships in a follow-up sprint with
- * dedicated per-format handlers.
+ * Sprint 2.15 adds **mechanical marker substitution** for 4 of the 5
+ * markers (variableSuffix, testValuePercent, synonymIndex, commentStyle).
+ * The 5th — helperReorderParity — stays a no-op until AST-level
+ * dependency analysis lands. See `services/stack-vault/src/substitution.ts`
+ * + `infra/CTO-deltas/CTO-DELTA-stackvault-marker-substitution-deferred.md`.
  */
 
 import {
@@ -23,6 +21,7 @@ import {
   deriveWatermarkSeed,
   type VariantMarkers,
 } from '@qorium/leak-crawler';
+import { applyAllMarkers } from './substitution.js';
 
 export interface MasterQuestion {
   id: string;
@@ -91,14 +90,19 @@ export function buildVariant(vault: VaultIdentity, master: MasterQuestion): Cust
     tenantId: vault.tenantId,
     questionId: master.id,
   });
+  const substituted = applyAllMarkers({
+    bodyMd: master.bodyMd,
+    testCases: master.testCases ?? null,
+    markers: watermarkMarkers,
+  });
   return {
     id: master.id,
     uuid: master.uuid,
     format: master.format,
-    bodyMd: master.bodyMd,
+    bodyMd: substituted.bodyMd,
     bodyJson: master.bodyJson,
     answerKey: master.answerKey ?? null,
-    testCases: master.testCases ?? null,
+    testCases: substituted.testCases,
     referenceSolution: master.referenceSolution ?? null,
     difficultyB: master.difficultyB ?? null,
     discriminationA: master.discriminationA ?? null,
