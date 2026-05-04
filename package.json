@@ -17,6 +17,7 @@
     "format:check": "prettier --check .",
     "test": "pnpm -r --if-present run test",
     "build": "pnpm -r --if-present run build",
+    "dev:marketing": "pnpm --filter @qorium/marketing dev",
     "secrets:scan": "gitleaks detect --source . --no-banner --redact || (echo 'gitleaks not installed — see README' && exit 1)",
     "prepare": "husky"
   },
