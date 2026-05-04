@@ -3,6 +3,7 @@ import request from 'supertest';
 import pino from 'pino';
 import { createHmac } from 'node:crypto';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter } from '@qorium/audit-emitter';
 import { createServer } from '../src/server';
 
 const silent = pino({ level: 'silent' });
@@ -280,5 +281,26 @@ describe('billing express server', () => {
       .send(body);
     expect(r.status).toBe(202);
     expect(r.body.invoice_id).toBe(INVOICE_ID);
+  });
+
+  it('emits billing.customer.created + billing.invoice.issued audit events', async () => {
+    const pool = fixturePool();
+    const auditEmitter = createAuditEmitter({ mode: 'stub' });
+    const app = createServer({ config, logger: silent, pool, auditEmitter });
+    await request(app)
+      .post('/v1/billing/customers')
+      .set('x-tenant-id', TENANT_ID)
+      .send({ display_name: 'Acme', email: 'b@a.com' });
+    await request(app)
+      .post('/v1/billing/invoices')
+      .set('x-tenant-id', TENANT_ID)
+      .send({
+        line_items: [{ description: 'JD Forge', quantity: 1, unit_amount_cents: 1000 }],
+        due_in_days: 14,
+      });
+    const recent = auditEmitter.recent?.() ?? [];
+    const actions = recent.map((e) => e.action);
+    expect(actions).toContain('billing.customer.created');
+    expect(actions).toContain('billing.invoice.issued');
   });
 });

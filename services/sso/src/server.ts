@@ -24,6 +24,7 @@ import { pinoHttp } from 'pino-http';
 import type { Logger } from 'pino';
 import { z } from 'zod';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter, type AuditEmitter } from '@qorium/audit-emitter';
 import type { SsoConfig } from './config.js';
 import { generateSpMetadataXml } from './metadata.js';
 import { validateSamlAcs, principalFromAssertion } from './saml.js';
@@ -59,6 +60,8 @@ export interface CreateServerOptions {
   oidcStateStore?: OidcStateStore;
   /** Test seam for the OIDC token exchange. */
   oidcFetchImpl?: typeof fetch;
+  /** Optional audit emitter; defaults to a stub if omitted. */
+  auditEmitter?: AuditEmitter;
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -101,6 +104,8 @@ export function createServer(opts: CreateServerOptions): express.Express {
   app.use(express.json({ limit: '128kb' }));
   app.use(pinoHttp({ logger: opts.logger }));
 
+  const audit = opts.auditEmitter ?? createAuditEmitter({ mode: 'stub' });
+
   app.get('/healthz', (_req, res) => {
     res.json({ status: 'ok', service: 'qorium-sso' });
   });
@@ -116,7 +121,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
   });
 
   app.post('/v1/auth/saml/acs', (req, res) => {
-    void handleAcs(opts, req, res);
+    void handleAcs(opts, audit, req, res);
   });
 
   app.post('/v1/auth/saml/login', (req, res) => {
@@ -140,7 +145,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
   });
 
   app.put('/v1/sso/configurations', (req, res) => {
-    void handleUpsertConfig(opts, req, res);
+    void handleUpsertConfig(opts, audit, req, res);
   });
 
   app.use((_req, res) => {
@@ -154,7 +159,12 @@ export function createServer(opts: CreateServerOptions): express.Express {
   return app;
 }
 
-async function handleAcs(opts: CreateServerOptions, req: Request, res: Response): Promise<void> {
+async function handleAcs(
+  opts: CreateServerOptions,
+  audit: AuditEmitter,
+  req: Request,
+  res: Response,
+): Promise<void> {
   const parsed = acsSchema.safeParse(req.body);
   if (!parsed.success) {
     sendProblem(res, 400, 'Bad Request', parsed.error.issues.map((i) => i.message).join('; '));
@@ -167,6 +177,14 @@ async function handleAcs(opts: CreateServerOptions, req: Request, res: Response)
     ...(opts.verifySamlSignature ? { verifySignature: opts.verifySamlSignature } : {}),
   });
   if (!validation.ok) {
+    await audit.emit({
+      tenantId: parsed.data.tenant_id ?? null,
+      actorId: null,
+      actorType: 'system',
+      action: 'sso.login.failure',
+      resourceType: 'session',
+      payload: { reason: validation.reason, protocol: 'saml' },
+    });
     sendProblem(res, 401, 'SAML assertion rejected', validation.reason);
     return;
   }
@@ -207,6 +225,19 @@ async function handleAcs(opts: CreateServerOptions, req: Request, res: Response)
     audience: opts.config.jwtAudience,
     signingSecret: opts.config.jwtSigningSecret,
     ttlSeconds: opts.config.jwtTtlSeconds,
+  });
+
+  await audit.emit({
+    tenantId: tenantId || null,
+    actorId: principal.subject,
+    actorType: 'user',
+    action: 'sso.login.success',
+    resourceType: 'session',
+    payload: {
+      protocol: 'saml',
+      email: principal.email,
+      roles: principal.roles,
+    },
   });
 
   res.status(200).json({
@@ -296,6 +327,7 @@ async function handleGetConfig(
 
 async function handleUpsertConfig(
   opts: CreateServerOptions,
+  audit: AuditEmitter,
   req: Request,
   res: Response,
 ): Promise<void> {
@@ -335,6 +367,19 @@ async function handleUpsertConfig(
     input.attributeMapping = parsed.data.attribute_mapping;
   if (parsed.data.status !== undefined) input.status = parsed.data.status as SsoStatus;
   const row = await upsertConfig(opts.pool, input);
+  await audit.emit({
+    tenantId,
+    actorId: null,
+    actorType: 'admin',
+    action: row.status === 'active' ? 'sso.config.activated' : 'sso.config.updated',
+    resourceType: 'sso_configuration',
+    resourceId: row.id,
+    payload: {
+      protocol: row.protocol,
+      idp_type: row.idpType,
+      status: row.status,
+    },
+  });
   res.status(200).json(row);
 }
 

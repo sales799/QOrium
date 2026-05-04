@@ -20,6 +20,7 @@ import { pinoHttp } from 'pino-http';
 import type { Logger } from 'pino';
 import { z } from 'zod';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter, type AuditEmitter } from '@qorium/audit-emitter';
 import {
   createSubscription,
   deleteSubscription,
@@ -35,6 +36,8 @@ export interface CreateServerOptions {
   pool?: Pool;
   logger: Logger;
   resolveTenantId?: (req: Request) => string | null;
+  /** Optional audit emitter; defaults to a stub if omitted. */
+  auditEmitter?: AuditEmitter;
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -56,6 +59,8 @@ export function createServer(opts: CreateServerOptions): express.Express {
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(pinoHttp({ logger: opts.logger }));
 
+  const audit = opts.auditEmitter ?? createAuditEmitter({ mode: 'stub' });
+
   app.get('/healthz', (_req, res) => {
     res.json({ status: 'ok', service: 'qorium-webhooks' });
   });
@@ -64,7 +69,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
     void handleList(opts, req, res);
   });
   app.post('/v1/webhooks/subscriptions', (req, res) => {
-    void handleCreate(opts, req, res);
+    void handleCreate(opts, audit, req, res);
   });
   app.get('/v1/webhooks/subscriptions/:id', (req, res) => {
     void handleGet(opts, req, res);
@@ -73,7 +78,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
     void handleUpdate(opts, req, res);
   });
   app.delete('/v1/webhooks/subscriptions/:id', (req, res) => {
-    void handleDelete(opts, req, res);
+    void handleDelete(opts, audit, req, res);
   });
 
   app.use((_req, res) => {
@@ -94,7 +99,12 @@ async function handleList(opts: CreateServerOptions, req: Request, res: Response
   res.json({ count: rows.length, subscriptions: rows });
 }
 
-async function handleCreate(opts: CreateServerOptions, req: Request, res: Response): Promise<void> {
+async function handleCreate(
+  opts: CreateServerOptions,
+  audit: AuditEmitter,
+  req: Request,
+  res: Response,
+): Promise<void> {
   const ctx = ensureContext(opts, req, res);
   if (!ctx) return;
   const parsed = createSchema.safeParse(req.body);
@@ -122,6 +132,18 @@ async function handleCreate(opts: CreateServerOptions, req: Request, res: Respon
       tenantId: ctx.tenantId,
       eventType,
       endpointUrl: parsed.data.endpoint_url,
+    });
+    await audit.emit({
+      tenantId: ctx.tenantId,
+      actorId: null,
+      actorType: 'admin',
+      action: 'webhooks.subscription.created',
+      resourceType: 'webhook_subscription',
+      resourceId: created.row.id,
+      payload: {
+        event_type: created.row.eventType,
+        endpoint_url: created.row.endpointUrl,
+      },
     });
     res.status(201).json({
       subscription: created.row,
@@ -179,7 +201,12 @@ async function handleUpdate(opts: CreateServerOptions, req: Request, res: Respon
   res.json(row);
 }
 
-async function handleDelete(opts: CreateServerOptions, req: Request, res: Response): Promise<void> {
+async function handleDelete(
+  opts: CreateServerOptions,
+  audit: AuditEmitter,
+  req: Request,
+  res: Response,
+): Promise<void> {
   const ctx = ensureContext(opts, req, res);
   if (!ctx) return;
   const id = idParam(req);
@@ -192,6 +219,14 @@ async function handleDelete(opts: CreateServerOptions, req: Request, res: Respon
     sendProblem(res, 404, 'Subscription not found');
     return;
   }
+  await audit.emit({
+    tenantId: ctx.tenantId,
+    actorId: null,
+    actorType: 'admin',
+    action: 'webhooks.subscription.deleted',
+    resourceType: 'webhook_subscription',
+    resourceId: id,
+  });
   res.status(204).end();
 }
 

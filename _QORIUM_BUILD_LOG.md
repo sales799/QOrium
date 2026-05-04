@@ -2232,8 +2232,67 @@ notes are in the corresponding `infra/CTO-deltas/CTO-DELTA-*.md` files.
   authorised to write
 - `AUDIT_LOG_ADMIN_TOKEN` for the production-mode emitter
 
-### Next sprint (2.19)
+### Next sprint (2.19) [PIVOT — see below]
 
-`apps/my` — Next.js customer self-service portal (port TBD; likely
-5118): invoice list, payment intent flow, subscription overview,
-API key management. Reuses `@qorium/qorium-sdk`. ~30 new tests.
+The originally planned `apps/my` self-service portal is deferred a
+sprint in favour of the mechanical follow-up from CTO-DELTA #33: wire
+the new audit-emitter into the remaining 3 emitter services so the
+audit story is feature-complete before adding more surface area.
+
+---
+
+## 2026-05-04 — Sprint 2.19 audit-emitter wholesale wire-up ✅
+
+Sprint 2.18 shipped `@qorium/audit-emitter` + a reference integration
+in api-key-mgmt. This sprint takes the same pattern wholesale across
+the other 3 emitter services so every state-changing call in the
+domain layer leaves a canonical audit row.
+
+### What landed
+
+- **`services/billing`** — adds `@qorium/audit-emitter` dep. Emits:
+  - `billing.customer.created` on `POST /v1/billing/customers`
+  - `billing.invoice.issued` on `POST /v1/billing/invoices`
+  - `billing.invoice.paid` on Razorpay `payment.captured` webhook
+  - `billing.payment.failed` on Razorpay `payment.failed` webhook
+- **`services/sso`** — adds `@qorium/audit-emitter` dep. Emits:
+  - `sso.login.success` when SAML ACS issues a session JWT
+  - `sso.login.failure` when SAML ACS rejects the assertion
+  - `sso.config.activated` / `sso.config.updated` on `PUT /v1/sso/configurations`
+- **`services/webhooks`** — adds `@qorium/audit-emitter` dep. Emits:
+  - `webhooks.subscription.created` on POST
+  - `webhooks.subscription.deleted` on DELETE
+
+All three services accept an optional `auditEmitter` in their
+`createServer` options (defaults to a stub), matching the api-key-mgmt
+pattern. Production wires a real emitter in each service's `index.ts`
+once `AUDIT_LOG_BASE_URL` + `AUDIT_LOG_ADMIN_TOKEN` are available.
+
+### Tests (4 new cases, all green)
+
+- `services/webhooks/__tests__/server.test.ts` (+1: emit on create)
+- `services/billing/__tests__/server.test.ts` (+1: emit customer +
+  invoice events)
+- `services/sso/__tests__/server.test.ts` (+2: emit success + failure
+  on SAML ACS)
+
+### Verified locally
+
+- `pnpm typecheck` clean across **28 workspaces**
+- `pnpm lint` + `pnpm format:check` clean
+- `pnpm test` workspace-wide: **967 active green** + ~53 auto-skip
+  (was 963; +4 net)
+
+### Halt conditions
+
+- `AUDIT_LOG_ADMIN_TOKEN` minted via api-key-mgmt + the `audit:write`
+  scope (deferred to a future sprint that defines the scope catalogue
+  for inter-service auth)
+- CTO-policy decision on which `actor_type` values each service may
+  write to the audit log
+
+### Next sprint (2.20)
+
+`apps/my` — Next.js customer self-service portal (port 5118): invoice
+list, payment intent flow, subscription overview, API key management.
+Reuses `@qorium/qorium-sdk`. ~30 new tests.

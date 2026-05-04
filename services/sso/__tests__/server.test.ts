@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import pino from 'pino';
+import { createAuditEmitter } from '@qorium/audit-emitter';
 import { createServer } from '../src/server.js';
 import { issueSessionJwt } from '../src/jwt.js';
 
@@ -139,5 +140,36 @@ describe('SSO express server', () => {
     const r = await request(app).post('/v1/auth/logout').set('authorization', `Bearer ${token}`);
     expect(r.status).toBe(200);
     expect(r.body.status).toBe('logged_out');
+  });
+
+  it('emits sso.login.success on a valid SAML assertion', async () => {
+    const auditEmitter = createAuditEmitter({ mode: 'stub' });
+    const app = createServer({ config, logger: silent, auditEmitter });
+    const samlResponse = Buffer.from(fixtureXml()).toString('base64');
+    const r = await request(app)
+      .post('/v1/auth/saml/acs')
+      .send({ SAMLResponse: samlResponse, tenant_id: TENANT_ID });
+    expect(r.status).toBe(200);
+    const recent = auditEmitter.recent?.() ?? [];
+    expect(recent).toHaveLength(1);
+    expect(recent[0]?.action).toBe('sso.login.success');
+    expect(recent[0]?.tenantId).toBe(TENANT_ID);
+  });
+
+  it('emits sso.login.failure on a rejected SAML assertion', async () => {
+    const auditEmitter = createAuditEmitter({ mode: 'stub' });
+    const app = createServer({
+      config,
+      logger: silent,
+      verifySamlSignature: () => false,
+      auditEmitter,
+    });
+    const samlResponse = Buffer.from(fixtureXml()).toString('base64');
+    const r = await request(app)
+      .post('/v1/auth/saml/acs')
+      .send({ SAMLResponse: samlResponse, tenant_id: TENANT_ID });
+    expect(r.status).toBe(401);
+    const recent = auditEmitter.recent?.() ?? [];
+    expect(recent[0]?.action).toBe('sso.login.failure');
   });
 });

@@ -434,6 +434,9 @@ importers:
 
   services/billing:
     dependencies:
+      '@qorium/audit-emitter':
+        specifier: workspace:*
+        version: link:../../packages/audit-emitter
       '@qorium/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -685,6 +688,9 @@ importers:
 
   services/sso:
     dependencies:
+      '@qorium/audit-emitter':
+        specifier: workspace:*
+        version: link:../../packages/audit-emitter
       '@qorium/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -830,6 +836,9 @@ importers:
 
   services/webhooks:
     dependencies:
+      '@qorium/audit-emitter':
+        specifier: workspace:*
+        version: link:../../packages/audit-emitter
       '@qorium/db':
         specifier: workspace:*
         version: link:../../packages/db

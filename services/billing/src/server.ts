@@ -18,6 +18,7 @@ import { pinoHttp } from 'pino-http';
 import type { Logger } from 'pino';
 import { z } from 'zod';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter, type AuditEmitter } from '@qorium/audit-emitter';
 import type { BillingConfig } from './config.js';
 import { computeInvoice, formatInvoiceNumber } from './invoice-math.js';
 import { stubRazorpayClient, isRazorpayEvent, type RazorpayClient } from './razorpay.js';
@@ -43,6 +44,8 @@ export interface CreateServerOptions {
   pool?: Pool;
   razorpay?: RazorpayClient;
   resolveTenantId?: (req: Request) => string | null;
+  /** Optional audit emitter; defaults to a stub if omitted. */
+  auditEmitter?: AuditEmitter;
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -77,6 +80,7 @@ const createInvoiceSchema = previewInvoiceSchema.extend({
 
 export function createServer(opts: CreateServerOptions): express.Express {
   const razorpay = opts.razorpay ?? stubRazorpayClient(opts.config.razorpayWebhookSecret);
+  const audit = opts.auditEmitter ?? createAuditEmitter({ mode: 'stub' });
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
@@ -87,7 +91,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
     '/v1/billing/webhooks/razorpay',
     express.raw({ type: '*/*', limit: '256kb' }),
     (req, res) => {
-      void handleRazorpayWebhook(opts, razorpay, req, res);
+      void handleRazorpayWebhook(opts, razorpay, audit, req, res);
     },
   );
 
@@ -98,7 +102,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
   });
 
   app.post('/v1/billing/customers', (req, res) => {
-    void handleUpsertCustomer(opts, req, res);
+    void handleUpsertCustomer(opts, audit, req, res);
   });
   app.get('/v1/billing/customers/me', (req, res) => {
     void handleGetSelfCustomer(opts, req, res);
@@ -111,7 +115,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
     handlePreviewInvoice(opts, req, res);
   });
   app.post('/v1/billing/invoices', (req, res) => {
-    void handleCreateInvoice(opts, req, res);
+    void handleCreateInvoice(opts, audit, req, res);
   });
   app.get('/v1/billing/invoices/:id', (req, res) => {
     void handleGetInvoice(opts, req, res);
@@ -133,6 +137,7 @@ export function createServer(opts: CreateServerOptions): express.Express {
 
 async function handleUpsertCustomer(
   opts: CreateServerOptions,
+  audit: AuditEmitter,
   req: Request,
   res: Response,
 ): Promise<void> {
@@ -153,6 +158,15 @@ async function handleUpsertCustomer(
   if (parsed.data.tax_id !== undefined) input.taxId = parsed.data.tax_id;
   if (parsed.data.billing_address !== undefined) input.billingAddress = parsed.data.billing_address;
   const row = await upsertCustomer(ctx.pool, input);
+  await audit.emit({
+    tenantId: ctx.tenantId,
+    actorId: resolveActorId(req),
+    actorType: 'admin',
+    action: 'billing.customer.created',
+    resourceType: 'customer',
+    resourceId: row.id,
+    payload: { display_name: row.displayName, email: row.email, currency: row.currency },
+  });
   res.status(200).json(row);
 }
 
@@ -211,6 +225,7 @@ function handlePreviewInvoice(opts: CreateServerOptions, req: Request, res: Resp
 
 async function handleCreateInvoice(
   opts: CreateServerOptions,
+  audit: AuditEmitter,
   req: Request,
   res: Response,
 ): Promise<void> {
@@ -259,6 +274,20 @@ async function handleCreateInvoice(
     notes: parsed.data.notes ?? null,
     lineItems,
   });
+  await audit.emit({
+    tenantId: ctx.tenantId,
+    actorId: resolveActorId(req),
+    actorType: 'admin',
+    action: 'billing.invoice.issued',
+    resourceType: 'invoice',
+    resourceId: inv.id,
+    payload: {
+      invoice_number: inv.invoiceNumber,
+      total_cents: inv.totalCents,
+      currency: inv.currency,
+      due_date: inv.dueDate,
+    },
+  });
   res.status(201).json(inv);
 }
 
@@ -304,6 +333,7 @@ async function handleListInvoices(
 async function handleRazorpayWebhook(
   opts: CreateServerOptions,
   razorpay: RazorpayClient,
+  audit: AuditEmitter,
   req: Request,
   res: Response,
 ): Promise<void> {
@@ -370,6 +400,32 @@ async function handleRazorpayWebhook(
 
   if (status === 'captured') {
     await markInvoicePaid(opts.pool, invoiceId, new Date());
+    await audit.emit({
+      tenantId: null,
+      actorId: null,
+      actorType: 'system',
+      action: 'billing.invoice.paid',
+      resourceType: 'invoice',
+      resourceId: invoiceId,
+      payload: {
+        provider_payment_id: payment.id,
+        amount_cents: payment.amount,
+        currency: payment.currency,
+      },
+    });
+  } else if (status === 'failed') {
+    await audit.emit({
+      tenantId: null,
+      actorId: null,
+      actorType: 'system',
+      action: 'billing.payment.failed',
+      resourceType: 'invoice',
+      resourceId: invoiceId,
+      payload: {
+        provider_payment_id: payment.id,
+        error_message: payment.error_description ?? null,
+      },
+    });
   }
   res.status(202).json({ status: 'accepted', event: parsed.event, invoice_id: invoiceId });
 }
@@ -401,6 +457,14 @@ function defaultResolveTenant(req: Request): string | null {
   if (auth?.tenantId) return auth.tenantId;
   const header = req.headers['x-tenant-id'];
   return typeof header === 'string' && UUID_REGEX.test(header) ? header : null;
+}
+
+function resolveActorId(req: Request): string | null {
+  const auth = (req as Request & { auth?: { actorId?: string; userId?: string } }).auth;
+  if (auth?.actorId) return auth.actorId;
+  if (auth?.userId) return auth.userId;
+  const header = req.headers['x-actor-id'];
+  return typeof header === 'string' ? header : null;
 }
 
 function sendProblem(res: Response, status: number, title: string, detail?: string): void {

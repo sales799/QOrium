@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import pino from 'pino';
 import type { Pool } from '@qorium/db';
+import { createAuditEmitter } from '@qorium/audit-emitter';
 import { createServer } from '../src/server.js';
 
 const silent = pino({ level: 'silent' });
@@ -200,5 +201,21 @@ describe('webhooks express server', () => {
     });
     const r = await request(app).get('/v1/webhooks/subscriptions');
     expect(r.status).toBe(401);
+  });
+
+  it('emits webhooks.subscription.created on successful creation', async () => {
+    const pool = fixturePool([]);
+    const auditEmitter = createAuditEmitter({ mode: 'stub' });
+    const app = createServer({ config, logger: silent, pool, resolveTenantId, auditEmitter });
+    const r = await withTenant(
+      request(app)
+        .post('/v1/webhooks/subscriptions')
+        .send({ event_type: '*', endpoint_url: 'https://example.com/hook' }),
+    );
+    expect(r.status).toBe(201);
+    const recent = auditEmitter.recent?.() ?? [];
+    expect(recent).toHaveLength(1);
+    expect(recent[0]?.action).toBe('webhooks.subscription.created');
+    expect(recent[0]?.tenantId).toBe(TENANT_ID);
   });
 });
