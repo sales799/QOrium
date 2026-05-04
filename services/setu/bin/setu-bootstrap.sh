@@ -150,9 +150,12 @@ if [[ ! -f "$ENV_FILE" ]]; then
     || sudo -u postgres psql -c "CREATE ROLE qorium LOGIN PASSWORD '${PG_PASSWORD}'"
   sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='qorium'" 2>/dev/null | grep -q 1 \
     || sudo -u postgres psql -c "CREATE DATABASE qorium OWNER qorium"
-  # Postgres 15+ default: ordinary roles can't CREATE in schema public.
-  # Grant CREATE + USAGE to the qorium role inside the qorium DB so the
-  # migration runner can DDL into the public schema.
+  # Belt-and-braces: ensure qorium owns the DB + has full privileges + owns
+  # the public schema, regardless of what state a prior bootstrap attempt
+  # left things in. Postgres 15+ default: ordinary roles can't CREATE in
+  # schema public unless explicitly granted.
+  sudo -u postgres psql -c "ALTER DATABASE qorium OWNER TO qorium" >/dev/null
+  sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE qorium TO qorium" >/dev/null
   sudo -u postgres psql -d qorium -c "GRANT ALL ON SCHEMA public TO qorium" >/dev/null
   sudo -u postgres psql -d qorium -c "ALTER SCHEMA public OWNER TO qorium" >/dev/null
   # Pre-install the extensions the migration suite needs. Extensions
