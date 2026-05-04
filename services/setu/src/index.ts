@@ -44,7 +44,10 @@ export async function start() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
-if (process.argv[1]?.endsWith('index.js') || process.argv[1]?.endsWith('index.ts')) {
+// PM2 cluster mode wraps the script, so process.argv[1] points at the
+// wrapper, not index.js. Always invoke start(); tests import specific
+// helpers, never this entry point.
+{
   void start().catch((err) => {
     process.stderr.write(JSON.stringify({ event: 'setu.fatal', error: String(err) }) + '\n');
     process.exit(1);
