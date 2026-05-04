@@ -5,6 +5,7 @@ import { HttpProblem } from '../middleware/problem.js';
 import { decodeCursor, encodeCursor, InvalidCursorError } from '../types/cursor.js';
 import { getQuestionByUuid, searchQuestions } from '../repositories/questions.js';
 import type { DifficultyBand } from '../types/question.js';
+import { applyWatermark } from '../lib/watermark.js';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -129,6 +130,28 @@ export function questionsRouter(deps: QuestionsRouterDeps): Router {
             detail: `Question ${uuid} does not exist or is not released`,
           }),
         );
+        return;
+      }
+      // Per-candidate watermark: if ?candidate_id=<id> is present, apply a
+      // deterministic option-permutation. Server keeps the keyMap implicitly
+      // (re-derived at grade time via applyWatermark with the same inputs);
+      // client sees only the watermarked options + watermark_seed for audit.
+      const candidateId = typeof req.query.candidate_id === 'string' ? req.query.candidate_id : null;
+      if (
+        candidateId &&
+        /^[A-Za-z0-9_-]{1,100}$/.test(candidateId) &&
+        Array.isArray((question.body_json as { options?: unknown }).options)
+      ) {
+        const originalOptions = (question.body_json as { options: Array<{ key: string; text: string }> }).options;
+        const wm = applyWatermark(question.uuid, candidateId, originalOptions);
+        const newBodyJson = { ...question.body_json, options: wm.options };
+        const watermarkedQuestion = {
+          ...question,
+          body_json: newBodyJson,
+          watermark_seed: wm.watermarkSeed,
+          watermarked_for: candidateId,
+        };
+        res.status(200).json(watermarkedQuestion);
         return;
       }
       res.status(200).json(question);
