@@ -155,6 +155,16 @@ if [[ ! -f "$ENV_FILE" ]]; then
   # migration runner can DDL into the public schema.
   sudo -u postgres psql -d qorium -c "GRANT ALL ON SCHEMA public TO qorium" >/dev/null
   sudo -u postgres psql -d qorium -c "ALTER SCHEMA public OWNER TO qorium" >/dev/null
+  # Pre-install the extensions the migration suite needs. Extensions
+  # require SUPERUSER (or extension-owner privilege) to install, so we
+  # do it as the postgres user upfront. Re-running is safe: each
+  # extension declaration uses CREATE EXTENSION IF NOT EXISTS.
+  sudo -u postgres psql -d qorium <<'PG_EXTENSIONS' >/dev/null
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+PG_EXTENSIONS
 
   cp "$REPO_ROOT/infra/deployment/production.env.template" "$ENV_FILE"
   sed -i "s|^DATABASE_URL_PROD=.*|DATABASE_URL_PROD=postgres://qorium:${PG_PASSWORD}@127.0.0.1:5432/qorium|" "$ENV_FILE"
