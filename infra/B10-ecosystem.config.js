@@ -746,6 +746,51 @@ module.exports = {
 
     /**
      * =====================================================================
+     * WEBHOOKS DELIVERY WORKER (Fork Mode + 5s tick)
+     * =====================================================================
+     * Purpose: Drains webhooks.deliveries with the spec §6 retry curve.
+     * Posts via real fetch in production; stub in staging by default.
+     * Mode: Fork (single instance to keep delivery serialised per row).
+     */
+    {
+      name: 'qorium-webhooks-delivery-worker',
+      script: './services/webhooks-delivery-worker/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-webhooks-delivery-worker',
+        WEBHOOKS_DELIVERY_REAL_POSTER: 'false',
+        WEBHOOKS_DELIVERY_TICK_MS: '5000',
+        WEBHOOKS_DELIVERY_BATCH_SIZE: '50',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-webhooks-delivery-worker',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        WEBHOOKS_DELIVERY_REAL_POSTER: 'true',
+        WEBHOOKS_DELIVERY_TICK_MS: '5000',
+        WEBHOOKS_DELIVERY_BATCH_SIZE: '100',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-webhooks-delivery-worker-out.log',
+      error_file: '/var/log/pm2/qorium-webhooks-delivery-worker-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
      * UPTIME MONITOR (Cluster Mode)
      * =====================================================================
      */
