@@ -51,6 +51,17 @@ if (process.argv[1]?.endsWith('index.js') || process.argv[1]?.endsWith('index.ts
 
 export { createServer } from './server.js';
 export {
+  ARCHETYPES,
+  archetypeMetadata,
+  isReadyForRelease,
+  renderSpecYaml,
+  validateDraft,
+  type Archetype,
+  type QuestionDraft,
+  type SeededError,
+  type ValidationIssue,
+} from './authoring.js';
+export {
   gradeSession,
   DEFAULT_WEIGHTS,
   type SessionSignals,

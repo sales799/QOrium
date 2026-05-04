@@ -3,7 +3,12 @@
 # Setu one-shot bootstrap — turns a fresh Linux VPS at 147.93.103.194 into
 # a fully-running QOrium production environment in a single command:
 #
-#   curl -sSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh \
+#     || curl -fsSL https://raw.githubusercontent.com/sales799/qorium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh
+#   sudo bash /tmp/setu-bootstrap.sh
+#
+# (-f makes curl exit non-zero on HTTP errors; the second URL is a
+# fallback for the window between sprint commits and merge to main.)
 #
 # Idempotent: re-runs are safe (skip-if-installed, skip-if-configured).
 # What it does:

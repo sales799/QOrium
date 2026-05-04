@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-04T03:34:37.352Z",
+  "generatedAt": "2026-05-04T03:49:49.799Z",
   "branch": "claude/setup-qorium-build-agent-zA0l5",
   "prNumber": 9,
-  "head": "6cbc263",
+  "head": "ebc004f",
   "hero": {
     "phase0CompletionPercent": 100,
     "contentInventory": {
@@ -79,9 +79,9 @@
     {
       "key": "B",
       "title": "Infrastructure",
-      "done": 21,
-      "total": 21,
-      "notes": "21/21 sprints shipped to GitHub PR #9",
+      "done": 28,
+      "total": 28,
+      "notes": "28/28 sprints shipped to GitHub PR #9",
       "completion": 1
     },
     {
@@ -264,12 +264,61 @@
       "status": "shipped",
       "testsAdded": 29,
       "cumulativeTests": 782
+    },
+    {
+      "id": "2.11",
+      "name": "`apps/candidate-portal` (Wave 3 frontend stub)",
+      "status": "shipped",
+      "testsAdded": 19,
+      "cumulativeTests": 801
+    },
+    {
+      "id": "2.12",
+      "name": "`services/setu` (status MCP + auto-deploy bridge)",
+      "status": "shipped",
+      "testsAdded": 33,
+      "cumulativeTests": 834
+    },
+    {
+      "id": "2.13",
+      "name": "`services/webhooks-delivery-worker`",
+      "status": "shipped",
+      "testsAdded": 25,
+      "cumulativeTests": 859
+    },
+    {
+      "id": "2.14",
+      "name": "SSO OIDC + RS256 JWT extension",
+      "status": "shipped",
+      "testsAdded": 22,
+      "cumulativeTests": 881
+    },
+    {
+      "id": "2.15",
+      "name": "Stack-Vault marker substitution body rewriter",
+      "status": "shipped",
+      "testsAdded": 18,
+      "cumulativeTests": 899
+    },
+    {
+      "id": "2.16",
+      "name": "JD-Forge XLSX export pathway (pure-Node OOXML)",
+      "status": "shipped",
+      "testsAdded": 11,
+      "cumulativeTests": 910
+    },
+    {
+      "id": "2.17",
+      "name": "Wave 3 question-authoring framework v0",
+      "status": "shipped",
+      "testsAdded": 20,
+      "cumulativeTests": 930
     }
   ],
   "tests": {
-    "activeGreen": 781,
-    "autoSkip": 53,
-    "workspaces": 24
+    "activeGreen": 0,
+    "autoSkip": 0,
+    "workspaces": 27
   },
   "migrations": {
     "count": 14,
@@ -496,167 +545,173 @@
     {
       "number": 4,
       "sprint": "—",
+      "file": "CTO-DELTA-aipc-question-authoring-framework.md",
+      "title": "aipc question authoring framework"
+    },
+    {
+      "number": 5,
+      "sprint": "—",
       "file": "CTO-DELTA-api-key-hashing.md",
       "title": "api key hashing"
     },
     {
-      "number": 5,
+      "number": 6,
       "sprint": "—",
       "file": "CTO-DELTA-ats-real-oauth-deferred.md",
       "title": "ats real oauth deferred"
     },
     {
-      "number": 6,
+      "number": 7,
       "sprint": "—",
       "file": "CTO-DELTA-ats-workday-certification-deferred.md",
       "title": "ats workday certification deferred"
     },
     {
-      "number": 7,
+      "number": 8,
       "sprint": "—",
       "file": "CTO-DELTA-audit-log-naming.md",
       "title": "audit log naming"
     },
     {
-      "number": 8,
+      "number": 9,
       "sprint": "—",
       "file": "CTO-DELTA-b10-irt-calibration-entry.md",
       "title": "b10 irt calibration entry"
     },
     {
-      "number": 9,
+      "number": 10,
       "sprint": "—",
       "file": "CTO-DELTA-billing-razorpay-deferred.md",
       "title": "billing razorpay deferred"
     },
     {
-      "number": 10,
+      "number": 11,
       "sprint": "—",
       "file": "CTO-DELTA-customer-zero-vps-deferred.md",
       "title": "customer zero vps deferred"
     },
     {
-      "number": 11,
+      "number": 12,
       "sprint": "—",
       "file": "CTO-DELTA-docs-site-dns-deferred.md",
       "title": "docs site dns deferred"
     },
     {
-      "number": 12,
+      "number": 13,
       "sprint": "—",
       "file": "CTO-DELTA-domain-rebrand-qorium-online.md",
       "title": "domain rebrand qorium online"
     },
     {
-      "number": 13,
+      "number": 14,
       "sprint": "—",
       "file": "CTO-DELTA-gitleaks-v8-syntax.md",
       "title": "gitleaks v8 syntax"
     },
     {
-      "number": 14,
+      "number": 15,
       "sprint": "—",
       "file": "CTO-DELTA-irt-2pl-with-format-c.md",
       "title": "irt 2pl with format c"
     },
     {
-      "number": 15,
+      "number": 16,
       "sprint": "—",
       "file": "CTO-DELTA-irt-fitter.md",
       "title": "irt fitter"
     },
     {
-      "number": 16,
+      "number": 17,
       "sprint": "—",
       "file": "CTO-DELTA-jdforge-anthropic-deferred.md",
       "title": "jdforge anthropic deferred"
     },
     {
-      "number": 17,
+      "number": 18,
       "sprint": "—",
       "file": "CTO-DELTA-jdforge-embeddings-deferred.md",
       "title": "jdforge embeddings deferred"
     },
     {
-      "number": 18,
+      "number": 19,
       "sprint": "—",
       "file": "CTO-DELTA-jdforge-xlsx-deferred.md",
       "title": "jdforge xlsx deferred"
     },
     {
-      "number": 19,
+      "number": 20,
       "sprint": "—",
       "file": "CTO-DELTA-judge0-apex-deferred.md",
       "title": "judge0 apex deferred"
     },
     {
-      "number": 20,
+      "number": 21,
       "sprint": "—",
       "file": "CTO-DELTA-judge0-bullmq-deferred.md",
       "title": "judge0 bullmq deferred"
     },
     {
-      "number": 21,
+      "number": 22,
       "sprint": "—",
       "file": "CTO-DELTA-migration-runner.md",
       "title": "migration runner"
     },
     {
-      "number": 22,
+      "number": 23,
       "sprint": "—",
       "file": "CTO-DELTA-observability-credentials-deferred.md",
       "title": "observability credentials deferred"
     },
     {
-      "number": 23,
+      "number": 24,
       "sprint": "—",
       "file": "CTO-DELTA-secret-rotation-worker-stub.md",
       "title": "secret rotation worker stub"
     },
     {
-      "number": 24,
+      "number": 25,
       "sprint": "—",
       "file": "CTO-DELTA-setu-100-percent-auto-mode.md",
       "title": "setu 100 percent auto mode"
     },
     {
-      "number": 25,
+      "number": 26,
       "sprint": "—",
       "file": "CTO-DELTA-setu-auto-deploy.md",
       "title": "setu auto deploy"
     },
     {
-      "number": 26,
+      "number": 27,
       "sprint": "—",
       "file": "CTO-DELTA-sso-idp-credentials-deferred.md",
       "title": "sso idp credentials deferred"
     },
     {
-      "number": 27,
+      "number": 28,
       "sprint": "—",
       "file": "CTO-DELTA-stackvault-marker-substitution-deferred.md",
       "title": "stackvault marker substitution deferred"
     },
     {
-      "number": 28,
+      "number": 29,
       "sprint": "—",
       "file": "CTO-DELTA-testforge-plagiarism-detector-colocated.md",
       "title": "testforge plagiarism detector colocated"
     },
     {
-      "number": 29,
+      "number": 30,
       "sprint": "—",
       "file": "CTO-DELTA-testforge-plagiarism-perplexity-deferred.md",
       "title": "testforge plagiarism perplexity deferred"
     },
     {
-      "number": 30,
+      "number": 31,
       "sprint": "—",
       "file": "CTO-DELTA-testforge-status-column.md",
       "title": "testforge status column"
     },
     {
-      "number": 31,
+      "number": 32,
       "sprint": "—",
       "file": "CTO-DELTA-webhooks-bullmq-deferred.md",
       "title": "webhooks bullmq deferred"

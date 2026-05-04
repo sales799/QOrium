@@ -31,8 +31,18 @@ Or, if your provider doesn't support wildcards, add these explicitly:
 SSH into `147.93.103.194` as `root` (or any user with sudo) and run:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh \
+  || curl -fsSL https://raw.githubusercontent.com/sales799/qorium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh
+sudo bash /tmp/setu-bootstrap.sh
 ```
+
+The `-f` flag makes curl exit non-zero on HTTP errors instead of writing
+the response body to disk (which would give you the obscure
+`404: command not found` if you piped a 404 page directly into `bash`).
+
+The fallback to the feature branch is a belt-and-braces guard for the
+window between sprint commits and the merge to `main`. Once PR #9 is
+merged, the first URL is the only one you'll need.
 
 What happens (idempotent — re-runs are safe):
 

@@ -99,8 +99,23 @@ disable auto-deploy with one `sed` + `pm2 restart`).
 
 ```bash
 # On the VPS at 147.93.103.194
-curl -sSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/sales799/qorium/main/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh \
+  || curl -fsSL https://raw.githubusercontent.com/sales799/qorium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh -o /tmp/setu-bootstrap.sh
+sudo bash /tmp/setu-bootstrap.sh
 cat /opt/qorium/.SETU_GITHUB_PASTE_ME.txt
 # Paste the two values into github.com/sales799/qorium/settings/secrets/actions
 # Done. Every push auto-deploys from now on.
 ```
+
+## Pre-merge URL caveat (added 2026-05-04)
+
+The first CEO bootstrap attempt hit `bash: line 1: 404:: command not
+found` because the original `curl -sSL` pattern silently downloaded a
+404 page and piped it to `bash`. Two fixes shipped in this same
+delta:
+
+1. The `curl -f` flag now makes curl exit non-zero on any HTTP error
+   (so a 404 fails loud at the curl step, not at bash interpretation).
+2. The two-URL fallback covers the window between sprint commits and
+   merge of the branch to `main`. Once PR #9 merges, the first URL is
+   the only one needed; the fallback becomes a no-op.

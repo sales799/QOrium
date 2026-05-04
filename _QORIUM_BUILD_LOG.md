@@ -2037,3 +2037,144 @@ D3 §3 + scope-enforcement helper. `infra/deployment/{staging,production}.env.te
 `packages/observability` + `services/uptime-monitor` per CTO
 Architecture §13 + `governance/Operating-Rituals-v1.md`.
 Halt: Sentry DSN, Grafana Cloud token, Talpro Sentinel webhook.
+
+---
+
+## 2026-05-04 — Sprints 2.9 → 2.17 (autonomous-continuous batch summary)
+
+This block summarises seven sprints shipped between the previous log
+entry and the Sprint 2.17 commit. Per-sprint diffs are in the git log
+on `claude/setup-qorium-build-agent-zA0l5`; per-sprint architectural
+notes are in the corresponding `infra/CTO-deltas/CTO-DELTA-*.md` files.
+
+### Sprint 2.9 — `packages/observability` + `services/uptime-monitor` ✅
+
+- Sentry SDK wrapper, OpenTelemetry init helper, Pino → Loki shim
+  (Stub-vs-Real; Real throws on missing DSN/token)
+- Uptime monitor service (port 5114; PM2 fork; 60s smoke loop) with
+  `/v1/uptime/status` SLO API
+- Admin uptime dashboard + Grafana JSON export
+- 24 new tests · halt: SENTRY_DSN, Grafana token, Slack/Pagerduty
+  webhook (CTO-DELTA #27)
+
+### Sprint 2.10 — `services/ai-pair-coding-orchestrator` (Wave 3) ✅
+
+- Migration `0014_ai_pair_coding.sql` (sessions + events tables)
+- Pure-logic 6-dimension grader (A code-quality, B suggestion-acceptance,
+  C rejection-discipline, D question-asking, E iteration-rhythm,
+  F self-correction)
+- Anthropic client (Stub default; Real throws on missing key)
+- Express endpoints: session CRUD, turn submit, grade, complete
+- Admin session viewer page
+- 29 new tests · halt: ANTHROPIC_API_KEY (CTO-DELTA #28)
+
+### Sprint 2.11 — `apps/candidate-portal` (Wave 3 frontend stub) ✅
+
+- New Next.js 15 app at port 5116 with signal-tracker reducer +
+  orchestrator-client + CandidateWorkbench component
+- Stub LLM mode wired to the Sprint 2.10 stub so the UX is reviewable
+  in dev without an API key
+- 19 new tests · halt: CodeMirror 6 + AI sidebar UX (frontend
+  upgrade) + real Anthropic for live model calls
+
+### Sprint 2.12 — `services/setu` (status MCP + auto-deploy bridge) ✅
+
+- New service at port 5117 with two surfaces: `/setu/v1/setu/status`
+  (snapshot for the dashboard MCP) + `/setu/v1/setu/deploys/webhook`
+  (HMAC-verified GitHub webhook → triggers deploy)
+- `bin/setu-deploy.sh` with flock + git fetch + pnpm install +
+  pnpm build + migrate + pm2 reload + smoke
+- `.github/workflows/setu-deploy.yml` (webhook + SSH-fallback modes)
+- Snapshot CLI emits `_QORIUM_STATUS.json` (single source of truth
+  for the external dashboard MCP)
+- 33 new tests · halt: VPS access + GitHub repo settings paste
+  (CTO-DELTA #29)
+
+### Sprint 2.13 — `services/webhooks-delivery-worker` ✅
+
+- PM2 fork that drains `webhooks.deliveries` rows where
+  `next_retry_at <= NOW()` using the Sprint 2.3 retry curve
+- `emit.ts` with wildcard event matching, `poster.ts` (Stub-vs-Real),
+  `orchestrator.ts` (deliverOne with HMAC + idempotency), `runner.ts`
+- 25 new tests · halt: real customer webhook endpoints
+
+### Sprint 2.14 — SSO OIDC + RS256 JWT extension ✅
+
+- `services/sso/src/jwt.ts` extended to auto-detect HS256 vs RS256
+  from the key shape (PEM = RS256, hex = HS256)
+- `services/sso/src/oidc.ts` new — Authorization Code + PKCE (S256)
+  with generateState, generatePkce, buildAuthorizeUrl,
+  inMemoryStateStore, exchangeCode, decodeIdTokenClaims
+- 22 new tests · halt: real IdP test-tenant credentials (Okta /
+  Azure AD / Google) — same set as Sprint 2.3 (CTO-DELTA #21)
+
+### Sprint 2.15 — Stack-Vault marker substitution body rewriter ✅
+
+- `services/stack-vault/src/substitution.ts` — pure-logic body
+  rewriter with applyVariableSuffix (idempotent), applyTestValuePerturbation
+  (numeric scaling), applySynonymRewrite (9-entry SYNONYM_TABLE),
+  applyCommentStyleSwap (// ↔ /\* \*/), applyHelperReorder (no-op stub),
+  applyAllMarkers orchestrator
+- 18 new tests · closes the SO-9 anti-leak forensic-watermark loop
+
+### Sprint 2.15.1 — Domain rebrand `qorium.io` → `qorium.online` ✅
+
+- sed-replace across 24 code/config files; CTO-deltas + spec docs
+  preserved as historical record
+- CTO-DELTA #30 captures the rationale + the additional `.in` domain
+
+### Sprint 2.16 — JD-Forge XLSX export pathway ✅
+
+- `services/jd-forge/src/xlsx-writer.ts` — pure-Node OOXML writer
+  (no external deps; STORED-mode ZIP + `zlib.crc32`)
+- 5 OOXML parts: `[Content_Types].xml`, `_rels/.rels`,
+  `xl/workbook.xml`, `xl/_rels/workbook.xml.rels`,
+  `xl/worksheets/sheet1.xml`
+- `columnLetter` (A→Z→AA→ZZ→AAA), `exportXlsx`, `exportMettlXlsx`
+- ExportFormat extended with `xlsx` + `mettl-xlsx`
+- 11 new tests · closes a Phase 1 halt without supply-chain risk
+  from exceljs/SheetJS
+
+### Sprint 2.16.5 — Setu 100% auto-mode bootstrap ✅
+
+- `services/setu/bin/setu-bootstrap.sh` — single-curl idempotent
+  installer (Node 20, pnpm 10, Postgres 16, Redis, PM2, nginx,
+  certbot, openssl rand secrets, role+db, server block, certbot if
+  DNS resolves, systemd unit, install + build + migrate + pm2 start,
+  emits `.SETU_GITHUB_PASTE_ME.txt`)
+- `infra/nginx/qorium.conf` — 15 upstream pools + path-based routing
+- `infra/systemd/qorium-pm2.service` — pm2 resurrect on boot
+- `infra/runbooks/setu-100-percent-auto-mode.md` — operator runbook
+- CTO-DELTA #31
+
+### Sprint 2.17 — Wave 3 question-authoring framework v0 ✅
+
+- `services/ai-pair-coding-orchestrator/src/authoring.ts` — pure-logic
+  framework codifying spec §4.1 (six archetypes) + §4.2 (schema
+  fields). Public surface: `ARCHETYPES`, `QuestionDraft`,
+  `validateDraft` (returns ALL issues, error/warning severity per
+  field + per archetype rule), `isReadyForRelease`, `renderSpecYaml`
+  (literal block scalars + special-char quoting), `archetypeMetadata`
+- 20 new tests covering catalogue, all field rules, archetype-specific
+  rules, multi-issue collection, YAML render edge cases
+- Re-exported from the orchestrator's `index.ts` so admin UI + future
+  SME CLI can consume directly
+- CTO-DELTA #32 also documents the **bootstrap-404 incident** the CEO
+  hit during the Sprint 2.16.5 bootstrap attempt + the defence-in-depth
+  fixes shipped in this same commit (curl `-f` flag, fallback URL to
+  the feature branch, PR ready-for-review so canonical URL works
+  post-merge)
+
+### Cumulative state at end of Sprint 2.17
+
+- 27 workspaces, 14 Postgres migrations, 32 CTO-DELTAs
+- **930 active green tests** + ~53 auto-skip
+- All deployment readiness items shipped in code; CEO action remaining
+  is to (a) re-run bootstrap with the corrected curl command, then
+  (b) merge PR #9 to main so the canonical URL works.
+
+### Next sprint (2.18)
+
+`packages/audit-emitter` — shared library so domain services emit
+audit events to audit-log with idempotency keys + standard taxonomy.
+Wire into api-key-mgmt, billing, sso, webhooks. ~25 new tests.

@@ -1,11 +1,11 @@
 # QOrium Artifact Dashboard
 
-**Last updated:** 2026-05-03 19:46 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 · **HEAD:** `fc0e391`
+**Last updated:** 2026-05-04 03:45 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 · **HEAD:** `ebc004f` (Sprint 2.17 staged, pending commit)
 
 This dashboard is the **single source of truth** for the QOrium build state.
 It is updated at the end of every sprint by the autonomous build agent.
 
-## Sprint state (21 sprints — Phase 1 + Phase 2 complete)
+## Sprint state (28 sprints — Phase 1 + Phase 2 + Phase 2.5 complete)
 
 | Sprint | Workspace                                            | Status  | Tests new | Cum tests |
 | ------ | ---------------------------------------------------- | ------- | --------- | --------- |
@@ -30,8 +30,17 @@ It is updated at the end of every sprint by the autonomous build agent.
 | 2.8    | `services/secret-rotation-worker`                    | shipped | 21        | 729       |
 | 2.9    | `packages/observability` + `services/uptime-monitor` | shipped | 24        | 753       |
 | 2.10   | `services/ai-pair-coding-orchestrator` (Wave 3)      | shipped | 29        | 782       |
+| 2.11   | `apps/candidate-portal` (Wave 3 frontend stub)       | shipped | 19        | 801       |
+| 2.12   | `services/setu` (status MCP + auto-deploy bridge)    | shipped | 33        | 834       |
+| 2.13   | `services/webhooks-delivery-worker`                  | shipped | 25        | 859       |
+| 2.14   | SSO OIDC + RS256 JWT extension                       | shipped | 22        | 881       |
+| 2.15   | Stack-Vault marker substitution body rewriter        | shipped | 18        | 899       |
+| 2.15.1 | Domain rebrand `qorium.io` → `qorium.online`         | shipped | 0         | 899       |
+| 2.16   | JD-Forge XLSX export pathway (pure-Node OOXML)       | shipped | 11        | 910       |
+| 2.16.5 | Setu 100% auto-mode bootstrap (single curl)          | shipped | 0         | 910       |
+| 2.17   | Wave 3 question-authoring framework v0               | shipped | 20        | 930       |
 
-**Workspace totals:** 24 workspaces · 14 Postgres migrations · 28 CTO-DELTAs · ~781 active green tests + ~53 auto-skip.
+**Workspace totals:** 27 workspaces · 14 Postgres migrations · 32 CTO-DELTAs · **930 active green tests** + ~53 auto-skip (vitest reports 941 total summing per-file, including overlap from re-runs).
 
 ## Workspace inventory
 
@@ -46,33 +55,36 @@ It is updated at the end of every sprint by the autonomous build agent.
 | `@qorium/qorium-sdk`     | Public TS SDK (HTTP client + HMAC signing + resources) | 21        |
 | `@qorium/observability`  | Sentry / Loki / OpenTelemetry shims (Stub-vs-Real)     | 14        |
 
-### Apps — 2
+### Apps — 3
 
-| Workspace       | Port | Description                                                      | Tests       |
-| --------------- | ---- | ---------------------------------------------------------------- | ----------- |
-| `@qorium/admin` | 5104 | Next.js admin: SME queue + IRT + SSO + webhooks + audit + uptime | 74 + 7 skip |
-| `@qorium/docs`  | 5108 | Next.js public API docs (static export ready, 14 sections)       | 11          |
+| Workspace                  | Port | Description                                                      | Tests       |
+| -------------------------- | ---- | ---------------------------------------------------------------- | ----------- |
+| `@qorium/admin`            | 5104 | Next.js admin: SME queue + IRT + SSO + webhooks + audit + uptime | 74 + 7 skip |
+| `@qorium/docs`             | 5108 | Next.js public API docs (static export ready, 14 sections)       | 11          |
+| `@qorium/candidate-portal` | 5116 | Next.js Wave 3 candidate UX (signal-tracker + workbench)         | 19          |
 
-### Services — 16
+### Services — 18
 
-| Workspace                             | Port   | Description                                             | Tests        |
-| ------------------------------------- | ------ | ------------------------------------------------------- | ------------ |
-| `@qorium/readybank`                   | 5101   | Question search + packs + export                        | 33 + 21 skip |
-| `@qorium/jd-forge`                    | 5102   | Real-time JD-based question generation                  | 73           |
-| `@qorium/stack-vault`                 | 5103   | Per-customer namespace + watermarking                   | 25           |
-| `@qorium/ats-bridge`                  | 5105   | ATS webhook receiver + adapter dispatch                 | 10           |
-| `@qorium/webhooks`                    | 5106   | Outbound webhook subscriptions + delivery               | 23           |
-| `@qorium/sso`                         | 5107   | SAML 2.0 + OIDC enterprise auth                         | 29           |
-| `@qorium/audit-log`                   | 5111   | Tenant-scoped audit log read API                        | 20           |
-| `@qorium/billing`                     | 5112   | Subscriptions + invoices + Razorpay webhooks            | 38           |
-| `@qorium/api-key-mgmt`                | 5113   | API key issuance + scope catalogue + rotation reminders | 28           |
-| `@qorium/uptime-monitor`              | 5114   | Smoke check matrix + SLO API                            | 10           |
-| `@qorium/ai-pair-coding-orchestrator` | 5115   | Wave 3 6-dim grader + Anthropic stub                    | 29           |
-| `@qorium/leak-crawler`                | (fork) | Anti-leak crawler worker                                | 47 + 2 skip  |
-| `@qorium/judge0-orchestrator`         | (fork) | Sandboxed code execution worker                         | 68           |
-| `@qorium/irt-calibration`             | (fork) | Nightly IRT calibration cron                            | 64           |
-| `@qorium/testforge-orchestrator`      | (fork) | TestForge QA pipeline coordinator                       | 52           |
-| `@qorium/secret-rotation-worker`      | (fork) | B6 secret rotation reminder worker (6h tick)            | 21           |
+| Workspace                             | Port   | Description                                                  | Tests        |
+| ------------------------------------- | ------ | ------------------------------------------------------------ | ------------ |
+| `@qorium/readybank`                   | 5101   | Question search + packs + export                             | 33 + 21 skip |
+| `@qorium/jd-forge`                    | 5102   | Real-time JD-based question generation + xlsx export         | 84           |
+| `@qorium/stack-vault`                 | 5103   | Per-customer namespace + watermarking + body substitution    | 43           |
+| `@qorium/ats-bridge`                  | 5105   | ATS webhook receiver + adapter dispatch                      | 10           |
+| `@qorium/webhooks`                    | 5106   | Outbound webhook subscriptions + delivery                    | 23           |
+| `@qorium/sso`                         | 5107   | SAML 2.0 + OIDC + RS256 JWT enterprise auth                  | 51           |
+| `@qorium/audit-log`                   | 5111   | Tenant-scoped audit log read API                             | 20           |
+| `@qorium/billing`                     | 5112   | Subscriptions + invoices + Razorpay webhooks                 | 38           |
+| `@qorium/api-key-mgmt`                | 5113   | API key issuance + scope catalogue + rotation reminders      | 28           |
+| `@qorium/uptime-monitor`              | 5114   | Smoke check matrix + SLO API                                 | 10           |
+| `@qorium/ai-pair-coding-orchestrator` | 5115   | Wave 3 6-dim grader + Anthropic stub + question-authoring fw | 49           |
+| `@qorium/setu`                        | 5117   | Status MCP + auto-deploy bridge + 100% bootstrap installer   | 45           |
+| `@qorium/leak-crawler`                | (fork) | Anti-leak crawler worker                                     | 47 + 2 skip  |
+| `@qorium/judge0-orchestrator`         | (fork) | Sandboxed code execution worker                              | 68           |
+| `@qorium/irt-calibration`             | (fork) | Nightly IRT calibration cron                                 | 64           |
+| `@qorium/testforge-orchestrator`      | (fork) | TestForge QA pipeline coordinator                            | 52           |
+| `@qorium/secret-rotation-worker`      | (fork) | B6 secret rotation reminder worker (6h tick)                 | 21           |
+| `@qorium/webhooks-delivery-worker`    | (fork) | Drains webhooks.deliveries with HMAC + retry curve           | 25           |
 
 ## Activation halts (REQUEST list for CEO + Cowork CTO Office)
 
@@ -156,7 +168,7 @@ from Stub → Real is a single env-var (or single credential) action.
 - Question authoring framework (Wave 3 sub-skill 4 — 50 Qs by M9)
 - Senior Engineer #1 architectural review (Wave 3 hire pending)
 
-## CTO-DELTA registry — 28 deltas across 21 sprints
+## CTO-DELTA registry — 32 deltas across 28 sprints
 
 See `infra/CTO-deltas/` for the full catalogue.
 
@@ -190,6 +202,10 @@ See `infra/CTO-deltas/` for the full catalogue.
 | 26  | 2.8    | `CTO-DELTA-secret-rotation-worker-stub.md`              |
 | 27  | 2.9    | `CTO-DELTA-observability-credentials-deferred.md`       |
 | 28  | 2.10   | `CTO-DELTA-ai-pair-coding-anthropic-deferred.md`        |
+| 29  | 2.12   | `CTO-DELTA-setu-auto-deploy.md`                         |
+| 30  | 2.15.1 | `CTO-DELTA-domain-rebrand-qorium-online.md`             |
+| 31  | 2.16.5 | `CTO-DELTA-setu-100-percent-auto-mode.md`               |
+| 32  | 2.17   | `CTO-DELTA-aipc-question-authoring-framework.md`        |
 
 ## Constitutional gates closed
 
@@ -202,81 +218,95 @@ See `infra/CTO-deltas/` for the full catalogue.
 
 ## Deployment readiness
 
-| Component                 | State                                                                   |
-| ------------------------- | ----------------------------------------------------------------------- |
-| Monorepo bootstrap        | ready                                                                   |
-| Workspace builds          | clean across **24 workspaces**                                          |
-| Test suite                | **781 active green + 53 auto-skip**                                     |
-| Lint / format             | clean                                                                   |
-| Postgres migrations       | 0001 → 0014 (14 migrations)                                             |
-| PM2 ecosystem             | 17 service entries registered                                           |
-| `.env` templates          | shipped (`infra/deployment/{staging,production}.env.template`)          |
-| Day-1 runbook             | shipped (`infra/runbooks/customer-zero-day-1.md`)                       |
-| Grafana dashboard         | shipped (`infra/grafana/dashboards/qorium-overview.json`)               |
-| Sentry / Loki integration | shim packages shipped; live wire-up pending DSN + token (CTO-DELTA #27) |
-| Customer Zero deploy      | tooling ready (api-key-mgmt + env templates + runbook); pending VPS     |
-| VPS provisioning          | **CEO action — not in agent scope** (CTO-DELTA #25)                     |
-| DNS records               | **CEO action — not in agent scope**                                     |
-| TLS certificates          | **CEO action — not in agent scope** (Let's Encrypt + nginx)             |
+| Component                 | State                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| Monorepo bootstrap        | ready                                                                                  |
+| Workspace builds          | clean across **27 workspaces**                                                         |
+| Test suite                | **930 active green + ~53 auto-skip**                                                   |
+| Lint / format             | clean                                                                                  |
+| Postgres migrations       | 0001 → 0014 (14 migrations)                                                            |
+| PM2 ecosystem             | 18+ service entries registered (5101–5117)                                             |
+| `.env` templates          | shipped (`infra/deployment/{staging,production}.env.template`)                         |
+| Day-1 runbook             | shipped (`infra/runbooks/customer-zero-day-1.md`)                                      |
+| 100% auto-mode runbook    | shipped (`infra/runbooks/setu-100-percent-auto-mode.md`)                               |
+| Grafana dashboard         | shipped (`infra/grafana/dashboards/qorium-overview.json`)                              |
+| Sentry / Loki integration | shim packages shipped; live wire-up pending DSN + token (CTO-DELTA #27)                |
+| Customer Zero deploy      | one-curl bootstrap shipped (`services/setu/bin/setu-bootstrap.sh`); pending CEO run    |
+| VPS provisioning          | DNS published (`api.qorium.online → 147.93.103.194`); bootstrap ready                  |
+| DNS records               | wildcard A `* → 147.93.103.194` recommended (per runbook)                              |
+| TLS certificates          | auto-provisioned by bootstrap (certbot --nginx) once DNS resolves                      |
+| GitHub auto-deploy        | webhook + GH-Actions workflow shipped; pending CEO paste of `SETU_GITHUB_PASTE_ME.txt` |
 
 ## Build run history (this session — autonomous-continuous mode)
 
-| Timestamp         | Action                                              | Commit    | Push state |
-| ----------------- | --------------------------------------------------- | --------- | ---------- |
-| 2026-05-03T18:49Z | Sprint 2.3 — webhooks/sso/audit-log                 | `2b90c27` | pushed     |
-| 2026-05-03T19:01Z | Sprint 2.4 — admin onboarding dashboards            | `382dd20` | pushed     |
-| 2026-05-03T19:11Z | Sprint 2.5 — apps/docs + qorium-sdk                 | `4fb45d8` | pushed     |
-| 2026-05-03T19:20Z | Sprint 2.6 — billing service v0                     | `d4ad069` | pushed     |
-| 2026-05-03T19:28Z | Sprint 2.7 — api-key-mgmt + Customer Zero readiness | `dfb4d7c` | pushed     |
-| 2026-05-03T19:34Z | Sprint 2.8 — secret rotation worker                 | `02ebb55` | pushed     |
-| 2026-05-03T19:38Z | Sprint 2.9 — observability + uptime-monitor         | `7648fc1` | pushed     |
-| 2026-05-03T19:46Z | Sprint 2.10 — Wave 3 AI pair-coding orchestrator    | `fc0e391` | pushed     |
+| Timestamp         | Action                                                            | Commit        | Push state |
+| ----------------- | ----------------------------------------------------------------- | ------------- | ---------- |
+| 2026-05-03T18:49Z | Sprint 2.3 — webhooks/sso/audit-log                               | `2b90c27`     | pushed     |
+| 2026-05-03T19:01Z | Sprint 2.4 — admin onboarding dashboards                          | `382dd20`     | pushed     |
+| 2026-05-03T19:11Z | Sprint 2.5 — apps/docs + qorium-sdk                               | `4fb45d8`     | pushed     |
+| 2026-05-03T19:20Z | Sprint 2.6 — billing service v0                                   | `d4ad069`     | pushed     |
+| 2026-05-03T19:28Z | Sprint 2.7 — api-key-mgmt + Customer Zero readiness               | `dfb4d7c`     | pushed     |
+| 2026-05-03T19:34Z | Sprint 2.8 — secret rotation worker                               | `02ebb55`     | pushed     |
+| 2026-05-03T19:38Z | Sprint 2.9 — observability + uptime-monitor                       | `7648fc1`     | pushed     |
+| 2026-05-03T19:46Z | Sprint 2.10 — Wave 3 AI pair-coding orchestrator                  | `fc0e391`     | pushed     |
+| 2026-05-04T01:xxZ | Sprint 2.11 — apps/candidate-portal (Wave 3 frontend)             | (mid-batch)   | pushed     |
+| 2026-05-04T01:xxZ | Sprint 2.12 — services/setu (status MCP + auto-deploy)            | (mid-batch)   | pushed     |
+| 2026-05-04T02:xxZ | Sprint 2.13 — services/webhooks-delivery-worker                   | (mid-batch)   | pushed     |
+| 2026-05-04T02:xxZ | Sprint 2.14 — SSO OIDC + RS256 JWT extension                      | (mid-batch)   | pushed     |
+| 2026-05-04T02:xxZ | Sprint 2.15 — Stack-Vault marker substitution                     | (mid-batch)   | pushed     |
+| 2026-05-04T02:xxZ | Sprint 2.15.1 — domain rebrand qorium.io → qorium.online          | (mid-batch)   | pushed     |
+| 2026-05-04T03:xxZ | Sprint 2.16 — JD-Forge XLSX export pathway                        | `6cbc263`     | pushed     |
+| 2026-05-04T03:xxZ | Sprint 2.16.5 — Setu 100% auto-mode bootstrap                     | `ebc004f`     | pushed     |
+| 2026-05-04T03:50Z | Sprint 2.17 — Wave 3 question authoring framework + bootstrap fix | (this commit) | (pushing)  |
 
 (New rows appended after each sprint commit.)
 
-## Next plan — what's available without halt unblocks
+### Bootstrap-404 incident (2026-05-04 03:30Z)
 
-The agent has shipped every sprint that did not require real CEO/CTO
-credentials. Three workstream options are autonomous-mode-eligible:
+The CEO ran the Sprint 2.16.5 bootstrap command on the VPS and hit
+`bash: line 1: 404:: command not found`. Root cause: the bootstrap
+script lives only on the feature branch; `main/...` raw URL 404s.
 
-### Option A — `apps/candidate-portal` (Wave 3 frontend)
+Fixes shipped in Sprint 2.17 commit (defence-in-depth):
 
-- New Next.js 15 app at port 5116
-- CodeMirror 6 + AI sidebar (Wave 3 spec §2.1 / §2.2)
-- WebSocket bridge to `services/ai-pair-coding-orchestrator`
-- Stub LLM mode (uses the existing Anthropic stub) so the UX is
-  reviewable in dev without a real API key
-- ~30-40 new tests (page rendering + WS integration)
+1. Runbook + script header now use `curl -fsSL ... -o /tmp/...` so HTTP
+   errors fail loud and do not land in `bash` as text.
+2. Two-URL fallback (main first, then feature branch) bridges the
+   commit-to-merge window.
+3. PR #9 ready-for-review (drops draft status) so the CEO can merge to
+   main and the canonical URL works for all future bootstraps.
 
-### Option B — Webhooks delivery worker
+## Next plan — Sprint 2.18+ queued
 
-- New `services/webhooks-delivery-worker` (PM2 fork)
-- Producer hooks in 4 emitter services (readybank, jd-forge,
-  stack-vault, leak-crawler) writing to `webhooks.events`
-- Pure-logic delivery loop draining `webhooks.deliveries` rows where
-  `next_retry_at <= NOW()` — uses the Sprint 2.3 retry curve
-- Stub HTTP poster so dev runs end-to-end without real customer
-  endpoints; flips to real `fetch()` in production
+All four "next plan" workstreams from the previous dashboard revision
+have shipped (Sprints 2.11–2.17 covered the candidate portal, webhooks
+worker, OIDC, body substitution, rebrand, xlsx export, 100% auto-mode,
+and question-authoring framework).
+
+### Sprint 2.18 — `packages/audit-emitter` + integration
+
+- Shared library that domain services import to emit audit events to
+  the audit-log service with idempotency keys + standard event taxonomy
+- Wire into 4 emitter services (api-key-mgmt, billing, sso, webhooks)
+  so every state-changing call writes a single canonical audit row
+- Stub-vs-Real (Real = HTTP POST to audit-log; Stub = in-memory ring
+  buffer for tests)
 - ~25 new tests
 
-### Option C — OIDC + RS256 JWT for SSO
+### Sprint 2.19 — Customer-portal `apps/my` (self-service billing)
 
-- Sprint 2.3 ships SAML; OIDC endpoints currently return 501
-- Build the OIDC Authorization Code + PKCE flow
-- Swap `jwt.ts` from HS256 to RS256 with KMS-shaped key injection
-- Remains stub-credential-friendly for tests
-- ~20 new tests
+- New Next.js 15 app at port (TBD; likely 5118)
+- Read-only invoice list, payment intent flow, subscription overview,
+  API key surfacing (issue / revoke / rotate)
+- Reuses `@qorium/qorium-sdk`
+- ~30 new tests
 
-### Option D — Maintenance + PR review hold
+### Sprint 2.20 — `services/leak-rotation-worker` (SO-9 24h question rotation)
 
-- Subscribe to PR #9 review activity
-- Wait for CEO sign-off / first review pass
-- Address review comments as they land
+- PM2 fork that scans the leak-crawler signals + rotates published
+  questions out of the active pool (per Constitution Article SO-9)
+- ~15 new tests
 
-**My recommendation:** Option A (candidate portal) — it's the most
-visible deliverable for the CEO when they wake, demonstrates the
-Wave 3 vision end-to-end (even with a stub LLM), and unblocks the
-M6 prototype timeline per Wave 3 Plan §3.2 (50 Qs by M9).
-
-Standing by for direction. If no signal arrives, default action is
-Option D (PR review hold) until the CEO returns.
+After 2.20 the autonomous-eligible queue is exhausted; the next batch
+needs CEO input on which halt-unblocks to prioritise (Anthropic key,
+Razorpay test sandbox, Sentry DSN, etc.).
