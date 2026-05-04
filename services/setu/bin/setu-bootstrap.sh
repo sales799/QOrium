@@ -3,21 +3,27 @@
 # Setu one-shot bootstrap — turns a fresh Linux VPS at 147.93.103.194 into
 # a fully-running QOrium production environment in a single command:
 #
-#   URL_MAIN="https://raw.githubusercontent.com/sales799/QOrium/main/services/setu/bin/setu-bootstrap.sh"
-#   URL_BRANCH="https://raw.githubusercontent.com/sales799/QOrium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh"
-#   curl -fsSL "$URL_MAIN" -o /tmp/qorium-bootstrap || curl -fsSL "$URL_BRANCH" -o /tmp/qorium-bootstrap
-#   sudo bash /tmp/qorium-bootstrap
+#   # 1. Generate a fine-grained GitHub PAT with Contents:read for sales799/QOrium
+#   # 2. SSH to the VPS, then:
+#   export GITHUB_TOKEN=ghp_yourtoken
+#   URL="https://api.github.com/repos/sales799/QOrium/contents/services/setu/bin/setu-bootstrap.sh"
+#   curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" \
+#        "$URL?ref=claude/setup-qorium-build-agent-zA0l5" -o /tmp/qorium-bootstrap
+#   sudo -E bash /tmp/qorium-bootstrap
 #
 # Notes:
-#   - Repo name is case-sensitive on raw.githubusercontent.com — must be QOrium
-#     (capital Q + O), not lowercase qorium, or you get a 404.
-#   - `-f` makes curl exit non-zero on HTTP errors instead of writing the
-#     response body to disk (which would give you `404: command not found`
-#     if you piped a 404 page directly into bash).
-#   - Temp-file `qorium-bootstrap` (no `.sh` suffix) avoids a gotcha
-#     where some chat clients auto-linkify `*.sh` filenames during paste.
-#   - The second URL is a fallback for the window between sprint commits
-#     and the merge to main.
+#   - The repo is private; raw.githubusercontent.com 404s without auth even
+#     though the file exists. The api.github.com `/repos/.../contents/...`
+#     endpoint with `Accept: application/vnd.github.raw` is the canonical
+#     way to fetch a single file from a private repo with a PAT.
+#   - `sudo -E` preserves GITHUB_TOKEN through to the script so the inner
+#     git clone can authenticate against the private repo.
+#   - The script persists the credential helper at /root/.git-credentials
+#     (chmod 600, root only) so Setu's deploy worker can later `git fetch`
+#     without re-supplying the token.
+#   - Temp-file `qorium-bootstrap` (no `.sh` suffix) avoids a gotcha where
+#     some chat clients auto-linkify `*.sh` filenames during paste.
+#   - Once PR #9 merges to main, swap `?ref=claude/...` for `?ref=main`.
 #
 # Idempotent: re-runs are safe (skip-if-installed, skip-if-configured).
 # What it does:
@@ -36,7 +42,16 @@
 
 set -euo pipefail
 
-REPO_URL="${SETU_BOOTSTRAP_REPO:-https://github.com/sales799/QOrium.git}"
+REPO_OWNER="sales799"
+REPO_NAME="QOrium"
+# If GITHUB_TOKEN is set (recommended for private repos), embed it in the
+# clone URL so git operations don't prompt. Empty token = anonymous clone
+# (only works if the repo is public).
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  REPO_URL="${SETU_BOOTSTRAP_REPO:-https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git}"
+else
+  REPO_URL="${SETU_BOOTSTRAP_REPO:-https://github.com/${REPO_OWNER}/${REPO_NAME}.git}"
+fi
 REPO_BRANCH="${SETU_BOOTSTRAP_BRANCH:-main}"
 REPO_ROOT="${SETU_BOOTSTRAP_ROOT:-/opt/qorium}"
 APEX_DOMAIN="${QORIUM_DOMAIN:-qorium.online}"
@@ -87,9 +102,31 @@ fi
 systemctl enable --now postgresql redis-server nginx >/dev/null 2>&1 || true
 
 # --- 3. Clone or update the repo --------------------------------------------
+# Persist a credential helper if we have a token, so Setu's deploy worker
+# can later run `git fetch` non-interactively without re-embedding the
+# token in the remote URL (which would leak it via `git remote -v`).
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  install -m 600 -o root -g root /dev/null /root/.git-credentials
+  echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > /root/.git-credentials
+  git config --global credential.helper "store --file=/root/.git-credentials"
+fi
+
 if [[ ! -d "$REPO_ROOT/.git" ]]; then
-  log "cloning $REPO_URL → $REPO_ROOT"
-  git clone --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_ROOT"
+  log "cloning ${REPO_OWNER}/${REPO_NAME} (branch: $REPO_BRANCH) → $REPO_ROOT"
+  if ! git clone --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_ROOT" 2>/tmp/clone.err; then
+    log "git clone failed:"
+    sed -E 's|x-access-token:[^@]+@|x-access-token:***REDACTED***@|g' /tmp/clone.err >&2
+    log ""
+    log "If this is a private repo, set GITHUB_TOKEN before running:"
+    log "   export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxx"
+    log "   sudo -E bash $0     # -E preserves the env var through sudo"
+    log "(Generate at https://github.com/settings/tokens — fine-grained, Contents: read for ${REPO_OWNER}/${REPO_NAME})"
+    exit 1
+  fi
+  # Sanitise the remote URL so the on-disk repo doesn't store the token.
+  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    git -C "$REPO_ROOT" remote set-url origin "https://github.com/${REPO_OWNER}/${REPO_NAME}.git"
+  fi
 else
   log "fast-forwarding $REPO_ROOT to origin/$REPO_BRANCH"
   git -C "$REPO_ROOT" fetch origin --tags --prune

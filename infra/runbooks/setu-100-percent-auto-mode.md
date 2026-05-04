@@ -26,34 +26,69 @@ Or, if your provider doesn't support wildcards, add these explicitly:
 
 `api.qorium.online` is already published per the screenshot you sent.
 
+## Pre-flight 0 — generate a GitHub PAT (one-time, 60 seconds)
+
+The QOrium repo is **private**, so the bootstrap script must
+authenticate to fetch its own source. Generate a fine-grained
+Personal Access Token:
+
+1. Open <https://github.com/settings/tokens?type=beta>
+2. **Fine-grained tokens → Generate new token**
+3. Name: `qorium-vps-bootstrap`
+4. Expiration: 90 days (or your org's policy)
+5. Repository access: **Only select repositories → sales799/QOrium**
+6. Repository permissions:
+   - **Contents: Read-only**
+   - **Metadata: Read-only** (auto-enabled)
+7. Generate token, copy `github_pat_xxxxx...`
+
+This single token covers both the initial script download AND the
+subsequent `git clone` performed by the bootstrap.
+
 ## Step 1 — One command on the VPS (10 minutes, mostly waiting)
 
 SSH into `147.93.103.194` as `root` (or any user with sudo) and run:
 
 ```bash
-URL_MAIN="https://raw.githubusercontent.com/sales799/QOrium/main/services/setu/bin/setu-bootstrap.sh"
-URL_BRANCH="https://raw.githubusercontent.com/sales799/QOrium/claude/setup-qorium-build-agent-zA0l5/services/setu/bin/setu-bootstrap.sh"
-curl -fsSL "$URL_MAIN" -o /tmp/qorium-bootstrap || curl -fsSL "$URL_BRANCH" -o /tmp/qorium-bootstrap
-sudo bash /tmp/qorium-bootstrap
+export GITHUB_TOKEN=github_pat_paste_yours_here
+URL="https://api.github.com/repos/sales799/QOrium/contents/services/setu/bin/setu-bootstrap.sh"
+curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" \
+     "$URL?ref=claude/setup-qorium-build-agent-zA0l5" -o /tmp/qorium-bootstrap
+sudo -E bash /tmp/qorium-bootstrap
 ```
 
-Two important details:
+Three important details that earlier attempts tripped over:
 
-1. **Repo name casing matters.** The canonical name is `sales799/QOrium`
-   (capital Q + O). `raw.githubusercontent.com` is case-sensitive on the
-   path — `sales799/qorium/...` will 404. Always use the canonical case.
-2. **`-f` makes curl fail loud.** Without `-f`, a 404 silently writes
-   the HTML body to stdout, which (when piped into `bash`) gets parsed
-   as the literal command `404:` — producing the obscure
-   `404: command not found`.
+1. **`api.github.com/repos/.../contents/...` (not raw.githubusercontent.com).**
+   For private repos, the `/contents` API endpoint with
+   `Accept: application/vnd.github.raw` is the canonical way to fetch
+   a single file with a PAT. raw.githubusercontent.com returns a bare
+   404 for private repos (even with the right path) to avoid leaking
+   their existence.
+2. **Repo name casing matters.** Canonical is `sales799/QOrium`
+   (capital Q + O). The api.github.com endpoint is _less_ strict
+   (case-insensitive on owner/repo), but always use the canonical
+   case to be safe.
+3. **`sudo -E` preserves `GITHUB_TOKEN` through sudo.** Without `-E`,
+   sudo strips most env vars; the script would then fail at the
+   inner `git clone` of the private repo.
 
-The fallback to the feature branch is a belt-and-braces guard for the
-window between sprint commits and the merge to `main`. Once PR #9 is
-merged, the first URL alone is sufficient.
+After PR #9 merges to `main`, swap `ref=claude/setup-qorium-build-agent-zA0l5`
+for `ref=main` in the URL above.
 
 The temp-file name `qorium-bootstrap` (no `.sh` suffix) avoids a
 gotcha where some chat clients auto-linkify `*.sh` filenames as URLs
-when you copy them, mangling the paste.
+when you copy them, mangling the paste into markdown link syntax.
+
+### Alternative: make the repo public for the bootstrap window
+
+If you'd rather not handle a PAT, the simplest unblock is:
+
+1. <https://github.com/sales799/QOrium/settings> → **Change visibility → Public**
+2. Run the original (no-token) bootstrap command
+3. Change visibility back to Private
+
+The bootstrap is idempotent, so even partial runs are safe to retry.
 
 What happens (idempotent — re-runs are safe):
 
