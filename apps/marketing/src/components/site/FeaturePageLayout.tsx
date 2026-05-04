@@ -22,7 +22,7 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
   return (
     <>
       {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-ink py-24 text-graphite-50">
+      <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-[60%] opacity-35" />
         <BackgroundBeams className="opacity-40" />
         <MaxWidth as="div" className="relative z-10 grid gap-12 lg:grid-cols-12">
@@ -30,7 +30,7 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
             <FadeIn>
               <Badge>{copy.hero.eyebrow}</Badge>
               <h1 className="mt-4 text-display-2 font-semibold text-balance">{copy.hero.title}</h1>
-              <p className="mt-5 max-w-2xl text-pretty text-lg text-graphite-300">
+              <p className="mt-5 max-w-2xl text-pretty text-lg text-muted-foreground">
                 {copy.hero.sub}
               </p>
             </FadeIn>

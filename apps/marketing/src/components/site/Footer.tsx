@@ -54,7 +54,7 @@ const BUILT_ON = ['PostgreSQL 16', 'Redis 7', 'Judge0', 'Anthropic', 'Cloudflare
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/60 bg-surface-1">
+    <footer className="border-t border-border/60 bg-card">
       <MaxWidth as="div" className="py-16">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
@@ -83,7 +83,7 @@ export function Footer() {
                     <li key={l.href}>
                       <Link
                         href={l.href}
-                        className="text-sm text-foreground/80 transition-colors hover:text-signal-300"
+                        className="text-sm text-foreground/80 transition-colors hover:text-secondary"
                       >
                         {l.label}
                       </Link>

@@ -23,7 +23,7 @@ const ICON: Record<string, React.ComponentType<{ className?: string }>> = {
 export default function FeaturesIndexPage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-ink py-24 text-graphite-50">
+      <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">
           <FadeIn className="space-y-5">
@@ -31,7 +31,7 @@ export default function FeaturesIndexPage() {
             <h1 className="max-w-3xl text-display-2 font-semibold text-balance">
               Three SKUs, one library, one engine.
             </h1>
-            <p className="max-w-2xl text-pretty text-graphite-300">
+            <p className="max-w-2xl text-pretty text-muted-foreground">
               Same content engine. Different exclusivity. Pick the SKU that matches your hiring
               volume and IP posture.
             </p>

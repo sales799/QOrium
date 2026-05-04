@@ -239,15 +239,15 @@ export default function StyleguidePage() {
         <section className="space-y-6">
           <SectionHeading eyebrow="Aceternity" title="Backgrounds & Bento" />
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="relative h-56 overflow-hidden rounded-md border border-border bg-ink">
+            <div className="relative h-56 overflow-hidden rounded-md border border-border bg-background">
               <Spotlight className="left-1/2 top-0" />
               <div className="relative z-10 p-6 text-foreground">Spotlight</div>
             </div>
-            <div className="relative h-56 overflow-hidden rounded-md border border-border bg-ink">
+            <div className="relative h-56 overflow-hidden rounded-md border border-border bg-background">
               <BackgroundBeams />
               <div className="relative z-10 p-6 text-foreground">Background beams</div>
             </div>
-            <div className="relative h-56 overflow-hidden rounded-md border border-border bg-ink md:col-span-2">
+            <div className="relative h-56 overflow-hidden rounded-md border border-border bg-background md:col-span-2">
               <AuroraBackground />
               <div className="relative z-10 p-6 text-foreground">Aurora background</div>
             </div>

@@ -27,7 +27,7 @@ export default function BlogIndexPage() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-ink py-20 text-graphite-50">
+      <section className="relative isolate overflow-hidden relative py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">
           <FadeIn className="space-y-4">
@@ -35,7 +35,7 @@ export default function BlogIndexPage() {
             <h1 className="max-w-3xl text-display-2 font-semibold text-balance">
               Field notes from building the assessment-content layer.
             </h1>
-            <p className="max-w-2xl text-pretty text-graphite-300">
+            <p className="max-w-2xl text-pretty text-muted-foreground">
               How the engine works under the hood, what we learn from the panel, what we got wrong
               and fixed.
             </p>

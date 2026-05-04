@@ -31,7 +31,7 @@ export default function ProductPage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-ink py-24 text-graphite-50 lg:py-32">
+      <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)] lg:py-32">
         <Spotlight className="left-1/2 top-0 -translate-x-[60%] opacity-40" />
         <BackgroundBeams className="opacity-40" />
         <MaxWidth as="div" className="relative z-10">
@@ -40,7 +40,7 @@ export default function ProductPage() {
               {productCopy.hero.eyebrow}
             </p>
             <h1 className="text-display-2 font-semibold text-balance">{productCopy.hero.title}</h1>
-            <p className="max-w-3xl text-pretty text-lg text-graphite-300">
+            <p className="max-w-3xl text-pretty text-lg text-muted-foreground">
               {productCopy.hero.sub}
             </p>
           </FadeIn>
@@ -257,12 +257,12 @@ export default function ProductPage() {
       </section>
 
       {/* CTA */}
-      <section className="relative isolate overflow-hidden border-t border-border/60 bg-ink py-24 text-graphite-50">
+      <section className="relative isolate overflow-hidden border-t border-border/60 relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10 text-center">
           <Reveal>
             <h2 className="text-display-2 font-semibold text-balance">{productCopy.cta.title}</h2>
-            <p className="mx-auto mt-4 max-w-xl text-pretty text-graphite-300">
+            <p className="mx-auto mt-4 max-w-xl text-pretty text-muted-foreground">
               {productCopy.cta.description}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">

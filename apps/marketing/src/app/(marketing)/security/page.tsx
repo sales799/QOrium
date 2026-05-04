@@ -94,7 +94,7 @@ export default function SecurityPage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-ink py-24 text-graphite-50">
+      <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-[60%] opacity-30" />
         <MaxWidth as="div" className="relative z-10">
           <FadeIn className="space-y-5">
@@ -104,7 +104,7 @@ export default function SecurityPage() {
             <h1 className="max-w-3xl text-display-2 font-semibold text-balance">
               Trust posture for the people who buy on it.
             </h1>
-            <p className="max-w-2xl text-pretty text-graphite-300">
+            <p className="max-w-2xl text-pretty text-muted-foreground">
               We build for hiring teams at GCCs, BFSI majors, and IT services giants. Their security
               review is non-negotiable. Below: the controls in place, the certifications in motion,
               and the sub-processors that handle your data.
@@ -223,11 +223,11 @@ Egress: Resend (email), Razorpay/Stripe (billing),
       </section>
 
       {/* CTA */}
-      <section className="border-t border-border/60 bg-ink py-20 text-graphite-50">
+      <section className="border-t border-border/60 relative py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <MaxWidth as="div" className="text-center">
           <Reveal>
             <h2 className="text-display-2 font-semibold">Need our DPA or security review pack?</h2>
-            <p className="mx-auto mt-4 max-w-xl text-graphite-300">
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
               We share full architecture diagrams, sub-processor list, and pen-test summaries under
               NDA on request.
             </p>

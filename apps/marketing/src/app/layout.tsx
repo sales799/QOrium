@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono, Source_Serif_4 } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
 import { siteConfig } from '@/content/site.config';
 import './globals.css';
@@ -13,12 +13,6 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-geist-mono',
-  display: 'swap',
-});
-
-const sourceSerif = Source_Serif_4({
-  subsets: ['latin'],
-  variable: '--font-source-serif',
   display: 'swap',
 });
 
@@ -57,21 +51,18 @@ export const metadata: Metadata = {
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
   icons: {
-    icon: '/icon.svg',
+    icon: '/icon',
     shortcut: '/favicon.ico',
-    apple: '/apple-icon.png',
+    apple: '/apple-icon',
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0d14' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -92,13 +83,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-signal-500 focus:px-3 focus:py-2 focus:text-ink"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-secondary focus:px-3 focus:py-2 focus:text-secondary-foreground"
           >
             Skip to main content
           </a>

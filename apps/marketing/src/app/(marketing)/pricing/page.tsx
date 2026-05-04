@@ -31,7 +31,7 @@ export default function PricingPage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative isolate overflow-hidden bg-ink py-24 text-graphite-50">
+      <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-30" />
         <MaxWidth as="div" className="relative z-10 text-center">
           <FadeIn className="space-y-5">
@@ -39,7 +39,7 @@ export default function PricingPage() {
             <h1 className="mx-auto max-w-3xl text-display-2 font-semibold text-balance">
               {pricingCopy.hero.title}
             </h1>
-            <p className="mx-auto max-w-2xl text-pretty text-graphite-300">
+            <p className="mx-auto max-w-2xl text-pretty text-muted-foreground">
               {pricingCopy.hero.sub}
             </p>
           </FadeIn>
@@ -136,12 +136,12 @@ export default function PricingPage() {
       </section>
 
       {/* CTA */}
-      <section className="border-t border-border/60 bg-ink py-24 text-graphite-50">
+      <section className="border-t border-border/60 relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <MaxWidth as="div" className="text-center">
           <h2 className="text-display-2 font-semibold text-balance">
             Talk to us about your stack.
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-graphite-300">
+          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
             Tell us your hiring volume, the formats you need, and the leaks you're seeing. We'll
             pick the SKU and tier that fit.
           </p>

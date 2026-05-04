@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main className="relative flex min-h-screen flex-col bg-ink text-graphite-50">
+    <main className="relative flex min-h-screen flex-col bg-background text-foreground">
       <header className="border-b border-border/60">
         <MaxWidth as="div" className="flex h-16 items-center">
           <Link href="/" aria-label="Qorium home">
