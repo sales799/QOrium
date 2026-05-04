@@ -5,8 +5,10 @@ import { ChevronLeft, Calendar, User } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { ArticleJsonLd } from '@/components/seo/JsonLd';
 import { mdxComponents } from '@/lib/mdx';
 import { getBlogPost, listBlogPosts } from '@/lib/blog';
+import { siteConfig } from '@/content/site.config';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -49,6 +51,13 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <article className="bg-background">
+      <ArticleJsonLd
+        title={post.title}
+        description={post.description}
+        url={`${siteConfig.url}/blog/${post.slug}`}
+        datePublished={post.date}
+        author={post.author}
+      />
       <MaxWidth as="div" className="py-16">
         <Link
           href="/blog"

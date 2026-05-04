@@ -30,6 +30,7 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 import { BackgroundBeams } from '@/components/aceternity/BackgroundBeams';
 import { BentoGrid, BentoCard } from '@/components/aceternity/BentoGrid';
 
+import { WebsiteJsonLd } from '@/components/seo/JsonLd';
 import { homeCopy } from '@/content/copy/home';
 
 const PILLAR_ICONS = {
@@ -47,6 +48,7 @@ const ICP_ICONS = {
 export default function HomePage() {
   return (
     <>
+      <WebsiteJsonLd />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-ink text-graphite-50">
         <Spotlight className="left-1/2 top-0 -translate-x-[60%]" />
