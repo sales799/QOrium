@@ -34,6 +34,7 @@ paths = [
   '''infra/CTO-deltas/.*\.md$''',
   '''infra/deployment/.*\.env\.template$''',
   '''infra/runbooks/.*\.md$''',
+  '''services/setu/bin/setu-bootstrap\.sh''',
   '''governance/.*\.md$''',
   '''.*/__tests__/.*''',
   '''.*\.test\.ts$''',
