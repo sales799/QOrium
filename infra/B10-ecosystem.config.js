@@ -37,7 +37,7 @@ module.exports = {
      */
     {
       name: 'qorium-api',
-      script: './dist/api/server.js',
+      script: './services/readybank/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5101,
@@ -100,7 +100,7 @@ module.exports = {
      */
     {
       name: 'qorium-jd-forge',
-      script: './dist/jd-forge/server.js',
+      script: './services/jd-forge/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5102,
@@ -154,7 +154,7 @@ module.exports = {
      */
     {
       name: 'qorium-stack-vault',
-      script: './dist/stack-vault/server.js',
+      script: './services/stack-vault/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5103,
@@ -262,7 +262,7 @@ module.exports = {
      */
     {
       name: 'qorium-leak-crawler',
-      script: './dist/workers/anti-leak-crawler.js',
+      script: './services/leak-crawler/dist/index.js',
       instances: 1,
       exec_mode: 'fork',
 
@@ -322,7 +322,7 @@ module.exports = {
      */
     {
       name: 'qorium-irt-calibration',
-      script: './dist/workers/irt-calibration.js',
+      script: './services/irt-calibration/dist/index.js',
       instances: 1,
       exec_mode: 'fork',
 
@@ -377,7 +377,7 @@ module.exports = {
      */
     {
       name: 'qorium-judge0-orchestrator',
-      script: './dist/workers/judge0-orchestrator.js',
+      script: './services/judge0-orchestrator/dist/index.js',
       instances: 1,
       exec_mode: 'fork',
 
@@ -431,7 +431,7 @@ module.exports = {
      */
     {
       name: 'qorium-testforge-orchestrator',
-      script: './dist/workers/testforge-orchestrator.js',
+      script: './services/testforge-orchestrator/dist/index.js',
       instances: 1,
       exec_mode: 'fork',
 

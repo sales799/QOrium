@@ -20,6 +20,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "migrate": "node dist/cli.js up",
     "migrate:up": "tsx src/cli.ts up",
     "migrate:status": "tsx src/cli.ts status"
   },

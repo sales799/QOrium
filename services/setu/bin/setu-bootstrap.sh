@@ -192,18 +192,38 @@ fi
 # --- 5. nginx server block --------------------------------------------------
 NGINX_CONF="/etc/nginx/sites-available/qorium.conf"
 NGINX_LINK="/etc/nginx/sites-enabled/qorium.conf"
+# Disable any pre-existing legacy "qorium-api" site that conflicts with our
+# upstream + listener directives. Safe to re-disable on every run; if no
+# conflict exists, the rm/unlink is a no-op.
+for legacy in /etc/nginx/sites-enabled/qorium-api /etc/nginx/sites-enabled/qorium; do
+  if [[ -L "$legacy" || -f "$legacy" ]]; then
+    log "disabling legacy nginx site: $(basename "$legacy")"
+    rm -f "$legacy"
+  fi
+done
 if [[ ! -f "$NGINX_CONF" ]]; then
   log "installing nginx server block"
   cp "$REPO_ROOT/infra/nginx/qorium.conf" "$NGINX_CONF"
   sed -i "s|qorium.online|${APEX_DOMAIN}|g" "$NGINX_CONF"
   ln -sf "$NGINX_CONF" "$NGINX_LINK"
   rm -f /etc/nginx/sites-enabled/default
-  nginx -t && systemctl reload nginx
+  if ! nginx -t 2>/tmp/nginx-test.err; then
+    log "nginx -t failed; output:"
+    cat /tmp/nginx-test.err >&2
+    log "leaving qorium.conf in place but NOT reloading nginx; investigate before retry"
+  else
+    systemctl reload nginx
+  fi
 fi
 
 # --- 6. Let's Encrypt cert (only if DNS resolves to this box) ---------------
-THIS_IP="$(curl -sf https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
-RESOLVED_IP="$(getent hosts "${PRIMARY_HOST}" | awk '{print $1}' | head -n1)"
+# Force IPv4 throughout: certbot's HTTP-01 challenge runs over IPv4 by default,
+# and DNS A records (vs AAAA) are what matters for that path. Many VPSes
+# return IPv6 first from `hostname -I`, which would fail to match the A
+# record that DNS resolution returns.
+THIS_IP="$(curl -4 -sf https://ifconfig.me 2>/dev/null \
+  || hostname -I | tr ' ' '\n' | grep -E '^([0-9]+\.){3}[0-9]+$' | head -n1)"
+RESOLVED_IP="$(getent ahostsv4 "${PRIMARY_HOST}" | awk '{print $1}' | head -n1)"
 if [[ -n "$RESOLVED_IP" && "$RESOLVED_IP" == "$THIS_IP" ]]; then
   if [[ ! -d "/etc/letsencrypt/live/${PRIMARY_HOST}" ]]; then
     log "provisioning TLS cert for ${PRIMARY_HOST}"
