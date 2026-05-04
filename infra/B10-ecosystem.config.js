@@ -207,8 +207,8 @@ module.exports = {
      */
     {
       name: 'qorium-admin',
-      script: './node_modules/.bin/next',
-      args: 'start',
+      script: '../../node_modules/next/dist/bin/next',
+      args: 'start --port 5104',
       cwd: './apps/admin',
       instances: 2,
       exec_mode: 'cluster',
