@@ -1,9 +1,6 @@
-// /v1/sessions — recruiter creates a take-assessment session for a named candidate.
-// Sprint 1.3 (Run #29).
-//
-// POST /v1/sessions
-// body: { candidate_id, question_ids: uuid[], pack_name?, recruiter_email?, expires_minutes? }
-// returns: { session_id, session_token, take_url, expires_at, status }
+// /v1/sessions — recruiter-side session management.
+// Sprint 1.3 (Run #29) created POST /v1/sessions.
+// Sprint 1.4 (Run #30) adds: GET /v1/sessions (list), GET /v1/sessions/:id (detail), POST /v1/sessions/:id/revoke.
 
 import { Router } from 'express';
 import { z } from 'zod';
@@ -22,6 +19,12 @@ const CreateSessionSchema = z.object({
   expires_minutes: z.coerce.number().int().min(5).max(60 * 24 * 14).optional(),
 });
 
+const ListQuerySchema = z.object({
+  status: z.enum(['pending', 'in_progress', 'completed', 'expired', 'revoked']).optional(),
+  candidate_id: z.string().regex(/^[A-Za-z0-9_-]{1,100}$/).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+});
+
 export interface SessionsRouterDeps {
   pool: Pool;
 }
@@ -29,6 +32,7 @@ export interface SessionsRouterDeps {
 export function sessionsRouter(deps: SessionsRouterDeps): Router {
   const router = Router();
 
+  // POST /v1/sessions — create take session for a named candidate.
   router.post('/sessions', async (req, res, next) => {
     try {
       const auth = (req as AuthenticatedRequest).auth;
@@ -46,7 +50,6 @@ export function sessionsRouter(deps: SessionsRouterDeps): Router {
         throw e;
       }
 
-      // Verify all question_ids exist + are released + match the tenant's accessible bank.
       const qcheck = await deps.pool.query(
         `SELECT id FROM content.questions WHERE id = ANY($1::uuid[]) AND status = 'released'`,
         [parsed.question_ids]
@@ -56,7 +59,7 @@ export function sessionsRouter(deps: SessionsRouterDeps): Router {
       }
 
       const sessionToken = randomBytes(32).toString('hex');
-      const expiresMinutes = parsed.expires_minutes ?? 60 * 48; // 48h default
+      const expiresMinutes = parsed.expires_minutes ?? 60 * 48;
 
       const insert = await deps.pool.query(
         `INSERT INTO app.sessions
@@ -81,14 +84,106 @@ export function sessionsRouter(deps: SessionsRouterDeps): Router {
         session_id: row.id,
         session_token: sessionToken,
         take_url: `${baseUrl}/take/${sessionToken}`,
+        result_url: `${baseUrl}/take/${sessionToken}/result`,
         expires_at: row.expires_at,
         status: row.status,
         candidate_id: parsed.candidate_id,
         question_count: parsed.question_ids.length,
       });
-    } catch (err) {
-      next(err);
-    }
+    } catch (err) { next(err); }
+  });
+
+  // GET /v1/sessions — list tenant's sessions; optional filter by status / candidate_id.
+  router.get('/sessions', async (req, res, next) => {
+    try {
+      const auth = (req as AuthenticatedRequest).auth;
+      if (!auth) {
+        return next(new HttpProblem({ status: 401, title: 'Unauthorized', detail: 'API key required' }));
+      }
+      let q;
+      try { q = ListQuerySchema.parse(req.query); }
+      catch (e) {
+        if (e instanceof z.ZodError) return next(new HttpProblem({ status: 400, title: 'Bad Request', detail: e.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ') }));
+        throw e;
+      }
+      const conditions: string[] = ['tenant_id = $1'];
+      const params: unknown[] = [auth.tenantId];
+      if (q.status) { params.push(q.status); conditions.push(`status = $${params.length}::varchar`); }
+      if (q.candidate_id) { params.push(q.candidate_id); conditions.push(`candidate_id = $${params.length}`); }
+      const limit = Math.min(q.limit ?? 25, 100);
+      params.push(limit);
+
+      const result = await deps.pool.query(
+        `SELECT id, candidate_id, status, pack_name, recruiter_email, current_index,
+                array_length(question_ids, 1) AS question_count,
+                created_at, started_at, completed_at, expires_at,
+                substring(session_token, 1, 12) AS token_prefix
+         FROM app.sessions
+         WHERE ${conditions.join(' AND ')}
+         ORDER BY created_at DESC
+         LIMIT $${params.length}`,
+        params
+      );
+
+      res.setHeader('Cache-Control', 'no-store');
+      res.json({
+        sessions: result.rows,
+        count: result.rowCount,
+      });
+    } catch (err) { next(err); }
+  });
+
+  // GET /v1/sessions/:id — single session detail (recruiter view).
+  router.get('/sessions/:id', async (req, res, next) => {
+    try {
+      const auth = (req as AuthenticatedRequest).auth;
+      if (!auth) {
+        return next(new HttpProblem({ status: 401, title: 'Unauthorized', detail: 'API key required' }));
+      }
+      if (!UUID_PATTERN.test(req.params.id)) {
+        return next(new HttpProblem({ status: 400, title: 'Bad Request', detail: 'session id must be a UUID' }));
+      }
+      const result = await deps.pool.query(
+        `SELECT id, candidate_id, status, pack_name, recruiter_email, current_index,
+                question_ids, array_length(question_ids, 1) AS question_count,
+                created_at, started_at, completed_at, expires_at,
+                substring(session_token, 1, 12) AS token_prefix
+         FROM app.sessions
+         WHERE id = $1 AND tenant_id = $2
+         LIMIT 1`,
+        [req.params.id, auth.tenantId]
+      );
+      if (result.rowCount === 0) {
+        return next(new HttpProblem({ status: 404, title: 'Not Found', detail: 'session not found' }));
+      }
+      res.setHeader('Cache-Control', 'no-store');
+      res.json(result.rows[0]);
+    } catch (err) { next(err); }
+  });
+
+  // POST /v1/sessions/:id/revoke — recruiter kills a session immediately.
+  router.post('/sessions/:id/revoke', async (req, res, next) => {
+    try {
+      const auth = (req as AuthenticatedRequest).auth;
+      if (!auth) {
+        return next(new HttpProblem({ status: 401, title: 'Unauthorized', detail: 'API key required' }));
+      }
+      if (!UUID_PATTERN.test(req.params.id)) {
+        return next(new HttpProblem({ status: 400, title: 'Bad Request', detail: 'session id must be a UUID' }));
+      }
+      const result = await deps.pool.query(
+        `UPDATE app.sessions
+         SET status = 'revoked'::varchar, completed_at = COALESCE(completed_at, NOW())
+         WHERE id = $1 AND tenant_id = $2
+           AND status IN ('pending', 'in_progress')
+         RETURNING id, status, completed_at`,
+        [req.params.id, auth.tenantId]
+      );
+      if (result.rowCount === 0) {
+        return next(new HttpProblem({ status: 404, title: 'Not Found', detail: 'session not found, already terminal, or not owned by this tenant' }));
+      }
+      res.json({ ...result.rows[0], message: 'session revoked; /take/<token> will return 410 Gone' });
+    } catch (err) { next(err); }
   });
 
   return router;
