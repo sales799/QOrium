@@ -1,0 +1,154 @@
+# QOrium Marketing — Quality Gates (Lighthouse + axe-core)
+#
+# Runs on PRs that touch apps/marketing/** and on manual dispatch. Builds
+# the marketing app, starts it on localhost:3000, then runs:
+#   1. Lighthouse CI (perf · a11y · best-practices · SEO) against 5 critical routes
+#   2. @axe-core/cli (zero-critical-violations gate) against the same routes
+#
+# Reports upload as workflow artifacts. Soft-fail (continue-on-error) until
+# we've measured baselines a few times — flip to hard-fail in a follow-up
+# once thresholds in lighthouserc.json are tuned to real numbers.
+
+name: Marketing Quality
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/marketing/**'
+      - '.github/workflows/marketing-quality.yml'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.33.0'
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build marketing app
+        env:
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        run: pnpm --filter @qorium/marketing build
+
+      - name: Run Lighthouse CI
+        run: |
+          pnpm dlx @lhci/cli@0.13.x autorun \
+            --config=apps/marketing/lighthouserc.json \
+            --upload.target=temporary-public-storage
+        continue-on-error: true
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  axe:
+    name: axe-core a11y
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build marketing app
+        env:
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        run: pnpm --filter @qorium/marketing build
+
+      - name: Start marketing app
+        run: |
+          pnpm --filter @qorium/marketing start &
+          echo $! > /tmp/marketing.pid
+          # Wait for server (max 60s)
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server up after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Run axe-core against critical routes
+        run: |
+          mkdir -p axe-reports
+          ROUTES=(
+            "/"
+            "/product"
+            "/pricing"
+            "/features/readybank"
+            "/features/jd-forge"
+            "/features/stack-vault"
+            "/security"
+            "/about"
+            "/contact"
+          )
+          fail=0
+          for route in "${ROUTES[@]}"; do
+            slug=$(echo "${route}" | sed 's|/|_|g; s|^_||; s|^$|home|')
+            echo "::group::axe ${route}"
+            pnpm dlx @axe-core/cli@4.x \
+              "http://localhost:3000${route}" \
+              --tags wcag2a,wcag2aa,wcag21a,wcag21aa \
+              --save "axe-reports/${slug:-home}.json" \
+              --exit || fail=1
+            echo "::endgroup::"
+          done
+          # Soft-fail for now — we report but don't block until we baseline.
+          if [ "${fail}" -ne 0 ]; then
+            echo "::warning::axe-core found violations — review report artifact"
+          fi
+        continue-on-error: true
+
+      - name: Stop marketing app
+        if: always()
+        run: |
+          if [ -f /tmp/marketing.pid ]; then
+            kill "$(cat /tmp/marketing.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload axe reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: axe-report
+          path: axe-reports/
+          retention-days: 14
+          if-no-files-found: ignore

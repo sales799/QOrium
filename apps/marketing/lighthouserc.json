@@ -1,0 +1,39 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm --filter @qorium/marketing start",
+      "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 60000,
+      "url": [
+        "http://localhost:3000/",
+        "http://localhost:3000/product",
+        "http://localhost:3000/pricing",
+        "http://localhost:3000/features/readybank",
+        "http://localhost:3000/security"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "preset": "desktop",
+        "skipAudits": ["uses-http2", "canonical"],
+        "chromeFlags": "--no-sandbox --headless=new"
+      }
+    },
+    "assert": {
+      "preset": "lighthouse:recommended",
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.85 }],
+        "categories:accessibility": ["warn", { "minScore": 0.9 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }],
+        "uses-text-compression": "off",
+        "unused-javascript": "off",
+        "unused-css-rules": "off",
+        "uses-rel-preconnect": "off",
+        "color-contrast": ["warn", {}]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}
