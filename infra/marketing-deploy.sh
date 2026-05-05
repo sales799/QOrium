@@ -23,6 +23,8 @@ APP_DIR="/opt/apps/qorium-marketing"
 APP_PORT="5110"
 DOMAIN_PRIMARY="qorium.online"
 DOMAIN_WWW="www.qorium.online"
+DOMAIN_REDIRECT="qorium.in"
+DOMAIN_REDIRECT_WWW="www.qorium.in"
 CONTACT_EMAIL="hello@qorium.online"
 NODE_MAJOR="22"
 PNPM_VERSION="10.33.0"
@@ -268,6 +270,77 @@ nginx -t || die "nginx config invalid — check above"
 systemctl reload nginx
 ok "nginx reloaded"
 
+# ── 9b. qorium.in 301-redirect vhost + cert ────────────────────────────────
+# Redirect every request on qorium.in (and www.qorium.in) → https://qorium.online
+# Idempotent: re-runs reuse the same vhost path and cert (renewed on schedule
+# by certbot's systemd timer / cron).
+REDIRECT_VHOST="/etc/nginx/sites-available/qorium-in-redirect.conf"
+REDIRECT_DNS_A=$(getent hosts "${DOMAIN_REDIRECT}" 2>/dev/null | awk '{print $1; exit}')
+if [[ "${REDIRECT_DNS_A}" == "147.93.103.194" ]]; then
+  log "Configuring 301 redirect vhost for ${DOMAIN_REDIRECT} → ${DOMAIN_PRIMARY}"
+
+  if [[ ! -d "/etc/letsencrypt/live/${DOMAIN_REDIRECT}" ]]; then
+    log "Issuing Let's Encrypt certificate for ${DOMAIN_REDIRECT} + ${DOMAIN_REDIRECT_WWW}"
+    # HTTP-only bootstrap vhost so certbot can validate.
+    cat > /etc/nginx/sites-available/qorium-in-bootstrap.conf <<NGINX_BOOT
+server {
+    listen 80;
+    server_name ${DOMAIN_REDIRECT} ${DOMAIN_REDIRECT_WWW};
+    location ^~ /.well-known/acme-challenge/ { root /var/www/certbot; default_type "text/plain"; }
+    location / { return 200 "qorium.in bootstrap"; add_header Content-Type "text/plain"; }
+}
+NGINX_BOOT
+    ln -sf /etc/nginx/sites-available/qorium-in-bootstrap.conf /etc/nginx/sites-enabled/qorium-in-bootstrap.conf
+    nginx -t && systemctl reload nginx
+
+    if certbot certonly --webroot -w /var/www/certbot \
+      -d "${DOMAIN_REDIRECT}" -d "${DOMAIN_REDIRECT_WWW}" \
+      --email "${CONTACT_EMAIL}" --agree-tos --non-interactive --no-eff-email; then
+      ok "qorium.in cert issued"
+    else
+      warn "certbot failed for qorium.in — DNS may still be propagating; will retry on next deploy run"
+      rm -f /etc/nginx/sites-enabled/qorium-in-bootstrap.conf
+      systemctl reload nginx
+    fi
+    rm -f /etc/nginx/sites-enabled/qorium-in-bootstrap.conf
+  fi
+
+  if [[ -d "/etc/letsencrypt/live/${DOMAIN_REDIRECT}" ]]; then
+    cat > "$REDIRECT_VHOST" <<NGINX
+# Managed by infra/marketing-deploy.sh — re-runs overwrite this file.
+# 301-redirect vhost: qorium.in + www.qorium.in → https://qorium.online
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMAIN_REDIRECT} ${DOMAIN_REDIRECT_WWW};
+    location ^~ /.well-known/acme-challenge/ { root /var/www/certbot; default_type "text/plain"; }
+    location / { return 301 https://${DOMAIN_PRIMARY}\$request_uri; }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name ${DOMAIN_REDIRECT} ${DOMAIN_REDIRECT_WWW};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN_REDIRECT}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_REDIRECT}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+    return 301 https://${DOMAIN_PRIMARY}\$request_uri;
+}
+NGINX
+
+    ln -sf "$REDIRECT_VHOST" /etc/nginx/sites-enabled/qorium-in-redirect.conf
+    nginx -t || die "nginx config invalid after qorium.in vhost"
+    systemctl reload nginx
+    ok "qorium.in 301-redirect vhost active"
+  fi
+else
+  warn "qorium.in DNS not yet pointing at 147.93.103.194 (currently resolves to ${REDIRECT_DNS_A:-unresolved}); skipping redirect vhost. Re-run the deploy script after DNS propagates (TTL 300s)."
+fi
+
 # ── 10. Smoke tests ────────────────────────────────────────────────────────
 log "Smoke tests"
 sleep 2
@@ -275,6 +348,12 @@ for path in "/" "/product" "/pricing" "/security" "/blog"; do
   code=$(curl -s -m 10 -o /dev/null -w "%{http_code}" "https://${DOMAIN_PRIMARY}${path}" || echo "000")
   printf "  https://${DOMAIN_PRIMARY}%-12s → %s\n" "$path" "$code"
 done
+# qorium.in redirect smoke (only if cert exists)
+if [[ -d "/etc/letsencrypt/live/${DOMAIN_REDIRECT}" ]]; then
+  code=$(curl -s -m 10 -o /dev/null -w "%{http_code}" -I "https://${DOMAIN_REDIRECT}/" || echo "000")
+  loc=$(curl -s -m 10 -I "https://${DOMAIN_REDIRECT}/" 2>/dev/null | grep -i ^location: | tr -d '\r' | awk '{print $2}')
+  printf "  https://%s/  → %s  (Location: %s)\n" "${DOMAIN_REDIRECT}" "$code" "${loc:-—}"
+fi
 
 log "DONE"
 echo ""

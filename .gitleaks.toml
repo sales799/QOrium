@@ -27,6 +27,7 @@ paths = [
   '''.*\.png$''',
   '''.*\.jpg$''',
   '''customer-zero/.*\.md$''',
+  '''\.github/workflows/.*\.ya?ml$''',
   '''infra/B7-postgres-migrations/README\.md''',
   '''infra/.*-Spec-v0\.md$''',
   '''infra/.*-Design.*\.md$''',
@@ -54,6 +55,10 @@ regexes = [
   '''qor_(live|test|internal)_[a-z0-9_]*?(a7f3b2c1|9e2d7c4b|b7f3b2c1)[a-z0-9_]*''',
   # Common placeholder patterns
   '''^example.*''',
+  # Ephemeral test-container credentials in CI workflow (qorium_test
+  # password is hard-coded for the postgres:16-alpine service in the
+  # `test` job — it never leaves the GitHub Actions ephemeral runner).
+  '''qorium:qorium_test@''',
 ]
 
 # ============================================================================

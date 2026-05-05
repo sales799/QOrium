@@ -1,16 +1,11 @@
-import Link from 'next/link';
-
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { PillButton } from '@/components/site/PillButton';
 import { SectionHeading } from '@/components/site/SectionHeading';
-import { FadeIn } from '@/components/motion/FadeIn';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
-import { ShimmerButton } from '@/components/magicui/ShimmerButton';
-import { Spotlight } from '@/components/aceternity/Spotlight';
-import { BackgroundBeams } from '@/components/aceternity/BackgroundBeams';
+import { BlurFade } from '@/components/magicui/BlurFade';
+import { FlickeringGrid } from '@/components/magicui/FlickeringGrid';
 import type { FeaturePageCopy } from '@/content/copy/features';
 
 interface Props {
@@ -22,29 +17,44 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
   return (
     <>
       {/* HERO */}
-      <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
-        <Spotlight className="left-1/2 top-0 -translate-x-[60%] opacity-35" />
-        <BackgroundBeams className="opacity-40" />
+      <section className="relative isolate overflow-hidden py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
+        <FlickeringGrid
+          className="absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_top,transparent_30%,black_75%)]"
+          squareSize={3}
+          gridGap={4}
+          flickerChance={0.16}
+          maxOpacity={0.16}
+          color="var(--secondary)"
+        />
         <MaxWidth as="div" className="relative z-10 grid gap-12 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-7">
-            <FadeIn>
-              <Badge>{copy.hero.eyebrow}</Badge>
-              <h1 className="mt-4 text-display-2 font-semibold text-balance">{copy.hero.title}</h1>
-              <p className="mt-5 max-w-2xl text-pretty text-lg text-muted-foreground">
+            <BlurFade delay={0.05}>
+              <p className="inline-flex h-8 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm shadow-sm">
+                <span className="size-1.5 rounded-full bg-secondary" />
+                {copy.hero.eyebrow}
+              </p>
+            </BlurFade>
+            <BlurFade delay={0.15}>
+              <h1 className="mt-4 text-balance text-3xl font-medium tracking-tighter text-primary md:text-4xl lg:text-5xl">
+                {copy.hero.title}
+              </h1>
+              <p className="mt-5 max-w-2xl text-pretty text-base text-muted-foreground md:text-lg">
                 {copy.hero.sub}
               </p>
-            </FadeIn>
-            <FadeIn delay={0.1} className="flex flex-wrap gap-3">
-              <Link href="/demo">
-                <ShimmerButton>Book a demo</ShimmerButton>
-              </Link>
-              <Button asChild variant="secondary" size="lg">
-                <Link href="/pricing">See pricing</Link>
-              </Button>
-            </FadeIn>
+            </BlurFade>
+            <BlurFade delay={0.25}>
+              <div className="flex flex-wrap gap-2.5">
+                <PillButton href="/demo" variant="primary">
+                  Book a demo
+                </PillButton>
+                <PillButton href="/pricing" variant="secondary">
+                  See pricing
+                </PillButton>
+              </div>
+            </BlurFade>
           </div>
           <div className="lg:col-span-5">
-            {hereVisual ? <FadeIn delay={0.15}>{hereVisual}</FadeIn> : null}
+            {hereVisual ? <BlurFade delay={0.3}>{hereVisual}</BlurFade> : null}
           </div>
         </MaxWidth>
       </section>
@@ -77,7 +87,7 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
           <Reveal>
             <SectionHeading eyebrow="What's included" title="Everything you need to ship." />
           </Reveal>
-          <FadeIn className="mt-10">
+          <BlurFade className="mt-10">
             <Tabs defaultValue={copy.includes[0]?.tab ?? ''}>
               <TabsList>
                 {copy.includes.map((it) => (
@@ -101,7 +111,7 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
                 </TabsContent>
               ))}
             </Tabs>
-          </FadeIn>
+          </BlurFade>
         </MaxWidth>
       </section>
 
@@ -174,12 +184,12 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
             ))}
           </Stagger>
           <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild variant="primary" size="lg">
-              <Link href="/contact">Talk to sales</Link>
-            </Button>
-            <Button asChild variant="secondary" size="lg">
-              <Link href="/pricing">Compare all SKUs</Link>
-            </Button>
+            <PillButton href="/contact" variant="primary">
+              Talk to sales
+            </PillButton>
+            <PillButton href="/pricing" variant="secondary">
+              Compare all SKUs
+            </PillButton>
           </div>
         </MaxWidth>
       </section>
