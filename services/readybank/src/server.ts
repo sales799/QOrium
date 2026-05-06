@@ -1,5 +1,8 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import type { Express, RequestHandler } from 'express';
+import cookieParser from 'cookie-parser';
 import * as Sentry from '@sentry/node';
 import type { Pool } from '@qorium/db';
 import { apiKeyAuth, createMemoryRateLimiter, createRedisRateLimiter } from '@qorium/auth';
@@ -12,7 +15,11 @@ import { notFound, problemHandler } from './middleware/problem.js';
 import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
+import { authRouter } from './routes/auth.js';
 import type { Logger } from 'pino';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface ServerDeps {
   config: Config;
@@ -54,14 +61,29 @@ export function createServer(deps: ServerDeps): ServerHandle {
   app.use(createHttpLogger(logger));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+  app.use(cookieParser());
+
+  // Static recruiter portal entry point — login.html + companion css/js.
+  // Served from <serviceRoot>/public; harmless when missing.
+  app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
 
   // Health endpoints are unauthenticated (PM2 / load balancer probes).
   app.use(healthRouter({ config: deps.config, pool: deps.pool }));
 
-  // /v1/* requires API key auth + per-key rate limiting.
-  // Auth + repository routes are skipped when no pool is configured (dev /
-  // smoke runs without a DB) so /healthz still works.
+  // /v1/* gated routes. Auth + repository routes are skipped when no pool is
+  // configured (dev / smoke runs without a DB) so /healthz still works.
   if (deps.pool) {
+    // Recruiter session auth (Surface 6) — public login/logout, gated whoami.
+    // Mounted before the API-key gate so /v1/auth/login is reachable
+    // without an API key.
+    if (!deps.config.jwtSecret) {
+      throw new Error(
+        'JWT_SECRET environment variable is required to enable recruiter auth. ' +
+          'Set it to a 32+ character random string.',
+      );
+    }
+    app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
+
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
     app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }));
   }
