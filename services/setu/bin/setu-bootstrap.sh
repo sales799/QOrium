@@ -168,6 +168,31 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS citext;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 PG_EXTENSIONS
+  # Tune Postgres for the QOrium service mesh. Default max_connections=100
+  # is too low for our cluster: ~14 cluster services × 2 instances × pool
+  # max:4 = 112 potential conns + ~7 fork workers × 4 = 140 total. Bump to
+  # 300 to leave comfortable headroom + room for ad-hoc psql sessions.
+  # Idempotent: setting the same value twice is a no-op.
+  current_max=$(sudo -u postgres psql -tAc "SHOW max_connections" 2>/dev/null || echo "0")
+  if [[ "${current_max:-0}" -lt 300 ]]; then
+    log "raising postgres max_connections from ${current_max:-unknown} to 300"
+    sudo -u postgres psql -c "ALTER SYSTEM SET max_connections = 300" >/dev/null
+    systemctl restart postgresql
+    # Wait up to 30s for postgres to come back; abort if it doesn't.
+    for i in {1..30}; do
+      if sudo -u postgres psql -tAc "SELECT 1" >/dev/null 2>&1; then
+        log "postgres restarted with max_connections=300"
+        break
+      fi
+      sleep 1
+      if [[ $i -eq 30 ]]; then
+        log "ERROR: postgres did not come back after restart; check logs"
+        exit 1
+      fi
+    done
+  else
+    log "postgres max_connections already $current_max (≥ 300)"
+  fi
 
   cp "$REPO_ROOT/infra/deployment/production.env.template" "$ENV_FILE"
   sed -i "s|^DATABASE_URL_PROD=.*|DATABASE_URL_PROD=postgres://qorium:${PG_PASSWORD}@127.0.0.1:5432/qorium|" "$ENV_FILE"
