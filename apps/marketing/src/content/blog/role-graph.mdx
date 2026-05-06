@@ -77,6 +77,39 @@ The role-graph is in PostgreSQL with a `role_graph_node` table and self-referenc
 
 We expose graph traversal in the ReadyBank API: pass a role string, get the matching subtree, get the questions. JD-Forge uses the same traversal internally. Stack-Vault customers get a private overlay of the graph mapped to their stack.
 
+## A worked example: Spring Security → JWT
+
+A subtree we use a lot in Talpro India's Java backend hiring drives:
+
+```
+Java → Spring → Spring Security → JWT
+       │       ├── Authentication filter chain (band: 4 · SJT × 1, Coding × 1)
+       │       ├── Token signing (HS256 vs RS256) (band: 4 · MCQ × 2)
+       │       ├── Refresh-token rotation (band: 5 · Coding × 1, SJT × 1)
+       │       └── Stateless vs session-based trade-offs (band: 4 · SJT × 1)
+       └── Spring Data → Repository injection (band: 3 · MCQ × 2)
+```
+
+When a JD lands with "Spring Security required, JWT preferred, 5+ yrs," JD-Forge parses to that subtree directly. The format mix is set per leaf, the difficulty bands are calibrated, and the AI-draft step generates new variants only against leaves that need rotation under anti-leak. The output is repeatable: same JD, same graph traversal, same pack shape (modulo anti-leak variants). That repeatability is what makes a 30-second SLA possible.
+
+## Why the role-graph powers all three SKUs
+
+It's tempting to assume the role-graph is just an internal taxonomy. It isn't — it's load-bearing across all three customer-facing products.
+
+- **ReadyBank API** uses it to route customer queries into the right subtree. A platform integration can request "Senior Spring backend questions, band 4-5, 30 items" and the API walks the graph deterministically. No fuzzy LLM tagging in the request path; that's the point.
+- **JD-Forge** uses it to do parse-then-traverse on uploaded JDs. The 30-second SLA is graph-mechanical: parse → walk → AI-draft only against leaves needing rotation → SME-validate → ship.
+- **Stack-Vault** customers get a _private overlay_ — their own subtree forks where the customer's tech stack diverges from canonical (e.g., Bosch's embedded automotive stack adds nodes that aren't in the shared graph). The overlay is exclusive per Constitution SO-10; it doesn't appear in any other Stack-Vault or in shared ReadyBank.
+
+Without a single normalized graph, you'd build three different content models — one per SKU — and they'd drift. The graph is the unifier.
+
+## M3 vs M12 trajectory
+
+We track the graph's growth as a leading indicator. At M0 (April 2026) the graph had ~200 leaves with 530 validated questions hanging off them. At M3 (July 2026) the target is 5,000 questions across 800 leaves. At M12 the target is 40,000+ questions across ~3,500 leaves spanning General Tech, India Stack, and AI-era role families.
+
+The growth isn't proportional — early waves bias toward depth (filling out high-traffic leaves with many calibrated questions), later waves bias toward breadth (adding new role families like AIPE, embedded automotive, financial services). Wave 2 already added Salesforce CPQ, SAP ABAP, Oracle HCM Cloud, Finacle/Flexcube and Embedded Automotive — leaves that didn't exist in Wave 1.
+
+What this means in practice: when a customer asks "do you cover X?" the answer is binary at the leaf. Either the leaf exists and there are calibrated questions on it, or the leaf is in next quarter's authoring backlog. No wishful "we have Java content."
+
 ---
 
 _See it work: [ReadyBank deep-dive](/features/readybank) · [JD-Forge](/features/jd-forge) · [Stack-Vault](/features/stack-vault)_

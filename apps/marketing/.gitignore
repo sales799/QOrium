@@ -5,3 +5,8 @@ out/
 .env.*.local
 *.tsbuildinfo
 node_modules/
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/

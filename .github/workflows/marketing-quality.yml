@@ -152,3 +152,44 @@ jobs:
           path: axe-reports/
           retention-days: 14
           if-no-files-found: ignore
+
+  e2e:
+    name: Playwright E2E smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @qorium/marketing exec playwright install --with-deps chromium
+
+      - name: Build marketing app
+        env:
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        run: pnpm --filter @qorium/marketing build
+
+      - name: Run Playwright E2E
+        run: pnpm --filter @qorium/marketing test:e2e
+        env:
+          CI: 'true'
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/marketing/playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
