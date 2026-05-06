@@ -1,0 +1,69 @@
+.take-card {
+  width: min(720px, 96vw);
+}
+
+.qbody {
+  white-space: pre-wrap;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 12px 0 18px;
+  color: #e2e8f0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.options {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.option {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.option:hover {
+  border-color: #60a5fa;
+}
+
+.option.selected {
+  border-color: #2563eb;
+  background: #172554;
+}
+
+.option .letter {
+  font-weight: 700;
+  width: 1.5em;
+  flex-shrink: 0;
+}
+
+.freeform {
+  width: 100%;
+  padding: 10px 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
+
+#progress {
+  font-size: 13px;
+  color: #94a3b8;
+}

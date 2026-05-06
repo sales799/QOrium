@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Recruiter Dashboard · QOrium</title>
+    <link rel="stylesheet" href="/login.css" />
+    <link rel="stylesheet" href="/dashboard.css" />
+  </head>
+  <body class="dashboard-body">
+    <header class="topbar">
+      <div class="brand">QOrium</div>
+      <div class="who">
+        <span id="recruiter-label">…</span>
+        <button id="logout" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Sessions</h2>
+          <button id="new-session" type="button">+ New session</button>
+        </div>
+        <div id="sessions-empty" class="empty" hidden>
+          No sessions yet. Click "New session" to invite a candidate.
+        </div>
+        <table id="sessions-table" class="sessions" hidden>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Status</th>
+              <th>Progress</th>
+              <th>Score</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="sessions-tbody"></tbody>
+        </table>
+      </section>
+
+      <p id="error" class="error" role="alert" hidden></p>
+    </main>
+
+    <dialog id="new-session-dialog">
+      <form id="new-session-form" method="dialog">
+        <h2>Invite candidate</h2>
+
+        <label for="ns-pack">Pack ID</label>
+        <input id="ns-pack" name="pack_id" type="text" required pattern="^[0-9a-fA-F-]{36}$" />
+
+        <label for="ns-email">Candidate email</label>
+        <input id="ns-email" name="candidate_email" type="email" required />
+
+        <label for="ns-name">Candidate name (optional)</label>
+        <input id="ns-name" name="candidate_name" type="text" />
+
+        <div class="buttons">
+          <button type="button" id="ns-cancel">Cancel</button>
+          <button type="submit" id="ns-submit">Create</button>
+        </div>
+
+        <p id="ns-error" class="error" role="alert" hidden></p>
+      </form>
+    </dialog>
+
+    <dialog id="result-dialog">
+      <article>
+        <h2 id="result-title">Result</h2>
+        <pre id="result-body" class="qbody"></pre>
+        <div class="buttons">
+          <button type="button" id="result-close">Close</button>
+        </div>
+      </article>
+    </dialog>
+
+    <script src="/dashboard.js" defer></script>
+  </body>
+</html>

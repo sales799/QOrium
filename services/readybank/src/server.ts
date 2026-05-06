@@ -16,6 +16,9 @@ import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
 import { adminAuthRouter, authRouter } from './routes/auth.js';
+import { sessionsRouter } from './routes/sessions.js';
+import { takeRouter } from './routes/take.js';
+import { resultsRouter } from './routes/results.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
 
@@ -86,6 +89,26 @@ export function createServer(deps: ServerDeps): ServerHandle {
       );
     }
     app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
+
+    // Recruiter-cookie-gated APIs (Sprints 1.2/1.3/1.4) — public login is
+    // mounted above; these mount their own recruiterAuth internally so
+    // they're reachable WITHOUT the API-key gate (cookie suffices).
+    app.use('/v1', sessionsRouter({ pool: deps.pool, config: deps.config }));
+    app.use('/v1', resultsRouter({ pool: deps.pool, config: deps.config }));
+
+    // Public candidate take flow (Sprint 1.3) — token-cookie gated.
+    // Mounted at the root so /take/:token and /api/* are reachable without
+    // any /v1 prefix; matches the dashboard spec.
+    app.use(takeRouter({ pool: deps.pool, config: deps.config }));
+
+    // /recruiter/* → dashboard.html (the single-page app). The dashboard's
+    // own JS calls /v1/auth/whoami to verify the cookie and redirects to
+    // /login.html on 401.
+    app.get(/^\/recruiter(\/.*)?$/, (_req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'), (err) => {
+        if (err) res.status(404).type('text/plain').send('Recruiter dashboard not found.');
+      });
+    });
 
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
 

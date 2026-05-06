@@ -639,3 +639,81 @@ These belong to other sprints / SMEs and are NOT regressions:
   to use the canonical `**answer_key:**` field OR extend the parser to
   recognise `**solution:**` / `**reference_solution:**` synonyms (cheap
   follow-up; not in this PR's scope).
+
+---
+
+## 2026-05-06 — Sprints 1.2 + 1.3 + 1.4 + 1.5 closure
+
+Founder gave auto-mode authorisation to land all four sprints in one run.
+Single PR, one squash merge.
+
+### Sprint line-item status — final
+
+| #   | Sprint                                                | Status                                 |
+| --- | ----------------------------------------------------- | -------------------------------------- |
+| 1.0 | Customer Zero Day-1 — 7/7                             | ✅ already DONE                        |
+| 1.1 | QA pipeline plumbing (anti-leak / IRT / plagiarism)   | ⏳ deferred (focused run)              |
+| 1.2 | `/v1/results` + Watermark Engine v0                   | ✅ shipped                             |
+| 1.3 | End-to-end candidate take flow                        | ✅ shipped                             |
+| 1.4 | Recruiter session CRUD                                | ✅ shipped                             |
+| 1.5 | Recruiter dashboard SPA                               | ✅ shipped                             |
+| 1.6 | JWT auth + invitations + ingest + OHCM 60/60 + Wave-3 | ✅ already DONE                        |
+| 1.7 | SES + DKIM/SPF/DMARC + SAML/SSO                       | ⏳ DNS / spec — partial; founder-owned |
+
+### What landed
+
+- **Migration `0003_sessions.sql`** — `app.sessions` table (pack_id, recruiter_id,
+  tenant_id, candidate email/name, public_token_hash, status state-machine,
+  current_question_index, answers JSONB, score_total/max, watermark_salt,
+  expires_at, lifecycle timestamps). Token discipline matches invitations:
+  SHA-256 of plaintext stored, plaintext returned exactly once.
+- **`services/readybank/src/repositories/sessions.ts`** — CRUD + `recordAnswerAndAdvance`
+  with row-level locking so two concurrent submits can't double-advance.
+- **`services/readybank/src/middleware/take-auth.ts`** — `qor_take` HttpOnly +
+  Secure (prod) + SameSite=Strict + Path=/ cookie. Strict (not Lax) blocks
+  cross-site CSRF on /api/answer.
+- **`services/readybank/src/watermark.ts`** — Watermark Engine v0:
+  HMAC-SHA256(session_salt, question_id) → 8-char hex. Embedded as
+  `<!-- qor-wm:XXXX -->` in every question body the candidate sees. Audit
+  anchor; v1 (Sprint 4) layers synonym/distractor variants on top.
+- **`services/readybank/src/routes/sessions.ts`** — recruiter-cookie-gated:
+  `POST /v1/sessions`, `GET /v1/sessions`, `GET /v1/sessions/:id`,
+  `POST /v1/sessions/:id/revoke`. Tenant isolation enforced on pack lookup.
+  All audit-logged via `recordAuditEvent`.
+- **`services/readybank/src/routes/take.ts`** — public candidate flow:
+  `GET /take/:token` (lands, sets cookie, serves take.html),
+  `GET /api/state` (current question + progress),
+  `POST /api/answer` (records + advances + scores),
+  `GET /result` (final summary). Out-of-sequence answers return 409.
+- **`services/readybank/src/routes/results.ts`** — recruiter-side
+  `GET /v1/results/:id` with content negotiation (JSON or HTML detail page).
+- **`services/readybank/public/take.{html,js,css}`** — minimal candidate UI:
+  question body + MCQ button options OR freeform textarea, server-driven
+  state machine, post → re-render.
+- **`services/readybank/public/dashboard.{html,js,css}`** — recruiter SPA
+  backed by the JWT cookie (replaces the legacy sessionStorage pattern).
+  Lists sessions, creates new sessions (modal), revokes, views results.
+  Mounted via `/recruiter/*` Express route → serves `dashboard.html`.
+
+### Verified
+
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` — green
+- `pnpm test` — readybank: **78 passed / 21 skipped** (was 69; +9 sessions tests)
+  - 9 new tests cover: create session, cross-tenant pack 404, list, revoke,
+    full take flow E2E (state → answer correct → answer wrong → completed →
+    /result → /v1/results/:id), out-of-sequence 409, missing-cookie 401,
+    /recruiter/ dashboard route, watermark engine determinism.
+- `@qorium/auth` 26/26
+- `pnpm build` clean
+
+### v0 caveats called out for later
+
+- **Scoring** — v0 grades MCQ/MSQ/SJT-MCQ only by leading-letter match. Code,
+  design-essay, case-study, freeform: stored, marked `is_correct=null`,
+  ungraded toward total. Sprint 1.1 (IRT calibration) + Sprint 4 (Anti-Leak +
+  rubric grading) refine this.
+- **Watermark v0** — comment anchor only; doesn't yet substitute synonyms or
+  shuffle distractors. Sprint 4 (Anti-Leak Engine v0 per design doc) layers
+  variants ON TOP. v0 anchor stays as audit trail.
+- **No real-time progress for recruiter** — dashboard polls on action; no
+  WebSocket push. Acceptable for v0; revisit after Customer Zero scale data.

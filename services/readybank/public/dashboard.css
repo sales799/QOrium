@@ -1,0 +1,138 @@
+.dashboard-body {
+  display: block;
+  padding: 0;
+  background: #0f172a;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid #1e293b;
+  color: #e2e8f0;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.who {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.who #recruiter-label {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.who button {
+  margin: 0;
+  width: auto;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.dashboard-main {
+  max-width: 1080px;
+  margin: 24px auto;
+  padding: 0 24px 48px;
+}
+
+.panel {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #e2e8f0;
+}
+
+.panel-head button {
+  margin: 0;
+  width: auto;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.empty {
+  color: #94a3b8;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.sessions {
+  width: 100%;
+  border-collapse: collapse;
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.sessions th,
+.sessions td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #334155;
+  vertical-align: top;
+}
+
+.sessions th {
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.row-actions button {
+  margin: 0;
+  width: auto;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+dialog {
+  border: none;
+  border-radius: 12px;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 24px;
+  width: min(440px, 92vw);
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+dialog h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.buttons button {
+  margin: 0;
+  width: auto;
+  padding: 8px 14px;
+  font-size: 13px;
+}

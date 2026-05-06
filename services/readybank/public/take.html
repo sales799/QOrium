@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>QOrium Assessment</title>
+    <link rel="stylesheet" href="/login.css" />
+    <link rel="stylesheet" href="/take.css" />
+  </head>
+  <body>
+    <main id="root" class="card take-card">
+      <h1 id="title">QOrium Assessment</h1>
+      <p id="progress" class="lede">Loading…</p>
+      <article id="question" hidden>
+        <div id="body" class="qbody"></div>
+        <ol id="options" class="options"></ol>
+        <textarea
+          id="freeform"
+          class="freeform"
+          hidden
+          rows="6"
+          placeholder="Your answer"
+        ></textarea>
+        <button id="submit" type="button">Submit answer</button>
+        <p id="error" class="error" role="alert" hidden></p>
+      </article>
+      <article id="done" hidden>
+        <h2>All done.</h2>
+        <p id="score"></p>
+        <p>Your responses have been submitted to the recruiter.</p>
+      </article>
+    </main>
+    <script src="/take.js" defer></script>
+  </body>
+</html>
