@@ -444,3 +444,37 @@ chained it before `typecheck` and `test`. Fixes CI for all future PRs too.
 - Recruiter dashboard beyond `login.html`
 - CSRF tokens for state-changing recruiter writes
 - Password reset / email verification flow
+
+---
+
+## 2026-05-06 — Customer Zero Day-1 Launch ✅ 7/7 GREEN
+
+PR #12 squash-merged to `main` as `29ff865` — Sprint 1.6 unlocked the final
+gate. Talpro Customer Zero Day-1 launch state:
+
+| #   | Gate                                | Status                                   |
+| --- | ----------------------------------- | ---------------------------------------- |
+| 1   | ReadyBank API alpha shipped to main | ✅                                       |
+| 2   | Public HTTPS                        | ✅                                       |
+| 3   | API key #001 minted                 | ✅                                       |
+| 4   | Seed pack ingested                  | ✅                                       |
+| 5   | Synthetic candidate scored          | ✅                                       |
+| 6   | Sprint 1.6 (recruiter JWT) merged   | ✅ #12                                   |
+| 7   | First REAL Talpro candidate run     | 🔓 unlocked — handoff to Talpro Delivery |
+
+Gate 7 is now unblocked: a real recruiter can sign in via `login.html`,
+generate a pack, and run a candidate end-to-end. The recruiter persona no
+longer ships an API key in the browser — sessionStorage replaced by the
+`HttpOnly; Secure; SameSite=Lax` `qor_session` cookie with an 8-hour sliding
+window and per-account 5-fail lockout.
+
+### Bridge Protocol — Stream B handoff
+
+Stream B should pick up next 1–2 runs:
+
+- Recruiter dashboard pages beyond `login.html`
+- CSRF tokens for state-changing recruiter writes (login/logout/whoami are
+  safe today via SameSite=Lax + JSON-only Content-Type, but pack-write
+  endpoints need explicit double-submit or origin checks)
+- Password reset + email verification flow
+- Migration `0003_*.sql` slot (still reserved for Stream B per spec)
