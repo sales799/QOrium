@@ -1,0 +1,26 @@
+{
+  "name": "@qorium/leak-rotation-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QOrium leak-rotation worker — enforces SO-9 (24h Critical, 7d High) by reading content.leak_alerts and flipping affected content.questions to 'leaked' + deprecated_at when the rotation SLA elapses.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@qorium/audit-emitter": "workspace:*",
+    "@qorium/db": "workspace:*",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

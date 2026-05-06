@@ -37,7 +37,7 @@ module.exports = {
      */
     {
       name: 'qorium-api',
-      script: './dist/api/server.js',
+      script: './services/readybank/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5101,
@@ -100,7 +100,7 @@ module.exports = {
      */
     {
       name: 'qorium-jd-forge',
-      script: './dist/jd-forge/server.js',
+      script: './services/jd-forge/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5102,
@@ -154,7 +154,7 @@ module.exports = {
      */
     {
       name: 'qorium-stack-vault',
-      script: './dist/stack-vault/server.js',
+      script: './services/stack-vault/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5103,
@@ -197,7 +197,7 @@ module.exports = {
      * =====================================================================
      * Purpose: Next.js admin web app (SME review, customer management)
      * Mode: Cluster (multiple instances)
-     * Port: 5104 (reverse-proxied via Nginx :443 as admin.qorium.io)
+     * Port: 5104 (reverse-proxied via Nginx :443 as admin.qorium.online)
      *
      * Watchdog health check:
      *   talpro_watchdog_add \
@@ -207,8 +207,8 @@ module.exports = {
      */
     {
       name: 'qorium-admin',
-      script: './node_modules/.bin/next',
-      args: 'start',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5104',
       cwd: './apps/admin',
       instances: 2,
       exec_mode: 'cluster',
@@ -230,7 +230,7 @@ module.exports = {
         SERVICE_NAME: 'qorium-admin',
         DATABASE_URL: process.env.DATABASE_URL_PROD,
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-        NEXTAUTH_URL: 'https://admin.qorium.io',
+        NEXTAUTH_URL: 'https://admin.qorium.online',
         SENTRY_DSN: process.env.SENTRY_DSN,
         LOG_LEVEL: 'info',
       },
@@ -262,7 +262,7 @@ module.exports = {
      */
     {
       name: 'qorium-leak-crawler',
-      script: './dist/workers/anti-leak-crawler.js',
+      script: './services/leak-crawler/dist/index.js',
       instances: 1,
       exec_mode: 'fork',
 
@@ -299,6 +299,869 @@ module.exports = {
       error_file: '/var/log/pm2/qorium-leak-crawler-err.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
+
+    /**
+     * =====================================================================
+     * IRT CALIBRATION PIPELINE (Fork Mode + Daily Cron)
+     * =====================================================================
+     * Purpose: Nightly 2PL/3PL Item Response Theory parameter estimation
+     *   - Loads questions in `calibrating` status with N >= 30 responses
+     *   - Fits (a, b) via Newton-Raphson MLE; c per format default
+     *   - Detects parameter drift; transitions to `released` or `sme_review`
+     *   - Audits every fit attempt to content.calibration_history
+     *
+     * Mode: Fork (single instance; CPU-bound numerical job)
+     * Port: None (internal)
+     * Schedule: Cron — daily restart at 03:00 IST, after the leak crawler
+     *
+     * Spec: infra/IRT-Calibration-Pipeline-v0-Spec.md (CTO Office, 2026-05-02)
+     * Constitutional gate: SO-21 (IRT mandatory before release)
+     *
+     * NOTE: This entry was added by Sprint 1.5 (Stream B autonomous build).
+     * Logged as infra/CTO-deltas/CTO-DELTA-b10-irt-calibration-entry.md.
+     */
+    {
+      name: 'qorium-irt-calibration',
+      script: './services/irt-calibration/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '1024M',
+      exp_backoff_restart_delay: 500,
+
+      // Cold restart daily at 03:00 IST (21:30 UTC) — after leak crawler @ 02:00
+      cron_restart: '0 3 * * *',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-irt-calibration',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-irt-calibration',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+        IRT_MIN_RESPONSES: '30',
+        IRT_MAX_QUESTIONS_PER_RUN: '1000',
+        IRT_MAX_ITERATIONS: '50',
+      },
+
+      out_file: '/var/log/pm2/qorium-irt-calibration-out.log',
+      error_file: '/var/log/pm2/qorium-irt-calibration-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
+     * JUDGE0 ORCHESTRATOR (Fork Mode)
+     * =====================================================================
+     * Purpose: Sandboxed code execution for coding questions (12 langs +
+     *   Apex deferred to v0.1)
+     * Mode: Fork (single instance; manages execution + scoring + persistence)
+     * Port: 5108 (internal healthcheck only; not exposed via Nginx)
+     *
+     * Spec: infra/Judge0-Sandbox-Integration-Spec-v0.md (CTO Office, 2026-05-02)
+     *
+     * v0 deferrals (logged):
+     *   - infra/CTO-deltas/CTO-DELTA-judge0-bullmq-deferred.md
+     *     (Postgres polling now; BullMQ in Sprint ≥1.7)
+     *   - infra/CTO-deltas/CTO-DELTA-judge0-apex-deferred.md
+     *     (Salesforce CLI path defers to v0.1 when Wave 2 needs Apex)
+     */
+    {
+      name: 'qorium-judge0-orchestrator',
+      script: './services/judge0-orchestrator/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '768M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-judge0-orchestrator',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-judge0-orchestrator',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        JUDGE0_URL: process.env.JUDGE0_URL,
+        JUDGE0_AUTH_TOKEN: process.env.JUDGE0_AUTH_TOKEN,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+        JUDGE0_POLL_INTERVAL_MS: '500',
+        JUDGE0_POLL_TIMEOUT_MS: '60000',
+        JUDGE0_MAX_RESPONSES_PER_RUN: '100',
+      },
+
+      out_file: '/var/log/pm2/qorium-judge0-orchestrator-out.log',
+      error_file: '/var/log/pm2/qorium-judge0-orchestrator-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
+     * TESTFORGE QA PIPELINE ORCHESTRATOR (Fork Mode)
+     * =====================================================================
+     * Purpose: Coordinator for the 6 QA gates (SME validation,
+     *   pre-calibration prior, IRT calibration, bias DIF, anti-leak,
+     *   plagiarism benchmark, quality scorecard) per
+     *   governance/TestForge-QA-Pipeline-v1.md.
+     *
+     * Mode: Fork (single instance; coordinator + plagiarism detector
+     *   co-located; see CTO-DELTA-testforge-plagiarism-detector-colocated.md)
+     * Port: 5110 (internal healthcheck only; not exposed via Nginx)
+     *
+     * Spec: governance/TestForge-QA-Pipeline-v1.md
+     * Constitutional gates: SO-22 (AI plagiarism ≥93% public benchmark),
+     *   Article VII Quality Gate (auto-fail on benchmark <93%).
+     */
+    {
+      name: 'qorium-testforge-orchestrator',
+      script: './services/testforge-orchestrator/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '768M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-testforge-orchestrator',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-testforge-orchestrator',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+        TESTFORGE_MAX_ITEMS_PER_RUN: '500',
+      },
+
+      out_file: '/var/log/pm2/qorium-testforge-orchestrator-out.log',
+      error_file: '/var/log/pm2/qorium-testforge-orchestrator-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
+     * WEBHOOKS SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: Outbound webhook subscriptions + signed delivery
+     * Mode: Cluster (CRUD plane stateless; delivery worker is fork mode +
+     *   BullMQ in v1, deferred per
+     *   infra/CTO-deltas/CTO-DELTA-webhooks-bullmq-deferred.md)
+     * Port: 5106
+     * Spec: infra/Webhooks-Service-v0-Spec.md
+     */
+    {
+      name: 'qorium-webhooks',
+      script: './services/webhooks/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5106,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        WEBHOOKS_PORT: 5106,
+        SERVICE_NAME: 'qorium-webhooks',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        WEBHOOKS_PORT: 5106,
+        SERVICE_NAME: 'qorium-webhooks',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        REDIS_URL: 'redis://localhost:6379',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-webhooks-out.log',
+      error_file: '/var/log/pm2/qorium-webhooks-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * SSO SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: SAML 2.0 + OIDC enterprise authentication
+     * Mode: Cluster (stateless; JWT-only sessions in v0)
+     * Port: 5107
+     * Spec: infra/SSO-SAML-Enterprise-Spec-v0.md
+     * Deferred: live IdP wire-up + RS256 KMS keys per
+     *   infra/CTO-deltas/CTO-DELTA-sso-idp-credentials-deferred.md
+     */
+    {
+      name: 'qorium-sso',
+      script: './services/sso/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5107,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        SSO_PORT: 5107,
+        SERVICE_NAME: 'qorium-sso',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SSO_PORT: 5107,
+        SERVICE_NAME: 'qorium-sso',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SSO_JWT_SIGNING_SECRET: process.env.SSO_JWT_SIGNING_SECRET,
+        SSO_BASE_URL: 'https://api.qorium.online',
+        SSO_JWT_AUDIENCE: 'https://app.qorium.online',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-sso-out.log',
+      error_file: '/var/log/pm2/qorium-sso-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * AUDIT LOG SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: Tenant-scoped read API for audit.events
+     * Mode: Cluster (read-only; bulk export deferred per
+     *   infra/CTO-deltas/CTO-DELTA-audit-log-naming.md)
+     * Port: 5111
+     * Spec: infra/Audit-Log-API-Spec-v0.md
+     */
+    {
+      name: 'qorium-audit-log',
+      script: './services/audit-log/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5111,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        AUDIT_LOG_PORT: 5111,
+        SERVICE_NAME: 'qorium-audit-log',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        AUDIT_LOG_PORT: 5111,
+        SERVICE_NAME: 'qorium-audit-log',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-audit-log-out.log',
+      error_file: '/var/log/pm2/qorium-audit-log-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * BILLING SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: Subscriptions + invoices + Razorpay webhooks
+     * Mode: Cluster (2 instances)
+     * Port: 5112
+     * Spec: infra/Billing-Service-v0-Spec.md
+     * Razorpay live wire-up deferred per CTO-DELTA #24.
+     */
+    {
+      name: 'qorium-billing',
+      script: './services/billing/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5112,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        BILLING_PORT: 5112,
+        SERVICE_NAME: 'qorium-billing',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        BILLING_PORT: 5112,
+        SERVICE_NAME: 'qorium-billing',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+        RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
+        BILLING_DEFAULT_GST_BPS: '1800',
+        BILLING_DEFAULT_CURRENCY: 'INR',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-billing-out.log',
+      error_file: '/var/log/pm2/qorium-billing-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * API KEY MANAGEMENT (Cluster Mode)
+     * =====================================================================
+     * Purpose: Issue/revoke/rotate API keys; expose scope catalogue
+     * Mode: Cluster (2 instances; stateless once pepper resolved)
+     * Port: 5113
+     * Spec: infra/D3-Talpro-Internal-API-Key-Spec.md
+     */
+    {
+      name: 'qorium-api-key-mgmt',
+      script: './services/api-key-mgmt/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5113,
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        API_KEY_MGMT_PORT: 5113,
+        SERVICE_NAME: 'qorium-api-key-mgmt',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        API_KEY_MGMT_PORT: 5113,
+        SERVICE_NAME: 'qorium-api-key-mgmt',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        API_KEY_PEPPER: process.env.API_KEY_PEPPER,
+        API_KEY_CUSTOMER_ROTATION_DAYS: '365',
+        API_KEY_INTERNAL_ROTATION_DAYS: '180',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-api-key-mgmt-out.log',
+      error_file: '/var/log/pm2/qorium-api-key-mgmt-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * SECRET ROTATION WORKER (Fork Mode + 6h tick)
+     * =====================================================================
+     */
+    {
+      name: 'qorium-secret-rotation',
+      script: './services/secret-rotation-worker/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-secret-rotation',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-secret-rotation',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SECRET_ROTATION_LOOK_AHEAD_DAYS: '14',
+        SECRET_ROTATION_PERFORM: 'false',
+        SECRET_ROTATION_TICK_INTERVAL_MS: String(6 * 3_600_000),
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-secret-rotation-out.log',
+      error_file: '/var/log/pm2/qorium-secret-rotation-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
+     * WEBHOOKS DELIVERY WORKER (Fork Mode + 5s tick)
+     * =====================================================================
+     * Purpose: Drains webhooks.deliveries with the spec §6 retry curve.
+     * Posts via real fetch in production; stub in staging by default.
+     * Mode: Fork (single instance to keep delivery serialised per row).
+     */
+    {
+      name: 'qorium-webhooks-delivery-worker',
+      script: './services/webhooks-delivery-worker/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '30s',
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-webhooks-delivery-worker',
+        WEBHOOKS_DELIVERY_REAL_POSTER: 'false',
+        WEBHOOKS_DELIVERY_TICK_MS: '5000',
+        WEBHOOKS_DELIVERY_BATCH_SIZE: '50',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-webhooks-delivery-worker',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        WEBHOOKS_DELIVERY_REAL_POSTER: 'true',
+        WEBHOOKS_DELIVERY_TICK_MS: '5000',
+        WEBHOOKS_DELIVERY_BATCH_SIZE: '100',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-webhooks-delivery-worker-out.log',
+      error_file: '/var/log/pm2/qorium-webhooks-delivery-worker-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    },
+
+    /**
+     * =====================================================================
+     * UPTIME MONITOR (Cluster Mode)
+     * =====================================================================
+     */
+    {
+      name: 'qorium-uptime-monitor',
+      script: './services/uptime-monitor/dist/index.js',
+      instances: 1,
+      exec_mode: 'cluster',
+      port: 5114,
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        UPTIME_PORT: 5114,
+        UPTIME_TICK_INTERVAL_MS: '60000',
+        SERVICE_NAME: 'qorium-uptime-monitor',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        UPTIME_PORT: 5114,
+        UPTIME_TICK_INTERVAL_MS: '60000',
+        SERVICE_NAME: 'qorium-uptime-monitor',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-uptime-monitor-out.log',
+      error_file: '/var/log/pm2/qorium-uptime-monitor-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * SETU — AUTO-DEPLOYMENT BRIDGE (Cluster Mode)
+     * =====================================================================
+     * Purpose: GitHub push webhook receiver + status JSON for the
+     *   external QOrium Live Progress Dashboard MCP.
+     * Mode: Cluster (1 instance to keep in-memory deploy history coherent)
+     * Port: 5117
+     * Spec: infra/CTO-deltas/CTO-DELTA-setu-auto-deploy.md
+     * Bootstrap halt: CEO must set SETU_WEBHOOK_SECRET +
+     *   SETU_DEPLOY_ENABLED=true on the VPS before auto-deploy fires.
+     */
+    {
+      name: 'qorium-setu',
+      script: './services/setu/dist/index.js',
+      instances: 1,
+      exec_mode: 'cluster',
+      port: 5117,
+
+      max_memory_restart: '256M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        SETU_PORT: 5117,
+        SETU_DEPLOY_ENABLED: 'false',
+        SERVICE_NAME: 'qorium-setu',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SETU_PORT: 5117,
+        SETU_DEPLOY_ENABLED: 'true',
+        SETU_WEBHOOK_SECRET: process.env.SETU_WEBHOOK_SECRET,
+        SETU_MANUAL_DEPLOY_TOKEN: process.env.SETU_MANUAL_DEPLOY_TOKEN,
+        SETU_REPO_ROOT: '/opt/qorium',
+        SETU_DEPLOY_SCRIPT_PATH: '/opt/qorium/services/setu/bin/setu-deploy.sh',
+        SERVICE_NAME: 'qorium-setu',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-setu-out.log',
+      error_file: '/var/log/pm2/qorium-setu-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * AI PAIR-CODING ORCHESTRATOR (Cluster Mode)
+     * =====================================================================
+     * Purpose: Wave 3 AI pair-coding session orchestrator + 6-dim grader
+     * Mode: Cluster (stateless; sessions persisted to Postgres)
+     * Port: 5115 (spec called for 5111 but that's audit-log per CTO-DELTA #28)
+     * Spec: infra/Wave-3-AI-Pair-Coding-Format-Prototype-Spec-v0.md
+     * Anthropic live wire-up deferred per CTO-DELTA #29.
+     */
+    {
+      name: 'qorium-ai-pair-coding-orchestrator',
+      script: './services/ai-pair-coding-orchestrator/dist/index.js',
+      instances: 1,
+      exec_mode: 'cluster',
+      port: 5115,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        AI_PAIR_CODING_PORT: 5115,
+        SERVICE_NAME: 'qorium-ai-pair-coding-orchestrator',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        AI_PAIR_CODING_PORT: 5115,
+        SERVICE_NAME: 'qorium-ai-pair-coding-orchestrator',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-ai-pair-coding-out.log',
+      error_file: '/var/log/pm2/qorium-ai-pair-coding-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * ATS BRIDGE SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: ATS webhook receiver + adapter dispatch (Greenhouse,
+     *          Ashby, Darwinbox, Workday — Constitution Article IX
+     *          M9 phase gate requires all 4 active).
+     * Mode: Cluster (2 instances)
+     * Port: 5105
+     */
+    {
+      name: 'qorium-ats-bridge',
+      script: './services/ats-bridge/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5105,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5105,
+        SERVICE_NAME: 'qorium-ats-bridge',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5105,
+        SERVICE_NAME: 'qorium-ats-bridge',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-ats-bridge-out.log',
+      error_file: '/var/log/pm2/qorium-ats-bridge-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * DOCS SITE (Next.js, Cluster Mode)
+     * =====================================================================
+     * Purpose: Public API documentation at docs.qorium.online
+     * Mode: Cluster (2 instances)
+     * Port: 5108
+     */
+    {
+      name: 'qorium-docs',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5108',
+      cwd: './apps/docs',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5108,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5108,
+        SERVICE_NAME: 'qorium-docs',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5108,
+        SERVICE_NAME: 'qorium-docs',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-docs-out.log',
+      error_file: '/var/log/pm2/qorium-docs-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * CANDIDATE PORTAL (Next.js, Cluster Mode)
+     * =====================================================================
+     * Purpose: Wave 3 AI pair-coding candidate UX at candidate.qorium.online
+     * Mode: Cluster (2 instances)
+     * Port: 5116
+     */
+    {
+      name: 'qorium-candidate-portal',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5116',
+      cwd: './apps/candidate-portal',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5116,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5116,
+        SERVICE_NAME: 'qorium-candidate-portal',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5116,
+        SERVICE_NAME: 'qorium-candidate-portal',
+        QORIUM_API_BASE: 'https://api.qorium.online',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-candidate-portal-out.log',
+      error_file: '/var/log/pm2/qorium-candidate-portal-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * LEAK ROTATION WORKER (Fork Mode)
+     * =====================================================================
+     * Purpose: SO-9 enforcement — scan content.leak_alerts on a 5-minute
+     *          tick; rotate questions whose Critical leak is past 24h
+     *          or High leak past 7d. Audit-emit each rotation.
+     * Mode: Fork (single instance; cron-driven internally)
+     * Port: None (internal, not exposed)
+     */
+    {
+      name: 'qorium-leak-rotation',
+      script: './services/leak-rotation-worker/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-leak-rotation',
+        LEAK_ROTATION_TICK_MS: 300000,
+        LEAK_ROTATION_SCAN_LIMIT: 200,
+        LEAK_ROTATION_CONFIDENCE_FLOOR: 0.85,
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-leak-rotation',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        LEAK_ROTATION_TICK_MS: 300000,
+        LEAK_ROTATION_SCAN_LIMIT: 200,
+        LEAK_ROTATION_CONFIDENCE_FLOOR: 0.85,
+        AUDIT_LOG_BASE_URL: 'http://127.0.0.1:5111',
+        AUDIT_LOG_ADMIN_TOKEN: process.env.AUDIT_LOG_ADMIN_TOKEN,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-leak-rotation-out.log',
+      error_file: '/var/log/pm2/qorium-leak-rotation-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * CUSTOMER PORTAL — apps/my (Next.js, Cluster Mode)
+     * =====================================================================
+     * Purpose: Self-service customer portal at my.qorium.online
+     *          (invoices + subscriptions + API keys).
+     * Mode: Cluster (2 instances)
+     * Port: 5118
+     */
+    {
+      name: 'qorium-my',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5118',
+      cwd: './apps/my',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5118,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5118,
+        SERVICE_NAME: 'qorium-my',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5118,
+        SERVICE_NAME: 'qorium-my',
+        QORIUM_API_BASE: 'https://api.qorium.online',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-my-out.log',
+      error_file: '/var/log/pm2/qorium-my-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
   ],
 
   // ========================================================================
@@ -307,7 +1170,7 @@ module.exports = {
   deploy: {
     production: {
       user: 'node',
-      host: 'api.qorium.io',
+      host: 'api.qorium.online',
       ref: 'origin/main',
       repo: 'git@github.com:qorium/qorium-platform.git',
       path: '/opt/qorium',
@@ -322,7 +1185,7 @@ module.exports = {
 
     staging: {
       user: 'node',
-      host: 'staging.qorium.io',
+      host: 'staging.qorium.online',
       ref: 'origin/main',
       repo: 'git@github.com:qorium/qorium-platform.git',
       path: '/opt/qorium-staging',

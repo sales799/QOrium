@@ -13,7 +13,7 @@ export interface ProblemDetails {
   [key: string]: unknown;
 }
 
-const PROBLEM_TYPE_BASE = 'https://qorium.io/problems/';
+const PROBLEM_TYPE_BASE = 'https://qorium.online/problems/';
 
 export class HttpProblem extends Error {
   readonly status: number;

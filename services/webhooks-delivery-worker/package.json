@@ -1,0 +1,26 @@
+{
+  "name": "@qorium/webhooks-delivery-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QOrium webhooks delivery worker per infra/Webhooks-Service-v0-Spec.md §6 + §7. PM2 fork; 5s tick; drains webhooks.deliveries with the Sprint 2.3 retry curve. Stub HTTP poster for dev; real fetch() in production.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@qorium/db": "workspace:*",
+    "@qorium/webhooks": "workspace:*",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

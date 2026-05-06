@@ -9,9 +9,24 @@ Cowork session and will be pushed into this repo. Code lives here.
 
 ## Status
 
-Sprint 0 (bounded): monorepo bootstrap + dev orchestration. See
-[`_QORIUM_BUILD_LOG.md`](./_QORIUM_BUILD_LOG.md) for what's shipped, what's
-in progress, and what's blocked on Cowork pushing the binding specs.
+**Phase 1 Engine MVP — feature-complete (Sprints 1.1 → 1.8)**. Eight
+workspaces shipped; **396 tests** active green; deployment readiness
+runner (`make ready`) gates Customer Zero activation.
+
+Live workspaces:
+
+- `services/readybank` — REST API on :5101 (Sprint 1.0)
+- `apps/admin` — Next.js 15 admin console on :5104 (Sprint 1.2 / 1.3)
+- `services/leak-crawler` — Anti-Leak Engine v0 (Sprint 1.4)
+- `services/irt-calibration` — IRT 2-PL nightly batch (Sprint 1.5)
+- `services/judge0-orchestrator` — Sandboxed code execution (Sprint 1.6)
+- `services/testforge-orchestrator` — 6-gate QA pipeline coordinator (Sprint 1.7)
+- `packages/{auth,db,smoke}` — shared toolchain
+- `infra/B7-postgres-migrations/` — 6 migrations applied (0001 → 0006)
+- `infra/B10-ecosystem.config.js` — PM2 ecosystem (8 services)
+
+See [`_QORIUM_BUILD_LOG.md`](./_QORIUM_BUILD_LOG.md) for the full sprint
+log + every CTO-DELTA filed.
 
 ## Prerequisites
 
@@ -44,15 +59,17 @@ make secrets-scan
 
 Run `make help` for the full list. Common ones:
 
-| Target           | Purpose                                 |
-| ---------------- | --------------------------------------- |
-| `make dev-up`    | Start postgres + redis + minio + judge0 |
-| `make dev-down`  | Stop infra (volumes preserved)          |
-| `make dev-reset` | Stop infra + wipe volumes (destructive) |
-| `make dev-logs`  | Tail logs from all infra services       |
-| `make typecheck` | `tsc --noEmit` across all workspaces    |
-| `make lint`      | ESLint across the repo                  |
-| `make format`    | Prettier write across the repo          |
+| Target           | Purpose                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| `make dev-up`    | Start postgres + redis + minio + judge0                     |
+| `make dev-down`  | Stop infra (volumes preserved)                              |
+| `make dev-reset` | Stop infra + wipe volumes (destructive)                     |
+| `make dev-logs`  | Tail logs from all infra services                           |
+| `make typecheck` | `tsc --noEmit` across all workspaces                        |
+| `make lint`      | ESLint across the repo                                      |
+| `make format`    | Prettier write across the repo                              |
+| `make smoke`     | Run smoke healthchecks (requires DB env)                    |
+| `make ready`     | Full deployment-readiness suite (gates Customer Zero Day-1) |
 
 ## Repo layout (target — see handoff §4)
 

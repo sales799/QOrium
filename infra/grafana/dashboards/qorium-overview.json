@@ -1,0 +1,79 @@
+{
+  "uid": "qorium-overview",
+  "title": "QOrium — Service Overview",
+  "tags": ["qorium", "v0", "overview"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Uptime (last 24h)",
+      "targets": [
+        {
+          "expr": "qorium_uptime_availability_24h",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "yellow", "value": 0.99 },
+              { "color": "green", "value": 0.999 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Service health (latest tick)",
+      "targets": [
+        {
+          "expr": "qorium_uptime_check_status",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 18, "x": 6, "y": 0 }
+    },
+    {
+      "id": 3,
+      "type": "graph",
+      "title": "Webhook delivery success rate",
+      "targets": [{ "expr": "rate(qorium_webhook_deliveries_total[5m])", "refId": "A" }],
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Billing payment failures (per hour)",
+      "targets": [{ "expr": "increase(qorium_billing_payment_failed_total[1h])", "refId": "A" }],
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 8 }
+    },
+    {
+      "id": 5,
+      "type": "graph",
+      "title": "Secret rotations overdue",
+      "targets": [{ "expr": "qorium_secret_rotations_overdue", "refId": "A" }],
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 14 }
+    },
+    {
+      "id": 6,
+      "type": "graph",
+      "title": "API key 4xx by route",
+      "targets": [
+        { "expr": "rate(qorium_http_responses_total{status=~\"4..\"}[5m])", "refId": "A" }
+      ],
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 14 }
+    }
+  ]
+}

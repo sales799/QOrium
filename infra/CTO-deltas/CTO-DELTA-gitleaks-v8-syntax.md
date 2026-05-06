@@ -2,8 +2,21 @@
 
 **Date:** 2026-05-03
 **Author:** Claude Code (parallel build session)
-**Status:** Provisional — pending CTO Office reconciliation
-**Reconcile against:** `infra/B6-gitleaks-config.yaml` (canonical, intent-of-record)
+**Status:** **RATIFIED 2026-05-03** by CTO Office (Sprint 1.1)
+**Reconcile against:** `infra/B6-gitleaks-config.yaml` (canonical, archival — intent-of-record)
+
+## Ratification (CTO Office, 2026-05-03)
+
+**Decision: `.gitleaks.toml` (v8 valid form) at the repo root is the canonical secret-scanning config.**
+
+Rationale:
+
+- B6's intent (10 custom rules + allowlist) is preserved verbatim in `.gitleaks.toml`; only the schema is corrected to gitleaks v8 syntax.
+- The original B6 yaml uses non-existent v8 sections (`[build]`, `[report]`) and top-level `exclude_paths` that v8 silently ignores — leaving the repo effectively unscanned.
+- The `.gitleaks.toml` form is what the pre-commit hook and CI actually load and enforce; without ratification, every pre-commit run was a no-op.
+- B6 yaml stays in tree at `infra/B6-gitleaks-config.yaml` as an archival "intent of record" document; future spec revisions will be authored directly in v8 toml.
+
+**Operational impact:** None. Pre-commit hook and CI already use `.gitleaks.toml`; verified clean across 9 commits at sprint close.
 
 ## Background
 

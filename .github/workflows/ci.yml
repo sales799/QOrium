@@ -154,7 +154,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: staging
-      url: https://staging.qorium.io
+      url: https://staging.qorium.online
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -173,7 +173,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://qorium.io
+      url: https://qorium.online
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4

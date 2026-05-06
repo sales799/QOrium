@@ -1,0 +1,28 @@
+{
+  "name": "@qorium/leak-crawler",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QOrium Anti-Leak Engine v0 crawler. Runs as PM2 fork-mode daily cron at 02:00 IST per infra/Anti-Leak-Engine-v0-Design.md.",
+  "main": "./dist/index.js",
+  "bin": {
+    "qorium-leak-crawler": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsx watch src/cli.ts --once",
+    "start": "node dist/cli.js --once",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@qorium/db": "workspace:*",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

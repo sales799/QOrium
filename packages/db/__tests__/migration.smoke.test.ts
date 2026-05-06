@@ -48,16 +48,51 @@ describeOrSkip('migration smoke test', () => {
     const tables = result.rows.map((r) => r.table_name);
     expect(tables).toEqual(
       expect.arrayContaining([
+        'calibration_history',
         'leak_alerts',
         'question_variants',
         'questions',
         'responses',
+        'review_decisions',
         'role_skills',
         'roles',
         'skills',
         'sub_skills',
       ]),
     );
+  });
+
+  it('content.calibration_history enforces the flag CHECK constraint', async () => {
+    await expect(
+      pool.query(
+        `INSERT INTO content.calibration_history
+           (run_id, question_id, n_responses, converged, flag)
+         VALUES (gen_random_uuid(), gen_random_uuid(), 30, true, 'definitely-not-a-flag')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0005 added sandbox_config and execution_metadata columns', async () => {
+    const cols = await pool.query<{ table_name: string; column_name: string }>(
+      `SELECT table_name, column_name
+         FROM information_schema.columns
+        WHERE table_schema = 'content'
+          AND ((table_name = 'questions' AND column_name = 'sandbox_config')
+            OR (table_name = 'responses' AND column_name = 'execution_metadata'))`,
+    );
+    const seen = cols.rows.map((r) => `${r.table_name}.${r.column_name}`);
+    expect(seen).toEqual(
+      expect.arrayContaining(['questions.sandbox_config', 'responses.execution_metadata']),
+    );
+  });
+
+  it('content.review_decisions enforces the decision CHECK constraint', async () => {
+    await expect(
+      pool.query(
+        `INSERT INTO content.review_decisions (question_id, reviewer_email, decision, prior_status, next_status)
+         VALUES (gen_random_uuid(), 'sme@qorium.test', 'maybe', 'sme_review', 'calibrating')`,
+      ),
+    ).rejects.toThrow();
   });
 
   it('has the audit.events table', async () => {
@@ -79,6 +114,218 @@ describeOrSkip('migration smoke test', () => {
     await expect(
       pool.query(
         "INSERT INTO app.users (email, name, role) VALUES ('smoke@qorium.test', 'Smoke', 'not-a-role')",
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0007 added jd_forge_orders + jd_forge_source_id', async () => {
+    const ordersExists = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app' AND table_name = 'jd_forge_orders'`,
+    );
+    expect(ordersExists.rows).toHaveLength(1);
+
+    const lineageCol = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'content' AND table_name = 'questions'
+          AND column_name = 'jd_forge_source_id'`,
+    );
+    expect(lineageCol.rows).toHaveLength(1);
+
+    await expect(
+      pool.query(
+        `INSERT INTO app.jd_forge_orders (tenant_id, tier, jd_text, jd_hash, status)
+           VALUES (gen_random_uuid(), 'gold-tier', 'jd', 'h', 'pending')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0008 added stack_vaults + stack_vault_access_log', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app'
+          AND table_name IN ('stack_vaults', 'stack_vault_access_log')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'stack_vault_access_log',
+      'stack_vaults',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO app.stack_vaults (tenant_id, tier, library_size, watermark_secret, status)
+           VALUES (gen_random_uuid(), 'platinum', 100, 'secret', 'active')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0009 added ats_integrations + webhook_log + candidate_links', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app'
+          AND table_name IN ('ats_integrations', 'ats_webhook_log', 'ats_candidate_links')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'ats_candidate_links',
+      'ats_integrations',
+      'ats_webhook_log',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO app.ats_integrations (tenant_id, ats_platform, status)
+           VALUES (gen_random_uuid(), 'taleo', 'active')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0006 added testforge_status + testforge_runs', async () => {
+    const cols = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'content' AND table_name = 'questions'
+          AND column_name IN ('testforge_status', 'testforge_last_check', 'testforge_audit')`,
+    );
+    expect(cols.rows.map((r) => r.column_name).sort()).toEqual([
+      'testforge_audit',
+      'testforge_last_check',
+      'testforge_status',
+    ]);
+
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'content' AND table_name = 'testforge_runs'`,
+    );
+    expect(tables.rows).toHaveLength(1);
+
+    await expect(
+      pool.query(
+        `INSERT INTO content.testforge_runs (run_type, status)
+           VALUES ('not-a-real-type', 'running')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0014 added content.ai_pair_coding_sessions + messages', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'content'
+          AND table_name IN ('ai_pair_coding_sessions', 'ai_pair_coding_messages')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'ai_pair_coding_messages',
+      'ai_pair_coding_sessions',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO content.ai_pair_coding_sessions
+           (candidate_id, tenant_id, status)
+           VALUES ('cand-1', gen_random_uuid(), 'made-up-status')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0013 added app.secret_rotations + secret_rotation_log', async () => {
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'app'
+          AND table_name IN ('secret_rotations', 'secret_rotation_log')
+        ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'secret_rotation_log',
+      'secret_rotations',
+    ]);
+  });
+
+  it('migration 0012 extended app.api_keys with rate-limit + rotation columns', async () => {
+    const cols = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'app' AND table_name = 'api_keys'
+          AND column_name IN ('rate_limit_per_min', 'rate_limit_burst',
+                              'rotation_due_at', 'last_rotated_at', 'metadata')`,
+    );
+    expect(cols.rows.map((r) => r.column_name).sort()).toEqual([
+      'last_rotated_at',
+      'metadata',
+      'rate_limit_burst',
+      'rate_limit_per_min',
+      'rotation_due_at',
+    ]);
+  });
+
+  it('migration 0011 added billing schema with 6 tables', async () => {
+    const schemas = await pool.query<{ schema_name: string }>(
+      "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'billing'",
+    );
+    expect(schemas.rows).toHaveLength(1);
+
+    const tables = await pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'billing' ORDER BY table_name`,
+    );
+    expect(tables.rows.map((r) => r.table_name)).toEqual([
+      'customers',
+      'invoices',
+      'line_items',
+      'payments',
+      'subscriptions',
+      'usage_records',
+    ]);
+
+    await expect(
+      pool.query(
+        `INSERT INTO billing.subscriptions (customer_id, sku, tier, unit_amount_cents, current_period_start, current_period_end)
+           VALUES (gen_random_uuid(), 'fake-sku', 'tier_1', 1000, NOW(), NOW())`,
+      ),
+    ).rejects.toThrow();
+
+    await expect(
+      pool.query(
+        `INSERT INTO billing.invoices (customer_id, invoice_number, subtotal_cents, total_cents, status)
+           VALUES (gen_random_uuid(), 'INV-2026-99999', 1000, 1000, 'not-a-status')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('migration 0010 added webhooks + sso schemas + audit.events.tenant_id', async () => {
+    const schemas = await pool.query<{ schema_name: string }>(
+      "SELECT schema_name FROM information_schema.schemata WHERE schema_name IN ('webhooks', 'sso') ORDER BY schema_name",
+    );
+    expect(schemas.rows.map((r) => r.schema_name)).toEqual(['sso', 'webhooks']);
+
+    const tables = await pool.query<{ table_schema: string; table_name: string }>(
+      `SELECT table_schema, table_name FROM information_schema.tables
+        WHERE table_schema IN ('webhooks', 'sso')
+        ORDER BY table_schema, table_name`,
+    );
+    expect(tables.rows.map((r) => `${r.table_schema}.${r.table_name}`)).toEqual([
+      'sso.configurations',
+      'webhooks.deliveries',
+      'webhooks.events',
+      'webhooks.subscriptions',
+    ]);
+
+    const tenantCol = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'audit' AND table_name = 'events' AND column_name = 'tenant_id'`,
+    );
+    expect(tenantCol.rows).toHaveLength(1);
+
+    await expect(
+      pool.query(
+        `INSERT INTO webhooks.deliveries (event_id, subscription_id, status)
+           VALUES (gen_random_uuid(), gen_random_uuid(), 'not-a-status')`,
+      ),
+    ).rejects.toThrow();
+
+    await expect(
+      pool.query(
+        `INSERT INTO sso.configurations (tenant_id, protocol)
+           VALUES (gen_random_uuid(), 'kerberos')`,
       ),
     ).rejects.toThrow();
   });
