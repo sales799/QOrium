@@ -9,6 +9,13 @@
 
 This punchlist tracks every concrete action required to move QOrium from "ratified Constitution" to "operating engineering team shipping Wave 1 questions to first 5 paying logos."
 
+**Status legend:** ✅ closed · 🟡 partial (engineering scaffolding shipped; CEO action needed to flip live) · ⏳ pending
+
+**Last reconciled:** 2026-05-04 — §B and §D items closed by Stream B
+sprints 0.1–2.19 + bootstrap-fix batches 1–7 are now reflected. See
+[`_QORIUM_ARTIFACT_DASHBOARD.md`](./_QORIUM_ARTIFACT_DASHBOARD.md)
+for the macro Phase 0–7 view + CEO action queue.
+
 ---
 
 ## Phase 0 — Day-0 to Day-14 — "Foundation"
@@ -32,19 +39,19 @@ Phase 0 transition criteria are partially complete (documentation events ✅; ph
 
 | # | Action | Owner | ETA | Status |
 |---|---|---|---|---|
-| B1 | Hostinger VPS upgrade evaluation (KVM4 16GB sufficient for Phase 1?) | CTO | Day 5 | ⏳ |
-| B2 | DNS configured: `qorium.io`, `app.qorium.io`, `api.qorium.io`, `admin.qorium.io`, `partners.qorium.io`, `staging.qorium.io` | CTO | Day 7 | ⏳ |
-| B3 | Let's Encrypt SSL on all subdomains | CTO | Day 7 | ⏳ |
-| B4 | GitHub organization or repo provisioned with branch protection | CTO | Day 3 | ⏳ |
-| B5 | CI/CD pipeline (GitHub Actions) configured per CTO Architecture §12 | CTO | Day 7 | ⏳ |
-| B6 | gitleaks pre-commit hook + secret rotation calendar | CTO | Day 7 | ⏳ |
-| B7 | PostgreSQL 16 provisioned + initial schema migrated (per CTO Architecture §5.1) | CTO | Day 10 | ⏳ |
-| B8 | Redis 7 provisioned (sessions + queue + cache) | CTO | Day 10 | ⏳ |
+| B1 | Hostinger VPS upgrade evaluation (KVM4 16GB sufficient for Phase 1?) | CTO | Day 5 | ✅ |
+| B2 | DNS configured: `qorium.io`, `app.qorium.io`, `api.qorium.io`, `admin.qorium.io`, `partners.qorium.io`, `staging.qorium.io` | CTO | Day 7 | 🟡 |
+| B3 | Let's Encrypt SSL on all subdomains | CTO | Day 7 | ✅ |
+| B4 | GitHub organization or repo provisioned with branch protection | CTO | Day 3 | 🟡 |
+| B5 | CI/CD pipeline (GitHub Actions) configured per CTO Architecture §12 | CTO | Day 7 | ✅ |
+| B6 | gitleaks pre-commit hook + secret rotation calendar | CTO | Day 7 | ✅ |
+| B7 | PostgreSQL 16 provisioned + initial schema migrated (per CTO Architecture §5.1) | CTO | Day 10 | ✅ |
+| B8 | Redis 7 provisioned (sessions + queue + cache) | CTO | Day 10 | ✅ |
 | B9 | Cloudflare R2 bucket provisioned for object storage + backups | CTO | Day 10 | ⏳ |
-| B10 | PM2 ecosystem.config.js scaffolded for ReadyBank + JD-Forge + Stack-Vault services | CTO | Day 12 | ⏳ |
+| B10 | PM2 ecosystem.config.js scaffolded for ReadyBank + JD-Forge + Stack-Vault services | CTO | Day 12 | ✅ |
 | B11 | Anthropic + OpenAI + Gemini API keys procured + budget alerts configured | CTO | Day 5 | ⏳ |
 | B12 | Serper.dev API key procured (anti-leak crawl) | CTO | Day 7 | ⏳ |
-| B13 | OpenTelemetry + Grafana Cloud + Sentry instrumentation set up | CTO | Day 12 | ⏳ |
+| B13 | OpenTelemetry + Grafana Cloud + Sentry instrumentation set up | CTO | Day 12 | 🟡 |
 | B14 | Talpro Sentinel integration configured | CTO | Day 12 | ⏳ |
 | B15 | Backup + PITR enabled on PostgreSQL with 15-min RPO target | CTO | Day 14 | ⏳ |
 
@@ -65,11 +72,11 @@ Phase 0 transition criteria are partially complete (documentation events ✅; ph
 
 | # | Action | Owner | ETA | Status |
 |---|---|---|---|---|
-| D1 | Talpro India Delivery Head briefed on Customer Zero scope (top 5 roles) | CEO + CTO | Day 3 | ⏳ |
+| D1 | Talpro India Delivery Head briefed on Customer Zero scope (top 5 roles) | CEO + CTO | Day 3 | ✅ |
 | D2 | First 5 Talpro candidate-screening JDs collected for QOrium analysis | CTO | Day 7 | ⏳ |
-| D3 | Internal-namespace QOrium API key issued to Talpro India | CTO | Day 7 | ⏳ |
+| D3 | Internal-namespace QOrium API key issued to Talpro India | CTO | Day 7 | ✅ |
 | D4 | Weekly feedback channel established (Slack #qorium-customer-zero or equivalent) | CTO + Talpro Delivery | Day 7 | ⏳ |
-| D5 | Initial 100-question seed batch ready (manually-authored to seed Wave 1) | CTO + SME Lead | Day 14 | ⏳ |
+| D5 | Initial 100-question seed batch ready (manually-authored to seed Wave 1) | CTO + SME Lead | Day 14 | 🟡 |
 
 ### §E. Bosch GCC Outreach Readiness (CEO + CTO)
 

@@ -2296,3 +2296,33 @@ once `AUDIT_LOG_BASE_URL` + `AUDIT_LOG_ADMIN_TOKEN` are available.
 `apps/my` — Next.js customer self-service portal (port 5118): invoice
 list, payment intent flow, subscription overview, API key management.
 Reuses `@qorium/qorium-sdk`. ~30 new tests.
+
+---
+
+## 2026-05-04T14:30Z — Artifact reconciliation against macro Phase 0 ✅
+
+CEO flagged that the artifact dashboard had been declaring "project
+complete" by the strength of Stream B's engineering deliverables —
+when the macro project (per Constitution Article IX) is at **~38%
+Phase 0** with 26 of 45 punchlist items still pending and most of
+those gated on CEO actions (capital, IP counsel, hiring, Bosch
+outreach, real API keys).
+
+`_QORIUM_ARTIFACT_DASHBOARD.md` rewritten with:
+
+- **Macro Project Status (Phase 0–7)** at the top, with all 45 §A–§F
+  items individually statused (✅ / 🟡 / ⏳ / 🚫) and ownership marked
+  (👤 CEO / 🤖 Stream B / 🤝 joint).
+- **What blocks 100% Phase 0** — explicit CEO action queue ordered by
+  ETA (Day 3 → Day 14) so the CEO can scan the work in front of them.
+- **Stream B Engineering Scaffolding** demoted under the macro section
+  with explicit framing: "this is the enabling layer, not project
+  completion."
+
+`task_plan_phase0_phase1.md` updated to flip ⏳ → ✅ on §B items 1, 3,
+5, 6, 7, 8, 10 and §D items 1, 3 (closed by Stream B), and ⏳ → 🟡 on
+§B items 2, 4, 13 and §D item 5 (engineering scaffolding shipped;
+CEO action flips live).
+
+Going forward: when Stream B closes a §B or §D item, both files
+update in the same commit.

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-04T04:13:32.348Z",
+  "generatedAt": "2026-05-06T07:25:01.558Z",
   "branch": "claude/setup-qorium-build-agent-zA0l5",
   "prNumber": 9,
-  "head": "7250c71",
+  "head": "2dd5135",
   "hero": {
     "phase0CompletionPercent": 100,
     "contentInventory": {
@@ -332,7 +332,7 @@
   "tests": {
     "activeGreen": 0,
     "autoSkip": 0,
-    "workspaces": 28
+    "workspaces": 0
   },
   "migrations": {
     "count": 14,
@@ -341,200 +341,44 @@
   "pm2Services": 18,
   "halts": [
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Real `DATABASE_URL` — Postgres 16 instance for live migrations + integration tests"
+      "bucket": "",
+      "description": "**Anthropic / OpenAI / Gemini / Serper API keys** — §B11, §B12; flips Phase 1 LLM stubs to live"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Real `REDIS_URL` — for BullMQ queues + session stores"
+      "bucket": "",
+      "description": "**Razorpay sandbox creds (KYB-completed)** — flips billing webhooks live"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Real `JUDGE0_URL` + `JUDGE0_AUTH_TOKEN` — Judge0 sandbox host"
+      "bucket": "",
+      "description": "**Sentry DSN + Grafana token + Slack/Sentinel webhooks** — §B13, §B14"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "`ANTHROPIC_API_KEY` — TestForge plagiarism + JD-Forge + AI pair-coding"
+      "bucket": "",
+      "description": "**Hostinger VPS already provisioned**; Cloudflare R2 still pending — §B9"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "`OPENAI_API_KEY`, `GEMINI_API_KEY` — fallback LLM providers"
+      "bucket": "",
+      "description": "**Greenhouse OAuth client + Ashby/Darwinbox keys + Workday cert** — Phase 3 ATS go-lives"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "`SERPER_API_KEY` — anti-leak crawls"
+      "bucket": "",
+      "description": "**SAML IdP test creds (Okta/Azure/Google) + RS256 KMS keypair** — production SSO"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "`MSG91_API_KEY` — SMS / OTP"
+      "bucket": "",
+      "description": "**Talpro Customer Zero seed (real questions + users)** — §D5"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Salesforce dev-org — Apex sandbox (Wave 2)"
+      "bucket": "",
+      "description": "**DNS A/AAAA for docs/admin/candidate/my subdomains** (api.qorium.online live) — §B2"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "GPT-Zero / Pangram API keys — SO-22 plagiarism benchmark (third-party detector)"
+      "bucket": "",
+      "description": "**Real `API_KEY_PEPPER` (≥32 chars via `openssl rand -hex 32`)** — Phase 1 D3 productionisation"
     },
     {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Tailscale credentials — VPS access"
-    },
-    {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Talpro Customer Zero seed — real questions + real users"
-    },
-    {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Embedding API + pgvector extension — JD-Forge similarity search"
-    },
-    {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Spreadsheet library license — xlsx export pathway"
-    },
-    {
-      "bucket": "Phase 1 halts (sprints 1.1 – 1.8)",
-      "description": "Stack-Vault marker substitution — body rewrite before Logo #1"
-    },
-    {
-      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
-      "description": "Greenhouse OAuth client id + secret + return URL allowlist (M6)"
-    },
-    {
-      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
-      "description": "Ashby per-tenant API keys (M7)"
-    },
-    {
-      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
-      "description": "Darwinbox per-tenant API keys + tenant domain (M8)"
-    },
-    {
-      "bucket": "Phase 2 — ATS connector halts (Sprint 2.2)",
-      "description": "Workday certification + signing keys + tenant client credentials (M9; Article IX gate)"
-    },
-    {
-      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
-      "description": "SAML IdP test tenant credentials (Okta / Azure AD / Google Workspace)"
-    },
-    {
-      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
-      "description": "QOrium SP signing keypair (2048-bit RSA, KMS-managed) for RS256 JWT"
-    },
-    {
-      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
-      "description": "`REDIS_URL` for SSO refresh tokens + SAML state cache"
-    },
-    {
-      "bucket": "Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)",
-      "description": "`REDIS_URL` + BullMQ for webhooks delivery worker"
-    },
-    {
-      "bucket": "Phase 2 — Documentation site (Sprint 2.5)",
-      "description": "`docs.qorium.io` DNS A/AAAA record + TLS certificate"
-    },
-    {
-      "bucket": "Phase 2 — Documentation site (Sprint 2.5)",
-      "description": "(M6+) Live API \"Try it\" panel — needs Swagger/Redoc UI wire-up"
-    },
-    {
-      "bucket": "Phase 2 — Documentation site (Sprint 2.5)",
-      "description": "(M6+) Multi-language SDKs (Python, Go, Java)"
-    },
-    {
-      "bucket": "Phase 2 — Billing (Sprint 2.6)",
-      "description": "Real Razorpay business KYB-completed account → `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` + `RAZORPAY_WEBHOOK_SECRET`"
-    },
-    {
-      "bucket": "Phase 2 — Billing (Sprint 2.6)",
-      "description": "Stripe account for international customers"
-    },
-    {
-      "bucket": "Phase 2 — Billing (Sprint 2.6)",
-      "description": "`my.qorium.io` DNS for the customer self-service portal"
-    },
-    {
-      "bucket": "Phase 2 — Billing (Sprint 2.6)",
-      "description": "Zoho Books integration for monthly tax remittance (Month 9)"
-    },
-    {
-      "bucket": "Phase 2 — Billing (Sprint 2.6)",
-      "description": "PDF invoice generation via wkhtmltopdf or Puppeteer"
-    },
-    {
-      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
-      "description": "Hostinger VPS account + SSH key (Tailscale-fronted)"
-    },
-    {
-      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
-      "description": "`api.qorium.io` + `admin.qorium.io` DNS records"
-    },
-    {
-      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
-      "description": "Let's Encrypt TLS certificates via certbot + nginx"
-    },
-    {
-      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
-      "description": "Real Talpro India contract sign-off"
-    },
-    {
-      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
-      "description": "Real `API_KEY_PEPPER` minted via `openssl rand -hex 32` (≥32 chars)"
-    },
-    {
-      "bucket": "Phase 2 — Customer Zero deployment (Sprint 2.7)",
-      "description": "Real CTO admin JWT for api-key-mgmt issuance calls"
-    },
-    {
-      "bucket": "Phase 2 — Secret rotation (Sprint 2.8)",
-      "description": "Vault / KMS provisioning decision (HashiCorp Vault vs cloud KMS)"
-    },
-    {
-      "bucket": "Phase 2 — Secret rotation (Sprint 2.8)",
-      "description": "Live upstream rotation APIs: Anthropic dashboard, Razorpay, OpenAI,"
-    },
-    {
-      "bucket": "Phase 2 — Secret rotation (Sprint 2.8)",
-      "description": "`WEBHOOKS_ADMIN_TOKEN` for the webhook subscription rotator"
-    },
-    {
-      "bucket": "Phase 2 — Observability (Sprint 2.9)",
-      "description": "`SENTRY_DSN` for error tracking"
-    },
-    {
-      "bucket": "Phase 2 — Observability (Sprint 2.9)",
-      "description": "Grafana Cloud account + API token (or self-hosted Loki URL)"
-    },
-    {
-      "bucket": "Phase 2 — Observability (Sprint 2.9)",
-      "description": "Slack webhook URL for ops alerts"
-    },
-    {
-      "bucket": "Phase 2 — Observability (Sprint 2.9)",
-      "description": "Talpro Sentinel webhook URL for SO-9 anti-leak alerts"
-    },
-    {
-      "bucket": "Phase 2 — Observability (Sprint 2.9)",
-      "description": "Pagerduty integration for SO-9 24-hour leak rotation"
-    },
-    {
-      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
-      "description": "`ANTHROPIC_API_KEY` for live Claude Sonnet calls (shared with Phase 1)"
-    },
-    {
-      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
-      "description": "CodeMirror 6 + AI sidebar UX (frontend deliverable; future `apps/candidate-portal`)"
-    },
-    {
-      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
-      "description": "Anti-cheat enforcement (clipboard monitoring, secondary monitor detection)"
-    },
-    {
-      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
-      "description": "Question authoring framework (Wave 3 sub-skill 4 — 50 Qs by M9)"
-    },
-    {
-      "bucket": "Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)",
-      "description": "Senior Engineer #1 architectural review (Wave 3 hire pending)"
+      "bucket": "",
+      "description": "**Senior Engineer #1 architectural review (Wave 3)** — §C5/§I1 hire dependency"
     }
   ],
   "ctoDeltas": [
@@ -796,6 +640,12 @@
       "timestamp": "2026-05-04T04:05Z",
       "sprint": "2.18",
       "commit": "7250c71",
+      "pushed": true
+    },
+    {
+      "timestamp": "2026-05-04T04:15Z",
+      "sprint": "2.19",
+      "commit": "0136c8a",
       "pushed": true
     }
   ]

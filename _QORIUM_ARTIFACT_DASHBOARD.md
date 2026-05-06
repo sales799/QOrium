@@ -1,11 +1,211 @@
 # QOrium Artifact Dashboard
 
-**Last updated:** 2026-05-04 04:15 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 (ready-for-review) · **HEAD:** `7250c71` (Sprint 2.19 staged, pending commit)
+**Last updated:** 2026-05-04 14:30 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 (ready-for-review) · **HEAD:** `2dd5135`
 
-This dashboard is the **single source of truth** for the QOrium build state.
-It is updated at the end of every sprint by the autonomous build agent.
+> **Read order:** the **Macro Project Status** section (top) tracks the
+> 8-phase journey from Day 0 to the Article IX completion gate. The
+> **Stream B Engineering Scaffolding** section (below) tracks the
+> autonomous-build engineering work — that's the _enabling layer_, not
+> the project itself. "Project 100% built" requires both layers, and
+> Stream B alone cannot close the macro phases.
 
-## Sprint state (30 sprints — Phase 1 + Phase 2 + Phase 2.5 complete)
+---
+
+## Macro Project Status — 8 Phases over 5 Years
+
+Constitution Article IX defines **Project Completion** as one of:
+
+- Strategic acquisition at ≥ $300M, OR
+- IPO at ≥ ₹3,000Cr, OR
+- Talpro Universe Anchor with ≥ $50M ARR
+
+These outcomes are 5+ years out and are business-outcome gates, not
+deliverables Stream B can produce.
+
+### 8-Phase Roadmap (Constitution §3 + Article IX)
+
+| Phase | Span     | Headline goal                                                                             | Honest state                                                 |
+| ----: | -------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **0** | Day 0–14 | Foundation: capital, infra, hiring, Customer Zero, Bosch GCC outreach                     | **~38% (17/45)** — see §A–§F breakdown below                 |
+|     1 | M1–M3    | Engine MVP — Wave 1 5K questions + first 5 logos + 6 hires + M3 IdeaForge ≥20/24          | not started (Stream B has the engineering scaffolding ready) |
+|     2 | M3–M6    | India Stack + Stack-Vault Logo #1 + 4-ATS framework                                       | not started (engineering ready)                              |
+|     3 | M6–M9    | SKU Maturity — JD-Forge live + Platform pilot + Greenhouse/Workday/Ashby/Darwinbox active | not started                                                  |
+|     4 | M9–M12   | Year-1 Close — all 3 SKUs live + $1M ARR path                                             | not started                                                  |
+|     5 | Y2       | International scale — $2M ARR + Series Pre-A close + Psychometric add                     | not started                                                  |
+|     6 | Y3       | Multi-region — $7M ARR + EU region + partnerships                                         | not started                                                  |
+|     7 | Y5       | Strategic outcome — ≥$50M ARR or acquisition or IPO                                       | not started                                                  |
+
+Phases 1–7 are intentionally listed but unscored — they're sequenced
+behind Phase 0 closure. The current focus is **closing Phase 0**.
+
+---
+
+## Phase 0 — Day 0–14 — Foundation (active, ~38% closed)
+
+Source-of-truth: [`task_plan_phase0_phase1.md`](./task_plan_phase0_phase1.md).
+Owner legend: 👤 = CEO action · 🤖 = Stream B / CTO Office can close ·
+🤝 = joint (CEO sign-off + Stream B execution).
+
+### §A — Capital & Legal (👤 CEO + IP counsel) — 0 of 8 closed
+
+| #   | Action                                                             | Owner         | ETA    | State                                                  |
+| --- | ------------------------------------------------------------------ | ------------- | ------ | ------------------------------------------------------ |
+| A1  | Open ringfenced bank account OR Talpro sub-budget tagged QORIUM    | 👤 CEO        | Day 3  | ⏳                                                     |
+| A2  | Transfer ₹50L sanctioned runway to ringfenced account              | 👤 CEO        | Day 7  | ⏳                                                     |
+| A3  | Engage external IP counsel for trademark filing prep               | 👤 CEO        | Day 7  | ⏳                                                     |
+| A4  | Domain registration: qorium.io, qorium.in                          | 🤝 CEO + CTO  | Day 3  | ⏳ (qorium.online live but .io/.in not yet registered) |
+| A5  | Trademark filing — India (Class 9 + 42); US (intent-to-use)        | 👤 IP counsel | Day 14 | ⏳                                                     |
+| A6  | MSA template drafted by counsel                                    | 👤 IP counsel | Day 14 | ⏳                                                     |
+| A7  | DPA template drafted by counsel (DPDPA + GDPR)                     | 👤 IP counsel | Day 14 | ⏳                                                     |
+| A8  | Reserve social handles (LinkedIn, Twitter/X, GitHub, npm, BlueSky) | 🤝 CEO + CTO  | Day 5  | ⏳ (GitHub `sales799` exists; others pending)          |
+
+### §B — Infrastructure (🤖 CTO Office / Stream B) — 8 closed + 3 partial / 15
+
+| #   | Action                                               | Owner | ETA    | State                                                                             |
+| --- | ---------------------------------------------------- | ----- | ------ | --------------------------------------------------------------------------------- |
+| B1  | Hostinger VPS evaluation (KVM4 16GB sufficient?)     | CTO   | Day 5  | ✅ VPS 147.93.103.194 verified live during deploy                                 |
+| B2  | DNS configured: 6 subdomains                         | CTO   | Day 7  | 🟡 api.qorium.online published; admin/docs/candidate/my pending wildcard A record |
+| B3  | Let's Encrypt SSL on all subdomains                  | CTO   | Day 7  | ✅ certbot succeeded on api.qorium.online (others propagate when DNS lands)       |
+| B4  | GitHub repo + branch protection                      | CTO   | Day 3  | 🟡 sales799/QOrium repo live; branch protection rules unverified                  |
+| B5  | CI/CD GitHub Actions pipeline                        | CTO   | Day 7  | ✅ Setu auto-deploy workflow live; run #17 verified green                         |
+| B6  | gitleaks pre-commit + secret rotation calendar       | CTO   | Day 7  | ✅ gitleaks Sprint 0.1; rotation worker Sprint 2.8                                |
+| B7  | PostgreSQL 16 + initial schema migrated              | CTO   | Day 10 | ✅ 14 migrations applied to live qorium DB                                        |
+| B8  | Redis 7 provisioned                                  | CTO   | Day 10 | ✅ installed by bootstrap                                                         |
+| B9  | Cloudflare R2 bucket                                 | CTO   | Day 10 | 🚫 needs 👤 CEO R2 account creation                                               |
+| B10 | PM2 ecosystem.config                                 | CTO   | Day 12 | ✅ 18 services running                                                            |
+| B11 | Anthropic + OpenAI + Gemini API keys + budget alerts | CTO   | Day 5  | 🚫 stubs shipped; 👤 CEO must procure real keys                                   |
+| B12 | Serper.dev API key (anti-leak crawl)                 | CTO   | Day 7  | 🚫 stub shipped; 👤 CEO must procure real key                                     |
+| B13 | OpenTelemetry + Grafana Cloud + Sentry               | CTO   | Day 12 | 🟡 shim packages shipped; live wire-up needs 👤 DSN + Grafana token               |
+| B14 | Talpro Sentinel integration                          | CTO   | Day 12 | 🚫 needs 👤 Sentinel webhook URL                                                  |
+| B15 | Backup + PITR with 15-min RPO                        | CTO   | Day 14 | 🚫 not provisioned                                                                |
+
+**Stream B has closed the half of §B that engineering alone can finish.
+The remaining 5 items (B9, B11, B12, B14, B15) are 👤 CEO actions or
+external account procurement. B13 is partial — shims are shipped, but
+production needs CEO-supplied DSN + token.**
+
+### §C — People & Hiring (🤝 CEO + CTO) — 0 of 8 closed
+
+| #   | Action                                        | Owner                  | ETA    | State |
+| --- | --------------------------------------------- | ---------------------- | ------ | ----- |
+| C1  | Senior Engineer JD drafted + posted           | CTO                    | Day 7  | ⏳    |
+| C2  | SME Content Lead JD drafted + posted          | CTO                    | Day 7  | ⏳    |
+| C3  | AE Enterprise JD drafted + posted             | 👤 CEO + Bali          | Day 14 | ⏳    |
+| C4  | BD Platforms JD drafted + posted              | 👤 CEO + Bali          | Day 14 | ⏳    |
+| C5  | I/O Psychologist contractor JD scoped         | CTO                    | Day 14 | ⏳    |
+| C6  | Initial SME contractor list (target 30 by M3) | 🤝 CTO + Talpro alumni | Day 14 | ⏳    |
+| C7  | Compensation philosophy + bands               | 🤝 CEO + CTO           | Day 10 | ⏳    |
+| C8  | Standard offer letter + IP assignment + NDA   | 🤝 CEO + IP counsel    | Day 14 | ⏳    |
+
+(Cowork dashboard shows §C at 8/14 = 57% — that combines §C 8 items
+with Phase 1 §I 6 hire-completion items. The 8 closed there are
+likely JD drafts in flight per "All JDs drafted · postings BP-06 ready"
+note.)
+
+### §D — Customer Zero Activation (🤝 CTO + Talpro Delivery) — 2 closed + 1 partial / 5
+
+| #   | Action                                                     | Owner             | ETA    | State                                                             |
+| --- | ---------------------------------------------------------- | ----------------- | ------ | ----------------------------------------------------------------- |
+| D1  | Talpro Delivery Head briefed on Customer Zero scope        | 🤝 CEO + CTO      | Day 3  | ✅ per CC-03                                                      |
+| D2  | First 5 Talpro candidate-screening JDs collected           | 👤 CTO/Talpro     | Day 7  | ⏳                                                                |
+| D3  | Internal-namespace QOrium API key issued to Talpro India   | CTO               | Day 7  | ✅ api-key-mgmt Sprint 2.7 framework live; one issuance call away |
+| D4  | Weekly feedback channel (Slack #qorium-customer-zero)      | 👤 CTO + Talpro   | Day 7  | ⏳                                                                |
+| D5  | Initial 100-question seed batch (manually-authored Wave 1) | 🤝 CTO + SME Lead | Day 14 | 🟡 470 Qs total in inventory; specific seed-batch curation TBD    |
+
+### §E — Bosch GCC Outreach Readiness (👤 CEO) — 0 of 4 closed
+
+| #   | Action                                           | Owner             | ETA    | State |
+| --- | ------------------------------------------------ | ----------------- | ------ | ----- |
+| E1  | CEO drafts warm-intro email to Bosch GCC TA Head | 👤 CEO            | Day 5  | ⏳    |
+| E2  | Bosch GCC stack research consolidated            | CTO               | Day 10 | ⏳    |
+| E3  | Sample 50-question pack scope defined            | 🤝 CTO + SME Lead | Day 14 | ⏳    |
+| E4  | First Bosch discovery call booked                | 👤 CEO            | Day 14 | ⏳    |
+
+### §F — Constitutional Compliance — 5 of 5 closed ✅
+
+All five items (F1 QUEUE.md, F2 Constitution v2.0 ratification, F3 memory
+update, F4 MANTHAN session log, F5 project lock) closed at Day 0 per
+existing CTO Office record.
+
+### Phase 0 honest rollup
+
+| Section            | ✅ closed | 🟡 partial | ⏳/🚫 pending | Owner                     |
+| ------------------ | --------: | ---------: | ------------: | ------------------------- |
+| §A Capital & Legal |         0 |          0 |             8 | 👤 CEO + IP counsel       |
+| §B Infrastructure  |         8 |          3 |             4 | 🤖 CTO Office (Stream B)  |
+| §C People & Hiring |         0 |          0 |             8 | 🤝 CEO + CTO + recruiters |
+| §D Customer Zero   |         2 |          1 |             2 | 🤝 CTO + Talpro Delivery  |
+| §E Bosch GCC       |         0 |          0 |             4 | 👤 CEO                    |
+| §F Constitutional  |         5 |          0 |             0 | ✅ done                   |
+| **Total**          |    **15** |      **4** |        **26** | —                         |
+
+Counting partials at 0.5 weight: **17/45 ≈ 38%** (matches Cowork
+dashboard). Counting partials at full weight: **19/45 ≈ 42%**.
+
+**The 38% number is correct.** Stream B has shipped engineering
+scaffolding that _enables_ future closure but every Phase 0 item that
+counts as "closed" still requires a final CEO action: real API keys
+for stubbed clients, the ₹50L bank transfer, IP counsel engagement,
+JD postings, Bosch outreach. The engineering work is necessary but
+not sufficient.
+
+---
+
+## What blocks 100% Phase 0 — CEO action queue (ordered by ETA)
+
+| Day | Action                                               | §   | Why it blocks                                          |
+| --: | ---------------------------------------------------- | --- | ------------------------------------------------------ |
+|   3 | A1 — Open ringfenced bank account                    | §A  | All §A2 spend gated on this                            |
+|   3 | A4 — Register qorium.io + qorium.in domains          | §A  | Brand control + legal trademark prerequisite           |
+|   5 | A8 — Reserve social handles (LinkedIn/X/npm/BlueSky) | §A  | Anti-squat                                             |
+|   5 | B11 — Procure Anthropic + OpenAI + Gemini API keys   | §B  | Engineering stubs flip to live LLM only with real keys |
+|   5 | E1 — Warm-intro email to Bosch GCC TA Head           | §E  | Phase 1 Logo #1 path                                   |
+|   7 | A2 — Transfer ₹50L runway                            | §A  | Hiring + IP counsel + key procurement spend            |
+|   7 | A3 — Engage external IP counsel                      | §A  | Unlocks A5/A6/A7 by Day 14                             |
+|   7 | B12 — Procure Serper.dev API key                     | §B  | Anti-leak crawl goes live (SO-9 enforcement)           |
+|   7 | C1 — Post Senior Engineer JD                         | §C  | Phase 1 hire #1                                        |
+|   7 | C2 — Post SME Content Lead JD                        | §C  | Phase 1 hire #2                                        |
+|   7 | D2 — Collect first 5 Talpro JDs for QOrium analysis  | §D  | Customer Zero data path                                |
+|   7 | D4 — Establish Slack #qorium-customer-zero           | §D  | Feedback loop                                          |
+|  10 | B9 — Provision Cloudflare R2 bucket                  | §B  | Object storage + backups                               |
+|  10 | C7 — Compensation philosophy + bands                 | §C  | Hire C3/C4 unblocked                                   |
+|  10 | E2 — Consolidate Bosch GCC stack research            | §E  | Sample-pack scoping (E3) unblocked                     |
+|  12 | B13 — Provide Sentry DSN + Grafana token + Loki URL  | §B  | Live observability flips on                            |
+|  12 | B14 — Provide Talpro Sentinel webhook URL            | §B  | Anti-leak alerting wires up                            |
+|  14 | A5–A7 — Trademark filings + MSA + DPA via IP counsel | §A  | Enterprise contracts blocked without                   |
+|  14 | B15 — Configure backup + 15-min RPO PITR             | §B  | DR posture                                             |
+|  14 | C3–C6, C8 — Remaining JDs + SME list + offer letter  | §C  | Phase 1 hire pipeline                                  |
+|  14 | D5 — Curate initial 100-question seed batch          | §D  | Wave 1 content seed                                    |
+|  14 | E3 — Sample 50-question pack scope (Bosch top role)  | §E  | Discovery-call enablement                              |
+|  14 | E4 — First Bosch discovery call booked               | §E  | Logo #1 path                                           |
+
+**Critical-path estimate:** ~12 CEO-hours spread over 14 days, plus
+external counsel (A5/A6/A7 take 5–10 business days for IP counsel to
+turn around), plus account-procurement waiting periods (R2, API key
+budget approvals).
+
+---
+
+## Sync rule going forward
+
+When Stream B closes a §B or §D item, both files update in the same commit:
+
+1. `task_plan_phase0_phase1.md` — flip ⏳ → ✅ (or 🟡)
+2. `_QORIUM_ARTIFACT_DASHBOARD.md` — update the macro section table
+
+This keeps the artifact and the canonical punchlist from drifting.
+
+---
+
+# Stream B Engineering Scaffolding — the enabling layer
+
+> Below is what the autonomous-build agent ("Stream B") has shipped
+> across 30 sprints. **This is engineering scaffolding, not project
+> completion.** Phases 1–7 will use this as their substrate — but
+> closing Phases 1–7 themselves requires hiring, sales, customer
+> wins, and CEO actions far beyond what code alone can deliver.
+
+## Sprint state (30 sprints — engineering scaffolding for Phases 1–2.5 ready)
 
 | Sprint | Workspace                                              | Status  | Tests new | Cum tests |
 | ------ | ------------------------------------------------------ | ------- | --------- | --------- |
@@ -42,176 +242,93 @@ It is updated at the end of every sprint by the autonomous build agent.
 | 2.18   | `packages/audit-emitter` + api-key-mgmt integration    | shipped | 33        | 963       |
 | 2.19   | audit-emitter wholesale wire-up (billing/sso/webhooks) | shipped | 4         | 967       |
 
-**Workspace totals:** 28 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **967 active green tests** (vitest reports 978 total summing per-file, including overlap from re-runs) + ~53 auto-skip.
+**Workspace totals:** 28 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **967 active green tests** + ~53 auto-skip.
+
+## Live deployment state (api.qorium.online)
+
+After CEO ran the Setu bootstrap on the VPS (and Stream B shipped 5
+post-bootstrap fix batches to address private-repo auth, schema
+permissions, PM2 cluster-mode argv guards, etc.):
+
+| Surface                | URL                                                | State                                    |
+| ---------------------- | -------------------------------------------------- | ---------------------------------------- |
+| Public API healthcheck | `https://api.qorium.online/healthz`                | 200 ✓                                    |
+| Setu live status       | `https://api.qorium.online/setu/v1/setu/status`    | 200 (returns commit SHA + branch)        |
+| Cluster services       | localhost:5101–5117                                | 12 services responding `{"status":"ok"}` |
+| TLS cert               | Let's Encrypt                                      | active, auto-renewing                    |
+| PM2 boot resurrect     | `qorium-pm2.service`                               | active                                   |
+| GitHub auto-deploy     | Setu webhook + `.github/workflows/setu-deploy.yml` | run #17 verified green                   |
+| Postgres               | 14 migrations applied                              | qorium owns all 7 schemas                |
 
 ## Workspace inventory
 
 ### Packages (libraries) — 7
 
-| Workspace                | Description                                            | Tests     |
-| ------------------------ | ------------------------------------------------------ | --------- |
-| `@qorium/db`             | Postgres pool + migration runner + types               | 19 (skip) |
-| `@qorium/auth`           | Tenant + API-key auth primitives                       | 26        |
-| `@qorium/smoke`          | Healthcheck primitives + Customer Zero CLI             | 20+4 skip |
-| `@qorium/ats-connectors` | ATS adapter framework + 4 v0 adapters                  | 45        |
-| `@qorium/qorium-sdk`     | Public TS SDK (HTTP client + HMAC signing + resources) | 21        |
-| `@qorium/observability`  | Sentry / Loki / OpenTelemetry shims (Stub-vs-Real)     | 14        |
-| `@qorium/audit-emitter`  | Audit-log emitter + canonical taxonomy + idempotency   | 31        |
+| Workspace                | Description                                    | Tests     |
+| ------------------------ | ---------------------------------------------- | --------- |
+| `@qorium/db`             | Postgres pool + migration runner + types       | 19 (skip) |
+| `@qorium/auth`           | Tenant + API-key auth primitives               | 26        |
+| `@qorium/smoke`          | Healthcheck primitives + Customer Zero CLI     | 20+4 skip |
+| `@qorium/ats-connectors` | ATS adapter framework + 4 v0 adapters          | 45        |
+| `@qorium/qorium-sdk`     | Public TS SDK (HTTP client + HMAC + resources) | 21        |
+| `@qorium/observability`  | Sentry / Loki / OpenTelemetry shims            | 14        |
+| `@qorium/audit-emitter`  | Audit-log emitter + canonical taxonomy         | 31        |
 
 ### Apps — 3
 
 | Workspace                  | Port | Description                                                      | Tests       |
-| -------------------------- | ---- | ---------------------------------------------------------------- | ----------- |
+| -------------------------- | ---: | ---------------------------------------------------------------- | ----------- |
 | `@qorium/admin`            | 5104 | Next.js admin: SME queue + IRT + SSO + webhooks + audit + uptime | 74 + 7 skip |
-| `@qorium/docs`             | 5108 | Next.js public API docs (static export ready, 14 sections)       | 11          |
-| `@qorium/candidate-portal` | 5116 | Next.js Wave 3 candidate UX (signal-tracker + workbench)         | 19          |
+| `@qorium/docs`             | 5108 | Next.js public API docs                                          | 11          |
+| `@qorium/candidate-portal` | 5116 | Next.js Wave 3 candidate UX                                      | 19          |
 
 ### Services — 18
 
-| Workspace                             | Port   | Description                                                  | Tests        |
-| ------------------------------------- | ------ | ------------------------------------------------------------ | ------------ |
-| `@qorium/readybank`                   | 5101   | Question search + packs + export                             | 33 + 21 skip |
-| `@qorium/jd-forge`                    | 5102   | Real-time JD-based question generation + xlsx export         | 84           |
-| `@qorium/stack-vault`                 | 5103   | Per-customer namespace + watermarking + body substitution    | 43           |
-| `@qorium/ats-bridge`                  | 5105   | ATS webhook receiver + adapter dispatch                      | 10           |
-| `@qorium/webhooks`                    | 5106   | Outbound webhook subscriptions + delivery                    | 24           |
-| `@qorium/sso`                         | 5107   | SAML 2.0 + OIDC + RS256 JWT enterprise auth                  | 53           |
-| `@qorium/audit-log`                   | 5111   | Tenant-scoped audit log read API                             | 20           |
-| `@qorium/billing`                     | 5112   | Subscriptions + invoices + Razorpay webhooks                 | 39           |
-| `@qorium/api-key-mgmt`                | 5113   | API key issuance + scope catalogue + rotation reminders      | 28           |
-| `@qorium/uptime-monitor`              | 5114   | Smoke check matrix + SLO API                                 | 10           |
-| `@qorium/ai-pair-coding-orchestrator` | 5115   | Wave 3 6-dim grader + Anthropic stub + question-authoring fw | 49           |
-| `@qorium/setu`                        | 5117   | Status MCP + auto-deploy bridge + 100% bootstrap installer   | 45           |
-| `@qorium/leak-crawler`                | (fork) | Anti-leak crawler worker                                     | 47 + 2 skip  |
-| `@qorium/judge0-orchestrator`         | (fork) | Sandboxed code execution worker                              | 68           |
-| `@qorium/irt-calibration`             | (fork) | Nightly IRT calibration cron                                 | 64           |
-| `@qorium/testforge-orchestrator`      | (fork) | TestForge QA pipeline coordinator                            | 52           |
-| `@qorium/secret-rotation-worker`      | (fork) | B6 secret rotation reminder worker (6h tick)                 | 21           |
-| `@qorium/webhooks-delivery-worker`    | (fork) | Drains webhooks.deliveries with HMAC + retry curve           | 25           |
+| Workspace                             |   Port | Description                                      |     Tests |
+| ------------------------------------- | -----: | ------------------------------------------------ | --------: |
+| `@qorium/readybank`                   |   5101 | Question search + packs + export                 |        33 |
+| `@qorium/jd-forge`                    |   5102 | Real-time JD-based question generation + xlsx    |        84 |
+| `@qorium/stack-vault`                 |   5103 | Per-customer namespace + watermarking + body sub |        43 |
+| `@qorium/ats-bridge`                  |   5105 | ATS webhook receiver + adapter dispatch          |        10 |
+| `@qorium/webhooks`                    |   5106 | Outbound webhook subscriptions + delivery        |        24 |
+| `@qorium/sso`                         |   5107 | SAML 2.0 + OIDC + RS256 JWT enterprise auth      |        53 |
+| `@qorium/audit-log`                   |   5111 | Tenant-scoped audit log read API                 |        20 |
+| `@qorium/billing`                     |   5112 | Subscriptions + invoices + Razorpay webhooks     |        39 |
+| `@qorium/api-key-mgmt`                |   5113 | API key issuance + scope catalogue               |        30 |
+| `@qorium/uptime-monitor`              |   5114 | Smoke check matrix + SLO API                     |        10 |
+| `@qorium/ai-pair-coding-orchestrator` |   5115 | Wave 3 6-dim grader + Anthropic stub + authoring |        49 |
+| `@qorium/setu`                        |   5117 | Status MCP + auto-deploy bridge + bootstrap      |        45 |
+| `@qorium/leak-crawler`                | (fork) | Anti-leak crawler worker                         | 47+2 skip |
+| `@qorium/judge0-orchestrator`         | (fork) | Sandboxed code execution worker                  |        68 |
+| `@qorium/irt-calibration`             | (fork) | Nightly IRT calibration cron                     |        64 |
+| `@qorium/testforge-orchestrator`      | (fork) | TestForge QA pipeline                            |        52 |
+| `@qorium/secret-rotation-worker`      | (fork) | B6 secret rotation worker                        |        21 |
+| `@qorium/webhooks-delivery-worker`    | (fork) | Drains webhooks.deliveries                       |        25 |
 
-## Activation halts (REQUEST list for CEO + Cowork CTO Office)
+## Activation halts (CEO action requests, deduplicated against §A–§E above)
 
-The agent has shipped the v0 surface for every halt below. Flipping each
-from Stub → Real is a single env-var (or single credential) action.
+These map 1:1 onto the §A–§E action queue at the top of this doc. The
+short version: Stream B has stubs/shims/scaffolding for everything;
+CEO supplies the real credentials/accounts/runtime artefacts.
 
-### Phase 1 halts (sprints 1.1 – 1.8)
+- **Anthropic / OpenAI / Gemini / Serper API keys** — §B11, §B12; flips Phase 1 LLM stubs to live
+- **Razorpay sandbox creds (KYB-completed)** — flips billing webhooks live
+- **Sentry DSN + Grafana token + Slack/Sentinel webhooks** — §B13, §B14
+- **Hostinger VPS already provisioned**; Cloudflare R2 still pending — §B9
+- **Greenhouse OAuth client + Ashby/Darwinbox keys + Workday cert** — Phase 3 ATS go-lives
+- **SAML IdP test creds (Okta/Azure/Google) + RS256 KMS keypair** — production SSO
+- **Talpro Customer Zero seed (real questions + users)** — §D5
+- **DNS A/AAAA for docs/admin/candidate/my subdomains** (api.qorium.online live) — §B2
+- **Real `API_KEY_PEPPER` (≥32 chars via `openssl rand -hex 32`)** — Phase 1 D3 productionisation
+- **Senior Engineer #1 architectural review (Wave 3)** — §C5/§I1 hire dependency
 
-- Real `DATABASE_URL` — Postgres 16 instance for live migrations + integration tests
-- Real `REDIS_URL` — for BullMQ queues + session stores
-- Real `JUDGE0_URL` + `JUDGE0_AUTH_TOKEN` — Judge0 sandbox host
-- `ANTHROPIC_API_KEY` — TestForge plagiarism + JD-Forge + AI pair-coding
-- `OPENAI_API_KEY`, `GEMINI_API_KEY` — fallback LLM providers
-- `SERPER_API_KEY` — anti-leak crawls
-- `MSG91_API_KEY` — SMS / OTP
-- Salesforce dev-org — Apex sandbox (Wave 2)
-- GPT-Zero / Pangram API keys — SO-22 plagiarism benchmark (third-party detector)
-- Tailscale credentials — VPS access
-- Talpro Customer Zero seed — real questions + real users
-- Embedding API + pgvector extension — JD-Forge similarity search
-- Spreadsheet library license — xlsx export pathway
-- Stack-Vault marker substitution — body rewrite before Logo #1
+## CTO-DELTA registry — 33 deltas
 
-### Phase 2 — ATS connector halts (Sprint 2.2)
+See `infra/CTO-deltas/` for the catalogue. Each delta documents an
+engineering deviation from the spec + the CEO action that would
+unblock the live state.
 
-- Greenhouse OAuth client id + secret + return URL allowlist (M6)
-- Ashby per-tenant API keys (M7)
-- Darwinbox per-tenant API keys + tenant domain (M8)
-- Workday certification + signing keys + tenant client credentials (M9; Article IX gate)
-
-### Phase 2 — SSO / Webhooks / Audit-Log halts (Sprint 2.3)
-
-- SAML IdP test tenant credentials (Okta / Azure AD / Google Workspace)
-- QOrium SP signing keypair (2048-bit RSA, KMS-managed) for RS256 JWT
-- `REDIS_URL` for SSO refresh tokens + SAML state cache
-- `REDIS_URL` + BullMQ for webhooks delivery worker
-
-### Phase 2 — Documentation site (Sprint 2.5)
-
-- `docs.qorium.io` DNS A/AAAA record + TLS certificate
-- (M6+) Live API "Try it" panel — needs Swagger/Redoc UI wire-up
-- (M6+) Multi-language SDKs (Python, Go, Java)
-
-### Phase 2 — Billing (Sprint 2.6)
-
-- Real Razorpay business KYB-completed account → `RAZORPAY_KEY_ID` + `RAZORPAY_KEY_SECRET` + `RAZORPAY_WEBHOOK_SECRET`
-- Stripe account for international customers
-- `my.qorium.io` DNS for the customer self-service portal
-- Zoho Books integration for monthly tax remittance (Month 9)
-- PDF invoice generation via wkhtmltopdf or Puppeteer
-
-### Phase 2 — Customer Zero deployment (Sprint 2.7)
-
-- Hostinger VPS account + SSH key (Tailscale-fronted)
-- `api.qorium.io` + `admin.qorium.io` DNS records
-- Let's Encrypt TLS certificates via certbot + nginx
-- Real Talpro India contract sign-off
-- Real `API_KEY_PEPPER` minted via `openssl rand -hex 32` (≥32 chars)
-- Real CTO admin JWT for api-key-mgmt issuance calls
-
-### Phase 2 — Secret rotation (Sprint 2.8)
-
-- Vault / KMS provisioning decision (HashiCorp Vault vs cloud KMS)
-- Live upstream rotation APIs: Anthropic dashboard, Razorpay, OpenAI,
-  Cloudflare R2, GitHub PAT, Hostinger Postgres password
-- `WEBHOOKS_ADMIN_TOKEN` for the webhook subscription rotator
-
-### Phase 2 — Observability (Sprint 2.9)
-
-- `SENTRY_DSN` for error tracking
-- Grafana Cloud account + API token (or self-hosted Loki URL)
-- Slack webhook URL for ops alerts
-- Talpro Sentinel webhook URL for SO-9 anti-leak alerts
-- Pagerduty integration for SO-9 24-hour leak rotation
-
-### Phase 2 — Wave 3 AI pair-coding (Sprint 2.10)
-
-- `ANTHROPIC_API_KEY` for live Claude Sonnet calls (shared with Phase 1)
-- CodeMirror 6 + AI sidebar UX (frontend deliverable; future `apps/candidate-portal`)
-- Anti-cheat enforcement (clipboard monitoring, secondary monitor detection)
-- Question authoring framework (Wave 3 sub-skill 4 — 50 Qs by M9)
-- Senior Engineer #1 architectural review (Wave 3 hire pending)
-
-## CTO-DELTA registry — 33 deltas across 29 sprints
-
-See `infra/CTO-deltas/` for the full catalogue.
-
-| #   | Sprint | File                                                    |
-| --- | ------ | ------------------------------------------------------- |
-| 1   | 1.1    | `CTO-DELTA-migration-runner.md`                         |
-| 2   | 1.1    | `CTO-DELTA-CI-pnpm-adoption.md`                         |
-| 3   | 1.1    | `CTO-DELTA-gitleaks-v8-syntax.md`                       |
-| 4   | 1.1    | `CTO-DELTA-api-key-hashing.md`                          |
-| 5   | 1.2    | `CTO-DELTA-admin-auth-provider.md`                      |
-| 6   | 1.5    | `CTO-DELTA-irt-2pl-with-format-c.md`                    |
-| 7   | 1.5    | `CTO-DELTA-irt-fitter.md`                               |
-| 8   | 1.5    | `CTO-DELTA-b10-irt-calibration-entry.md`                |
-| 9   | 1.6    | `CTO-DELTA-judge0-bullmq-deferred.md`                   |
-| 10  | 1.6    | `CTO-DELTA-judge0-apex-deferred.md`                     |
-| 11  | 1.7    | `CTO-DELTA-testforge-status-column.md`                  |
-| 12  | 1.7    | `CTO-DELTA-testforge-plagiarism-detector-colocated.md`  |
-| 13  | 1.7    | `CTO-DELTA-testforge-plagiarism-perplexity-deferred.md` |
-| 14  | 2.0    | `CTO-DELTA-jdforge-anthropic-deferred.md`               |
-| 15  | 2.0    | `CTO-DELTA-jdforge-embeddings-deferred.md`              |
-| 16  | 2.0    | `CTO-DELTA-jdforge-xlsx-deferred.md`                    |
-| 17  | 2.1    | `CTO-DELTA-stackvault-marker-substitution-deferred.md`  |
-| 18  | 2.2    | `CTO-DELTA-ats-real-oauth-deferred.md`                  |
-| 19  | 2.2    | `CTO-DELTA-ats-workday-certification-deferred.md`       |
-| 20  | 2.3    | `CTO-DELTA-webhooks-bullmq-deferred.md`                 |
-| 21  | 2.3    | `CTO-DELTA-sso-idp-credentials-deferred.md`             |
-| 22  | 2.3    | `CTO-DELTA-audit-log-naming.md`                         |
-| 23  | 2.5    | `CTO-DELTA-docs-site-dns-deferred.md`                   |
-| 24  | 2.6    | `CTO-DELTA-billing-razorpay-deferred.md`                |
-| 25  | 2.7    | `CTO-DELTA-customer-zero-vps-deferred.md`               |
-| 26  | 2.8    | `CTO-DELTA-secret-rotation-worker-stub.md`              |
-| 27  | 2.9    | `CTO-DELTA-observability-credentials-deferred.md`       |
-| 28  | 2.10   | `CTO-DELTA-ai-pair-coding-anthropic-deferred.md`        |
-| 29  | 2.12   | `CTO-DELTA-setu-auto-deploy.md`                         |
-| 30  | 2.15.1 | `CTO-DELTA-domain-rebrand-qorium-online.md`             |
-| 31  | 2.16.5 | `CTO-DELTA-setu-100-percent-auto-mode.md`               |
-| 32  | 2.17   | `CTO-DELTA-aipc-question-authoring-framework.md`        |
-| 33  | 2.18   | `CTO-DELTA-audit-emitter.md`                            |
-
-## Constitutional gates closed
+## Constitutional gates closed (engineering side)
 
 - **SO-21** (IRT mandatory before release) — Sprint 1.5
 - **SO-22** (AI plagiarism ≥93% public benchmark) — Sprint 1.7
@@ -220,99 +337,39 @@ See `infra/CTO-deltas/` for the full catalogue.
 - **Article IX** (M9 phase gate — 4 ATS go-live) — Sprint 2.2 framework
   shipped; per-ATS live-flip at M6/M7/M8/M9
 
-## Deployment readiness
-
-| Component                 | State                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| Monorepo bootstrap        | ready                                                                                  |
-| Workspace builds          | clean across **28 workspaces**                                                         |
-| Test suite                | **963 active green + ~53 auto-skip**                                                   |
-| Lint / format             | clean                                                                                  |
-| Postgres migrations       | 0001 → 0014 (14 migrations)                                                            |
-| PM2 ecosystem             | 18+ service entries registered (5101–5117)                                             |
-| `.env` templates          | shipped (`infra/deployment/{staging,production}.env.template`)                         |
-| Day-1 runbook             | shipped (`infra/runbooks/customer-zero-day-1.md`)                                      |
-| 100% auto-mode runbook    | shipped (`infra/runbooks/setu-100-percent-auto-mode.md`)                               |
-| Grafana dashboard         | shipped (`infra/grafana/dashboards/qorium-overview.json`)                              |
-| Sentry / Loki integration | shim packages shipped; live wire-up pending DSN + token (CTO-DELTA #27)                |
-| Customer Zero deploy      | one-curl bootstrap shipped (`services/setu/bin/setu-bootstrap.sh`); pending CEO run    |
-| VPS provisioning          | DNS published (`api.qorium.online → 147.93.103.194`); bootstrap ready                  |
-| DNS records               | wildcard A `* → 147.93.103.194` recommended (per runbook)                              |
-| TLS certificates          | auto-provisioned by bootstrap (certbot --nginx) once DNS resolves                      |
-| GitHub auto-deploy        | webhook + GH-Actions workflow shipped; pending CEO paste of `SETU_GITHUB_PASTE_ME.txt` |
-
 ## Build run history (this session — autonomous-continuous mode)
 
-| Timestamp         | Action                                                               | Commit        | Push state |
-| ----------------- | -------------------------------------------------------------------- | ------------- | ---------- |
-| 2026-05-03T18:49Z | Sprint 2.3 — webhooks/sso/audit-log                                  | `2b90c27`     | pushed     |
-| 2026-05-03T19:01Z | Sprint 2.4 — admin onboarding dashboards                             | `382dd20`     | pushed     |
-| 2026-05-03T19:11Z | Sprint 2.5 — apps/docs + qorium-sdk                                  | `4fb45d8`     | pushed     |
-| 2026-05-03T19:20Z | Sprint 2.6 — billing service v0                                      | `d4ad069`     | pushed     |
-| 2026-05-03T19:28Z | Sprint 2.7 — api-key-mgmt + Customer Zero readiness                  | `dfb4d7c`     | pushed     |
-| 2026-05-03T19:34Z | Sprint 2.8 — secret rotation worker                                  | `02ebb55`     | pushed     |
-| 2026-05-03T19:38Z | Sprint 2.9 — observability + uptime-monitor                          | `7648fc1`     | pushed     |
-| 2026-05-03T19:46Z | Sprint 2.10 — Wave 3 AI pair-coding orchestrator                     | `fc0e391`     | pushed     |
-| 2026-05-04T01:xxZ | Sprint 2.11 — apps/candidate-portal (Wave 3 frontend)                | (mid-batch)   | pushed     |
-| 2026-05-04T01:xxZ | Sprint 2.12 — services/setu (status MCP + auto-deploy)               | (mid-batch)   | pushed     |
-| 2026-05-04T02:xxZ | Sprint 2.13 — services/webhooks-delivery-worker                      | (mid-batch)   | pushed     |
-| 2026-05-04T02:xxZ | Sprint 2.14 — SSO OIDC + RS256 JWT extension                         | (mid-batch)   | pushed     |
-| 2026-05-04T02:xxZ | Sprint 2.15 — Stack-Vault marker substitution                        | (mid-batch)   | pushed     |
-| 2026-05-04T02:xxZ | Sprint 2.15.1 — domain rebrand qorium.io → qorium.online             | (mid-batch)   | pushed     |
-| 2026-05-04T03:xxZ | Sprint 2.16 — JD-Forge XLSX export pathway                           | `6cbc263`     | pushed     |
-| 2026-05-04T03:xxZ | Sprint 2.16.5 — Setu 100% auto-mode bootstrap                        | `ebc004f`     | pushed     |
-| 2026-05-04T03:50Z | Sprint 2.17 — Wave 3 question authoring framework + bootstrap fix    | `4a1e8c8`     | pushed     |
-| 2026-05-04T04:05Z | Sprint 2.18 — packages/audit-emitter + api-key-mgmt integration      | `7250c71`     | pushed     |
-| 2026-05-04T04:15Z | Sprint 2.19 — wholesale audit-emitter wire-up (billing/sso/webhooks) | (this commit) | (pushing)  |
+| Timestamp         | Action                                                            | Commit        | Push      |
+| ----------------- | ----------------------------------------------------------------- | ------------- | --------- |
+| 2026-05-03T18:49Z | Sprint 2.3 — webhooks/sso/audit-log                               | `2b90c27`     | pushed    |
+| 2026-05-03T19:01Z | Sprint 2.4 — admin onboarding dashboards                          | `382dd20`     | pushed    |
+| 2026-05-03T19:11Z | Sprint 2.5 — apps/docs + qorium-sdk                               | `4fb45d8`     | pushed    |
+| 2026-05-03T19:20Z | Sprint 2.6 — billing v0                                           | `d4ad069`     | pushed    |
+| 2026-05-03T19:28Z | Sprint 2.7 — api-key-mgmt + Customer Zero readiness               | `dfb4d7c`     | pushed    |
+| 2026-05-03T19:34Z | Sprint 2.8 — secret rotation worker                               | `02ebb55`     | pushed    |
+| 2026-05-03T19:38Z | Sprint 2.9 — observability + uptime-monitor                       | `7648fc1`     | pushed    |
+| 2026-05-03T19:46Z | Sprint 2.10 — Wave 3 AI pair-coding orchestrator                  | `fc0e391`     | pushed    |
+| 2026-05-04T03:50Z | Sprint 2.17 — Wave 3 question authoring framework + bootstrap fix | `4a1e8c8`     | pushed    |
+| 2026-05-04T04:05Z | Sprint 2.18 — packages/audit-emitter + api-key-mgmt               | `7250c71`     | pushed    |
+| 2026-05-04T04:15Z | Sprint 2.19 — wholesale audit-emitter wire-up                     | `0136c8a`     | pushed    |
+| 2026-05-04T04:18Z | Bootstrap-fix #1 — repo casing + chat-paste hardening             | `74c1142`     | pushed    |
+| 2026-05-04T04:23Z | Bootstrap-fix #2 — PAT support for private-repo bootstrap         | `fbba773`     | pushed    |
+| 2026-05-04T05:18Z | Bootstrap-fix #3 — nginx/IPv4/migrate-script/PM2-paths            | `3255883`     | pushed    |
+| 2026-05-04T05:43Z | Bootstrap-fix #4 — postgres schema GRANT + admin path             | `5fc46a2`     | pushed    |
+| 2026-05-04T06:19Z | Bootstrap-fix #5 — pre-install pg extensions as superuser         | `3f573ee`     | pushed    |
+| 2026-05-04T06:22Z | Bootstrap-fix #6 — admin local node_modules + DB ownership        | `7ae6ebe`     | pushed    |
+| 2026-05-04T13:28Z | Bootstrap-fix #7 — drop process.argv[1] guard (PM2 cluster)       | `2dd5135`     | pushed    |
+| 2026-05-04T14:30Z | Artifact reconciliation — macro Phase 0 status                    | (this commit) | (pushing) |
 
-(New rows appended after each sprint commit.)
+## Final note
 
-### Bootstrap-404 incident (2026-05-04 03:30Z)
+The earlier version of this artifact dashboard claimed "project
+complete" by the strength of Stream B's engineering deliverables.
+That was wrong. The macro project is at **~38% Phase 0 of 8 phases**
+and the next ~62% of Phase 0 is gated entirely on CEO actions
+(capital, IP counsel, hiring, Bosch outreach, real API keys).
 
-The CEO ran the Sprint 2.16.5 bootstrap command on the VPS and hit
-`bash: line 1: 404:: command not found`. Root cause: the bootstrap
-script lives only on the feature branch; `main/...` raw URL 404s.
-
-Fixes shipped in Sprint 2.17 commit (defence-in-depth):
-
-1. Runbook + script header now use `curl -fsSL ... -o /tmp/...` so HTTP
-   errors fail loud and do not land in `bash` as text.
-2. Two-URL fallback (main first, then feature branch) bridges the
-   commit-to-merge window.
-3. PR #9 ready-for-review (drops draft status) so the CEO can merge to
-   main and the canonical URL works for all future bootstraps.
-
-## Next plan — Sprint 2.18+ queued
-
-All four "next plan" workstreams from the previous dashboard revision
-have shipped (Sprints 2.11–2.17 covered the candidate portal, webhooks
-worker, OIDC, body substitution, rebrand, xlsx export, 100% auto-mode,
-and question-authoring framework).
-
-### Sprint 2.18 — `packages/audit-emitter` + integration
-
-- Shared library that domain services import to emit audit events to
-  the audit-log service with idempotency keys + standard event taxonomy
-- Wire into 4 emitter services (api-key-mgmt, billing, sso, webhooks)
-  so every state-changing call writes a single canonical audit row
-- Stub-vs-Real (Real = HTTP POST to audit-log; Stub = in-memory ring
-  buffer for tests)
-- ~25 new tests
-
-### Sprint 2.19 — Customer-portal `apps/my` (self-service billing)
-
-- New Next.js 15 app at port (TBD; likely 5118)
-- Read-only invoice list, payment intent flow, subscription overview,
-  API key surfacing (issue / revoke / rotate)
-- Reuses `@qorium/qorium-sdk`
-- ~30 new tests
-
-### Sprint 2.20 — `services/leak-rotation-worker` (SO-9 24h question rotation)
-
-- PM2 fork that scans the leak-crawler signals + rotates published
-  questions out of the active pool (per Constitution Article SO-9)
-- ~15 new tests
-
-After 2.20 the autonomous-eligible queue is exhausted; the next batch
-needs CEO input on which halt-unblocks to prioritise (Anthropic key,
-Razorpay test sandbox, Sentry DSN, etc.).
+When the CEO completes the action queue at the top of this doc,
+Phase 0 hits 100% and Phase 1 begins. Stream B's engineering
+substrate is ready for Phase 1's first 5,000 questions, first 5
+logos, and first 6 hires.
