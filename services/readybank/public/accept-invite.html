@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Accept Invitation · QOrium</title>
+    <link rel="stylesheet" href="/login.css" />
+  </head>
+  <body>
+    <main class="card">
+      <h1>Welcome to QOrium</h1>
+      <p class="lede">Set a password to activate your recruiter account.</p>
+      <form id="accept-form" novalidate>
+        <label for="password">Choose a password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="new-password"
+          minlength="12"
+          required
+        />
+
+        <label for="confirm">Confirm password</label>
+        <input
+          id="confirm"
+          name="confirm"
+          type="password"
+          autocomplete="new-password"
+          minlength="12"
+          required
+        />
+
+        <button id="submit" type="submit">Activate account</button>
+        <p id="error" class="error" role="alert" hidden></p>
+        <p id="success" class="success" role="status" hidden>
+          Account activated.
+          <a href="/login.html">Sign in &rarr;</a>
+        </p>
+      </form>
+    </main>
+    <script src="/accept-invite.js" defer></script>
+  </body>
+</html>

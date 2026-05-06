@@ -14,8 +14,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.700.0",
     "@qorium/auth": "workspace:*",
     "@qorium/db": "workspace:*",
+    "@sendgrid/mail": "^8.1.4",
     "@sentry/node": "^8.41.0",
     "argon2": "^0.41.1",
     "cookie-parser": "^1.4.7",

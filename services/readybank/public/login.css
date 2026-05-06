@@ -90,3 +90,17 @@ button:disabled {
   border-radius: 6px;
   font-size: 13px;
 }
+
+.success {
+  margin-top: 16px;
+  padding: 10px 12px;
+  background: #14532d;
+  color: #dcfce7;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.success a {
+  color: #bbf7d0;
+  font-weight: 600;
+}
