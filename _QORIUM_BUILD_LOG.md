@@ -478,3 +478,76 @@ Stream B should pick up next 1–2 runs:
   endpoints need explicit double-submit or origin checks)
 - Password reset + email verification flow
 - Migration `0003_*.sql` slot (still reserved for Stream B per spec)
+
+---
+
+## 2026-05-06 — Sprint 1.6 Mailer + Invitations (engineering portion)
+
+PR: [#13](https://github.com/sales799/QOrium/pull/13) · branch
+`claude/sprint-1-6-mailer`. Closes the engineering line items of
+Sprint 1.6 on top of the JWT login work merged in #12. Content + ingest
+items remain in Stream B's / SME's lane.
+
+### Sprint 1.6 line-item status
+
+| #   | Line item                                                         | Status                           |
+| --- | ----------------------------------------------------------------- | -------------------------------- |
+| 1   | JWT recruiter-auth spec + `login.html` + migration `0004`         | ✅ shipped #12                   |
+| 2   | Driver-agnostic mailer (SES / SendGrid / mock) + migration `0005` | ✅ shipped #13                   |
+| 3   | Wave-1 full ingest script (24 sources → ~470 rows)                | ⏳ Stream B (Cowork-side parser) |
+| 4   | Oracle HCM Q53–Q60 closed (60/60 v0.6)                            | ⏳ SME content authoring         |
+| 5   | Wave-3 Authoring Template v0.1 + Kickoff Batch-001 (20 items)     | ⏳ SME content authoring         |
+
+### What landed in #13
+
+- **Migration `0005_recruiter_invitations.sql`** — `app.recruiter_invitations`
+  table with `token_hash` (SHA-256 of plaintext token, never stored), audit
+  columns (`mailer_driver`, `mailer_message_id`), `expires_at`, `accepted_at`,
+  `revoked_at`. Relaxes `app.recruiters.password_hash` to NULLable with a
+  CHECK that ties NULL hash to `status='pending'`.
+- **Mailer abstraction at `services/readybank/src/mailer/`** —
+  `Mailer` interface + `createMailer({ driver })` factory; `MockMailer`
+  (in-memory recorder; default in dev/test), `SesMailer` (`@aws-sdk/client-ses`
+  `SendEmailCommand` with default credential chain), `SendGridMailer`
+  (`@sendgrid/mail`). Provider SDKs lazy-imported so test boots don't pull
+  them.
+- **`POST /v1/auth/invite`** (API-key gated) — mints a single-use token
+  (32 random bytes, base64url), creates a `pending` recruiter row, mails the
+  invitation, audit-logs `auth.invitation.sent` with the driver actually
+  used + provider message id. Idempotent for emails already in `pending`,
+  refuses (409) for `active` / `disabled` accounts.
+- **`POST /v1/auth/accept`** (public, token-gated) — looks up the
+  outstanding invitation by `sha256(token)`, verifies `expires_at`, hashes
+  the new password with argon2id (`m=19MiB, t=2, p=1`), flips the
+  recruiter to `active`, marks the invitation accepted. Single-use; replay
+  returns 404.
+- **Login** now returns 403 `auth/invitation-pending` when the recruiter has
+  no `password_hash` (cleaner than the previous catch-all "disabled" path).
+- **`/accept-invite.html` + `accept-invite.js`** — companion static page,
+  CSP-compliant (no inline JS / styles), client-side password match +
+  length check, surfaces RFC 7807 `detail` on error.
+- **`.env.example`** — documents `MAILER_DRIVER` (`mock` | `ses` | `sendgrid`),
+  `MAILER_FROM_ADDRESS`, `MAILER_REPLY_TO_ADDRESS`, `RECRUITER_PORTAL_URL`,
+  `SES_REGION` / `SES_ACCESS_KEY_ID` / `SES_SECRET_ACCESS_KEY`,
+  `SENDGRID_API_KEY`.
+
+### Verified
+
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` clean
+- `pnpm test` — readybank: **61 passed / 21 skipped**; the 21 skips are the
+  DB-integration suites that need `DATABASE_URL`. New tests: 9 in
+  `mailer.unit.test.ts`, 8 in `invite.test.ts` covering invite happy path,
+  malformed body 400, conflict 409, accept happy path, expired 410, replay
+  404, password-too-short 400.
+- `pnpm build` clean across all 3 active packages
+
+### Bridge Protocol — explicit handoff
+
+Items 3, 4, 5 are intentionally not authored here:
+
+- **Wave-1 ingest** would require re-implementing the markdown parser shipped
+  Cowork-side (Run #32). The `customer-zero/Wave-1-*.md` source files are
+  prose-formatted; without the canonical parser the ingest contract would
+  diverge across streams. Better to mirror the artefact when it bridges over.
+- **Oracle HCM Q53–Q60** and **Wave-3 Authoring Template + Kickoff Batch-001**
+  are content authoring tasks — SME work, not engineering.
