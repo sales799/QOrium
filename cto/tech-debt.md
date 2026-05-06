@@ -30,16 +30,16 @@ Two rules:
 
 ## Open debt
 
-### TD-001 — UptimeRobot or equivalent uptime monitor not yet provisioned
+### TD-001 — UptimeRobot or equivalent uptime monitor not yet provisioned — PARTIALLY RESOLVED 2026-05-06
 
-- **Severity:** Medium
+- **Severity:** Medium → Low (after partial resolution)
 - **Logged:** 2026-05-06 (Completion Sprint v1)
-- **Why:** SLI uptime target documented in `cto/sli-slo.md` is currently unmeasured. Manual cURL checks happen on deploy; nothing checks 24/7.
-- **Cost of doing it right:** ~30 min setup (UptimeRobot free tier; alert to CTO email + WhatsApp).
-- **Why deferred:** Pre-launch Y1 traffic = 0; downtime impact = 0; ROI on monitor was lower than "ship Phase 1 work first" trade.
-- **Pay-down trigger:** Site goes live + first external customer mention ≥1 → set up immediately.
+- **Original gap:** SLI uptime target documented in `cto/sli-slo.md` was unmeasured. Manual cURL checks happen on deploy; nothing checks 24/7.
+- **Partial resolution (2026-05-06, this commit):** Added `.github/workflows/uptime.yml` — GitHub Actions cron workflow runs every 5 min against `qorium.online`. Hits 6 critical routes; verifies TLS cert >14 days remaining; verifies qorium.in 301 redirect. On failure, the workflow run shows red + (when configured) emits webhook notification.
+- **Why GitHub Actions cron over UptimeRobot:** zero-cost, no third-party account required, alerts via the same GitHub mechanism the team already monitors. UptimeRobot would add multi-region probing + SMS alerts which are nice-to-have but not Y1-critical.
+- **Remaining gap (still tracked under this entry):** No SMS alert on failure (only GitHub notification). No multi-region probing (cron runs from one GitHub-hosted runner). No status-page surface. These are Y2+ if traffic warrants.
 - **Owner:** CTO
-- **ETA:** Within 7 days post-launch
+- **Resolution commit:** (this commit — see `git log` for the SHA after push)
 
 ### TD-002 — No real-time p95 latency metric
 
@@ -114,15 +114,14 @@ Two rules:
 - **Owner:** CTO + Bali
 - **ETA:** Y1 Q3 (after CRM choice locks)
 
-### TD-009 — Bundle baseline not yet captured
+### TD-009 — Bundle baseline not yet captured — RESOLVED 2026-05-06
 
 - **Severity:** Low
 - **Logged:** 2026-05-06
-- **Why:** `@next/bundle-analyzer` plumbed (per Phase 1.6 of Completion Sprint v1) but baseline run not captured to `apps/marketing/BUNDLE-BASELINE.md`.
-- **Cost of doing it right:** Run `pnpm --filter @qorium/marketing build:analyze` once, capture the per-route gzip sizes.
-- **Pay-down trigger:** Next time CTO is doing bundle work.
-- **Owner:** CTO
-- **ETA:** Within 30 days
+- **Original gap:** `@next/bundle-analyzer` plumbed but baseline run not captured.
+- **Resolution (2026-05-06, this commit):** `apps/marketing/BUNDLE-BASELINE.md` written with per-route First Load JS sizes captured from `ANALYZE=true pnpm --filter @qorium/marketing build`. Includes shared baseline (102 kB), per-route table sorted by First Load JS, observations, action thresholds (any route +20% → CTO review; `/` >220 kB → P1; shared >130 kB → CTO review), and re-baseline cadence (quarterly + per major dep upgrade + per architectural change).
+- **Resolution commit:** (this commit — see `git log` after push)
+- **Note:** `BUNDLE-BASELINE.md` is the living doc; future bundle audits append a new dated section.
 
 ### TD-010 — Logo SVG is placeholder; final brand identity pending
 
@@ -167,7 +166,12 @@ Two rules:
 
 ## Resolved debt (historical record)
 
-(Empty — first entries land when something gets resolved. Format will be:)
+| Entry            | Resolved   | Approach                                                                                                                 |
+| ---------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| TD-001 (partial) | 2026-05-06 | GH Actions cron uptime workflow; UptimeRobot replaced with zero-cost in-house monitor. Severity downgraded Medium → Low. |
+| TD-009 (full)    | 2026-05-06 | Bundle baseline captured to `apps/marketing/BUNDLE-BASELINE.md` from `ANALYZE=true` build output.                        |
+
+(Future resolutions append in chronological order. Use this format:)
 
 ```
 ### TD-NNN — <title> — RESOLVED YYYY-MM-DD
