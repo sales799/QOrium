@@ -241,8 +241,9 @@ This keeps the artifact and the canonical punchlist from drifting.
 | 2.17   | Wave 3 question-authoring framework v0                 | shipped | 20        | 930       |
 | 2.18   | `packages/audit-emitter` + api-key-mgmt integration    | shipped | 33        | 963       |
 | 2.19   | audit-emitter wholesale wire-up (billing/sso/webhooks) | shipped | 4         | 967       |
+| 2.20   | `apps/my` customer self-service portal + PM2 fill-in   | shipped | 22        | 989       |
 
-**Workspace totals:** 28 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **967 active green tests** + ~53 auto-skip.
+**Workspace totals:** 29 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **989 active green tests** + ~53 auto-skip.
 
 ## Live deployment state (api.qorium.online)
 
@@ -274,13 +275,14 @@ permissions, PM2 cluster-mode argv guards, etc.):
 | `@qorium/observability`  | Sentry / Loki / OpenTelemetry shims            | 14        |
 | `@qorium/audit-emitter`  | Audit-log emitter + canonical taxonomy         | 31        |
 
-### Apps — 3
+### Apps — 4
 
-| Workspace                  | Port | Description                                                      | Tests       |
-| -------------------------- | ---: | ---------------------------------------------------------------- | ----------- |
-| `@qorium/admin`            | 5104 | Next.js admin: SME queue + IRT + SSO + webhooks + audit + uptime | 74 + 7 skip |
-| `@qorium/docs`             | 5108 | Next.js public API docs                                          | 11          |
-| `@qorium/candidate-portal` | 5116 | Next.js Wave 3 candidate UX                                      | 19          |
+| Workspace                  | Port | Description                                                       | Tests       |
+| -------------------------- | ---: | ----------------------------------------------------------------- | ----------- |
+| `@qorium/admin`            | 5104 | Next.js admin: SME queue + IRT + SSO + webhooks + audit + uptime  | 74 + 7 skip |
+| `@qorium/docs`             | 5108 | Next.js public API docs                                           | 11          |
+| `@qorium/candidate-portal` | 5116 | Next.js Wave 3 candidate UX                                       | 19          |
+| `@qorium/my`               | 5118 | Next.js customer self-service portal (invoices + subs + API keys) | 22          |
 
 ### Services — 18
 

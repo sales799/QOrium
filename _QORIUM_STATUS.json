@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-06T07:25:01.558Z",
+  "generatedAt": "2026-05-06T07:36:11.360Z",
   "branch": "claude/setup-qorium-build-agent-zA0l5",
   "prNumber": 9,
-  "head": "2dd5135",
+  "head": "8d91d7a",
   "hero": {
     "phase0CompletionPercent": 100,
     "contentInventory": {
@@ -79,9 +79,9 @@
     {
       "key": "B",
       "title": "Infrastructure",
-      "done": 30,
-      "total": 30,
-      "notes": "30/30 sprints shipped to GitHub PR #9",
+      "done": 31,
+      "total": 31,
+      "notes": "31/31 sprints shipped to GitHub PR #9",
       "completion": 1
     },
     {
@@ -327,6 +327,13 @@
       "status": "shipped",
       "testsAdded": 4,
       "cumulativeTests": 967
+    },
+    {
+      "id": "2.20",
+      "name": "`apps/my` customer self-service portal + PM2 fill-in",
+      "status": "shipped",
+      "testsAdded": 22,
+      "cumulativeTests": 989
     }
   ],
   "tests": {
@@ -338,7 +345,7 @@
     "count": 14,
     "latestId": "0014"
   },
-  "pm2Services": 18,
+  "pm2Services": 22,
   "halts": [
     {
       "bucket": "",

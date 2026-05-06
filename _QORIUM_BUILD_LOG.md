@@ -2299,6 +2299,46 @@ Reuses `@qorium/qorium-sdk`. ~30 new tests.
 
 ---
 
+## 2026-05-04T15:00Z — Sprint 2.20 + PM2 ecosystem fill-in ✅
+
+Two parallel changes:
+
+1. **PM2 ecosystem fill-in** — added `qorium-ats-bridge` (5105),
+   `qorium-docs` (5108), `qorium-candidate-portal` (5116) to
+   `infra/B10-ecosystem.config.js`. They were built but missing
+   from the process list, so the public surface was incomplete.
+   Total apps: 18 → 22 (after Sprint 2.20 below).
+
+2. **Sprint 2.20 — `apps/my` customer self-service portal** at
+   port 5118. New Next.js 15 app with server-rendered customer
+   dashboard (outstanding invoices, active subscriptions, API key
+   portfolio). Pure-logic helpers in `src/lib/`:
+   - `billing-summary.ts` — `summariseBilling()` (computes
+     outstanding + overdue + monthly recurring), `formatMoney()`
+     (Intl currency), tone helpers for status badges
+   - `api-keys.ts` — `toDisplayState()` (mask + status derivation
+     including expired / revoked / rotation_due / expiring),
+     `aggregatePortfolio()` for dashboard tile
+   - `app/page.tsx` — server-rendered dashboard with 3 tiles
+   - `app/healthz/route.ts` — uptime monitor probe
+     22 tests covering both helpers.
+
+Nginx routing updated: `my.qorium.online` now points at
+`qorium_my` upstream (was a placeholder routing to billing).
+
+Added `qorium-my` PM2 entry (cluster mode, 2 instances).
+
+Workspace state at end of Sprint 2.20:
+
+- 29 workspaces · 14 Postgres migrations · 33 CTO-DELTAs
+- 989 active green tests + ~53 auto-skip (was 967; +22 net)
+- typecheck + lint + format:check clean
+
+Next: Sprint 2.21 — `services/leak-rotation-worker` (SO-9 24h
+question rotation enforcement).
+
+---
+
 ## 2026-05-04T14:30Z — Artifact reconciliation against macro Phase 0 ✅
 
 CEO flagged that the artifact dashboard had been declaring "project

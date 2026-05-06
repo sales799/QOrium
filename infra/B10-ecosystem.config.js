@@ -931,6 +931,187 @@ module.exports = {
       max_restarts: 10,
       min_uptime: '10s',
     },
+
+    /**
+     * =====================================================================
+     * ATS BRIDGE SERVICE (Cluster Mode)
+     * =====================================================================
+     * Purpose: ATS webhook receiver + adapter dispatch (Greenhouse,
+     *          Ashby, Darwinbox, Workday — Constitution Article IX
+     *          M9 phase gate requires all 4 active).
+     * Mode: Cluster (2 instances)
+     * Port: 5105
+     */
+    {
+      name: 'qorium-ats-bridge',
+      script: './services/ats-bridge/dist/index.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5105,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5105,
+        SERVICE_NAME: 'qorium-ats-bridge',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5105,
+        SERVICE_NAME: 'qorium-ats-bridge',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-ats-bridge-out.log',
+      error_file: '/var/log/pm2/qorium-ats-bridge-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * DOCS SITE (Next.js, Cluster Mode)
+     * =====================================================================
+     * Purpose: Public API documentation at docs.qorium.online
+     * Mode: Cluster (2 instances)
+     * Port: 5108
+     */
+    {
+      name: 'qorium-docs',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5108',
+      cwd: './apps/docs',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5108,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5108,
+        SERVICE_NAME: 'qorium-docs',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5108,
+        SERVICE_NAME: 'qorium-docs',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-docs-out.log',
+      error_file: '/var/log/pm2/qorium-docs-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * CANDIDATE PORTAL (Next.js, Cluster Mode)
+     * =====================================================================
+     * Purpose: Wave 3 AI pair-coding candidate UX at candidate.qorium.online
+     * Mode: Cluster (2 instances)
+     * Port: 5116
+     */
+    {
+      name: 'qorium-candidate-portal',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5116',
+      cwd: './apps/candidate-portal',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5116,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5116,
+        SERVICE_NAME: 'qorium-candidate-portal',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5116,
+        SERVICE_NAME: 'qorium-candidate-portal',
+        QORIUM_API_BASE: 'https://api.qorium.online',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-candidate-portal-out.log',
+      error_file: '/var/log/pm2/qorium-candidate-portal-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
+     * CUSTOMER PORTAL — apps/my (Next.js, Cluster Mode)
+     * =====================================================================
+     * Purpose: Self-service customer portal at my.qorium.online
+     *          (invoices + subscriptions + API keys).
+     * Mode: Cluster (2 instances)
+     * Port: 5118
+     */
+    {
+      name: 'qorium-my',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start --port 5118',
+      cwd: './apps/my',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5118,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5118,
+        SERVICE_NAME: 'qorium-my',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5118,
+        SERVICE_NAME: 'qorium-my',
+        QORIUM_API_BASE: 'https://api.qorium.online',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-my-out.log',
+      error_file: '/var/log/pm2/qorium-my-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
   ],
 
   // ========================================================================
