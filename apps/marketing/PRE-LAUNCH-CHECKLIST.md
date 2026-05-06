@@ -90,6 +90,24 @@ Phase-1 autonomous work shipped in commits `dc20c1c → d72a08a → [next push]`
 
 ---
 
+## H. Autonomous PROVE Run ✅ (2026-05-06 — 5 commits sequence)
+
+Triggered by founder typing `PROVE`. CTO autonomously ran 9 parallel tracks (A-I) across 4 commits + 1 final updates. Each commit gitleaks-scanned + pushed.
+
+- [x] **H-F** — `services/readybank/openapi.yaml` (340 lines) — OpenAPI 3.1.0 spec for v1 API; documents 6 endpoints with Zod-accurate schemas; bearer-token auth; RFC 7807 Problem responses
+- [x] **H-H** — Vitest test suite for marketing app (3 test files, 20 tests) — `cn` util · locked-USP verbatim integrity · no-TBD/lorem-ipsum + SOURCE-comment audit. Resolves TD-005 (partial)
+- [x] **H-I** — Sentry DSN scaffold (`src/lib/sentry.ts` + `sentry-types.ts`) — env-gated; no-op until DSN+@sentry/nextjs both land. Resolves TD-007 (partial)
+- [x] **H-A** — `services/jdforge/ops/` skeleton — placeholder for M2-M4 spin-out
+- [x] **H-B** — `services/stackvault/ops/` skeleton — placeholder for M2-M4 spin-out (first paid Stack-Vault customer triggers)
+- [x] **H-C** — `packages/auth/ops/` (3 files: README · ADR 0001 API key format · sli-slo) and `packages/db/ops/` (3 files: README · ADR 0001 custom migration runner · runbooks/migration-discipline)
+- [x] **H-D** — `customer-zero/Wave-3-Pre-Flight.md` — readiness state for the first wave running under formal protocols (target Wave-3 Day 0: 2026-06-15 to 2026-06-30)
+- [x] **H-E** — `customer-zero/ops/` — COM (Content Operations Manager) operating folder: README · sme-onboarding-protocol · wave-readiness-checklist
+- [x] **H-G** — `bali/scans/2026-Q3-competitive-scan-PRELIM.md` — first preliminary scan exercising the SO-25 protocol; verdict: NO MATERIAL MOVES; positioning holds; formal Aug 5 scan still binding
+
+**Total H-block:** 5 commits, 33 files changed, ~5,500 lines added.
+
+---
+
 ## E. Pre-Announce QA (after C+D complete)
 
 - [ ] **E1** — Run real Lighthouse from MacBook on `qorium.online` home, `/pricing`, `/features/readybank`, `/security`, `/about`. Confirm all ≥90 (stretch ≥95).

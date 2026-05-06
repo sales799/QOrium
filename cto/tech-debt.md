@@ -72,15 +72,18 @@ Two rules:
 - **Owner:** CTO
 - **ETA:** Within 30 days post-first-paid-customer
 
-### TD-005 — Marketing site has no Vitest/Jest unit tests
+### TD-005 — Marketing site Vitest unit tests — PARTIALLY RESOLVED 2026-05-06
 
-- **Severity:** Low
+- **Severity:** Low → Lower (partial resolution)
 - **Logged:** 2026-05-06
-- **Why:** Marketing app's test coverage is Playwright E2E only (5 critical-route smoke tests). Copy decks, utilities (`lib/cn`, `lib/seo`), components are untested.
-- **Why deferred (Completion Sprint v1):** TS strict mode catches the most common errors at compile time; E2E catches integration issues; unit tests for marketing-only utils are low-leverage.
-- **Pay-down trigger:** A bug in production that a unit test would have caught.
+- **Original gap:** Marketing app's test coverage was Playwright E2E only (5 critical-route smoke tests). Copy decks, utilities (`lib/cn`, `lib/seo`), components were untested.
+- **Partial resolution (PROVE autonomous run):** `apps/marketing/vitest.config.ts` + 3 test files + 20 tests covering:
+  - `lib/cn` utility (6 tests on classnames merging)
+  - Locked USP verbatim integrity across press-kit, home, site.config, LinkedIn announce, Bosch announce (7 tests)
+  - No [TBD] / lorem ipsum / placeholder markers in shipped copy decks + // SOURCE: comment audit (7 tests)
+- **Remaining gap:** Component-level tests (BlurFade, OrbitingCircles, etc.) still untested. SEO util `buildMetadata` untested. Reactive — add tests when bugs surface.
 - **Owner:** CTO
-- **ETA:** Reactive (don't proactively chase coverage; add tests when bugs surface)
+- **Resolution commit:** `faee670` (PROVE autonomous run Track H)
 
 ### TD-006 — Lighthouse + axe in CI run in `warn` mode (not enforced)
 
@@ -92,16 +95,15 @@ Two rules:
 - **Owner:** CTO
 - **ETA:** Within 30 days of first 3 PR runs
 
-### TD-007 — Sentry DSN not configured (no error tracking)
+### TD-007 — Sentry DSN not configured — PARTIALLY RESOLVED 2026-05-06
 
-- **Severity:** Medium
+- **Severity:** Medium → Low (partial resolution)
 - **Logged:** 2026-05-06
-- **Why:** Frontend errors and Server Action errors land in PM2 logs (server-side) or browser console (client-side). No aggregation, no alerting.
-- **Cost of doing it right:** Sentry account + DSN env var + `@sentry/nextjs` integration.
-- **Why deferred:** No customer impact yet; PM2 logs are sufficient for the current investigation cadence.
-- **Pay-down trigger:** First customer-reported bug that would have been caught by Sentry.
+- **Original gap:** Frontend errors and Server Action errors landed in PM2 logs (server-side) or browser console (client-side). No aggregation, no alerting.
+- **Partial resolution (PROVE autonomous run):** `apps/marketing/src/lib/sentry.ts` + `sentry-types.ts` — stub API surface (`captureException`, `captureMessage`, `setUser`, `getSentryConfig`). Env-gated via `NEXT_PUBLIC_SENTRY_DSN`; until DSN + `@sentry/nextjs` both land in same PR, all functions are no-op (dev console log only). When DSN is provisioned, swap stub bodies with the inline ACTIVATION comments — single PR away from real error tracking.
+- **Remaining gap:** Actual `@sentry/nextjs` install + DSN provisioning in repo secrets + activation. ETA: within 60 days post-first-paid-customer (unchanged).
 - **Owner:** CTO
-- **ETA:** Within 60 days post-first-paid-customer
+- **Resolution commit:** `faee670` (PROVE autonomous run Track I — scaffold)
 
 ### TD-008 — No CRM integration for /contact and /demo form submissions
 
@@ -166,10 +168,12 @@ Two rules:
 
 ## Resolved debt (historical record)
 
-| Entry            | Resolved   | Approach                                                                                                                 |
-| ---------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
-| TD-001 (partial) | 2026-05-06 | GH Actions cron uptime workflow; UptimeRobot replaced with zero-cost in-house monitor. Severity downgraded Medium → Low. |
-| TD-009 (full)    | 2026-05-06 | Bundle baseline captured to `apps/marketing/BUNDLE-BASELINE.md` from `ANALYZE=true` build output.                        |
+| Entry            | Resolved   | Approach                                                                                                                                                   |
+| ---------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TD-001 (partial) | 2026-05-06 | GH Actions cron uptime workflow; UptimeRobot replaced with zero-cost in-house monitor. Severity downgraded Medium → Low.                                   |
+| TD-005 (partial) | 2026-05-06 | Vitest config + 20 tests (cn util · locked-USP integrity · no-TBD copy audit). Component tests reactive. Commit `faee670`.                                 |
+| TD-007 (partial) | 2026-05-06 | Sentry stub API surface (`lib/sentry.ts`); env-gated; activates when DSN + `@sentry/nextjs` both land. Severity downgraded Medium → Low. Commit `faee670`. |
+| TD-009 (full)    | 2026-05-06 | Bundle baseline captured to `apps/marketing/BUNDLE-BASELINE.md` from `ANALYZE=true` build output.                                                          |
 
 (Future resolutions append in chronological order. Use this format:)
 
