@@ -133,7 +133,8 @@ export function takeRouter(deps: TakeRouterDeps): Router {
 
   // --- Public landing ------------------------------------------------------
   router.get('/take/:token', async (req, res, next) => {
-    const token = req.params.token;
+    const tokenParam = req.params.token;
+    const token = typeof tokenParam === 'string' ? tokenParam : '';
     if (!token || token.length < 16 || token.length > 256) {
       next(new HttpProblem({ status: 400, title: 'Bad Request', detail: 'Invalid take token' }));
       return;

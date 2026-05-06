@@ -34,14 +34,15 @@ export function resultsRouter(deps: ResultsRouterDeps): Router {
       next(new HttpProblem({ status: 401, title: 'Unauthorized' }));
       return;
     }
-    const id = req.params.id;
-    if (!UUID_RE.test(id ?? '')) {
+    const idParam = req.params.id;
+    const id = typeof idParam === 'string' ? idParam : '';
+    if (!UUID_RE.test(id)) {
       next(new HttpProblem({ status: 400, title: 'Bad Request', detail: 'Invalid session id' }));
       return;
     }
 
     try {
-      const row = await findSessionById(deps.pool, id!, recruiter.id);
+      const row = await findSessionById(deps.pool, id, recruiter.id);
       if (!row) {
         next(new HttpProblem({ status: 404, title: 'Not Found' }));
         return;
