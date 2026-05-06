@@ -23,6 +23,20 @@ export interface Config {
   cookieSecure: boolean;
   /** Minutes a recruiter is locked out after 5 consecutive failed logins. */
   recruiterLockoutMinutes: number;
+  /** Mailer driver selection. 'mock' is the default for dev/test. */
+  mailerDriver: 'ses' | 'sendgrid' | 'mock';
+  /** From address used by the recruiter invitation email. */
+  mailerFromAddress: string;
+  /** Optional Reply-To header. */
+  mailerReplyToAddress: string | undefined;
+  /** Base URL of the recruiter portal (used to build invitation accept links). */
+  recruiterPortalUrl: string;
+  /** SES region (mailerDriver=ses). */
+  sesRegion: string | undefined;
+  sesAccessKeyId: string | undefined;
+  sesSecretAccessKey: string | undefined;
+  /** SendGrid API key (mailerDriver=sendgrid). */
+  sendgridApiKey: string | undefined;
 }
 
 function getEnv(name: string, fallback?: string): string {
@@ -61,6 +75,12 @@ function parseLockoutMinutes(raw: string | undefined): number {
   return n;
 }
 
+function parseMailerDriver(raw: string | undefined): Config['mailerDriver'] {
+  if (raw === undefined || raw.length === 0) return 'mock';
+  if (raw === 'ses' || raw === 'sendgrid' || raw === 'mock') return raw;
+  throw new Error(`Invalid MAILER_DRIVER: ${raw} (expected ses | sendgrid | mock)`);
+}
+
 export function loadConfig(): Config {
   const nodeEnv = parseNodeEnv(getEnv('NODE_ENV', 'development'));
   return {
@@ -76,5 +96,13 @@ export function loadConfig(): Config {
     jwtSecret: process.env.JWT_SECRET,
     cookieSecure: nodeEnv !== 'development' && nodeEnv !== 'test',
     recruiterLockoutMinutes: parseLockoutMinutes(process.env.RECRUITER_LOCKOUT_MINUTES),
+    mailerDriver: parseMailerDriver(process.env.MAILER_DRIVER),
+    mailerFromAddress: getEnv('MAILER_FROM_ADDRESS', 'no-reply@qorium.io'),
+    mailerReplyToAddress: process.env.MAILER_REPLY_TO_ADDRESS,
+    recruiterPortalUrl: getEnv('RECRUITER_PORTAL_URL', 'http://localhost:5101'),
+    sesRegion: process.env.SES_REGION,
+    sesAccessKeyId: process.env.SES_ACCESS_KEY_ID,
+    sesSecretAccessKey: process.env.SES_SECRET_ACCESS_KEY,
+    sendgridApiKey: process.env.SENDGRID_API_KEY,
   };
 }

@@ -15,7 +15,8 @@ import { notFound, problemHandler } from './middleware/problem.js';
 import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
-import { authRouter } from './routes/auth.js';
+import { adminAuthRouter, authRouter } from './routes/auth.js';
+import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +29,8 @@ export interface ServerDeps {
   logger?: Logger;
   /** Override the auth middleware (e.g., open access in tests). */
   authMiddleware?: RequestHandler;
+  /** Override the mailer (tests use MockMailer). When omitted, built from config. */
+  mailer?: Mailer;
 }
 
 export interface ServerHandle {
@@ -73,9 +76,9 @@ export function createServer(deps: ServerDeps): ServerHandle {
   // /v1/* gated routes. Auth + repository routes are skipped when no pool is
   // configured (dev / smoke runs without a DB) so /healthz still works.
   if (deps.pool) {
-    // Recruiter session auth (Surface 6) — public login/logout, gated whoami.
-    // Mounted before the API-key gate so /v1/auth/login is reachable
-    // without an API key.
+    // Recruiter session auth (Surface 6) — public login/logout, gated whoami,
+    // public token-gated /auth/accept. Mounted before the API-key gate so
+    // /v1/auth/login is reachable without an API key.
     if (!deps.config.jwtSecret) {
       throw new Error(
         'JWT_SECRET environment variable is required to enable recruiter auth. ' +
@@ -85,6 +88,18 @@ export function createServer(deps: ServerDeps): ServerHandle {
     app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
 
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
+
+    // Admin-only auth endpoints (Sprint 1.6): /v1/auth/invite. Gated by API
+    // key so only recruiter ops with a valid key can mint invitations. Skipped
+    // when no mailer is configured (tests omit it; index.ts builds it).
+    if (deps.mailer) {
+      app.use(
+        '/v1',
+        auth,
+        adminAuthRouter({ pool: deps.pool, config: deps.config, mailer: deps.mailer }),
+      );
+    }
+
     app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }));
   }
 

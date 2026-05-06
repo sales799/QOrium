@@ -27,6 +27,14 @@ function testConfig(overrides: Partial<Config> = {}): Config {
     jwtSecret: 'test_jwt_secret_at_least_thirty_two_characters_long_xx',
     cookieSecure: false,
     recruiterLockoutMinutes: 15,
+    mailerDriver: 'mock',
+    mailerFromAddress: 'no-reply@qorium.test',
+    mailerReplyToAddress: undefined,
+    recruiterPortalUrl: 'http://localhost:5101',
+    sesRegion: undefined,
+    sesAccessKeyId: undefined,
+    sesSecretAccessKey: undefined,
+    sendgridApiKey: undefined,
     ...overrides,
   };
 }
@@ -36,10 +44,10 @@ interface RecruiterFixture {
   tenant_id: string;
   email: string;
   name: string;
-  password_hash: string;
+  password_hash: string | null;
   failed_login_count: number;
   locked_until: Date | null;
-  status: 'active' | 'disabled';
+  status: 'active' | 'disabled' | 'pending';
 }
 
 interface StubPool {
