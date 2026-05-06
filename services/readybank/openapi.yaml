@@ -1,0 +1,365 @@
+openapi: 3.1.0
+info:
+  title: QOrium ReadyBank API
+  version: 1.0.0
+  description: |
+    The shared, IRT-calibrated, anti-leak-rotated question library API for
+    assessment platforms. Customer = assessment platforms (HackerRank-tier
+    integrations); pricing band $5K-25K/yr per Constitution SO-23.
+
+    **Authority:** This spec is the source-of-truth for the v1 API. ADR
+    0002 in `services/readybank/ops/adrs/` documents the URL-path
+    versioning strategy.
+
+    **Customer onboarding:** see `services/readybank/ops/runbooks/customer-onboarding.md`.
+
+    **SLOs:** see `services/readybank/ops/sli-slo.md`.
+
+  contact:
+    name: QOrium Engineering
+    email: hello@qorium.online
+    url: https://qorium.online
+  license:
+    name: Commercial — see contract
+servers:
+  - url: https://api.qorium.online
+    description: Production (URL TBD post-launch)
+  - url: http://localhost:5101
+    description: Local dev
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /healthz:
+    get:
+      summary: Liveness probe
+      description: |
+        Returns 200 if the process is up. Does NOT verify downstream
+        dependencies (DB, Redis). Used by load balancers for liveness.
+      security: []
+      responses:
+        '200':
+          description: Service alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  service: { type: string, example: '@qorium/readybank' }
+                  uptime_s: { type: number, example: 3621.4 }
+
+  /readyz:
+    get:
+      summary: Readiness probe
+      description: |
+        Returns 200 if the service is ready to serve traffic — including
+        DB connectivity check. Used by orchestrators for traffic routing.
+      security: []
+      responses:
+        '200':
+          description: Service ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  db: { type: string, example: ok }
+        '503':
+          description: Service not ready (DB down, etc.)
+          $ref: '#/components/responses/Problem'
+
+  /v1/questions/search:
+    get:
+      summary: Search questions by filters
+      tags: [Questions]
+      parameters:
+        - in: query
+          name: skill
+          schema: { type: string, minLength: 1, maxLength: 100 }
+          description: Skill name (e.g., `java.spring`)
+        - in: query
+          name: sub_skill
+          schema: { type: string, minLength: 1, maxLength: 100 }
+          description: Sub-skill name (e.g., `transactional-propagation`)
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [mcq, msq, coding-fn, coding-project, sql, sjt, design, casestudy, video]
+          description: Question format
+        - in: query
+          name: difficulty
+          schema: { type: integer, minimum: 1, maximum: 5 }
+          description: Difficulty band (1=easy, 5=expert)
+        - in: query
+          name: language
+          schema: { type: string, pattern: '^[a-z]{2}$' }
+          description: ISO 639-1 language code (e.g., `en`)
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - in: query
+          name: cursor
+          schema: { type: string, minLength: 1, maxLength: 512 }
+          description: Opaque pagination cursor from a previous response
+      responses:
+        '200':
+          description: Question list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Question' }
+                  next_cursor:
+                    type: string
+                    nullable: true
+                    description: Opaque cursor; absent or null when no more results
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /v1/questions/{uuid}:
+    get:
+      summary: Fetch a single question by UUID
+      tags: [Questions]
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+          example: rb_q_01HXY8M2P5R
+      responses:
+        '200':
+          description: Question record
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Question' }
+        '404':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+
+  /v1/packs/generate:
+    post:
+      summary: Generate a question pack
+      description: |
+        Generates a pack matching the supplied filters + limit. Pack is
+        persisted; returned with a UUID for later export. Use the
+        returned `pack_id` with `/v1/packs/{id}/export?format=...` to
+        serialize the pack into a customer's preferred format.
+      tags: [Packs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                  description: Optional pack label (e.g., 'Senior Backend Q4 drive')
+                filters:
+                  $ref: '#/components/schemas/PackFilters'
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 30
+                expires_in_days:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  default: 30
+                  description: Pack expires after this window; access denied after
+              example:
+                name: Senior Backend Q4 drive
+                filters:
+                  skill: java.spring
+                  difficulty: 4
+                  format: coding-fn
+                limit: 30
+      responses:
+        '200':
+          description: Pack created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pack' }
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /v1/packs/{id}/export:
+    get:
+      summary: Export a pack
+      description: |
+        Serializes a previously-generated pack in the requested format.
+        Three formats supported per ADR 0003 in
+        `services/readybank/ops/adrs/`: csv, json, hackerrank-yaml. Default
+        format is json.
+      tags: [Packs]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [csv, json, hackerrank-yaml]
+            default: json
+      responses:
+        '200':
+          description: Pack content
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Question' }
+            text/csv:
+              schema: { type: string }
+            application/x-yaml:
+              schema: { type: string }
+        '404':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API key (qor_live_* or qor_test_*)
+      description: |
+        API key issued by Bali during customer onboarding (per
+        `services/readybank/ops/runbooks/customer-onboarding.md` Step 4).
+        Send as `Authorization: Bearer <api_key>` header. See
+        Constitution SO-15 + ADR 0005 for secret-handling discipline.
+
+  schemas:
+    Question:
+      type: object
+      required: [uuid, format, skill, difficulty_band]
+      properties:
+        uuid:
+          type: string
+          example: rb_q_01HXY8M2P5R
+        format:
+          type: string
+          enum: [mcq, msq, coding-fn, coding-project, sql, sjt, design, casestudy, video]
+        skill:
+          type: string
+          example: java.spring.transactional
+        sub_skill:
+          type: string
+          nullable: true
+          example: propagation-required
+        difficulty_band:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: IRT-calibrated difficulty (1=easy, 5=expert)
+        language:
+          type: string
+          example: en
+        irt_calibrated_at:
+          type: string
+          format: date-time
+          description: When this question was last IRT-calibrated (per SO-21 mandate)
+        anti_leak_scan:
+          type: object
+          description: Most-recent anti-leak fingerprint scan (per SO-22)
+          properties:
+            last:
+              type: string
+              format: date
+              description: Date of last full corpus scan
+            status:
+              type: string
+              enum: [clean, retired]
+              description: Clean = no public-surface match; retired = matched + replaced
+        watermark:
+          type: object
+          nullable: true
+          description: Present only on Stack-Vault questions (per SO-10 exclusivity)
+          properties:
+            customer_id: { type: string }
+            issued_at: { type: string, format: date-time }
+
+    PackFilters:
+      type: object
+      properties:
+        skill: { type: string, minLength: 1, maxLength: 100 }
+        sub_skill: { type: string, minLength: 1, maxLength: 100 }
+        format:
+          type: string
+          enum: [mcq, msq, coding-fn, coding-project, sql, sjt, design, casestudy, video]
+        difficulty: { type: integer, minimum: 1, maximum: 5 }
+        language: { type: string, pattern: '^[a-z]{2}$' }
+
+    Pack:
+      type: object
+      properties:
+        pack_id: { type: string, example: rb_pkg_01HXY7Z3K9V }
+        name: { type: string, nullable: true }
+        role: { type: string, nullable: true, description: Inferred from filters when applicable }
+        question_count: { type: integer }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        questions:
+          type: array
+          items: { $ref: '#/components/schemas/Question' }
+
+    Problem:
+      type: object
+      description: RFC 7807 Problem Details for HTTP APIs (per QOrium quality bar)
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri, default: 'about:blank' }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, format: uri }
+        violations:
+          type: object
+          description: Field-level validation errors (Zod-formatted)
+          additionalProperties: { type: array, items: { type: string } }
+
+  responses:
+    Problem:
+      description: RFC 7807 problem
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema: { type: integer }
+          description: Seconds to wait before retry
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+tags:
+  - name: Questions
+    description: Single-question lookup + search
+  - name: Packs
+    description: Pack generation + export
