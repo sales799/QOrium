@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { FeaturePageLayout } from '@/components/site/FeaturePageLayout';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { readybankCopy } from '@/content/copy/features';
 
 export const metadata: Metadata = {
@@ -27,23 +28,32 @@ const SAMPLE_RESPONSE = `{
 
 export default function ReadyBankPage() {
   return (
-    <FeaturePageLayout
-      copy={readybankCopy}
-      hereVisual={
-        <div className="rounded-lg border border-border-subtle bg-surface-1/80 p-4 shadow-2xl backdrop-blur">
-          <div className="flex items-center gap-2 border-b border-border-subtle pb-2">
-            <span className="size-2 rounded-full bg-danger" />
-            <span className="size-2 rounded-full bg-warning" />
-            <span className="size-2 rounded-full bg-positive" />
-            <span className="ml-3 font-mono text-xs text-muted-foreground">
-              POST /v1/packs/generate
-            </span>
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Features', path: '/features' },
+          { name: 'ReadyBank', path: '/features/readybank' },
+        ]}
+      />
+      <FeaturePageLayout
+        copy={readybankCopy}
+        hereVisual={
+          <div className="rounded-lg border border-border-subtle bg-surface-1/80 p-4 shadow-2xl backdrop-blur">
+            <div className="flex items-center gap-2 border-b border-border-subtle pb-2">
+              <span className="size-2 rounded-full bg-danger" />
+              <span className="size-2 rounded-full bg-warning" />
+              <span className="size-2 rounded-full bg-positive" />
+              <span className="ml-3 font-mono text-xs text-muted-foreground">
+                POST /v1/packs/generate
+              </span>
+            </div>
+            <pre className="mt-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-foreground/85">
+              {SAMPLE_RESPONSE}
+            </pre>
           </div>
-          <pre className="mt-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-foreground/85">
-            {SAMPLE_RESPONSE}
-          </pre>
-        </div>
-      }
-    />
+        }
+      />
+    </>
   );
 }

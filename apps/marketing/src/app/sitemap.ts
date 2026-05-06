@@ -18,6 +18,8 @@ const STATIC_PATHS = [
   '/contact',
   '/demo',
   '/blog',
+  '/changelog',
+  '/press-kit',
   '/privacy',
   '/terms',
   '/dpa',

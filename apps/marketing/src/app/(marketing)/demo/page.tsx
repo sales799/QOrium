@@ -4,9 +4,12 @@ import { CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { DemoForm } from '@/components/site/DemoForm';
+import { CalendlyEmbed } from '@/components/site/CalendlyEmbed';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Spotlight } from '@/components/aceternity/Spotlight';
 import { mailerStatus } from '@/lib/mailer';
+
+const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL ?? '';
 
 export const metadata: Metadata = {
   title: 'Book a demo',
@@ -71,9 +74,13 @@ export default function DemoPage() {
           </aside>
           <div className="md:col-span-8">
             <FadeIn>
-              <div className="rounded-lg border border-border bg-surface-1 p-6 md:p-8">
-                <DemoForm />
-              </div>
+              {CALENDLY_URL ? (
+                <CalendlyEmbed url={CALENDLY_URL} />
+              ) : (
+                <div className="rounded-lg border border-border bg-surface-1 p-6 md:p-8">
+                  <DemoForm />
+                </div>
+              )}
             </FadeIn>
           </div>
         </MaxWidth>

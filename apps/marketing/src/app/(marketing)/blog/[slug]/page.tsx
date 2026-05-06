@@ -5,7 +5,7 @@ import { ChevronLeft, Calendar, User } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 
 import { MaxWidth } from '@/components/site/MaxWidth';
-import { ArticleJsonLd } from '@/components/seo/JsonLd';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { mdxComponents } from '@/lib/mdx';
 import { getBlogPost, listBlogPosts } from '@/lib/blog';
 import { siteConfig } from '@/content/site.config';
@@ -57,6 +57,13 @@ export default async function BlogPostPage({ params }: PageProps) {
         url={`${siteConfig.url}/blog/${post.slug}`}
         datePublished={post.date}
         author={post.author}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Blog', path: '/blog' },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ]}
       />
       <MaxWidth as="div" className="py-16">
         <Link
