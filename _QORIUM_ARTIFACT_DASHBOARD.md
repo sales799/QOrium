@@ -242,8 +242,9 @@ This keeps the artifact and the canonical punchlist from drifting.
 | 2.18   | `packages/audit-emitter` + api-key-mgmt integration    | shipped | 33        | 963       |
 | 2.19   | audit-emitter wholesale wire-up (billing/sso/webhooks) | shipped | 4         | 967       |
 | 2.20   | `apps/my` customer self-service portal + PM2 fill-in   | shipped | 22        | 989       |
+| 2.21   | `services/leak-rotation-worker` (SO-9 24h enforcement) | shipped | 23        | 1012      |
 
-**Workspace totals:** 29 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **989 active green tests** + ~53 auto-skip.
+**Workspace totals:** 30 workspaces · 14 Postgres migrations · 33 CTO-DELTAs · **1,012 active green tests** + ~53 auto-skip.
 
 ## Live deployment state (api.qorium.online)
 
@@ -286,26 +287,27 @@ permissions, PM2 cluster-mode argv guards, etc.):
 
 ### Services — 18
 
-| Workspace                             |   Port | Description                                      |     Tests |
-| ------------------------------------- | -----: | ------------------------------------------------ | --------: |
-| `@qorium/readybank`                   |   5101 | Question search + packs + export                 |        33 |
-| `@qorium/jd-forge`                    |   5102 | Real-time JD-based question generation + xlsx    |        84 |
-| `@qorium/stack-vault`                 |   5103 | Per-customer namespace + watermarking + body sub |        43 |
-| `@qorium/ats-bridge`                  |   5105 | ATS webhook receiver + adapter dispatch          |        10 |
-| `@qorium/webhooks`                    |   5106 | Outbound webhook subscriptions + delivery        |        24 |
-| `@qorium/sso`                         |   5107 | SAML 2.0 + OIDC + RS256 JWT enterprise auth      |        53 |
-| `@qorium/audit-log`                   |   5111 | Tenant-scoped audit log read API                 |        20 |
-| `@qorium/billing`                     |   5112 | Subscriptions + invoices + Razorpay webhooks     |        39 |
-| `@qorium/api-key-mgmt`                |   5113 | API key issuance + scope catalogue               |        30 |
-| `@qorium/uptime-monitor`              |   5114 | Smoke check matrix + SLO API                     |        10 |
-| `@qorium/ai-pair-coding-orchestrator` |   5115 | Wave 3 6-dim grader + Anthropic stub + authoring |        49 |
-| `@qorium/setu`                        |   5117 | Status MCP + auto-deploy bridge + bootstrap      |        45 |
-| `@qorium/leak-crawler`                | (fork) | Anti-leak crawler worker                         | 47+2 skip |
-| `@qorium/judge0-orchestrator`         | (fork) | Sandboxed code execution worker                  |        68 |
-| `@qorium/irt-calibration`             | (fork) | Nightly IRT calibration cron                     |        64 |
-| `@qorium/testforge-orchestrator`      | (fork) | TestForge QA pipeline                            |        52 |
-| `@qorium/secret-rotation-worker`      | (fork) | B6 secret rotation worker                        |        21 |
-| `@qorium/webhooks-delivery-worker`    | (fork) | Drains webhooks.deliveries                       |        25 |
+| Workspace                             |   Port | Description                                       |     Tests |
+| ------------------------------------- | -----: | ------------------------------------------------- | --------: |
+| `@qorium/readybank`                   |   5101 | Question search + packs + export                  |        33 |
+| `@qorium/jd-forge`                    |   5102 | Real-time JD-based question generation + xlsx     |        84 |
+| `@qorium/stack-vault`                 |   5103 | Per-customer namespace + watermarking + body sub  |        43 |
+| `@qorium/ats-bridge`                  |   5105 | ATS webhook receiver + adapter dispatch           |        10 |
+| `@qorium/webhooks`                    |   5106 | Outbound webhook subscriptions + delivery         |        24 |
+| `@qorium/sso`                         |   5107 | SAML 2.0 + OIDC + RS256 JWT enterprise auth       |        53 |
+| `@qorium/audit-log`                   |   5111 | Tenant-scoped audit log read API                  |        20 |
+| `@qorium/billing`                     |   5112 | Subscriptions + invoices + Razorpay webhooks      |        39 |
+| `@qorium/api-key-mgmt`                |   5113 | API key issuance + scope catalogue                |        30 |
+| `@qorium/uptime-monitor`              |   5114 | Smoke check matrix + SLO API                      |        10 |
+| `@qorium/ai-pair-coding-orchestrator` |   5115 | Wave 3 6-dim grader + Anthropic stub + authoring  |        49 |
+| `@qorium/setu`                        |   5117 | Status MCP + auto-deploy bridge + bootstrap       |        45 |
+| `@qorium/leak-crawler`                | (fork) | Anti-leak crawler worker                          | 47+2 skip |
+| `@qorium/judge0-orchestrator`         | (fork) | Sandboxed code execution worker                   |        68 |
+| `@qorium/irt-calibration`             | (fork) | Nightly IRT calibration cron                      |        64 |
+| `@qorium/testforge-orchestrator`      | (fork) | TestForge QA pipeline                             |        52 |
+| `@qorium/secret-rotation-worker`      | (fork) | B6 secret rotation worker                         |        21 |
+| `@qorium/webhooks-delivery-worker`    | (fork) | Drains webhooks.deliveries                        |        25 |
+| `@qorium/leak-rotation-worker`        | (fork) | SO-9 enforcement: 24h Critical / 7d High rotation |        23 |
 
 ## Activation halts (CEO action requests, deduplicated against §A–§E above)
 

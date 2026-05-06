@@ -1069,6 +1069,56 @@ module.exports = {
 
     /**
      * =====================================================================
+     * LEAK ROTATION WORKER (Fork Mode)
+     * =====================================================================
+     * Purpose: SO-9 enforcement — scan content.leak_alerts on a 5-minute
+     *          tick; rotate questions whose Critical leak is past 24h
+     *          or High leak past 7d. Audit-emit each rotation.
+     * Mode: Fork (single instance; cron-driven internally)
+     * Port: None (internal, not exposed)
+     */
+    {
+      name: 'qorium-leak-rotation',
+      script: './services/leak-rotation-worker/dist/index.js',
+      instances: 1,
+      exec_mode: 'fork',
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+
+      env: {
+        NODE_ENV: 'staging',
+        SERVICE_NAME: 'qorium-leak-rotation',
+        LEAK_ROTATION_TICK_MS: 300000,
+        LEAK_ROTATION_SCAN_LIMIT: 200,
+        LEAK_ROTATION_CONFIDENCE_FLOOR: 0.85,
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        SERVICE_NAME: 'qorium-leak-rotation',
+        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        LEAK_ROTATION_TICK_MS: 300000,
+        LEAK_ROTATION_SCAN_LIMIT: 200,
+        LEAK_ROTATION_CONFIDENCE_FLOOR: 0.85,
+        AUDIT_LOG_BASE_URL: 'http://127.0.0.1:5111',
+        AUDIT_LOG_ADMIN_TOKEN: process.env.AUDIT_LOG_ADMIN_TOKEN,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-leak-rotation-out.log',
+      error_file: '/var/log/pm2/qorium-leak-rotation-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
      * CUSTOMER PORTAL — apps/my (Next.js, Cluster Mode)
      * =====================================================================
      * Purpose: Self-service customer portal at my.qorium.online

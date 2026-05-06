@@ -2299,6 +2299,60 @@ Reuses `@qorium/qorium-sdk`. ~30 new tests.
 
 ---
 
+## 2026-05-04T15:30Z — Sprint 2.21 services/leak-rotation-worker ✅
+
+**SO-9 enforcement engine.** Constitution v2.0 §SO-9 mandates a
+24-hour-or-better detect-and-rotate cycle for Critical-severity
+leaks (Adaface-benchmark parity); High rotates within 7 days. The
+leak-crawler service writes detection signals to
+`content.leak_alerts`; this worker consumes them and enforces the
+SLA.
+
+`services/leak-rotation-worker` (PM2 fork, 5-min tick):
+
+- `src/policy.ts` — pure-logic decision engine. `SLA_HOURS` table
+  (critical=24, high=7×24, medium/low=null), `decideRotation()`
+  returns `{rotate, slaCutoff, reason}`, default confidence floor
+  0.85, `selectAlertsForRotation()` for batch filtering,
+  `hoursUntilSlaBreach()` for dashboard visibility.
+- `src/repository.ts` — atomic transaction: flips
+  `content.questions.status='leaked'` + sets `deprecated_at` AND
+  flips `content.leak_alerts.status='rotated'` in one BEGIN/COMMIT.
+- `src/runner.ts` — `runTick()` orchestrates fetch → decide →
+  rotate → audit. Continues on partial failure.
+- `src/index.ts` — boots the 5-min loop; reads env for tick
+  interval, scan limit, confidence floor, audit-log creds.
+
+PM2 ecosystem updated: `qorium-leak-rotation` registered (fork
+mode, no port).
+
+23 new tests:
+
+- `policy.test.ts` (17) — critical 24h boundary, high 7d boundary,
+  severity rejections (medium/low), confidence-floor (default +
+  custom), already-handled passthroughs (rotated/dismissed/
+  false_positive), under_review parity, slaCutoff ISO formatting
+- `runner.test.ts` (6) — happy path with audit emit, within-SLA
+  skip, severity/confidence/handled counters, partial-failure
+  resilience, custom confidence floor, forensic payload (severity
+  - similarity + source_type)
+
+Constitution Article VII's auto-fail criterion ("anti-leak
+rotation engine not in continuous operation OR any item detected
+public >24h without rotation triggered") is now structurally
+addressable.
+
+Workspace state at end of Sprint 2.21:
+
+- 30 workspaces · 14 migrations · 33 CTO-DELTAs
+- 1,012 active green tests (was 989; +23 net)
+- typecheck + lint + format:check clean
+
+Stream B autonomous-eligible queue is now exhausted. Further
+sprints require CEO unblocks.
+
+---
+
 ## 2026-05-04T15:00Z — Sprint 2.20 + PM2 ecosystem fill-in ✅
 
 Two parallel changes:

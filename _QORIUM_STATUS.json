@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-06T07:36:11.360Z",
+  "generatedAt": "2026-05-06T07:43:45.061Z",
   "branch": "claude/setup-qorium-build-agent-zA0l5",
   "prNumber": 9,
-  "head": "8d91d7a",
+  "head": "002f51c",
   "hero": {
     "phase0CompletionPercent": 100,
     "contentInventory": {
@@ -79,9 +79,9 @@
     {
       "key": "B",
       "title": "Infrastructure",
-      "done": 31,
-      "total": 31,
-      "notes": "31/31 sprints shipped to GitHub PR #9",
+      "done": 32,
+      "total": 32,
+      "notes": "32/32 sprints shipped to GitHub PR #9",
       "completion": 1
     },
     {
@@ -334,6 +334,13 @@
       "status": "shipped",
       "testsAdded": 22,
       "cumulativeTests": 989
+    },
+    {
+      "id": "2.21",
+      "name": "`services/leak-rotation-worker` (SO-9 24h enforcement)",
+      "status": "shipped",
+      "testsAdded": 23,
+      "cumulativeTests": 1012
     }
   ],
   "tests": {
@@ -345,7 +352,7 @@
     "count": 14,
     "latestId": "0014"
   },
-  "pm2Services": 22,
+  "pm2Services": 23,
   "halts": [
     {
       "bucket": "",
