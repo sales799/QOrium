@@ -367,3 +367,80 @@ Still missing for full Phase 1 IdeaForge re-gate:
 - Sprint 5 — JD-Forge service (per `infra/JD-Forge-v0-Design.md`)
 - Role-graph traversal endpoints (`/v1/role-graph/search`, `?role=` filter)
 - Tags filter (needs schema decision: `body_json.tags` vs `content.tags`)
+
+---
+
+## 2026-05-06 — Surface 6 Recruiter Auth Hardening ✅
+
+PR: [#12](https://github.com/sales799/QOrium/pull/12) · branch
+`claude/recruiter-jwt-auth-gxpnI` · CI green (lint, typecheck, test,
+secret-scan, security-audit, build).
+
+Replaces the sessionStorage API-key pattern for the recruiter persona with a
+proper human session. Mirrors what shipped Cowork-side on Run #32 (2026-05-04)
+via the Bridge Protocol — Stream B picks up next 1–2 runs.
+
+### What landed
+
+- **Migration 0004 (`infra/B7-postgres-migrations/0004_recruiter_auth.sql`)** —
+  `app.recruiters` table: `id`, `tenant_id` (FK), `email` (CITEXT unique),
+  `name`, `password_hash` (argon2id encoded), `failed_login_count`,
+  `locked_until`, `last_login_at`, `status` (CHECK active|disabled),
+  `created_at`, `updated_at`. Indexes on email and tenant_id; per-table
+  `update_recruiter_updated_at` trigger to match the 0001 pattern.
+  (0003 reserved for Stream B per spec.)
+- `services/readybank/src/middleware/recruiter-auth.ts` — cookie-based gate.
+  Verifies HS256 JWT in `qor_session`, attaches `req.recruiter`, and re-issues
+  the cookie on every authed request (8h sliding window). Exports
+  `issueSessionCookie` / `clearSessionCookie` helpers reused by login/logout.
+- `services/readybank/src/routes/auth.ts` — drop-in route. `POST /v1/auth/login`
+  (argon2id verify, OWASP m=19MiB t=2 p=1; constant-time path on unknown email
+  via dummy-hash verify; per-account 5-fail lockout for `RECRUITER_LOCKOUT_MINUTES`,
+  default 15); `POST /v1/auth/logout`; `GET /v1/auth/whoami`. Audit events
+  `auth.login.success|failure|locked|disabled` and `auth.logout` via
+  existing `recordAuditEvent`.
+- `services/readybank/public/{login.html,login.css,login.js}` — recruiter
+  sign-in portal. CSP-compliant (no inline scripts/styles), `fetch` to
+  `/v1/auth/login` with `credentials: 'include'`, surfaces RFC 7807 `detail`
+  on error.
+- Cookie flags: `HttpOnly; Secure (prod); SameSite=Lax; Path=/; Max-Age=28800`.
+  JWT `iss=qorium-readybank`, `aud=qorium-recruiter`.
+- `services/readybank/src/server.ts` — `cookie-parser`, `express.static` for
+  `/public`, mounts `authRouter` on `/v1` **before** the API-key gate so
+  login is reachable; fail-fast on missing `JWT_SECRET` when pool is configured.
+- `services/readybank/src/config.ts` — adds `jwtSecret`, `cookieSecure`,
+  `recruiterLockoutMinutes`.
+- `services/readybank/src/logger.ts` — adds `res.headers["set-cookie"]` to
+  pino redaction list.
+- `.env.example` — documents `JWT_SECRET` for the session cookie + adds
+  `RECRUITER_LOCKOUT_MINUTES=15`.
+- `__tests__/auth.test.ts` — 11 unit tests against a stub `Pool`: login
+  success + cookie flags, wrong-password counter, 5th-fail lockout,
+  already-locked 423, unknown-email 401 (no enumeration), malformed body 400,
+  disabled-account 403, whoami without/with cookie, sliding window cookie
+  refresh, bogus cookie 401, logout clears cookie.
+
+### Drive-by CI fix
+
+Discovered that `pnpm typecheck` / `pnpm test` were failing in CI on a clean
+checkout because `@qorium/auth` and `@qorium/readybank` import from
+`@qorium/db` whose `package.json#exports` resolves to `./dist/*` — no prior
+build step existed. Confirmed pre-existing on PR #7's commit. Added a
+`build:packages` root script (compiles `@qorium/db` + `@qorium/auth`) and
+chained it before `typecheck` and `test`. Fixes CI for all future PRs too.
+
+### Verified
+
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` clean
+- `pnpm test` — **44 passed / 21 skipped** (skips are integration suites that
+  need DATABASE_URL; the 11 new auth tests run against a stub pool)
+- `pnpm build` clean across `@qorium/db`, `@qorium/auth`, `@qorium/readybank`
+- gitleaks clean
+- CI on PR #12: all 6 active checks green; deploy-staging / deploy-production
+  correctly skipped (PR, not main)
+
+### Out of scope (Stream B picks up)
+
+- Recruiter dashboard beyond `login.html`
+- CSRF tokens for state-changing recruiter writes
+- Password reset / email verification flow

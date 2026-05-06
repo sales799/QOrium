@@ -30,6 +30,7 @@ export function createLogger(config: Config): Logger {
         'req.headers.authorization',
         'req.headers["x-talpro-api-key"]',
         'req.headers.cookie',
+        'res.headers["set-cookie"]',
         '*.password',
         '*.password_hash',
         '*.api_key',

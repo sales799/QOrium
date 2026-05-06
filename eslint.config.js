@@ -42,4 +42,14 @@ export default tseslint.config(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
+  {
+    // Browser-side static assets shipped with the recruiter portal.
+    files: ['services/readybank/public/**/*.js'],
+    languageOptions: {
+      sourceType: 'script',
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
 );
