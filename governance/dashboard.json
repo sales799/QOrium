@@ -1,0 +1,156 @@
+{
+  "$schema": "./dashboard.schema.json",
+  "version": "1.0.0",
+  "lastRefresh": "2026-05-07T00:00:00+05:30",
+  "lastReconcileRun": 33,
+  "source": {
+    "streamB": {
+      "branch": "main",
+      "head": "87b08b5",
+      "lastBuildLogEntry": "2026-05-06"
+    },
+    "streamA": {
+      "lastRun": 32,
+      "lastReconciled": "2026-05-07"
+    }
+  },
+  "masterMeter": {
+    "auto": 0.42,
+    "human": 0.0,
+    "total": 0.34,
+    "autoCeiling": 0.78,
+    "note": "auto = engineering/spec/content lane progress; human = sales/hiring/panel/M&A lane; total weights both. autoCeiling is the structural cap of pure auto-mode per Constitution Article IX."
+  },
+  "lanes": {
+    "auto": {
+      "completed": 14,
+      "total": 33,
+      "tiles": [
+        { "id": "sprint-0.1", "name": "Monorepo bootstrap", "status": "complete", "evidence": "PR #1 d401018" },
+        { "id": "sprint-0.2", "name": "Dev orchestration", "status": "complete", "evidence": "PR #1 d401018" },
+        { "id": "sprint-0.3", "name": "@qorium/db migration runner", "status": "complete", "evidence": "PR #3 0a74e6f" },
+        { "id": "sprint-1.0", "name": "Customer Zero Day-1 launch (engineering 6/7)", "status": "complete", "evidence": "Run #27 public HTTPS DoD" },
+        { "id": "sprint-1.1", "name": "QA pipeline plumbing", "status": "complete", "evidence": "Run #24 b72d2f3" },
+        { "id": "sprint-1.2", "name": "/v1/results + Watermark Engine v0", "status": "complete", "evidence": "Run #26-28" },
+        { "id": "sprint-1.3", "name": "End-to-end candidate take flow", "status": "complete", "evidence": "Run #29 3af1a4a" },
+        { "id": "sprint-1.4", "name": "Recruiter session CRUD + Wave-2 third-pass", "status": "complete", "evidence": "Run #30" },
+        { "id": "sprint-1.5", "name": "Recruiter HTML dashboard SPA", "status": "complete", "evidence": "Run #31 226ef1f" },
+        { "id": "sprint-1.6.jwt", "name": "JWT recruiter cookie auth + login.html + migration 0004", "status": "complete", "evidence": "PR #12 29ff865 (Stream B), Run #32 (Stream A)" },
+        { "id": "sprint-1.6.mailer", "name": "Driver-agnostic mailer (SES/SendGrid/mock) + migration 0005", "status": "complete", "evidence": "PR #13 87b08b5" },
+        { "id": "sprint-1.6.ingest", "name": "Wave-1 full ingest script (parses 358 from 22 sources)", "status": "complete", "evidence": "PR #13 87b08b5" },
+        { "id": "sprint-1.6.ohcm", "name": "Oracle HCM 60/60 v0.6", "status": "complete", "evidence": "PR #13 87b08b5" },
+        { "id": "sprint-1.6.wave3", "name": "Wave-3 Authoring Template v0.1 + Kickoff Batch-001", "status": "complete", "evidence": "PR #13 87b08b5" },
+        { "id": "sprint-1.6.5", "name": "Reconcile + dashboard.json contract", "status": "in_progress", "evidence": "PR #15 (this PR)" },
+        { "id": "sprint-1.7.saml-spec", "name": "SAML/SSO v1 spec", "status": "pending" },
+        { "id": "sprint-1.7.nos-mapper", "name": "NSDC/NOS competency mapper", "status": "pending" },
+        { "id": "sprint-1.7.bloom-tags", "name": "Bloom's taxonomy tagging + migration 0006", "status": "pending" },
+        { "id": "sprint-1.7.email-iac", "name": "SES/DKIM/SPF/DMARC IaC (halts on cred-drop)", "status": "pending" },
+        { "id": "sprint-1.7.parser-fix", "name": "Ingest parser synonyms (closes 52 case-study misses)", "status": "pending" },
+        { "id": "sprint-1.8.irt", "name": "IRT calibration pipeline (production)", "status": "pending" },
+        { "id": "sprint-1.8.panel-api", "name": "Reference-panel ingestion API", "status": "pending" },
+        { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "pending" },
+        { "id": "sprint-1.8.admin", "name": "Admin console (Next.js apps/admin)", "status": "pending" },
+        { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "pending" },
+        { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "pending" },
+        { "id": "phase-2.inr-gst", "name": "INR pricing + GST handling", "status": "pending" },
+        { "id": "phase-2.i18n", "name": "i18n framework", "status": "pending" },
+        { "id": "phase-3.jd-forge", "name": "JD-Forge service alpha→beta", "status": "pending" },
+        { "id": "phase-3.stack-vault", "name": "Stack-Vault tenant isolation + double watermark", "status": "pending" },
+        { "id": "phase-3.saml-impl", "name": "SAML/SSO implementation", "status": "pending" },
+        { "id": "phase-4.observability", "name": "OTel + Grafana + Sentry IaC (halts on cred-drop)", "status": "pending" },
+        { "id": "phase-4.pitr", "name": "PITR + backup automation", "status": "pending" }
+      ]
+    },
+    "human": {
+      "completed": 4,
+      "total": 14,
+      "tiles": [
+        { "id": "cc-01", "name": "₹50L sub-budget tagged in Talpro India books", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
+        { "id": "cc-02-a", "name": "K&S Partners IP-counsel engagement email sent", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
+        { "id": "cc-03", "name": "Talpro Delivery Head Customer-Zero brief", "status": "complete", "owner": "CEO", "closedOn": "2026-05-02" },
+        { "id": "cc-04", "name": "Domain registration (qorium.online)", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
+        { "id": "human.first-talpro-candidate", "name": "First REAL Talpro candidate run end-to-end", "status": "blocked-on-human", "owner": "Talpro Delivery Head", "blocker": "needs Talpro recruiter to run a real candidate post-SES verification" },
+        { "id": "human.amendment-2.1-ratify", "name": "Wave-3 AUTHORED ratification (CEO YES/NO)", "status": "blocked-on-human", "owner": "CEO", "blocker": "30-min review of Constitutional Amendment v2.1" },
+        { "id": "human.cc-13-whatsapp", "name": "WhatsApp group QOrium Customer Zero", "status": "blocked-on-human", "owner": "CEO", "blocker": "60-sec optional accelerator" },
+        { "id": "human.io-psych-contractor", "name": "I/O Psychologist contractor signed (C5 SOW)", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "needs hire / contract" },
+        { "id": "human.reference-panel-200", "name": "Reference Panel ≥200 recruited", "status": "blocked-on-human", "owner": "CDO/I-O Psych", "blocker": "needs panel recruitment + IRT calibration runs" },
+        { "id": "human.sme-lead-hire", "name": "SME Content Lead hired", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "M2 hire per Phase 1 punchlist I2" },
+        { "id": "human.senior-eng-hire", "name": "Senior Engineer #1 hired", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "M2 hire per I1" },
+        { "id": "human.first-3-recruiter-logos", "name": "First 3 Recruiter Subscription logos signed", "status": "blocked-on-human", "owner": "CEO+AE", "blocker": "M3 sales target H2" },
+        { "id": "human.bosch-discovery-call", "name": "First Bosch GCC discovery call", "status": "blocked-on-human", "owner": "CEO", "blocker": "warm intro per E1-E4" },
+        { "id": "human.cred-drop", "name": "Production credentials dropped to .env.bootstrap", "status": "blocked-on-human", "owner": "CEO", "blocker": "needed to unblock SES/observability/multi-region IaC apply" }
+      ]
+    }
+  },
+  "phases": [
+    { "id": 0, "name": "Foundation", "percent": 100, "status": "complete" },
+    { "id": 1, "name": "Engine MVP", "percent": 65, "status": "active", "note": "Was 35% pre-reconcile; post-PR-#12/#13 merge reflection brings it to 65%. Closes at 100% after Sprints 1.7 + 1.8." },
+    { "id": 2, "name": "India Stack", "percent": 0, "status": "queued" },
+    { "id": 3, "name": "SKU Maturity", "percent": 0, "status": "queued" },
+    { "id": 4, "name": "Year-1 Close", "percent": 0, "status": "queued" },
+    { "id": 5, "name": "Y2 International", "percent": 0, "status": "queued" },
+    { "id": 6, "name": "Y3 Multi-Region", "percent": 0, "status": "queued" },
+    { "id": 7, "name": "Y5 Outcome", "percent": 0, "status": "queued", "note": "Project Completion per Constitution Article IX = $300M acquisition / IPO ≥₹3,000Cr / $50M ARR. Human-bound." }
+  ],
+  "surfaces": [
+    { "id": 1, "name": "ReadyBank API", "status": "live", "url": "https://api.qorium.online/healthz", "since": "Run #27" },
+    { "id": 2, "name": "Recruiter Portal SPA", "status": "live", "path": "/recruiter/dashboard.html", "since": "Run #31" },
+    { "id": 3, "name": "Candidate Take Flow", "status": "live", "path": "/take/<token>", "since": "Run #29" },
+    { "id": 4, "name": "Result Renderer", "status": "live", "path": "/v1/results/<candidate_id>", "since": "Run #26" },
+    { "id": 5, "name": "Watermark Engine v0 (Anti-Leak Moat)", "status": "live", "path": "/v1/questions/:uuid?candidate_id=...", "since": "Run #28" },
+    { "id": 6, "name": "Recruiter JWT Auth Hardening", "status": "live", "path": "/v1/auth/login", "since": "PR #12 29ff865", "previousStatus": "spec-ready-merge-next", "reconciledOn": "2026-05-07" }
+  ],
+  "waves": [
+    { "id": 1, "name": "Tech Core", "count": 480, "target": 800, "quality": "v0.6" },
+    { "id": 2, "name": "India Stack", "count": 311, "target": 520, "quality": "v0.6" },
+    { "id": 3, "name": "Psychometric", "count": 20, "target": 200, "quality": "v0.1", "blocker": "I/O Psych sign-off + Reference Panel ≥200" }
+  ],
+  "library": {
+    "totalAuthored": 811,
+    "totalParsable": 358,
+    "parserMisses": 52,
+    "m3Target": 5000,
+    "percentToM3": 0.162,
+    "note": "totalAuthored is Cowork-side count (includes drafts not yet parsed by Stream B ingest). totalParsable = what Stream B's ingest-wave1 currently produces; rises to ~410 once Sprint 1.7e parser-synonyms PR lands."
+  },
+  "skus": [
+    { "id": "readybank", "name": "ReadyBank", "pricing": "$5K-$25K/yr API", "status": "alpha-shipped" },
+    { "id": "jd-forge", "name": "JD-Forge", "pricing": "$49/$199/$499 per JD", "status": "spec-only" },
+    { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
+  ],
+  "runs": [
+    { "id": 33, "date": "2026-05-07", "summary": "Sprint 1.6.5 reconcile: governance/dashboard.json canonical source + Auto-Mode Remote Plan v1 + Stream-B mirror of mission control. PR #15." },
+    { "id": 32, "date": "2026-05-04", "summary": "Sprint 1.6 Cowork-shipped (5 tracks): JWT auth + mailer + Wave-1 ingest + OHCM 60/60 + Wave-3 v0.1." },
+    { "id": 31, "date": "2026-05-04", "summary": "Sprint 1.5: Recruiter HTML dashboard SPA LIVE." },
+    { "id": 30, "date": "2026-05-04", "summary": "Sprint 1.4: Recruiter session CRUD + 3-agent parallel content scaling." },
+    { "id": 29, "date": "2026-05-04", "summary": "Sprint 1.3: End-to-end take flow LIVE." },
+    { "id": 28, "date": "2026-05-04", "summary": "Sprint 1.2 deeper: Watermark Engine LIVE in production." },
+    { "id": 27, "date": "2026-05-04", "summary": "Sprint 1.0 PUBLIC DoD ACHIEVED 🟢: public HTTPS." },
+    { "id": 26, "date": "2026-05-04", "summary": "Sprint 1.2 grind: Express /v1/results live." },
+    { "id": 25, "date": "2026-05-04", "summary": "Sprint 1.2 first piece: candidate result renderer." },
+    { "id": 24, "date": "2026-05-04", "summary": "Sprint 1.1 plumbing: anti-leak + AI-plagiarism + IRT scripts." }
+  ],
+  "ceoCriticalPath": {
+    "blockers": 0,
+    "softAccelerators": [
+      { "id": "cc-13", "label": "WhatsApp group QOrium Customer Zero", "etaSec": 60 },
+      { "id": "amendment-2.1", "label": "Wave-3 AUTHORED ratification", "etaMin": 30 }
+    ]
+  },
+  "schemaInvariants": {
+    "autoEligibilityRule": "A tile is auto_eligible iff its evidence-of-done is a commit on main. Sales/hiring/panel/IP/M&A tiles are NEVER auto_eligible.",
+    "stopConditions": [
+      "Constitutional touch (Articles I/IV/VII/IX)",
+      "Monetary commitment",
+      "Outbound message to humans outside bot perimeter",
+      "Production credential operation without prior cred-drop",
+      "IRT auto-fail per SO-21",
+      "Anti-leak detection per SO-9",
+      "92-pt Gatekeeper score < 88",
+      "CTO-DELTA exceeding rubric",
+      "Destructive migration on release-tagged schema"
+    ],
+    "writers": ["Stream A (Cowork)", "Stream B (Claude Code)"],
+    "reader": "qorium-live-progress dashboard HTML"
+  }
+}
