@@ -886,3 +886,115 @@ Sprint 1.7 closeout is fully Stream-B-side. Cowork can pick up
 `packages/nos-mapper` as a dependency on its next Stream-A sync. The
 Terraform module is environment-agnostic — same module, same `apply.sh`
 works from either stream once the cred-drop is in place.
+
+---
+
+## 2026-05-07 — Run #36 — Sprint 1.8 (a + b) ✅
+
+Two of four Sprint 1.8 sub-tracks. Closes the math foundation +
+ingestion path that the IRT calibration cron (Sprint 1.8c follow-up)
+will operate over. Sub-tracks 1.8c (anti-leak engine prod) and 1.8d
+(Next.js admin console) remain for the next round.
+
+### What landed
+
+#### 1.8a — `@qorium/irt` package
+
+Pure-TypeScript Item Response Theory toolkit (no Python `girth`
+dependency, no R `mirt` runtime). Implements the math required for
+Constitution SO-21 enforcement per
+`infra/IRT-Calibration-Pipeline-v0-Spec.md`.
+
+- `src/types.ts` — `IrtParams (a, b, c)` with Birnbaum-3PL semantics,
+  `ItemResponse`, `CalibrationResult`, `MantelHaenszelResult`,
+  `QualityGateResult`
+- `src/probability.ts` — numerically stable `sigmoid`, `prob3pl` /
+  `prob2pl`, gradient + Fisher info on θ
+- `src/ability.ts` — `estimateAbilityMle` Newton-Raphson with Fisher
+  curvature + degenerate-pattern clamping at ±4; `abilityProxyFromSumScore`
+  warm start; `probabilityProfile` vector evaluator
+- `src/calibrate.ts` — JMLE-style 2PL fit alternating ability MLE and
+  per-item coordinate descent on (b, log-a). Identification anchor:
+  abilities rescaled to mean 0 / sd 1 each iteration with conjugate
+  re-parameterisation of (a, b) so the joint likelihood is invariant
+  — fixes the JMLE scale-drift class of bug. Bounded box on a, b.
+- `src/dif.ts` — Mantel-Haenszel DIF statistic (delta-scale D-MH +
+  common odds ratio) with ability-quintile stratification per spec §6
+- `src/quality-gate.ts` — `passesIrtAutoFail` enforces SO-21 (minN=30,
+  a ∈ [0.5, 3.0], b ∈ [-4, 4], pass-rate ∈ [0.05, 0.95]);
+  `detectParameterDrift` flags |Δb| > 0.5 / |Δa| > 0.3 per spec §4
+- `src/index.ts` — public surface
+- `__tests__/irt.test.ts` — 18 unit tests on synthetic data with a
+  mulberry32 deterministic PRNG: probability identities, MLE bias on
+  N=50 panelist replicates, JMLE recovery on N=500 × 8-item synthetic
+  cohort (b within 0.7), Mantel-Haenszel zero on common DGP, MH > 1.0
+  on 1.0-unit b shift, SO-21 gate happy/under-N/bad-params, drift detector
+
+#### 1.8b — Reference-panel ingestion API
+
+- **Migration `0007_reference_panel.sql`** — adds
+  `content.responses.is_reference_panel` flag (partial index for
+  panel-only filtering); creates `app.reference_panel_tokens` (HMAC-
+  SHA256-pepper-hashed bearer tokens, opaque `panelist_id_hash`,
+  scopes array, expiry / revoked-at, JSONB metadata for cohort labels);
+  inserts a `reference-panel` synthetic tenant.
+- `services/readybank/src/middleware/panel-token-auth.ts` —
+  `panelTokenAuth({ pool, pepper, requiredScope })` factory; bearer-
+  token extraction, HMAC lookup, revoked / expired / scope rejection
+  all surfaced as RFC 7807 problems with `reference-panel/*` titles;
+  `last_used_at` bumped fire-and-forget. Reuses `API_KEY_PEPPER` env
+  so there's only one pepper to rotate.
+- `services/readybank/src/routes/reference-panel.ts` —
+  `POST /v1/reference-panel/responses` with zod-validated body
+  (`question_id` UUID, `response_body`, optional `correct`/`score`,
+  `time_taken_ms`, `started_at`, `suspicious_signals`); inserts into
+  `content.responses` with `is_reference_panel = TRUE`; audit-logs
+  `reference_panel.response.recorded`. No-op when `apiKeyPepper` is
+  absent (mirrors how `apiKeyAuth` is gated in dev/test).
+- `services/readybank/src/server.ts` — mounts `referencePanelRouter`
+  BEFORE the `apiKeyAuth /v1/*` gate so panel-specific 401s win over
+  the generic `Unauthorized` from the API-key path.
+- `__tests__/reference-panel.test.ts` — 8 unit tests against a stub
+  Pool: missing-token / unknown-token / revoked / expired / scope
+  rejection / malformed-body 400 / happy-path 201 with audit insert
+  / score-from-correct mapping.
+
+### Tests
+
+- 18 new IRT tests + 8 new reference-panel tests = **26 new** unit tests
+- Total active tests across workspace: **142** (was 116)
+  - `@qorium/db` smoke: 7 (skipped without DATABASE_URL)
+  - `@qorium/auth`: 26
+  - `@qorium/irt`: **18** (new)
+  - `@qorium/nos-mapper`: 16
+  - `@qorium/readybank`: **82** (was 74; +8 new panel tests)
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` / `pnpm build`
+  — all green
+- gitleaks — clean
+
+### Sprint 1.8 — current state
+
+| Sub-track                               | Status        |
+| --------------------------------------- | ------------- |
+| 1.8a IRT package                        | ✅ this PR    |
+| 1.8b Reference-panel ingest API         | ✅ this PR    |
+| 1.8c Anti-Leak Engine v0 productionized | ⏳ next round |
+| 1.8d Next.js admin console              | ⏳ next round |
+
+Phase 1 engineering progress ~86% post-this-merge. Closes to 100%
+after 1.8c + 1.8d.
+
+### Stop conditions hit
+
+None. Pure code/migration. Migration `0007` is auto-applicable and
+non-destructive (adds columns + tables; no DROPs). The synthetic
+tenant insert is idempotent via ON CONFLICT.
+
+### Bridge with Cowork
+
+`@qorium/irt` is consumable as a workspace dep. The calibration cron
+job referenced in spec §7 (nightly 03:00 IST) is intentionally NOT
+shipped here — the worker process belongs in a follow-up sprint that
+also surfaces calibration outcomes to the admin console (1.8d).
+Cowork's earlier `irt-calibration-batch.mjs` prototype (Run #24)
+should now migrate to consume this package; flag on next sync.

@@ -1,0 +1,25 @@
+{
+  "name": "@qorium/irt",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Item Response Theory (IRT) calibration: 2PL/3PL probability, ability MLE, item-parameter joint MLE, Mantel-Haenszel DIF, SO-21 quality gate. Sprint 1.8a per Auto-Mode Remote Plan.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
