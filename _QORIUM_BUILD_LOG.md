@@ -1292,3 +1292,80 @@ the Phase 2 (India Stack) backlog per
 `governance/Auto-Mode-Remote-Plan-v1.md` §4 Phase D. Human-Bound lane
 remains the dominant blocker on the master meter — every entry on
 that list is one CEO action away from unblocking the next jump.
+
+---
+
+## 2026-05-07 — Run #39 — Sprint 2.2 (Phase 2 opens) ✅
+
+CEO approved "Phase 2 · Go" after the Phase 1 = 100% milestone (PR
+#20 merge). First Phase 2 PR opens with the cleanest code-only piece
+— the billing math library — so subsequent content-scaling and i18n
+PRs can stack on a stable pricing foundation.
+
+### What landed: `packages/billing` (`@qorium/billing`)
+
+Pure-TS pricing + GST + HSN/SAC library. Zero external dependencies
+(no payment SDKs, no DB, no HTTP). The Razorpay / Stripe integration
+service waits for cred-drop; this library is the math underneath.
+
+| Module           | Purpose                                                                                                                                                                                                                                                                                                                             |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `currency.ts`    | `Money` in **bigint** minor units (paise / cents) for exact arithmetic; `money` / `moneyMinor` / `multiply` / `sumMoney` / `formatMoney` / `applyRate` (banker rounding)                                                                                                                                                            |
+| `sku-pricing.ts` | Canonical pricing per Constitution §1.2 LOCKED — 6 ReadyBank tiers (3 INR Recruiter + 3 USD Platform), 6 JD-Forge tiers (3 per-JD + 3 monthly), 3 Stack-Vault tiers (₹10L / ₹40L / ₹1Cr nominal with ₹35L CEO-approval floor)                                                                                                       |
+| `gst.ts`         | `computeGst()` covering 4 schemes: `intra-state` (CGST + SGST 9% each), `inter-state` (IGST 18%), `export-zero-rated` (foreign currency to non-India buyer), `non-india` (INR or no-LUT to non-India buyer = IGST). `validateGstin()` structural check (15-char regex + state code + PAN extraction). 38 Indian state codes mapped. |
+| `hsn-sac.ts`     | SAC codes per SKU — ReadyBank `998314`, JD-Forge `998313`, Stack-Vault `998319`. All `verification: pending` until GST counsel sign-off (same pattern as `@qorium/nos-mapper`).                                                                                                                                                     |
+| `invoice.ts`     | `buildInvoice({ buyer, seller, lines })` pure builder. Resolves SKU/tier prices, multiplies by quantity, applies GST per scheme, returns structured `InvoiceTotals` + warnings (e.g., below-floor pricing). `renderInvoicePlain()` for CLI / preview surface.                                                                       |
+
+### Tests
+
+- **31 new** unit tests covering:
+  - Currency math: bigint arithmetic, banker-rounding edge cases, currency-mix rejection, INR-lakh + USD formatting
+  - SKU pricing: every Wave-1+2 tier resolves; floor enforcement; default-currency-by-country
+  - GST: all 4 schemes (intra-state, inter-state, export-zero-rated, non-india fallback); explicit rate override; correct CGST/SGST split
+  - GSTIN: valid 15-char accepted; 14/16 chars rejected; malformed PAN rejected; lowercase normalized
+  - State codes: Karnataka, Maharashtra, Delhi looked up
+  - SAC mapping: 6-digit format invariant; access-pattern consistency
+  - buildInvoice: intra-state INR with CGST+SGST; export-zero-rated USD; below-floor warning; mixed-currency rejection; unknown-tier rejection; plain-text render contains SAC + tax breakdown
+- Total active tests across workspace: **206** (was 175)
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` / `pnpm build` — all green
+- gitleaks — clean
+
+### Phase 2 — current state
+
+| Sub-track                                 | Status         |
+| ----------------------------------------- | -------------- |
+| Sprint 2.0 Wave-2 60→100 content scale-up | ⏳ next        |
+| Sprint 2.1 Wave-1 60→100 content scale-up | ⏳ next        |
+| **Sprint 2.2 INR pricing + GST + SAC**    | **✅ this PR** |
+| Sprint 2.3 i18n framework                 | ⏳ next        |
+
+Phase 2 progress: 0% → ~15% post-merge.
+
+### Out of scope (next sprints / cred-drop gated)
+
+- **Razorpay SDK calls** — needs Razorpay test/live keys (cred-bound)
+- **Stripe SDK calls** — needs Stripe test/live keys (cred-bound)
+- **Webhook handlers** for payment events — depend on the SDK calls
+- **Invoice PDF rendering** — Chromium / wkhtmltopdf, follow-up service
+- **Subscription lifecycle** (proration, cancelation, dunning) — depends on payment provider state
+- **Customer self-service portal** — UI sprint after admin console pattern
+- **Zoho Books integration** — Indian accounting system handoff
+- **Live GSTIN status check** via the public GST registry — needs registered API access
+
+### CTO-DELTAs
+
+- **SAC codes pending verification** (consistent with `@qorium/nos-mapper`). Counsel sign-off flips to `verified` via small data-only PR.
+- **Default GST rate is 18%.** Reduced 5% / 12% slabs apply to specific HSN codes (educational services may qualify); not exposed in v0 — pass `{ rate: 0.05 }` to `computeGst` to override per-line.
+- **Pricing source-of-truth.** v0 hardcodes the Constitution §1.2 dashboard values into `sku-pricing.ts`. A future sprint may move pricing into Postgres so the CEO can adjust without a PR — but doing so requires a CHECK constraint and audit-log integration to satisfy SO-9 / Article XI traceability.
+
+### Stop conditions hit
+
+None. Pure code; no SDK calls, no $-spend, no outbound, no prod-cred ops.
+
+### Bridge with Cowork
+
+Stream A's Maitro Razorpay integration (referenced in spec §3) is the
+intended fast-path for the future billing service. When that lands as
+a Stream B PR, it will consume `@qorium/billing` for tax computation
+
+- pricing — keeping the math stable while wiring the payment loop.
