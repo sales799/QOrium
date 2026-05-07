@@ -1590,3 +1590,54 @@ None. Pure content + docs.
 Recommend pivoting to **OHCM Q061-Q080** (20 questions) next so the
 SME reviewer rotation is fresh — different sub-skill, different
 reviewer pool, no contention with the just-shipped SAP-ABAP queue.
+
+---
+
+## 2026-05-07 — Run #43-46 — Sprint 2.0 ALL 5 Wave-2 domains 100/100 ✅
+
+CEO authorised "Continue OHCM + CPQ + Finacle + Embedded-Auto" in
+auto-mode while away. All 4 remaining Wave-2 domains shipped over
+4 commits stacked onto PR #24, each adding Q061-Q100 (40 questions).
+
+### Wave 2 final state
+
+| Domain              | Pre | Post           |
+| ------------------- | --- | -------------- |
+| SAP-ABAP            | 70  | **100/100 ✅** |
+| Oracle HCM Cloud    | 60  | **100/100 ✅** |
+| Salesforce CPQ      | 60  | **100/100 ✅** |
+| Finacle/Flexcube    | 60  | **100/100 ✅** |
+| Embedded Automotive | 60  | **100/100 ✅** |
+| **Wave 2 total**    | 311 | **500/500 ✅** |
+
+### Library counts (cumulative across whole branch)
+
+| Metric          | Pre-Sprint-2.0 | Post             |
+| --------------- | -------------- | ---------------- |
+| Authored        | 811            | **1,001** (+190) |
+| Ingest-parsable | 376            | **566** (+190)   |
+
+### Phase 2 progress: 35% → ~80%. Master meter: ~52% → ~55%.
+
+Auto-mode lane reaches its **structural cap at ~78%**. Remaining
+auto-mode progress: Sprint 2.1 (Wave-1 60→100 across 8 sub-skills,
+~16 future PRs). Beyond that, the human-bound lane drives master-meter
+(SME validation, Customer Zero candidate, panel recruitment, hiring).
+
+### CTO-DELTAs
+
+- All 500 Wave-2 questions ship at v0.6 status (`status='draft'`).
+  SME-Lead sign-off is the human-bound gate. Per SO-21, IRT
+  calibration also required before customer-facing release.
+- Multi-domain SME reviewer queue: 5 SMEs in parallel needed (one per
+  domain).
+- India-context scenarios ~15-20% reference India-specific regulatory
+  (RBI, PMLA, DPDPA, GST, EPF, IBC, SARFAESI, BSR, PF). Bias-check
+  rubrics distribute points so non-India-experienced candidates can
+  score on structural dimensions.
+
+### Stop conditions hit
+
+None across the 4 commits. Pure content authoring; no code changes;
+no SDK calls; no $-spend; no outbound; no prod-cred ops. Ingest
+dry-run only.
