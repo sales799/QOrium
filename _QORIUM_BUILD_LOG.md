@@ -1527,3 +1527,66 @@ Phase 2 progress: 30% → ~35% post-merge. Master meter: ~51% → ~52%.
 ### Stop conditions hit
 
 None. Pure content + docs; no $-spend, no outbound, no prod-cred ops.
+
+---
+
+## 2026-05-07 — Run #42 — Sprint 2.0 (second PR) — SAP-ABAP 100/100 ✅
+
+CEO said "Go" again after PR #23 merged. This PR closes the 100/100
+SAP-ABAP target with the final 10 questions.
+
+### What landed: `customer-zero/Wave-2-SAP-ABAP-Extension-091-100.md`
+
+10 v0.6-quality questions (Q091-Q100) covering operational + craft-tier
+topics: internal-table secondary keys, string templates, resumable
+exceptions, dynamic data references, background processing API, ABAP
+Doc + clean ABAP, ALV OO toolbar events, V1/V2 update tasks, IDoc
+reprocessing strategy, multi-team transport landscape.
+
+Distribution: 6 MCQ + 2 code + 1 design + 1 case-study.
+Difficulty: 2 Easy / 4 Medium / 3 Hard / 1 Very Hard.
+
+### Library counts
+
+| Metric              | Before   | After                      |
+| ------------------- | -------- | -------------------------- |
+| Authored            | 831      | **841** (+10)              |
+| Ingest-parsable     | 396      | **406** (+10, 10/10 clean) |
+| **SAP-ABAP target** | 90 / 100 | **100 / 100 ✅**           |
+
+### Tests
+
+- No new unit tests (content-only PR)
+- All 240 existing workspace tests still pass
+- typecheck / lint / format / build / gitleaks — all green
+
+### Phase 2 — current state
+
+SAP-ABAP is the **first Wave-2 domain to hit the Phase 2 100-question
+target.** Remaining 4 domains (OHCM, CPQ, Finacle/Flexcube, Embedded-
+Auto) follow the same authoring pattern. Plus Sprint 2.1 — Wave-1
+60→100 across 8 sub-skills (~320 new questions over ~16 future PRs).
+
+Phase 2 progress: 35% → ~38%. Master meter unchanged at ~52% (content
+gates beyond ~78% remain human-bound on SME validation + Customer-Zero
+real-candidate run).
+
+### CTO-DELTAs
+
+- v0.6 status; SME-Lead sign-off remains the human-bound gate.
+- Q098 V1/V2 update-task pattern: rubric verifies candidates correctly
+  classify mandatory vs non-mandatory V2 and recognise the
+  async-audit-failure-must-not-roll-back invariant.
+- Q100 multi-geography case study: rubric distributes points across
+  landscape engineering AND regulatory considerations so non-India-
+  experienced candidates can score on structural / cadence dimensions.
+
+### Stop conditions hit
+
+None. Pure content + docs.
+
+### Next sprint slice
+
+Recommend pivoting to **OHCM Q061-Q080** (20 questions) next so the
+SME reviewer rotation is fresh — different sub-skill, different
+reviewer pool, no contention with the just-shipped SAP-ABAP queue.
