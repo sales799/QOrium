@@ -1,0 +1,24 @@
+{
+  "$meta": {
+    "language": "hi",
+    "status": "pending",
+    "notes": "All keys are pending native-Hindi-speaker review. The runtime falls back to English when a key's status is `pending`. Translation captured here is illustrative (informal register); a professional translator must replace these and flip status to `verified` per Constitution Article VII Pillar D. This file ships ONLY to wire up the framework — DO NOT deploy as user-facing copy until reviewed."
+  },
+
+  "common.yes": { "text": "हाँ", "status": "pending" },
+  "common.no": { "text": "नहीं", "status": "pending" },
+  "common.cancel": { "text": "रद्द करें", "status": "pending" },
+  "common.save": { "text": "सहेजें", "status": "pending" },
+  "common.submit": { "text": "जमा करें", "status": "pending" },
+  "common.loading": { "text": "लोड हो रहा है…", "status": "pending" },
+  "common.error": { "text": "त्रुटि", "status": "pending" },
+  "common.refresh": { "text": "रीफ़्रेश करें", "status": "pending" },
+  "common.next": { "text": "अगला", "status": "pending" },
+  "common.previous": { "text": "पिछला", "status": "pending" },
+
+  "auth.login.title": { "text": "QOrium में साइन इन करें", "status": "pending" },
+  "auth.login.email": { "text": "ईमेल", "status": "pending" },
+  "auth.login.password": { "text": "पासवर्ड", "status": "pending" },
+  "auth.login.submit": { "text": "साइन इन", "status": "pending" },
+  "auth.login.forgot": { "text": "पासवर्ड भूल गए?", "status": "pending" }
+}

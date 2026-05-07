@@ -1369,3 +1369,88 @@ intended fast-path for the future billing service. When that lands as
 a Stream B PR, it will consume `@qorium/billing` for tax computation
 
 - pricing — keeping the math stable while wiring the payment loop.
+
+---
+
+## 2026-05-07 — Run #40 — Sprint 2.3 i18n framework ✅
+
+Sprint 2.3 closes the i18n surface for QOrium's three Indian-market
+languages (Hindi, Tamil, Telugu). English ships as the canonical
+source; the other three ship as **pending stubs** so the framework
+wires up cleanly without me hallucinating user-facing copy in
+languages I cannot verify. Translation review is human-bound per the
+same governance pattern that gates `@qorium/nos-mapper` and
+`@qorium/billing` SAC verification.
+
+### What landed: `packages/i18n/` (`@qorium/i18n`)
+
+Pure-TS i18n framework with zero external dependencies (~250 LOC).
+
+| Module                          | Purpose                                                                                                                                                                                     |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `types.ts`                      | `LanguageCode`, `Locale`, `MessageBundle`, `BundleMessage` (with `verified` / `pending` status), `ResolvedLocale`, `CoverageReport`                                                         |
+| `bundles.ts` + `bundles/*.json` | Static registry. `BUNDLES` exposes `en` (canonical, 40+ keys) / `hi` (15 illustrative pending stubs) / `ta` / `te` (framework-wire-up-only). `$meta` keys stripped before exposure.         |
+| `resolver.ts`                   | `parseAcceptLanguage()` per RFC 9110 (q-values, stable sort), `pickLanguage()`, `resolveLocale()` (target → en bundle chain)                                                                |
+| `pluralize.ts`                  | CLDR-aligned `one` / `other` rules for en/hi/ta/te. `pluralKey()` returns ordered candidates so the bundle lookup falls through to `_other` when `_one` is missing.                         |
+| `format.ts`                     | `formatNumber()` with Indian-lakh grouping for en-IN; `formatDate()`; `formatRelativeTime()`; `defaultRegionFor()`                                                                          |
+| `translator.ts`                 | `translate(key, resolved, { count, params, acceptPending })` — verified > English fallback > pending > raw key. `coverage()` for admin diagnostics. `lookup()` for direct entry inspection. |
+
+### Tests
+
+- **34 new** unit tests covering Accept-Language parsing, locale picking,
+  bundle-chain construction, translate happy-path / unknown-key /
+  pending-fallback / verified-target / interpolation / plurals /
+  fall-through, plural rules per language, coverage diagnostics,
+  Intl-based number/date/currency formatting
+- Total active tests across workspace: **240** (was 206)
+- `pnpm typecheck` (8 packages) / `pnpm lint` / `pnpm format:check` /
+  `pnpm build` — all green
+- gitleaks — clean
+
+### Phase 2 — current state
+
+| Sub-track                                 | Status             |
+| ----------------------------------------- | ------------------ |
+| Sprint 2.0 Wave-2 60→100 content scale-up | ⏳ next            |
+| Sprint 2.1 Wave-1 60→100 content scale-up | ⏳ next            |
+| Sprint 2.2 INR pricing + GST + SAC        | ✅ merged (PR #21) |
+| **Sprint 2.3 i18n framework**             | **✅ this PR**     |
+
+Phase 2 progress: 15% → ~30% post-merge. Master meter: ~49% → ~51%.
+
+### CTO-DELTAs
+
+- **Hindi / Tamil / Telugu translations are framework stubs only.** All
+  hi entries are explicitly `status: pending`; ta + te bundles ship
+  empty. Runtime falls back to English when a translation is pending
+  or missing — end users **never see broken UI**. Native-speaker
+  reviewers must replace each stub and flip `status: verified` per
+  Reference Panel Governance v0 §3 — same contract that gates Wave-3
+  psychometric content. Protects against the agent hallucinating
+  user-facing copy in languages it cannot verify.
+- **CLDR plural categories limited to `one` / `other`.** Covers en /
+  hi / ta / te for all cardinal cases QOrium ships. If a future locale
+  needs `few` / `many` / `two` / `zero`, extend `pluralCategory`.
+- **No `i18next` dependency.** ~250 LOC of pure TS keeps the audit
+  surface tight (Pillar B — Security) and sidesteps i18next's runtime
+  config / loader machinery.
+
+### Stop conditions hit
+
+None. Pure code; no SDK calls, no $-spend, no outbound, no prod-cred ops.
+
+### Out of scope (future sprints)
+
+- Native-speaker translation review (human-bound; data-only follow-up PRs)
+- Tone / register guidelines (formal आप vs informal तुम — editorial doc)
+- ICU MessageFormat for richer macros inside messages
+- Admin "translation review" surface (lands when `coverage()` graphs UI)
+- Lazy / dynamic bundle loading (only needed if messages > ~1MB)
+
+### Bridge with Cowork
+
+The English bundle is a thin slice today (40+ keys). When Stream A
+authors recruiter-portal copy, canonical English keys should be
+extended in `packages/i18n/src/bundles/en.json` so the static surface
+stays single-source-of-truth across both streams. Per-locale stubs
+auto-fall-back; nothing else needs changing on either side.

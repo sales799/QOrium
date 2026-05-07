@@ -1,0 +1,59 @@
+{
+  "$meta": {
+    "language": "en",
+    "status": "canonical",
+    "notes": "English is the canonical source. Every key here MUST be translated for hi/ta/te before flipping their status from pending to verified."
+  },
+
+  "common.yes": "Yes",
+  "common.no": "No",
+  "common.cancel": "Cancel",
+  "common.save": "Save",
+  "common.submit": "Submit",
+  "common.loading": "Loading…",
+  "common.error": "Error",
+  "common.refresh": "Refresh",
+  "common.next": "Next",
+  "common.previous": "Previous",
+
+  "auth.login.title": "Sign in to QOrium",
+  "auth.login.email": "Email",
+  "auth.login.password": "Password",
+  "auth.login.submit": "Sign in",
+  "auth.login.forgot": "Forgot password?",
+  "auth.errors.invalid_credentials": "Invalid email or password.",
+  "auth.errors.account_locked": "Your account is locked. Try again after {minutes} minutes.",
+  "auth.errors.session_expired": "Your session has expired. Please sign in again.",
+
+  "recruiter.dashboard.title": "Recruiter Dashboard",
+  "recruiter.dashboard.create_session": "Create candidate session",
+  "recruiter.dashboard.sessions_list": "Sessions",
+  "recruiter.dashboard.empty": "No sessions yet. Create one to start.",
+
+  "candidate.take.timer_remaining": "{seconds} seconds remaining",
+  "candidate.take.next_question": "Next question",
+  "candidate.take.submit": "Submit answer",
+  "candidate.take.confirm_finish": "Finish and submit all answers?",
+
+  "result.title": "Assessment Result",
+  "result.score": "Score: {score} / {total}",
+  "result.passed": "Passed",
+  "result.failed": "Failed",
+  "result.summary_one": "{count} question reviewed",
+  "result.summary_other": "{count} questions reviewed",
+
+  "email.invitation.subject": "You're invited to QOrium — set your password",
+  "email.invitation.greeting": "Hi {name},",
+  "email.invitation.body": "You have been invited to join QOrium as a recruiter. Click the link below to set your password — it expires in 7 days.",
+  "email.invitation.cta": "Set password",
+
+  "admin.dashboard.title": "Admin Dashboard",
+  "admin.dashboard.subtitle": "Live engineering view",
+  "admin.leak.severity_critical": "Critical",
+  "admin.leak.severity_high": "High",
+  "admin.leak.severity_medium": "Medium",
+  "admin.leak.severity_low": "Low",
+  "admin.calibration.ready": "Ready for release",
+  "admin.calibration.pending": "Calibration in progress",
+  "admin.panel.token_minted": "Token created. Capture it now — it cannot be recovered."
+}

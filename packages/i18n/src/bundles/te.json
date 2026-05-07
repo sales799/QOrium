@@ -1,0 +1,7 @@
+{
+  "$meta": {
+    "language": "te",
+    "status": "pending",
+    "notes": "Telugu bundle scaffolded for framework wire-up only. Every key is currently a pending stub that falls back to English at runtime. Native-Telugu reviewer must replace these per Reference Panel Governance translation contract. DO NOT deploy as user-facing copy until reviewed."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "$meta": {
+    "language": "ta",
+    "status": "pending",
+    "notes": "Tamil bundle scaffolded for framework wire-up only. Every key is currently a pending stub that falls back to English at runtime. Native-Tamil reviewer must replace these per Reference Panel Governance translation contract. DO NOT deploy as user-facing copy until reviewed."
+  }
+}

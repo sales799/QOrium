@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-07T12:45:00+05:30",
-  "lastReconcileRun": 39,
+  "lastRefresh": "2026-05-07T13:00:00+05:30",
+  "lastReconcileRun": 40,
   "source": {
     "streamB": {
       "branch": "main",
@@ -15,15 +15,15 @@
     }
   },
   "masterMeter": {
-    "auto": 0.7,
+    "auto": 0.73,
     "human": 0.0,
-    "total": 0.49,
+    "total": 0.51,
     "autoCeiling": 0.78,
     "note": "auto = engineering/spec/content lane progress; human = sales/hiring/panel/M&A lane; total weights both. autoCeiling is the structural cap of pure auto-mode per Constitution Article IX."
   },
   "lanes": {
     "auto": {
-      "completed": 23,
+      "completed": 24,
       "total": 33,
       "tiles": [
         { "id": "sprint-0.1", "name": "Monorepo bootstrap", "status": "complete", "evidence": "PR #1 d401018" },
@@ -53,7 +53,7 @@
         { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "pending" },
         { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "pending" },
         { "id": "phase-2.inr-gst", "name": "INR pricing + GST handling", "status": "in_progress", "evidence": "packages/billing — Money in bigint paise/cents · canonical SKU pricing · CGST/SGST/IGST · GSTIN validation · SAC codes · buildInvoice (31 tests)" },
-        { "id": "phase-2.i18n", "name": "i18n framework", "status": "pending" },
+        { "id": "phase-2.i18n", "name": "i18n framework", "status": "in_progress", "evidence": "packages/i18n — Accept-Language parser · locale resolver · CLDR plural rules (en/hi/ta/te) · translator with bundle-chain fallback · Intl number/currency/date formatting · coverage diagnostics · 34 tests" },
         { "id": "phase-3.jd-forge", "name": "JD-Forge service alpha→beta", "status": "pending" },
         { "id": "phase-3.stack-vault", "name": "Stack-Vault tenant isolation + double watermark", "status": "pending" },
         { "id": "phase-3.saml-impl", "name": "SAML/SSO implementation", "status": "pending" },
@@ -85,7 +85,7 @@
   "phases": [
     { "id": 0, "name": "Foundation", "percent": 100, "status": "complete" },
     { "id": 1, "name": "Engine MVP", "percent": 100, "status": "engineering-complete", "note": "Sprint 1.8d shipped admin console (static SPA pattern, CTO-DELTA from Next.js). Phase 1 engineering 100%. Customer-facing 100% requires the human lane: I/O Psych contractor, Reference Panel ≥200, first 5 logos, first REAL Talpro candidate." },
-    { "id": 2, "name": "India Stack", "percent": 15, "status": "active", "note": "Phase 2 begins. Sprint 2.2 (INR pricing + GST + SAC) shipped via @qorium/billing. Sprints 2.0/2.1 (Wave-1 + Wave-2 60→100 content scale-up) and 2.3 (i18n framework) remaining." },
+    { "id": 2, "name": "India Stack", "percent": 30, "status": "active", "note": "Phase 2 — Sprint 2.2 (billing) + 2.3 (i18n) shipped. Sprints 2.0/2.1 (Wave-1 + Wave-2 60→100 content scale-up) remaining. Translation review (hi/ta/te) is human-bound." },
     { "id": 3, "name": "SKU Maturity", "percent": 0, "status": "queued" },
     { "id": 4, "name": "Year-1 Close", "percent": 0, "status": "queued" },
     { "id": 5, "name": "Y2 International", "percent": 0, "status": "queued" },
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 40, "date": "2026-05-07", "summary": "Sprint 2.3: @qorium/i18n package — pure-TS i18n framework. Accept-Language parser; locale resolver with bundle-chain fallback (target → en); CLDR plural rules for en/hi/ta/te; translator with parameter interpolation + status-aware fallback (verified > pending > English fallback); Intl-based formatNumber/formatDate; coverage report for admin queue. en bundle canonical (40+ keys); hi/ta/te bundles ship as pending stubs (translation review human-bound per Reference Panel Governance). 34 unit tests. 240 total active workspace tests." },
     { "id": 39, "date": "2026-05-07", "summary": "Sprint 2.2 (Phase 2 opening): @qorium/billing package — pure-TS pricing/GST/HSN library. Money in bigint minor units; canonical SKU pricing per Constitution §1.2 LOCKED (6 ReadyBank tiers, 6 JD-Forge tiers, 3 Stack-Vault tiers); intra-state CGST+SGST · inter-state IGST · export zero-rated · non-India IGST schemes; GSTIN structural validation; SAC codes per SKU (verification: pending); buildInvoice() pure builder. 31 unit tests. 206 total active workspace tests." },
     { "id": 38, "date": "2026-05-07", "summary": "Sprint 1.8d — Admin console shipped + Phase 1 = 100% on engineering. /v1/admin/* routes (leak-alerts, sme-queue, calibration, panel-tokens) + 5 static pages (dashboard, anti-leak inbox with review action, SME queue, IRT calibration, reference-panel token issuance). CSP-compliant; reuses recruiter JWT cookie auth (CTO-DELTA: skipped Next.js per §spec; static SPA pattern matches existing recruiter dashboard). 13 admin tests; 175 total active workspace tests." },
     { "id": 37, "date": "2026-05-07", "summary": "Sprint 1.8c: services/anti-leak service productionized — n-gram extraction, lexical Jaccard similarity, severity classifier per spec §6, Mock + Serper.dev search providers, runScan orchestrator, content.leak_alerts persistence + audit-log integration, CLI entrypoint, 20 unit tests. 162 active workspace tests (was 142)." },
