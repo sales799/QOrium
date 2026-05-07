@@ -2420,3 +2420,72 @@ CEO action flips live).
 
 Going forward: when Stream B closes a §B or §D item, both files
 update in the same commit.
+
+---
+
+## 2026-05-07 — Bali Sales Playbook v1 (Constitution-companion gap closed) ✅
+
+CEO directive ("BALI") triggered authoring of the canonical Bali Sales
+Playbook v1 — referenced 7+ times across Constitution v1.0 / v2.0,
+Blueprint v1.1, SKU Architecture, and Ratification Record v2.0, but
+never committed as a source document. The gap was a documentation
+fiction: every reader of the Constitution who clicked through to "see
+Bali Sales Playbook §9" hit a dead end.
+
+`governance/Bali-Sales-Playbook-v1.md` (~620 lines) authored, structured
+as 18 sections + 2 appendices:
+
+- §1 Mission and Charter (verbatim three-sentence USP per §1.1; what
+  Bali owns vs. what escalates to CEO)
+- §2 The Three Sales Motions — Motion A (ReadyBank Staffing), Motion B
+  (Enterprise Stack-Vault), Motion C (Platform API) — each with ICP /
+  ACV / sales cycle / decision unit / AI-agent allowed Y/N matrix
+- §3 Pricing Bands — verbatim list prices + AE discount authority per
+  motion + tier; SO-11 anchor (₹35L Stack-Vault floor) + SO-23 anchor
+  ($5K–$25K/yr ReadyBank API band) explicitly enforced
+- §4 Pipeline Stages — 8-stage HubSpot CRM canonical schema with
+  stage-conversion targets + per-stage SLAs
+- §5 ICP Scoring & Buyer Personas — 0-5 dimension scoring per motion;
+  4 buyer personas (Staffing-Firm Founder / GCC Talent Head /
+  CISO+DPO / Platform Product Lead) with what unlocks the call vs.
+  signature for each
+- §6 Objection Handling — 8 standard objections with verbatim
+  response scripts (resolves Ratification Record §3.7 reference)
+- §7 Stack-Vault Scoping Conversation — 7-question discovery + 7-section
+  scoping artifact mandatory before pricing (resolves §3.8)
+- §8 AI-Agent + Human-AE Hybrid (per SO-18) — AI agent activity matrix,
+  hand-off triggers (8 hard rules), canonical AI-agent system prompt
+- §9 Customer Zero Pattern — what Customer Zero is / is not, data
+  products Bali references, handoff brief template (resolves §2.9)
+- §10 Activity Counts and KPIs — daily / weekly / monthly / quarterly
+  by motion; phase-gate alignment
+- §11 First-5-Logos Plan — Y1 priority list (Talpro CZ / 2 staffing
+  peers / Bosch GCC / Tier-3 platform pilot)
+- §12 Onboarding (post-signature → first value) by motion
+- §13 Renewal & Expansion — 90-day renewal motion + expansion plays +
+  health-score signals
+- §14 Tooling Stack — HubSpot / LinkedIn Sales Nav / WhatsApp /
+  Calendly / Talpro Sentinel / founder_request / services/bali-agent
+- §15 Compliance + Governance — every Standing Order that gates Bali
+  activity (SO-1, 9, 10, 11, 18, 19, 21, 22, 23, 24, 25); audit-trail
+  requirements; No-Fiction discipline; quarterly competitive scan
+- §16 Operating Cadence — daily / Mon / Wed / Fri / monthly / quarterly
+- §17 Open Items deferred to v2 (Y2+ international, Tier-1 platforms,
+  channel/OEM, psychometric SKU, M&A-track customer acquisition)
+- §18 Amendment Procedure (per Article XI)
+- Appendix A Cross-references resolved (every Constitution / Blueprint /
+  Ratification Record reference to "Bali Sales Playbook" now resolves
+  to a section in this doc)
+- Appendix B Change Log
+
+`_QORIUM_ARTIFACT_DASHBOARD.md` updated with:
+
+- **§F-bis Constitution-companion documentation gaps** — full inventory
+  of which named companion docs exist in-repo vs. referenced-only.
+  Bali Sales Playbook flips ⏳ → ✅. 7 docs still missing (Master Mega
+  Doc, Blueprint v1.1, SKU Architecture, IdeaForge Gate, CTO
+  Architecture v1, Competitive Capabilities Doc 10, Ratification
+  Record v2.0).
+- New build-history row.
+
+No code changes. Documentation track only.

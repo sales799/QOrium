@@ -1,6 +1,6 @@
 # QOrium Artifact Dashboard
 
-**Last updated:** 2026-05-04 14:30 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 (ready-for-review) · **HEAD:** `2dd5135`
+**Last updated:** 2026-05-07 · **Branch:** `claude/setup-qorium-build-agent-zA0l5` · **PR:** #9 (ready-for-review)
 
 > **Read order:** the **Macro Project Status** section (top) tracks the
 > 8-phase journey from Day 0 to the Article IX completion gate. The
@@ -126,6 +126,32 @@ note.)
 All five items (F1 QUEUE.md, F2 Constitution v2.0 ratification, F3 memory
 update, F4 MANTHAN session log, F5 project lock) closed at Day 0 per
 existing CTO Office record.
+
+### §F-bis — Constitution-companion documentation gaps
+
+Constitution v2.0 references several "companion docs" by name. Inventory
+of which exist in-repo (audited 2026-05-07):
+
+| Companion doc                                  | In-repo? | File                                                                     |
+| ---------------------------------------------- | :------: | ------------------------------------------------------------------------ |
+| QOrium Constitution v2.0                       |    ✅    | `09-QOrium-Constitution-v2.0.md`                                         |
+| Bali Sales Playbook v1                         | ✅ (NEW) | `governance/Bali-Sales-Playbook-v1.md`                                   |
+| Quality Gate 92-pt Scorecard                   |    ✅    | `governance/Quality-Gate-92pt-Scorecard.md`                              |
+| Investor Brief Pre-A                           |    ✅    | `governance/Investor-Brief-Pre-A-v1.md`                                  |
+| Operating Rituals v1                           |    ✅    | `governance/Operating-Rituals-v1.md`                                     |
+| Incident Response Runbook v1                   |    ✅    | `governance/Incident-Response-Runbook-v1.md`                             |
+| TestForge QA Pipeline v1                       |    ✅    | `governance/TestForge-QA-Pipeline-v1.md`                                 |
+| AI Plagiarism Benchmark Protocol v1            |    ✅    | `governance/AI-Plagiarism-Benchmark-Protocol-v1.md`                      |
+| Bias Detection Methodology v1                  |    ✅    | `governance/Bias-Detection-Methodology-v1.md`                            |
+| Decision Framework Reusable Template v1        |    ✅    | `governance/Decision-Framework-Reusable-Template-v1.md`                  |
+| Constitutional Amendment v2.1 (Article IX M9)  |    ✅    | `governance/Constitutional-Amendment-v2.1-Article-IX-M9-Psychometric.md` |
+| Master Mega Doc                                |    ⏳    | not yet authored                                                         |
+| Blueprint v1.1                                 |    ⏳    | referenced; not yet committed to repo                                    |
+| SKU Architecture                               |    ⏳    | referenced; not yet committed to repo                                    |
+| IdeaForge Gate                                 |    ⏳    | referenced; not yet committed to repo                                    |
+| CTO Architecture v1                            |    ⏳    | referenced; not yet committed to repo                                    |
+| Competitive Capabilities Consolidated (Doc 10) |    ⏳    | referenced; not yet committed to repo                                    |
+| Ratification Record v2.0                       |    ⏳    | referenced; not yet committed to repo                                    |
 
 ### Phase 0 honest rollup
 
@@ -363,7 +389,8 @@ unblock the live state.
 | 2026-05-04T06:19Z | Bootstrap-fix #5 — pre-install pg extensions as superuser         | `3f573ee`     | pushed    |
 | 2026-05-04T06:22Z | Bootstrap-fix #6 — admin local node_modules + DB ownership        | `7ae6ebe`     | pushed    |
 | 2026-05-04T13:28Z | Bootstrap-fix #7 — drop process.argv[1] guard (PM2 cluster)       | `2dd5135`     | pushed    |
-| 2026-05-04T14:30Z | Artifact reconciliation — macro Phase 0 status                    | (this commit) | (pushing) |
+| 2026-05-04T14:30Z | Artifact reconciliation — macro Phase 0 status                    | `7f0c2b9`     | pushed    |
+| 2026-05-07T00:00Z | Bali Sales Playbook v1 (Constitution-companion gap closed)        | (this commit) | (pushing) |
 
 ## Final note
 
