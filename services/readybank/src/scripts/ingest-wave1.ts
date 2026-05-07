@@ -119,9 +119,41 @@ function splitIntoBlocks(md: string): string[] {
 }
 
 // The markdown convention is `**field_name:**` — colon is INSIDE the bold
-// markers, not after. Trailing whitespace after the value is preserved by
-// the (.*) and trimmed when we flush the field.
-const FIELD_RE = /^\*\*([a-z_][a-z0-9_]*):\*\*\s*(.*)$/i;
+// markers, not after. Some case-study items use `**field_name (parenthetical
+// hint):**` — we accept that form too. Trailing whitespace after the value
+// is preserved by the (.*) and trimmed when we flush the field.
+//
+// We restrict to the KNOWN_FIELDS set rather than accepting any /[a-z_]+/
+// because question bodies contain inline emphasis like `**Scenario:**` /
+// `**Task:**` / `**Requirements:**` which would otherwise be mis-parsed as
+// new fields and truncate the body.
+const KNOWN_FIELDS = new Set([
+  'question_id',
+  'skill_id',
+  'sub_skill_id',
+  'format',
+  'difficulty_b',
+  'discrimination_a',
+  'expected_duration_minutes',
+  'citation',
+  'body',
+  'options',
+  'answer_key',
+  'solution',
+  'reference_solution',
+  'rubric',
+  'evaluation_rubric',
+  'watermark_seed',
+  'variant_seed',
+  'bias_check_notes',
+  // Wave-3 Amendment v2.1 fields:
+  'psychometric_construct',
+  'bias_dif_target_groups',
+  'ai_assist_allowed',
+  'pair_role',
+  'calibration_min_n',
+]);
+const FIELD_RE = /^\*\*([a-z_][a-z0-9_]*)\s*(?:\([^)]*\))?\s*:\*\*\s*(.*)$/i;
 
 /**
  * Parse a single block into structured fields. Returns null with a reason
@@ -149,9 +181,10 @@ export function parseBlock(block: string, sourceFile: string): ParsedQuestion | 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i] ?? '';
     const match = line.match(FIELD_RE);
-    if (match) {
+    const candidateKey = match ? match[1]!.toLowerCase() : null;
+    if (match && candidateKey && KNOWN_FIELDS.has(candidateKey)) {
       flush();
-      currentKey = match[1]!.toLowerCase();
+      currentKey = candidateKey;
       const inline = match[2] ?? '';
       currentValue = inline ? [inline] : [];
     } else if (currentKey !== null) {
@@ -162,13 +195,16 @@ export function parseBlock(block: string, sourceFile: string): ParsedQuestion | 
 
   const qorId = fields['question_id']?.replace(/\s+/g, '');
   const body = fields['body'];
-  const answerKey = fields['answer_key'];
-  const rubric = fields['rubric'];
+  // Case-study and design-essay items use `solution:` or `reference_solution:`
+  // instead of `answer_key:`. Accept all three so the parser doesn't drop
+  // the 52 case-study items surfaced in PR #13.
+  const answerKey = fields['answer_key'] ?? fields['reference_solution'] ?? fields['solution'];
+  const rubric = fields['rubric'] ?? fields['evaluation_rubric'];
   const format = fields['format']?.trim().toLowerCase();
 
   if (!qorId) return { error: 'missing question_id' };
   if (!body) return { error: `${qorId}: missing body` };
-  if (!answerKey) return { error: `${qorId}: missing answer_key` };
+  if (!answerKey) return { error: `${qorId}: missing answer_key/solution/reference_solution` };
   if (!rubric) return { error: `${qorId}: missing rubric` };
   if (!format) return { error: `${qorId}: missing format` };
 
