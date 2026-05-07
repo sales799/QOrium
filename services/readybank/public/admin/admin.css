@@ -1,0 +1,333 @@
+/* QOrium Admin Console — Sprint 1.8d.
+ * Midnight-Executive theme matching /recruiter/dashboard.html. CSP-
+ * compliant: no inline styles in HTML; everything classed and resolved
+ * here. */
+
+:root {
+  --bg: #0b1020;
+  --bg-elev: #131a30;
+  --bg-card: #1a2240;
+  --border: #2b3563;
+  --text: #e8ecf8;
+  --text-dim: #94a0c2;
+  --accent: #5b8cff;
+  --accent-dim: #3b5fb3;
+  --severity-critical: #ff4d6d;
+  --severity-high: #ff8a3d;
+  --severity-medium: #ffc845;
+  --severity-low: #5b8cff;
+  --status-detected: #ff4d6d;
+  --status-under_review: #ffc845;
+  --status-rotated: #4ade80;
+  --status-dismissed: #94a0c2;
+  --status-false_positive: #94a0c2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+button:hover {
+  background: var(--accent-dim);
+}
+button.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+button.secondary:hover {
+  background: var(--bg-elev);
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+aside.nav {
+  background: var(--bg-elev);
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+}
+aside.nav h1 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin: 0 0 16px 0;
+  padding: 0 8px;
+}
+aside.nav nav a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 4px;
+  color: var(--text);
+  font-weight: 500;
+}
+aside.nav nav a:hover {
+  background: var(--bg-card);
+  text-decoration: none;
+}
+aside.nav nav a.active {
+  background: var(--accent);
+  color: white;
+}
+
+main {
+  padding: 24px 32px;
+}
+main h2 {
+  margin-top: 0;
+  font-size: 22px;
+}
+main p.subtitle {
+  color: var(--text-dim);
+  margin-top: -8px;
+  margin-bottom: 20px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.toolbar label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+th,
+td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th {
+  background: var(--bg-elev);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+tr:last-child td {
+  border-bottom: 0;
+}
+td.muted {
+  color: var(--text-dim);
+}
+td.mono,
+.mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pill.severity-critical {
+  background: var(--severity-critical);
+  color: white;
+}
+.pill.severity-high {
+  background: var(--severity-high);
+  color: white;
+}
+.pill.severity-medium {
+  background: var(--severity-medium);
+  color: black;
+}
+.pill.severity-low {
+  background: var(--severity-low);
+  color: white;
+}
+.pill.status-detected {
+  background: var(--status-detected);
+  color: white;
+}
+.pill.status-under_review {
+  background: var(--status-under_review);
+  color: black;
+}
+.pill.status-rotated {
+  background: var(--status-rotated);
+  color: black;
+}
+.pill.status-dismissed {
+  background: var(--status-dismissed);
+  color: black;
+}
+.pill.status-false_positive {
+  background: var(--status-false_positive);
+  color: black;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-dim);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.error {
+  background: var(--severity-critical);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+.metric .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.metric .value {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+dialog {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  min-width: 420px;
+  max-width: 80vw;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+dialog h3 {
+  margin-top: 0;
+}
+dialog .actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+dialog .field {
+  margin-bottom: 12px;
+}
+dialog .field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+dialog .field input,
+dialog .field select,
+dialog .field textarea {
+  width: 100%;
+}
+
+code.token {
+  display: block;
+  word-break: break-all;
+  background: var(--bg);
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+
+/* Utility classes used by admin pages — CSP forbids inline style="" so
+   anything visual is hoisted here. */
+.tight {
+  margin-top: 0;
+}
+.spaced {
+  margin-top: 14px;
+}
+.token-card {
+  background: #0f1a36;
+  margin-top: 0;
+}
+.fineprint {
+  font-size: 12px;
+  color: var(--text-dim);
+}
