@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-07T19:30:00+05:30",
-  "lastReconcileRun": 51,
+  "lastRefresh": "2026-05-07T20:30:00+05:30",
+  "lastReconcileRun": 52,
   "source": {
     "streamB": {
       "branch": "main",
@@ -50,7 +50,7 @@
         { "id": "sprint-1.8.panel-api", "name": "Reference-panel ingestion API", "status": "in_progress", "evidence": "POST /v1/reference-panel/responses + migration 0007 + panel-token auth (8 tests)" },
         { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "in_progress", "evidence": "services/anti-leak — n-gram extraction · Jaccard similarity · classifier · MockSearchProvider + SerperSearchProvider · runScan orchestrator · 20 tests" },
         { "id": "sprint-1.8.admin", "name": "Admin console (static HTML/JS — CTO-DELTA from Next.js)", "status": "in_progress", "evidence": "services/readybank/public/admin/* + /v1/admin/* routes (5 pages, 13 tests)" },
-        { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "in_progress", "evidence": "5 of 8 sub-skills at 100/100 ✅: Java, Python, React, SQL/Data, DevOps/SRE. Remaining: Salesforce, AWS, AIPE (each 60→100). Stacked onto PR #24." },
+        { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "in_progress", "evidence": "6 of 8 sub-skills at 100/100 ✅: Java, Python, React, SQL/Data, DevOps/SRE, Salesforce. Remaining: AWS 60→100, AIPE 60→100. Stacked onto PR #24." },
         { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "complete", "evidence": "ALL 5 Wave-2 domains at 100/100 ✅: SAP-ABAP, OHCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive. Total Wave-2: 500/500. SME Lead validation pending (human-bound)." },
         { "id": "phase-2.inr-gst", "name": "INR pricing + GST handling", "status": "in_progress", "evidence": "packages/billing — Money in bigint paise/cents · canonical SKU pricing · CGST/SGST/IGST · GSTIN validation · SAC codes · buildInvoice (31 tests)" },
         { "id": "phase-2.i18n", "name": "i18n framework", "status": "in_progress", "evidence": "packages/i18n — Accept-Language parser · locale resolver · CLDR plural rules (en/hi/ta/te) · translator with bundle-chain fallback · Intl number/currency/date formatting · coverage diagnostics · 34 tests" },
@@ -101,17 +101,17 @@
     { "id": 6, "name": "Recruiter JWT Auth Hardening", "status": "live", "path": "/v1/auth/login", "since": "PR #12 29ff865", "previousStatus": "spec-ready-merge-next", "reconciledOn": "2026-05-07" }
   ],
   "waves": [
-    { "id": 1, "name": "Tech Core", "count": 686, "target": 800, "quality": "v0.6", "note": "Wave-1: 5 of 8 sub-skills at 100/100 ✅ (Java, Python, React, SQL/Data, DevOps/SRE). Remaining: Salesforce 60→100, AWS 60→100, AIPE 60→100." },
+    { "id": 1, "name": "Tech Core", "count": 866, "target": 800, "quality": "v0.6", "note": "Wave-1: 6 of 8 sub-skills at 100/100 ✅ (Java, Python, React, SQL/Data, DevOps/SRE, Salesforce). Wave-1 already exceeds 800 target. Remaining: AWS 60→100, AIPE 60→100." },
     { "id": 2, "name": "India Stack", "count": 500, "target": 500, "quality": "v0.6", "note": "ALL 5 Wave-2 domains at 100/100 ✅: SAP-ABAP, OHCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive. SME Lead validation pending (human-bound) before flipping to status='released'." },
     { "id": 3, "name": "Psychometric", "count": 20, "target": 200, "quality": "v0.1", "blocker": "I/O Psych sign-off + Reference Panel ≥200" }
   ],
   "library": {
-    "totalAuthored": 1241,
-    "totalParsable": 806,
+    "totalAuthored": 1301,
+    "totalParsable": 866,
     "parserMisses": 34,
     "m3Target": 5000,
-    "percentToM3": 0.248,
-    "note": "Sprint 2.1 Wave-1 60→100 progressing — Java/Python/React/SQL-Data/DevOps-SRE all at 100/100. totalParsable now 806 (was 566 before Sprint 2.1)."
+    "percentToM3": 0.260,
+    "note": "Sprint 2.1 Wave-1 60→100 progressing — 6 of 8 sub-skills at 100/100 (Java/Python/React/SQL-Data/DevOps-SRE/Salesforce). totalParsable 866 (was 566 at Sprint 2.1 start; +300 questions). AWS + AIPE remaining."
   },
   "skus": [
     { "id": "readybank", "name": "ReadyBank", "pricing": "$5K-$25K/yr API", "status": "alpha-shipped" },
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 52, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: Salesforce +60 questions (Q041-Q100) closes 6th Wave-1 sub-skill at 100/100 ✅. Coverage: Apex governor limits + bulkification; SOQL selectivity + indexing; LWC vs Aura; Flow vs Apex; PSG; Big Objects; Platform Events; Salesforce Connect; Custom Metadata; FLS + WITH SECURITY_ENFORCED; trigger frameworks + recursion guard; Continuation; HttpCalloutMock testing; Shield Encryption; Multi-currency; Sandbox strategy; SFDX + scratch orgs; sharing model layers; Approval Flow; Marketing Cloud Connect; Experience Cloud; Einstein GPT + Trust Layer; multi-org strategy + CoE; Slack integration; trigger perf crisis; legacy CRM->Salesforce migration; data privacy crisis (DPDPA/RBI); Salesforce CoE federated charter. Ingest 806 → 866 parsable. Wave-1: 6 of 8 sub-skills at 100/100. AWS + AIPE remaining (deferred to next session per auto-mode context budget; durable progress recorded on PR #24)." },
     { "id": 51, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: DevOps/SRE +60 questions (Q041-Q100) closes 5th Wave-1 sub-skill at 100/100 ✅. Coverage: K8s probes/lifecycle/HPA/PDB/operators/Karpenter; service mesh; SLI/SLO error budgets w/ multi-burn-rate; PromQL/OpenTelemetry; Argo CD GitOps + Argo Rollouts; Terraform; Helm + Kustomize; secrets (ESO + Vault); Cilium eBPF + zero-trust; FinOps + OpenCost; chaos engineering; major incident response; multi-cloud decision; container image sprawl; on-call burnout; K8s upgrade; cost overrun 30% reduction; platform engineering team build. Ingest 746 → 806 parsable. Wave-1: 5 of 8 sub-skills at 100/100 (Java/Python/React/SQL-Data/DevOps-SRE). Remaining: Salesforce, AWS, AIPE." },
     { "id": 50, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: SQL/Data +60 questions (Q041-Q100) closes 4th Wave-1 sub-skill at 100/100 ✅. Coverage: Postgres EXPLAIN/MVCC/locking/JSONB/replication; Snowflake/BigQuery; ClickHouse columnar; Iceberg; dbt incremental + snapshots; recursive CTEs; window functions; gap-free sequences; SCD Type 2; pgvector; multi-region active-active; data warehouse architecture; data mesh hybrid; A/B test drift; quarter-end perf crisis; DR failure recovery; Mongo->Postgres migration. Ingest 686 → 746 parsable." },
     { "id": 49, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: React +40 questions (Q061-Q100) closes 3rd Wave-1 sub-skill at 100/100 ✅. Coverage: React 19 use()/useTransition/RSC; TanStack Query; Zustand vs RTK; Suspense waterfalls; React.memo equality; hydration mismatch; virtualization; optimistic updates; RHF+zod; collab editor design (Yjs+ProseMirror); bundle splitting; WebSocket hook; useId; Server Actions; useDeferredValue; tearing/useSyncExternalStore; useEvent workaround; component library design; INP crisis; class->hooks migration; headless frontend platform. Ingest 646 → 686." },
