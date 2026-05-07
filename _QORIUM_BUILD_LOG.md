@@ -769,3 +769,120 @@ metacognitive`) columns to `content.questions`, both nullable; CHECK
 ### Stop conditions hit
 
 None. Pure code/spec/migration. No $-spend, no outbound, no prod-cred ops.
+
+---
+
+## 2026-05-07 — Run #35 — Sprint 1.7 (b + d) closeout ✅
+
+PR opens stacked on the just-merged Run #34 (PR #16). Closes the
+remaining two sub-tracks of Sprint 1.7.
+
+### What landed
+
+- **`packages/nos-mapper/`** (Sprint 1.7b) — new workspace package
+  `@qorium/nos-mapper`. Translates QOrium skill slugs ↔ India's NSQF
+  levels (1–10) and Sector-Skills-Council NOS codes. Ships:
+  - `src/types.ts` — `NsqfLevel`, `NosMapping`, `SectorSlug`,
+    `NsqfLevelDescriptor` types
+  - `src/nsqf-levels.ts` — full 10-level NSQF descriptor grid (process,
+    knowledge, responsibility) per NSDC notification
+  - `src/mappings.ts` — 13 verified-pending mappings covering all
+    Wave-1 + Wave-2 senior tech skills (Java / React / Python / SQL /
+    DevOps-SRE / AWS / Salesforce / AIPE / SAP-ABAP / OHCM /
+    Salesforce-CPQ / Finacle-Flexcube / Embedded-Auto)
+  - `src/index.ts` — `findBySkill`, `findByNosCode`, `findByNsqfLevel`,
+    `findBySector`, `coverage`
+  - `__tests__/mapper.test.ts` — 16 unit tests
+  - `README.md` — usage, sectors, NSQF guidance, verification policy
+
+  Mapping data status: every entry is `verification: 'pending'`.
+  Codes are structurally correct (SSC/N#### format, plausible NSQF
+  levels) but must be cross-checked against the live NSDC NQR
+  (National Qualifications Register) before regulatory / tender use.
+  Verification path: NSDC public NQR API + IP counsel sign-off
+  (CC-02-A on the CEO action surface). Flipping to `verified` is a
+  data-only update; framework code does not change.
+
+- **`infra/auto-bootstrap/email-auth.tf`** (Sprint 1.7d) — Terraform
+  module managing the SES domain identity + DKIM CNAMEs + SPF apex
+  record + Mail-FROM subdomain (with its own MX + SPF) + DMARC TXT
+  record at `_dmarc.<domain>`. Variables: `domain`, `aws_region`,
+  `route53_zone_id`, `mail_from_subdomain`, `dmarc_policy`,
+  `dmarc_rua`, `dmarc_ruf`. Outputs: `ses_identity_arn`,
+  `verified_domain`, `mail_from_domain`, `dkim_records`,
+  `dmarc_record_value`. Provider pinned to `hashicorp/aws ~> 5.70`,
+  `terraform >= 1.7.0`.
+
+- **`infra/auto-bootstrap/apply.sh`** — authorization wrapper. Refuses
+  to run `terraform apply` unless `BOOTSTRAP_AUTHORIZED=true` is
+  literally set in the env (sourced from `.env.bootstrap`). Without
+  that flag, runs `terraform plan` only. Per-module workspace
+  (`.terraform-<module>/`) keeps state files isolated.
+
+- **`infra/auto-bootstrap/.env.bootstrap.example`** — cred-drop
+  template for the CEO. Documents the required AWS keys, region,
+  Route 53 zone ID, DMARC policy, and reporting addresses. Default
+  region `ap-south-1` (Mumbai) for DPDPA data-residency + Indian
+  inbox latency.
+
+- **`infra/auto-bootstrap/README.md`** — module index + apply runbook.
+
+- **`.gitignore`** — excludes `.env.bootstrap`, `.terraform-*/`,
+  `*.tfstate*`, `.terraform.lock.hcl` so cred-drop file and per-apply
+  state never enter version control.
+
+### Tests
+
+- 16 new nos-mapper unit tests:
+  - 10-level NSQF coverage, descriptor field validity, lookup by level
+  - NOS code regex validity, NSQF level range invariant, complete
+    coverage of every Wave-1 + Wave-2 senior tech skill
+  - `verification: 'pending'` invariant (changes deliberately when
+    CC-02-A clears)
+  - Forward + reverse + filter lookups (skill, NOS code, NSQF level,
+    sector)
+  - Coverage report sums consistency
+- All other suites unchanged
+- Total active tests: db smoke 7 (skipped without DB) · auth 26 ·
+  readybank 74 · **nos-mapper 16** = 116 across the workspace
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` — green
+- `pnpm build` — clean
+
+### Sprint 1.7 — final state
+
+| Sub-track                        | Run     | Status                   |
+| -------------------------------- | ------- | ------------------------ |
+| 1.7a SAML/SSO v1 spec            | #34     | ✅ merged                |
+| 1.7b NSDC/NOS mapper             | **#35** | ✅ this PR               |
+| 1.7c Bloom tags migration `0006` | #34     | ✅ merged                |
+| 1.7d Email-auth Terraform IaC    | **#35** | ✅ this PR (apply gated) |
+| 1.7e Ingest parser hardening     | #34     | ✅ merged                |
+
+**Sprint 1.7 closed pending PR merge.** Phase 1 engineering progress
+~78%. Closes to 100% after Sprint 1.8 (IRT calibration prod,
+reference-panel ingest API, anti-leak engine prod, admin console).
+
+### Stop conditions hit
+
+None. The Terraform `apply` is **structurally gated** on
+`BOOTSTRAP_AUTHORIZED=true` — a flag the agent never sets. Plan-only
+runs are CI-safe and produce no live mutation. No $-spend, no
+outbound, no prod-cred ops.
+
+### Open at end of Sprint 1.7
+
+- **NSDC NQR cross-check** — flips `nos-mapper` mappings to `verified`.
+  Owner: IP counsel (CC-02-A). Not on agent's path.
+- **SES cred-drop** — populates `infra/auto-bootstrap/.env.bootstrap`
+  and runs `apply.sh email-auth`. Owner: CEO. Not on agent's path.
+- **1.7c.2 Bloom-tag heuristic backfill** — lands with admin console
+  in Sprint 1.8d.
+- **1.7e.2 Remaining 34 parse errors** — require source-file edits
+  in `customer-zero/`; deferred to a content-authoring round.
+
+### Bridge with Cowork
+
+Sprint 1.7 closeout is fully Stream-B-side. Cowork can pick up
+`packages/nos-mapper` as a dependency on its next Stream-A sync. The
+Terraform module is environment-agnostic — same module, same `apply.sh`
+works from either stream once the cred-drop is in place.
