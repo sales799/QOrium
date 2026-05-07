@@ -1,0 +1,25 @@
+{
+  "name": "@qorium/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure-TS i18n framework: locale resolution from Accept-Language, message translation with parameter interpolation, plural rules for en/hi/ta/te, locale-aware number/currency/date formatting. Sprint 2.3 per Auto-Mode Remote Plan §4 Phase D.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
