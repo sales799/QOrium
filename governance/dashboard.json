@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-07T00:00:00+05:30",
-  "lastReconcileRun": 33,
+  "lastRefresh": "2026-05-07T08:40:00+05:30",
+  "lastReconcileRun": 34,
   "source": {
     "streamB": {
       "branch": "main",
@@ -40,12 +40,12 @@
         { "id": "sprint-1.6.ingest", "name": "Wave-1 full ingest script (parses 358 from 22 sources)", "status": "complete", "evidence": "PR #13 87b08b5" },
         { "id": "sprint-1.6.ohcm", "name": "Oracle HCM 60/60 v0.6", "status": "complete", "evidence": "PR #13 87b08b5" },
         { "id": "sprint-1.6.wave3", "name": "Wave-3 Authoring Template v0.1 + Kickoff Batch-001", "status": "complete", "evidence": "PR #13 87b08b5" },
-        { "id": "sprint-1.6.5", "name": "Reconcile + dashboard.json contract", "status": "in_progress", "evidence": "PR #15 (this PR)" },
-        { "id": "sprint-1.7.saml-spec", "name": "SAML/SSO v1 spec", "status": "pending" },
+        { "id": "sprint-1.6.5", "name": "Reconcile + dashboard.json contract", "status": "complete", "evidence": "PR #15 merged at fd9256e" },
+        { "id": "sprint-1.7.saml-spec", "name": "SAML/SSO v1 spec", "status": "in_progress", "evidence": "infra/SSO-SAML-Enterprise-Spec-v1.md" },
         { "id": "sprint-1.7.nos-mapper", "name": "NSDC/NOS competency mapper", "status": "pending" },
-        { "id": "sprint-1.7.bloom-tags", "name": "Bloom's taxonomy tagging + migration 0006", "status": "pending" },
+        { "id": "sprint-1.7.bloom-tags", "name": "Bloom's taxonomy tagging + migration 0006", "status": "in_progress", "evidence": "infra/B7-postgres-migrations/0006_bloom_tags.sql (schema; heuristic backfill in next PR)" },
         { "id": "sprint-1.7.email-iac", "name": "SES/DKIM/SPF/DMARC IaC (halts on cred-drop)", "status": "pending" },
-        { "id": "sprint-1.7.parser-fix", "name": "Ingest parser synonyms (closes 52 case-study misses)", "status": "pending" },
+        { "id": "sprint-1.7.parser-fix", "name": "Ingest parser synonyms (closes case-study misses)", "status": "in_progress", "evidence": "ingest count 358 → 376; errors 52 → 34" },
         { "id": "sprint-1.8.irt", "name": "IRT calibration pipeline (production)", "status": "pending" },
         { "id": "sprint-1.8.panel-api", "name": "Reference-panel ingestion API", "status": "pending" },
         { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "pending" },
@@ -107,8 +107,8 @@
   ],
   "library": {
     "totalAuthored": 811,
-    "totalParsable": 358,
-    "parserMisses": 52,
+    "totalParsable": 376,
+    "parserMisses": 34,
     "m3Target": 5000,
     "percentToM3": 0.162,
     "note": "totalAuthored is Cowork-side count (includes drafts not yet parsed by Stream B ingest). totalParsable = what Stream B's ingest-wave1 currently produces; rises to ~410 once Sprint 1.7e parser-synonyms PR lands."
@@ -119,7 +119,8 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
-    { "id": 33, "date": "2026-05-07", "summary": "Sprint 1.6.5 reconcile: governance/dashboard.json canonical source + Auto-Mode Remote Plan v1 + Stream-B mirror of mission control. PR #15." },
+    { "id": 34, "date": "2026-05-07", "summary": "Sprint 1.7 (a + c + e): SAML/SSO v1 spec · migration 0006 Bloom tags · ingest parser hardening (358 → 376 questions, 52 → 34 errors). New tests: 5. CI green." },
+    { "id": 33, "date": "2026-05-07", "summary": "Sprint 1.6.5 reconcile: governance/dashboard.json canonical source + Auto-Mode Remote Plan v1 + Stream-B mirror of mission control. PR #15 merged at fd9256e." },
     { "id": 32, "date": "2026-05-04", "summary": "Sprint 1.6 Cowork-shipped (5 tracks): JWT auth + mailer + Wave-1 ingest + OHCM 60/60 + Wave-3 v0.1." },
     { "id": 31, "date": "2026-05-04", "summary": "Sprint 1.5: Recruiter HTML dashboard SPA LIVE." },
     { "id": 30, "date": "2026-05-04", "summary": "Sprint 1.4: Recruiter session CRUD + 3-agent parallel content scaling." },

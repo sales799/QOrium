@@ -680,12 +680,12 @@ recur at every Bridge Protocol gap.
 
 ### Reconciled facts (was → is)
 
-| Tile | Run #32 dashboard said | `main` reality |
-|---|---|---|
-| Surface 6 — Recruiter JWT auth | spec ready · merge next | LIVE since `29ff865` (PR #12) |
-| Sprint 1.6 — JWT + mailer + ingest + OHCM + Wave-3 | Stream B merge next | LIVE at `87b08b5` (PR #13) |
-| Web Application surfaces | 5 / 6 live | **6 / 6 live** |
-| Phase 1 master | 35% | ~65% post-reconcile |
+| Tile                                               | Run #32 dashboard said  | `main` reality                |
+| -------------------------------------------------- | ----------------------- | ----------------------------- |
+| Surface 6 — Recruiter JWT auth                     | spec ready · merge next | LIVE since `29ff865` (PR #12) |
+| Sprint 1.6 — JWT + mailer + ingest + OHCM + Wave-3 | Stream B merge next     | LIVE at `87b08b5` (PR #13)    |
+| Web Application surfaces                           | 5 / 6 live              | **6 / 6 live**                |
+| Phase 1 master                                     | 35%                     | ~65% post-reconcile           |
 
 ### CEO decision captured
 
@@ -708,3 +708,64 @@ Phase B: SAML/SSO v1 spec · NSDC/NOS mapper · Bloom's tags + migration
 0006 · email-auth IaC (halts on cred-drop) · ingest parser synonyms
 (closes 52 case-study misses).
 
+---
+
+## 2026-05-07 — Run #34 — Sprint 1.7 (a + c + e) ✅
+
+CEO approved "Go 1.7" on 2026-05-07; auto-mode shipped the three
+lowest-risk sub-tracks (a SAML spec · c migration `0006` · e ingest
+parser hardening). Sub-tracks b and d (NSDC/NOS mapper · email-auth
+IaC) parked for the next round.
+
+### What landed
+
+- **`infra/SSO-SAML-Enterprise-Spec-v1.md`** (Sprint 1.7a) — supersedes
+  v0. Adds: IdP-initiated flow with relay-state contract + CSRF
+  mitigation, JIT provisioning with conflict resolution + claim path,
+  SCIM 2.0 endpoint surface + bearer-token auth + schema mapping,
+  key-rotation cadence (SP cert · IdP cert · SCIM token · OIDC secret ·
+  encryption keys), and concrete copy-paste IdP configurations for Okta
+  / Azure AD / Google Workspace. Includes the `app.tenant_sso_config`
+  schema and 14 named test cases that gate Sprint 3.3 implementation.
+  No code yet — spec only.
+- **`infra/B7-postgres-migrations/0006_bloom_tags.sql`** (Sprint 1.7c) —
+  adds `bloom_level` (`remember | understand | apply | analyze | evaluate
+| create`) and `bloom_dimension` (`factual | conceptual | procedural |
+metacognitive`) columns to `content.questions`, both nullable; CHECK
+  constraints (DROP-then-ADD pattern for re-runnability); partial indexes
+  on the non-null subset. Heuristic backfill + admin SME-review surface
+  parked for follow-up PRs (per Anderson & Krathwohl 2001 taxonomy).
+- **`services/readybank/src/scripts/ingest-wave1.ts`** (Sprint 1.7e) —
+  parser hardening, two changes:
+  1. Accepts `solution:` and `reference_solution:` as synonyms for
+     `answer_key:`; accepts `evaluation_rubric:` as synonym for `rubric:`
+  2. Restricts field-key matching to a `KNOWN_FIELDS` allowlist (24
+     fields including Wave-3 Amendment v2.1 set), so embedded inline
+     emphasis like `**Scenario:**` / `**Task:**` / `**Requirements:**`
+     inside body content no longer truncates body. Also tolerates
+     `**field_name (parenthetical hint):**` form.
+
+### Library count delta
+
+| Metric                     | Before | After         |
+| -------------------------- | ------ | ------------- |
+| Questions parsed by ingest | 358    | **376** (+18) |
+| Parse errors               | 52     | **34** (-18)  |
+
+### Tests
+
+- 5 new ingest-parser unit tests covering each new code path
+- Total readybank: **74 passed / 21 skipped** (was 69 / 21);
+  auth 26 / 26; db smoke 7 skipped without DATABASE_URL
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` — green
+
+### Out of scope (next round)
+
+- **1.7b** — `packages/nos-mapper` (NSDC/NOS with NSQF reference data)
+- **1.7d** — `infra/auto-bootstrap/email-auth.tf` (Terraform; halts on cred-drop)
+- **1.7c.2** — Bloom-tag heuristic backfill (lands with admin console 1.8d)
+- **1.7e.2** — remaining 34 parse errors (need source-file edits, not parser)
+
+### Stop conditions hit
+
+None. Pure code/spec/migration. No $-spend, no outbound, no prod-cred ops.

@@ -101,6 +101,105 @@ describe('parseBlock', () => {
     const out = parseBlock(block, 'x.md');
     expect('error' in out).toBe(true);
   });
+
+  it('accepts `solution:` as a synonym for `answer_key:` (case-study items)', () => {
+    const block = [
+      '## QUESTION 50: Case Study Item (Hard)',
+      '**question_id:** QOR-CASE-050',
+      '**format:** casestudy',
+      '**body:**',
+      'A long case-study prompt.',
+      '**solution:**',
+      'Detailed solution narrative.',
+      '**rubric:**',
+      'Case-study; 10 points scored on the rubric.',
+    ].join('\n');
+    const parsed = parseBlock(block, 'Wave-X-Case-Study.md');
+    if ('error' in parsed) throw new Error(parsed.error);
+    expect(parsed.qor_id).toBe('QOR-CASE-050');
+    expect(parsed.answer_key).toContain('Detailed solution narrative');
+  });
+
+  it('accepts `reference_solution:` as a synonym for `answer_key:` (design-essay items)', () => {
+    const block = [
+      '## QUESTION 51: Design Essay (Very Hard)',
+      '**question_id:** QOR-DESIGN-051',
+      '**format:** design-essay',
+      '**body:**',
+      'Design a multi-region failover.',
+      '**reference_solution:**',
+      'Active-active with quorum-based reconciliation.',
+      '**rubric:**',
+      'Design-essay; weighted across 4 dimensions.',
+    ].join('\n');
+    const parsed = parseBlock(block, 'Wave-X-Design.md');
+    if ('error' in parsed) throw new Error(parsed.error);
+    expect(parsed.qor_id).toBe('QOR-DESIGN-051');
+    expect(parsed.answer_key).toContain('Active-active');
+  });
+
+  it('accepts `**field_name (parenthetical hint):**` form', () => {
+    const block = [
+      '## QUESTION 53: Parenthetical Field (Hard)',
+      '**question_id:** QOR-CASE-053',
+      '**format:** design',
+      '**body:**',
+      'Design prompt.',
+      '**answer_key (design rubric accepts trade-off articulation):**',
+      'A trade-off-oriented answer narrative.',
+      '**rubric:**',
+      'Design; weighted across 3 dimensions.',
+    ].join('\n');
+    const parsed = parseBlock(block, 'Wave-X-Parenthetical.md');
+    if ('error' in parsed) throw new Error(parsed.error);
+    expect(parsed.qor_id).toBe('QOR-CASE-053');
+    expect(parsed.answer_key).toContain('trade-off-oriented');
+  });
+
+  it('does NOT treat embedded **Scenario:** / **Task:** in body as new fields', () => {
+    const block = [
+      '## QUESTION 54: Embedded Markers (Very Hard)',
+      '**question_id:** QOR-CASE-054',
+      '**format:** casestudy',
+      '**body:**',
+      '',
+      '**Scenario:** A complex enterprise rollout.',
+      '',
+      '**Requirements:**',
+      '1. Multi-region.',
+      '2. Bottleneck analysis.',
+      '',
+      '**Task:** Write a 600-word design.',
+      '**answer_key:**',
+      'Expected design structure spans multiple paragraphs.',
+      '**rubric:**',
+      'Case-study; 5-tier scoring.',
+    ].join('\n');
+    const parsed = parseBlock(block, 'Wave-X-Embedded.md');
+    if ('error' in parsed) throw new Error(parsed.error);
+    // Body must include all three embedded sections, not be truncated
+    expect(parsed.body).toContain('A complex enterprise rollout');
+    expect(parsed.body).toContain('Bottleneck analysis');
+    expect(parsed.body).toContain('600-word design');
+    expect(parsed.answer_key).toContain('Expected design structure');
+  });
+
+  it('accepts `evaluation_rubric:` as a synonym for `rubric:`', () => {
+    const block = [
+      '## QUESTION 52: SJT Item (Medium)',
+      '**question_id:** QOR-SJT-052',
+      '**format:** sjt',
+      '**body:**',
+      'A workplace scenario.',
+      '**answer_key:**',
+      'B — most effective.',
+      '**evaluation_rubric:**',
+      'SJT; weighted 4 / 3 / 2 / 1 across responses.',
+    ].join('\n');
+    const parsed = parseBlock(block, 'Wave-X-SJT.md');
+    if ('error' in parsed) throw new Error(parsed.error);
+    expect(parsed.rubric).toContain('weighted 4 / 3 / 2 / 1');
+  });
 });
 
 describe('parseFile (live customer-zero/ source)', () => {

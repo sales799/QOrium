@@ -14,14 +14,14 @@ read from `dashboard.json` directly; until then, this file is the
 
 ## Top-line meters
 
-| Meter | Value | Direction |
-|---|---|---|
-| **Auto-Mode lane** (engineering / spec / content) | 14 / 33 tiles · ~42% | Agent-owned, target 100% |
-| **Human-Bound lane** (sales / hiring / panel / M&A) | 4 / 14 tiles · ~29% | CEO-owned, agent never claims |
-| **Master meter** (12-Month Build) | ~34% | Cap ≈ 78% under pure auto-mode per Constitution Article IX |
-| **Web Application surfaces** | **6 / 6 LIVE** | Surface 6 (JWT auth) merged via PR #12 `29ff865` |
-| **Question Library** | 811 authored · 358 ingest-parsable · M3 target 5,000 (16.2%) | Wave-1 + Wave-2 closed at 791 v0.6 |
-| **CEO critical path** | 0 blockers | CC-01/02-A/03/04 closed |
+| Meter                                               | Value                                                        | Direction                                                  |
+| --------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| **Auto-Mode lane** (engineering / spec / content)   | 14 / 33 tiles · ~42%                                         | Agent-owned, target 100%                                   |
+| **Human-Bound lane** (sales / hiring / panel / M&A) | 4 / 14 tiles · ~29%                                          | CEO-owned, agent never claims                              |
+| **Master meter** (12-Month Build)                   | ~34%                                                         | Cap ≈ 78% under pure auto-mode per Constitution Article IX |
+| **Web Application surfaces**                        | **6 / 6 LIVE**                                               | Surface 6 (JWT auth) merged via PR #12 `29ff865`           |
+| **Question Library**                                | 811 authored · 376 ingest-parsable · M3 target 5,000 (16.2%) | Wave-1 + Wave-2 closed at 791 v0.6 · parser hardened 1.7e  |
+| **CEO critical path**                               | 0 blockers                                                   | CC-01/02-A/03/04 closed                                    |
 
 ---
 
@@ -29,12 +29,12 @@ read from `dashboard.json` directly; until then, this file is the
 
 The 2026-05-06 dashboard refresh predates Stream B's PR-#12 and PR-#13 merges:
 
-| Tile | Dashboard said | Reality on `main` |
-|---|---|---|
-| Surface 6 — Recruiter JWT auth | "spec ready · merge next" | Live at `29ff865` (PR #12) since 2026-05-06 |
-| Sprint 1.6 (5 tracks) | "Cowork-side shipped · Stream B merge next" | Fully merged at `87b08b5` (PR #13) — JWT + mailer + ingest + OHCM 60/60 + Wave-3 v0.1 |
-| Web Application count | 5 / 6 LIVE | **6 / 6 LIVE** |
-| Sprint 1.0 7th gate | "blocked on Sprint 1.6 merge" | unblocked; awaiting only first REAL Talpro candidate (human-bound) |
+| Tile                           | Dashboard said                              | Reality on `main`                                                                     |
+| ------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Surface 6 — Recruiter JWT auth | "spec ready · merge next"                   | Live at `29ff865` (PR #12) since 2026-05-06                                           |
+| Sprint 1.6 (5 tracks)          | "Cowork-side shipped · Stream B merge next" | Fully merged at `87b08b5` (PR #13) — JWT + mailer + ingest + OHCM 60/60 + Wave-3 v0.1 |
+| Web Application count          | 5 / 6 LIVE                                  | **6 / 6 LIVE**                                                                        |
+| Sprint 1.0 7th gate            | "blocked on Sprint 1.6 merge"               | unblocked; awaiting only first REAL Talpro candidate (human-bound)                    |
 
 Sprint 1.6.5 (PR #15) reconciles this and introduces `governance/dashboard.json`
 so future drift is structural rather than narrative.
@@ -66,11 +66,11 @@ Full sequence: [`governance/Auto-Mode-Remote-Plan-v1.md`](./governance/Auto-Mode
 
 ## Library (811 questions across 3 waves)
 
-| Wave | Authored | Quality | Notes |
-|---|---|---|---|
-| Wave 1 — Tech Core | 480 | v0.6 | 8/8 sub-skills × 60 |
-| Wave 2 — India Stack | 311 | v0.6 | SAP-ABAP 70 · OHCM 60 · Salesforce CPQ 60 · Finacle/Flexcube 60 · Embedded Auto 60 |
-| Wave 3 — Psychometric | 20 | v0.1 | staged drafts; awaiting I/O Psych + Reference Panel ≥200 (Constitutional Amendment v2.1) |
+| Wave                  | Authored | Quality | Notes                                                                                    |
+| --------------------- | -------- | ------- | ---------------------------------------------------------------------------------------- |
+| Wave 1 — Tech Core    | 480      | v0.6    | 8/8 sub-skills × 60                                                                      |
+| Wave 2 — India Stack  | 311      | v0.6    | SAP-ABAP 70 · OHCM 60 · Salesforce CPQ 60 · Finacle/Flexcube 60 · Embedded Auto 60       |
+| Wave 3 — Psychometric | 20       | v0.1    | staged drafts; awaiting I/O Psych + Reference Panel ≥200 (Constitutional Amendment v2.1) |
 
 Stream-B `ingest-wave1` parses 358 of the 811 today; 52 case-study items use `**solution:**` instead of `**answer_key:**` — Sprint 1.7e closes them.
 
@@ -98,16 +98,16 @@ Human-bound items the agent will never auto-close:
 
 ## Source-of-truth files
 
-| File | Purpose |
-|---|---|
-| `governance/dashboard.json` | Canonical machine-readable state |
-| `QORIUM-MISSION-CONTROL.md` (this file) | Human-readable mirror |
-| `_QORIUM_BUILD_LOG.md` | Run-by-run build log |
-| `governance/Auto-Mode-Remote-Plan-v1.md` | Authoritative auto-mode plan + stop conditions |
-| `task_plan_phase0_phase1.md` | Phase 0/1 punchlist |
-| `09-QOrium-Constitution-v2.0.md` | Operating system · 25 SOs · 92-pt Gate · Article IX completion bar |
+| File                                     | Purpose                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| `governance/dashboard.json`              | Canonical machine-readable state                                   |
+| `QORIUM-MISSION-CONTROL.md` (this file)  | Human-readable mirror                                              |
+| `_QORIUM_BUILD_LOG.md`                   | Run-by-run build log                                               |
+| `governance/Auto-Mode-Remote-Plan-v1.md` | Authoritative auto-mode plan + stop conditions                     |
+| `task_plan_phase0_phase1.md`             | Phase 0/1 punchlist                                                |
+| `09-QOrium-Constitution-v2.0.md`         | Operating system · 25 SOs · 92-pt Gate · Article IX completion bar |
 
 ---
 
-*Refreshed by Sprint 1.6.5 reconcile · PR #15 · 2026-05-07.*
-*Next refresh: at every Stream B merge to `main`.*
+_Refreshed by Sprint 1.6.5 reconcile · PR #15 · 2026-05-07._
+_Next refresh: at every Stream B merge to `main`._
