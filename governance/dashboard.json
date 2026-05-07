@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-07T13:15:00+05:30",
-  "lastReconcileRun": 41,
+  "lastRefresh": "2026-05-07T13:30:00+05:30",
+  "lastReconcileRun": 42,
   "source": {
     "streamB": {
       "branch": "main",
@@ -51,7 +51,7 @@
         { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "in_progress", "evidence": "services/anti-leak — n-gram extraction · Jaccard similarity · classifier · MockSearchProvider + SerperSearchProvider · runScan orchestrator · 20 tests" },
         { "id": "sprint-1.8.admin", "name": "Admin console (static HTML/JS — CTO-DELTA from Next.js)", "status": "in_progress", "evidence": "services/readybank/public/admin/* + /v1/admin/* routes (5 pages, 13 tests)" },
         { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "pending" },
-        { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "in_progress", "evidence": "SAP-ABAP +20 (Q071-Q090 ship as v0.6 drafts; ingest parser confirms 20/20 clean parse). 70/100 SAP-ABAP target; remaining domains (OHCM/CPQ/Finacle/Embedded-Auto) at 60/100." },
+        { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "in_progress", "evidence": "SAP-ABAP 100/100 ✅ (Q071-Q100). Remaining domains (OHCM/CPQ/Finacle/Embedded-Auto) at 60/100." },
         { "id": "phase-2.inr-gst", "name": "INR pricing + GST handling", "status": "in_progress", "evidence": "packages/billing — Money in bigint paise/cents · canonical SKU pricing · CGST/SGST/IGST · GSTIN validation · SAC codes · buildInvoice (31 tests)" },
         { "id": "phase-2.i18n", "name": "i18n framework", "status": "in_progress", "evidence": "packages/i18n — Accept-Language parser · locale resolver · CLDR plural rules (en/hi/ta/te) · translator with bundle-chain fallback · Intl number/currency/date formatting · coverage diagnostics · 34 tests" },
         { "id": "phase-3.jd-forge", "name": "JD-Forge service alpha→beta", "status": "pending" },
@@ -85,7 +85,7 @@
   "phases": [
     { "id": 0, "name": "Foundation", "percent": 100, "status": "complete" },
     { "id": 1, "name": "Engine MVP", "percent": 100, "status": "engineering-complete", "note": "Sprint 1.8d shipped admin console (static SPA pattern, CTO-DELTA from Next.js). Phase 1 engineering 100%. Customer-facing 100% requires the human lane: I/O Psych contractor, Reference Panel ≥200, first 5 logos, first REAL Talpro candidate." },
-    { "id": 2, "name": "India Stack", "percent": 35, "status": "active", "note": "Phase 2 — Sprint 2.2 (billing) + 2.3 (i18n) merged; Sprint 2.0 SAP-ABAP +20 in flight. Sprints 2.0 remaining domains (OHCM/CPQ/Finacle/Embedded-Auto 60→100) and 2.1 (Wave-1 60→100 across 8 sub-skills) remaining. Translation review (hi/ta/te) is human-bound." },
+    { "id": 2, "name": "India Stack", "percent": 38, "status": "active", "note": "Phase 2 — billing + i18n shipped; SAP-ABAP 100/100 ✅. Remaining: OHCM/CPQ/Finacle/Embedded-Auto each 60→100 in Sprint 2.0; Wave-1 60→100 across 8 sub-skills in Sprint 2.1; translation review human-bound." },
     { "id": 3, "name": "SKU Maturity", "percent": 0, "status": "queued" },
     { "id": 4, "name": "Year-1 Close", "percent": 0, "status": "queued" },
     { "id": 5, "name": "Y2 International", "percent": 0, "status": "queued" },
@@ -102,12 +102,12 @@
   ],
   "waves": [
     { "id": 1, "name": "Tech Core", "count": 480, "target": 800, "quality": "v0.6" },
-    { "id": 2, "name": "India Stack", "count": 331, "target": 520, "quality": "v0.6", "note": "SAP-ABAP +20 via Sprint 2.0 (Q071-Q090). 70/100 SAP-ABAP target; remaining 30 SAP-ABAP + 40-each on the other 4 Wave-2 domains for the full 520 Wave-2 target." },
+    { "id": 2, "name": "India Stack", "count": 341, "target": 520, "quality": "v0.6", "note": "SAP-ABAP 100/100 ✅ via Sprints 2.0 (Q071-Q100). Remaining: 40 each on OHCM / CPQ / Finacle / Embedded-Auto for the full 520 Wave-2 target." },
     { "id": 3, "name": "Psychometric", "count": 20, "target": 200, "quality": "v0.1", "blocker": "I/O Psych sign-off + Reference Panel ≥200" }
   ],
   "library": {
-    "totalAuthored": 831,
-    "totalParsable": 396,
+    "totalAuthored": 841,
+    "totalParsable": 406,
     "parserMisses": 34,
     "m3Target": 5000,
     "percentToM3": 0.162,
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 42, "date": "2026-05-07", "summary": "Sprint 2.0 (second PR): Wave-2 SAP-ABAP +10 questions (Q091-Q100) closing 100/100 SAP-ABAP target. Coverage: internal-table secondary keys, string templates, resumable exceptions, dynamic data references, background processing API, ABAP Doc + clean ABAP, ALV OO toolbar events, V1/V2 update tasks, IDoc reprocessing strategy, multi-team transport landscape design. Distribution: 6 MCQ + 2 code + 1 design + 1 case-study; difficulty 2 Easy / 4 Medium / 3 Hard / 1 Very Hard. Ingest 396 → 406 parsable (+10, 10/10 clean). Library 831 → 841 authored. SAP-ABAP target reached at 100/100." },
     { "id": 41, "date": "2026-05-07", "summary": "Sprint 2.0 (first PR): Wave-2 SAP-ABAP +20 questions (Q071-Q090) covering RAP, CDS view entities, AMDP, ATC custom checks, ABAP Unit, enqueue locking, bgRFC, BTP destinations, output management, multi-tenant SaaS design, 18-month migration case study. Distribution: 12 MCQ + 4 code + 2 design + 2 case-study; difficulty 3 Easy / 9 Medium / 6 Hard / 2 Very Hard. Ingest 376 → 396 parsable (+20, 20/20 clean). Library 811 → 831 authored. SME validation pending per SO-21." },
     { "id": 40, "date": "2026-05-07", "summary": "Sprint 2.3: @qorium/i18n package — pure-TS i18n framework. Accept-Language parser; locale resolver with bundle-chain fallback (target → en); CLDR plural rules for en/hi/ta/te; translator with parameter interpolation + status-aware fallback (verified > pending > English fallback); Intl-based formatNumber/formatDate; coverage report for admin queue. en bundle canonical (40+ keys); hi/ta/te bundles ship as pending stubs (translation review human-bound per Reference Panel Governance). 34 unit tests. 240 total active workspace tests." },
     { "id": 39, "date": "2026-05-07", "summary": "Sprint 2.2 (Phase 2 opening): @qorium/billing package — pure-TS pricing/GST/HSN library. Money in bigint minor units; canonical SKU pricing per Constitution §1.2 LOCKED (6 ReadyBank tiers, 6 JD-Forge tiers, 3 Stack-Vault tiers); intra-state CGST+SGST · inter-state IGST · export zero-rated · non-India IGST schemes; GSTIN structural validation; SAC codes per SKU (verification: pending); buildInvoice() pure builder. 31 unit tests. 206 total active workspace tests." },
