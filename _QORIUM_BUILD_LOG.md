@@ -998,3 +998,128 @@ shipped here — the worker process belongs in a follow-up sprint that
 also surfaces calibration outcomes to the admin console (1.8d).
 Cowork's earlier `irt-calibration-batch.mjs` prototype (Run #24)
 should now migrate to consume this package; flag on next sync.
+
+---
+
+## 2026-05-07 — Run #37 — Sprint 1.8c Anti-Leak Engine v0 productionized ✅
+
+Promotes the Run-#24 `anti-leak-scan.mjs` prototype to a proper PM2-
+runnable service per `infra/Anti-Leak-Engine-v0-Design.md`. Lexical
+detection only in this PR (full embedding-based cosine deferred — see
+CTO-DELTA below). 1.8d (Next.js admin console) is the only remaining
+sub-track for Phase 1 = 100%.
+
+### What landed
+
+- **`services/anti-leak/`** new workspace package `@qorium/anti-leak`:
+  - `src/types.ts` — `SearchProvider` interface, `SearchResult`,
+    `QuestionForScan`, `ClassificationResult`, `LeakSeverity`,
+    `DetectionEvidence`, `ScanReport`
+  - `src/config.ts` — `loadConfig()` resolves provider (`mock` | `serper`),
+    Serper API key, per-question query budget, severity thresholds
+    (auto-rotate / high-review / medium-review). Fail-loud when
+    `provider=serper` without `SERPER_API_KEY`.
+  - `src/providers/mock.ts` — `MockSearchProvider` for dev/test/CI;
+    deterministic in-memory fixture map keyed by query text.
+  - `src/providers/serper.ts` — `SerperSearchProvider` calling
+    `https://google.serper.dev/search`. Bounded `AbortController`
+    timeout, snippet truncation at 500 chars per spec §2.1.
+  - `src/detector.ts` — `tokenize` (stopword-aware), `extractDistinctiveNgrams`
+    (top-K longest 9–15-token windows; falls back to whole text when
+    too short), `jaccard`, `matchedNgrams` (token-compact substring
+    match so embedded stopwords don't break the lookup), `classify`
+    (severity per spec §6 thresholds; treats Jaccard as cosine proxy
+    until embeddings ship).
+  - `src/repositories.ts` — `fetchReleasedQuestions` (oldest-released
+    first, so scans rotate through the corpus over time),
+    `insertLeakAlert` (writes to `content.leak_alerts` with full
+    forensic evidence in `evidence_jsonb`).
+  - `src/scanner.ts` — `runScan` orchestrator. For each released
+    question: extract distinctive n-grams → query provider → classify
+    each hit → dedupe on (question_id, source_url) → persist medium+
+    alerts + audit-log `leak.detected` (critical) / `leak.suspected`
+    (high+medium). Survives transient provider errors per query.
+  - `src/scripts/scan.ts` — CLI entry point (`pnpm --filter
+@qorium/anti-leak scan [--provider=mock] [--write]
+[--max-questions=N]`). Dry-run only; `--write` requires DB wiring
+    so it runs from PM2 worker, not from CI.
+  - `src/index.ts` — public surface for callers.
+- **`__tests__/detector.test.ts`** (15 tests) — tokenize, n-gram
+  extraction, Jaccard, matchedNgrams, classify across all four
+  severity bands.
+- **`__tests__/scanner.test.ts`** (5 tests) — empty-fixture no-alert,
+  critical leak detection, dedupe within run, low-similarity dropped,
+  provider-error resilience.
+
+### CTO-DELTA: lexical-only similarity in v0
+
+Spec §2.2 specifies BOTH cosine-embedding similarity (>0.92 critical)
+AND lexical Jaccard (>70% medium). v0 ships **lexical only** because
+embedding similarity needs either:
+
+- Anthropic Embeddings API key — cred-bound; halts auto-mode per
+  charter, OR
+- a self-hosted embedding model — heavier infra than this PR's scope.
+
+The classifier interface is stable (`classify(body, snippet, thresholds)`)
+so swapping in cosine is a one-file change. Production thresholds use
+the same numeric values from §6 against the Jaccard score — this
+catches verbatim leaks (the dominant Glassdoor / GFG / LeetCode-Discuss
+class), and the embeddings sprint will catch paraphrases. Logged as
+`infra/CTO-deltas/CTO-DELTA-anti-leak-lexical-only-v0.md` (TODO follow-up).
+
+### Tests
+
+- **20 new** unit tests (15 detector + 5 scanner)
+- Total active tests across workspace: **162** (was 142)
+  - `@qorium/db` smoke: 7 (skipped without DATABASE_URL)
+  - `@qorium/auth`: 26
+  - `@qorium/irt`: 18
+  - `@qorium/nos-mapper`: 16
+  - `@qorium/readybank`: 82
+  - **`@qorium/anti-leak`: 20** (new)
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` / `pnpm build`
+  — all green
+- gitleaks — clean
+
+### Sprint 1.8 — current state
+
+| Sub-track                               | Status                                  |
+| --------------------------------------- | --------------------------------------- |
+| 1.8a IRT package                        | ✅ merged (PR #18)                      |
+| 1.8b Reference-panel ingest API         | ✅ merged (PR #18)                      |
+| 1.8c Anti-Leak Engine v0 productionized | ✅ this PR                              |
+| 1.8d Next.js admin console              | ⏳ next round (Phase 1 = 100% on close) |
+
+Phase 1 engineering progress: 86% → **~92%** post-merge.
+
+### Out of scope (next round / next sprint)
+
+- **Embedding-based similarity** (CTO-DELTA above) — needs cred-drop
+  for Anthropic Embeddings or a self-hosted model
+- **24h SLA tracker** — admin console UI, lands with 1.8d
+- **PM2 cron registration** for the nightly 02:00 IST scan — needs
+  the `infra/B10-ecosystem.config.js` update to add a `qorium-anti-leak`
+  fork-mode worker entry (next round)
+- **Variant generator pipeline** (spec §7) — needs Anthropic API key
+  for the AI rewrite call (cred-bound; halts)
+- **Multi-source crawlers** — GeeksforGeeks scraper, GitHub repo
+  search, LeetCode Discuss; all build atop the same `SearchProvider`
+  interface
+
+### Stop conditions hit
+
+None. Pure code. The Serper provider needs `SERPER_API_KEY` to make
+real network calls — `loadConfig` fails loud if the key is absent
+when `ANTILEAK_PROVIDER=serper`. Default config is mock provider so
+boots are CI-safe.
+
+### Bridge with Cowork
+
+Cowork's Run-#24 `anti-leak-scan.mjs` prototype is now superseded by
+this productionized service. Stream A should retire the .mjs script
+on next sync and either:
+
+1. Delete it (if no callers), or
+2. Refactor it to invoke `@qorium/anti-leak`'s `runScan` so the two
+   streams stay congruent.
