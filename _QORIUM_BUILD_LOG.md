@@ -1454,3 +1454,76 @@ authors recruiter-portal copy, canonical English keys should be
 extended in `packages/i18n/src/bundles/en.json` so the static surface
 stays single-source-of-truth across both streams. Per-locale stubs
 auto-fall-back; nothing else needs changing on either side.
+
+---
+
+## 2026-05-07 — Run #41 — Sprint 2.0 (first PR) — Wave-2 SAP-ABAP +20 ✅
+
+CEO approved "Continue 2.0" after Phase 2 code-only sprints (2.2
+billing + 2.3 i18n) merged. First content-scale-up PR ships 20 new
+SAP-ABAP questions extending the existing 70 toward the Phase 2
+target of 100 per Wave-2 domain.
+
+### What landed: `customer-zero/Wave-2-SAP-ABAP-Extension-071-090.md`
+
+20 v0.6-quality questions (Q071–Q090) covering Cloud-tier ABAP topics
+not previously addressed:
+
+| Sub-skill                                        | Questions              | Format                   |
+| ------------------------------------------------ | ---------------------- | ------------------------ |
+| ABAP RESTful Programming Model (RAP)             | Q071, Q079, Q084, Q089 | MCQ × 2, code, casestudy |
+| CDS view entities (advanced)                     | Q072, Q080, Q083       | MCQ × 2, code            |
+| AMDP / HANA SQLScript                            | Q073, Q082             | MCQ × 2                  |
+| ATC custom checks                                | Q074, Q085             | MCQ, code                |
+| ABAP Unit testability patterns                   | Q075                   | MCQ                      |
+| Enqueue framework + locking                      | Q076, Q086             | MCQ, code                |
+| bgRFC / async integration                        | Q077                   | MCQ                      |
+| BTP integration (Cloud Connector / destinations) | Q078, Q090             | MCQ, casestudy           |
+| Output management (Adobe Forms / BRF+)           | Q081                   | MCQ                      |
+| Multi-tenant SaaS design on BTP ABAP             | Q087                   | design                   |
+| S/4 migration design (HANA-native acceptability) | Q088                   | design                   |
+
+Distribution: 12 MCQ + 4 code + 2 design + 2 case-study.
+Difficulty: 3 Easy / 9 Medium / 6 Hard / 2 Very Hard on the IRT b scale.
+
+### Library counts
+
+| Metric                           | Before | After         |
+| -------------------------------- | ------ | ------------- |
+| Authored (dashboard total)       | 811    | **831** (+20) |
+| Ingest-parsable                  | 376    | **396** (+20) |
+| SAP-ABAP authored (target = 100) | 70     | **90 / 100**  |
+
+`pnpm --filter @qorium/readybank ingest:wave1` (dry-run) confirms the
+new file parses **20/20 cleanly** — no parser misses introduced.
+
+### Tests
+
+- No new unit tests (content-only PR)
+- All existing 240 active workspace tests still pass
+- typecheck (9 packages) / lint / format / build / gitleaks — all green
+
+### Phase 2 — current state
+
+| Sub-track                                     | Status                                                                                          |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Sprint 2.0 Wave-2 60→100 content scale-up** | **🟡 in progress** — SAP-ABAP +20 this PR; Q091-Q100 next; other 4 Wave-2 domains each need +40 |
+| Sprint 2.1 Wave-1 60→100 content scale-up     | ⏳ pending                                                                                      |
+| Sprint 2.2 INR pricing + GST + SAC            | ✅ merged (PR #21)                                                                              |
+| Sprint 2.3 i18n framework                     | ✅ merged (PR #22)                                                                              |
+
+Phase 2 progress: 30% → ~35% post-merge. Master meter: ~51% → ~52%.
+
+### CTO-DELTAs
+
+- v0.6 status, not v1.0 — SME-Lead sign-off is the human-bound gate
+  flipping `status='draft'` to `status='released'`.
+- All citations point to SAP Help Portal canonical URLs; SME Lead
+  audits citation freshness on the v1.0 review pass.
+- Bias-check notes per question articulate fairness across non-India
+  experience levels — particularly important for Q090 (India-context
+  case study).
+
+### Stop conditions hit
+
+None. Pure content + docs; no $-spend, no outbound, no prod-cred ops.
