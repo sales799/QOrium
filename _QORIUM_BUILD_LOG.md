@@ -639,3 +639,72 @@ These belong to other sprints / SMEs and are NOT regressions:
   to use the canonical `**answer_key:**` field OR extend the parser to
   recognise `**solution:**` / `**reference_solution:**` synonyms (cheap
   follow-up; not in this PR's scope).
+
+---
+
+## 2026-05-07 — Run #33 — Sprint 1.6.5 reconcile + Auto-Mode Remote Plan v1 ✅
+
+PR: [#15](https://github.com/sales799/QOrium/pull/15) · branch
+`claude/plan-cto-dashboard-automation-vgyKs`. CEO-approved auto-mode
+plan + dashboard-drift fix.
+
+### Why this run
+
+Live Progress Dashboard (Run #32 refresh, 2026-05-06) was reading
+Surface 6 as "spec ready · merge next" and Sprint 1.6 as "Cowork-side
+shipped · Stream B merge next." Both were already on Stream B `main`
+(PR #12 `29ff865` · PR #13 `87b08b5`). Net effect: dashboard was
+under-reporting master-meter progress by 5–8 points and showing 5/6
+surfaces live when reality is 6/6.
+
+Root cause: dashboard read state from Cowork-side narrative snapshots
+that diverged from Stream B `main` between sync windows. Symptom would
+recur at every Bridge Protocol gap.
+
+### What landed
+
+- **`governance/Auto-Mode-Remote-Plan-v1.md`** (313 lines) — canonical
+  no-human-in-the-loop sprint plan. Honestly partitions every
+  dashboard tile into Auto-Mode lane (agent-owned, target 100%) vs
+  Human-Bound lane (CEO-owned, agent never claims). Stop conditions
+  codified. Sprint sequence Sprint 1.6.5 → Sprint 7.0 documented with
+  done-when criteria and bridge-with-Cowork rules.
+- **`governance/dashboard.json`** — canonical machine-readable state.
+  Both streams write to this; HTML reads from this; eliminates the
+  drift class of bug structurally. Schema covers masterMeter
+  (auto/human/total/autoCeiling), lanes, phases, sprints, surfaces,
+  waves, library, runs, ceoCriticalPath, schemaInvariants.
+- **`QORIUM-MISSION-CONTROL.md`** (Stream B mirror) — 3-min single-page
+  status both streams agree on. Calls out Run #32 dashboard's stale
+  reads explicitly so the Cowork sync doesn't re-stale them.
+
+### Reconciled facts (was → is)
+
+| Tile | Run #32 dashboard said | `main` reality |
+|---|---|---|
+| Surface 6 — Recruiter JWT auth | spec ready · merge next | LIVE since `29ff865` (PR #12) |
+| Sprint 1.6 — JWT + mailer + ingest + OHCM + Wave-3 | Stream B merge next | LIVE at `87b08b5` (PR #13) |
+| Web Application surfaces | 5 / 6 live | **6 / 6 live** |
+| Phase 1 master | 35% | ~65% post-reconcile |
+
+### CEO decision captured
+
+CEO approved the plan as written ("Approved, go"). Stop conditions
+binding from this commit forward: agent halts on Constitutional touch,
+$-spend, outbound messaging, prod-cred ops, IRT auto-fail, anti-leak
+detection, 92-pt < 88, oversize CTO-DELTA, destructive migration.
+
+### Verified
+
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` — green (docs
+  only; no code paths touched)
+- gitleaks — clean (no secrets in dashboard.json or mission control)
+- No service / package code modified; CI lint job is the only gate.
+
+### Next sprint
+
+Sprint 1.7 opens as the next PR(s) per `governance/Auto-Mode-Remote-Plan-v1.md` §4
+Phase B: SAML/SSO v1 spec · NSDC/NOS mapper · Bloom's tags + migration
+0006 · email-auth IaC (halts on cred-drop) · ingest parser synonyms
+(closes 52 case-study misses).
+
