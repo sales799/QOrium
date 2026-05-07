@@ -1,0 +1,28 @@
+{
+  "name": "@qorium/anti-leak",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Anti-Leak Engine v0 — crawl public sources for leaked released questions, classify, persist to content.leak_alerts. Sprint 1.8c per Auto-Mode Remote Plan.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "scan": "tsx src/scripts/scan.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@qorium/auth": "workspace:*",
+    "@qorium/db": "workspace:*",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
