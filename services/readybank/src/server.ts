@@ -16,6 +16,7 @@ import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
 import { adminAuthRouter, authRouter } from './routes/auth.js';
+import { referencePanelRouter } from './routes/reference-panel.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
 
@@ -86,6 +87,14 @@ export function createServer(deps: ServerDeps): ServerHandle {
       );
     }
     app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
+
+    // Reference Panel ingestion (Sprint 1.8b) — its own bearer-token
+    // middleware against `app.reference_panel_tokens`. Mounted BEFORE the
+    // API-key gate so the panel-token rejection messages (RFC 7807
+    // problem types prefixed `reference-panel/*`) win over the generic
+    // `apiKeyAuth` 401. Pepper shared with /v1/* to avoid a second
+    // secret to rotate.
+    app.use(referencePanelRouter({ pool: deps.pool, config: deps.config }));
 
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
 
