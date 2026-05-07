@@ -1123,3 +1123,172 @@ on next sync and either:
 1. Delete it (if no callers), or
 2. Refactor it to invoke `@qorium/anti-leak`'s `runScan` so the two
    streams stay congruent.
+
+---
+
+## 2026-05-07 — Run #38 — Sprint 1.8d Admin Console — Phase 1 ENGINEERING = 100% ✅
+
+Closes the last engineering sub-track of Phase 1. The admin console
+now ties Sprints 1.6.5 → 1.8c into a single human-usable surface.
+
+### CTO-DELTA: static-SPA admin instead of Next.js
+
+The plan §4 listed "Admin console (Next.js)" as Sprint 1.8d. Shipped
+instead as **static HTML / CSS / vanilla-JS pages + new admin API
+routes in readybank**:
+
+- Reuses the existing recruiter JWT cookie auth — one login flow not two
+- Reuses `helmet` headers, RFC 7807 error contract, audit-log helpers
+- No new build pipeline (no webpack / SSR runtime / hydration tax)
+- Mirrors the pattern that already shipped at `/recruiter/dashboard.html`
+- Migrates cleanly to Next.js later if a richer client-side state
+  manager is needed
+
+Logged as `infra/CTO-deltas/CTO-DELTA-admin-static-spa-v0.md` (TODO
+follow-up writeup; the rationale is captured above).
+
+### What landed
+
+#### Backend — `services/readybank/src/routes/admin.ts`
+
+New router mounted at `/v1/admin/*`. Every endpoint behind the
+recruiter JWT cookie gate; admin = recruiter (RBAC sub-roles deferred
+to Sprint 3.3 alongside SAML claim mapping).
+
+| Endpoint                                | Purpose                                                                                                                                                        |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /v1/admin/leak-alerts`             | List alerts; filter by status / severity; limit ≤200                                                                                                           |
+| `POST /v1/admin/leak-alerts/:id/review` | Record SME decision (`dismissed` / `false_positive` / `under_review`); audit-logs `leak.<decision>`; sets `reviewed_by` to JWT subject                         |
+| `GET /v1/admin/sme-queue`               | Questions in `draft` / `sme_review` / `calibrating` status; body excerpts ≤500 chars; difficulty + Bloom tags                                                  |
+| `GET /v1/admin/calibration`             | LEFT-JOIN with reference-panel response counts so the UI can show n + b + a + c + empirical pass-rate per item                                                 |
+| `POST /v1/admin/panel-tokens`           | Mint a new bearer token for the Reference Panel ingest API. HMAC-SHA256-pepper hash stored; raw value returned ONCE; audit-logs `reference_panel.token.minted` |
+
+Server changes:
+
+- `src/server.ts` — mounts `/admin` and `/admin/` 302 redirects to
+  `/admin/dashboard.html` BEFORE `express.static` (to preempt
+  serve-static's default 301 trailing-slash redirect); pass
+  `redirect: false` to express.static so static handler doesn't
+  override our convenience redirects.
+
+#### Frontend — `services/readybank/public/admin/`
+
+Five pages, all CSP-compliant (no inline `style=""` attributes; no
+inline `<script>`; module scripts from same origin). Midnight-Executive
+theme matching `/recruiter/dashboard.html`.
+
+- `dashboard.html` + `.js` — admin home with 4 metric cards (open
+  leak alerts, critical leaks, SME-review queue size, items
+  calibrating) + recent-leaks table
+- `leak-inbox.html` + `.js` — anti-leak alert review surface with
+  status / severity filters + `<dialog>`-based review modal that
+  posts to `/v1/admin/leak-alerts/:id/review`
+- `sme-queue.html` + `.js` — read-only SME review queue (editing
+  surfaces ship in next round once I/O Psych contractor onboards
+  per CC-02-A)
+- `calibration.html` + `.js` — IRT calibration view; computes
+  "SO-21 ready?" client-side from n ≥ 30 + non-null (a, b)
+- `panel-tokens.html` + `.js` — Reference Panel token issuance UI;
+  shows the raw token ONCE in a code block with capture-now warning;
+  refuses to send PII (form takes a hex hash, not a name/email)
+- `_layout.js` — shared side-nav, error renderer, `adminFetch` wrapper
+  that auto-redirects to login on 401, and `pill()` helper
+- `admin.css` — full theme; utility classes (`.tight`, `.spaced`,
+  `.token-card`, `.fineprint`) so no inline styles are needed
+  anywhere
+
+### Tests
+
+- **13 new** admin unit tests in `__tests__/admin.test.ts` (stub
+  Pool, signed JWT cookie, supertest):
+  - leak-alerts: 401 unauth · authed list · status filter · invalid
+    query 400
+  - leak-alerts review: state mutation + audit insert · unknown id
+    404 · invalid decision 400
+  - sme-queue: filter by status
+  - panel-tokens mint: 201 + raw token format + audit insert ·
+    invalid hash 400 · pepper-not-configured 503
+  - redirects: `/admin` → `/admin/dashboard.html` 302 ·
+    `/admin/` → `/admin/dashboard.html` 302
+- **Total active tests across workspace: 175** (was 162)
+  - `@qorium/db` smoke: 7 (skipped without DATABASE_URL)
+  - `@qorium/auth`: 26
+  - `@qorium/irt`: 18
+  - `@qorium/nos-mapper`: 16
+  - `@qorium/anti-leak`: 20
+  - **`@qorium/readybank`: 95** (was 82; +13 admin)
+- `pnpm typecheck` / `pnpm lint` / `pnpm format:check` / `pnpm build`
+  — all green
+- gitleaks — clean
+
+### Sprint 1.8 — final state
+
+| Sub-track                               | Status             |
+| --------------------------------------- | ------------------ |
+| 1.8a IRT package                        | ✅ merged (PR #18) |
+| 1.8b Reference-panel ingest API         | ✅ merged (PR #18) |
+| 1.8c Anti-Leak Engine v0 productionized | ✅ merged (PR #19) |
+| 1.8d Admin console                      | ✅ this PR         |
+
+**Phase 1 engineering: 92% → 100%** post-merge.
+
+### Phase 1 — what's done vs what's still human-bound
+
+**Done (engineering criteria):**
+
+- Customer Zero web surfaces 6/6 LIVE (PR #12 merged Surface 6 JWT auth)
+- ReadyBank API alpha (questions / packs / sessions / results / watermark)
+- IRT calibration math (`@qorium/irt` — SO-21 enforceable)
+- Reference Panel ingestion API (`POST /v1/reference-panel/responses`)
+- Anti-Leak Engine v0 (`@qorium/anti-leak`)
+- Admin console (5 pages + 5 admin API endpoints)
+- 7 migrations applied / applicable; 175 unit tests; CI gates green
+
+**Still human-bound (per Auto-Mode Charter §3):**
+
+- First REAL Talpro candidate run end-to-end (Sprint 1.0's 7th gate)
+- I/O Psychologist contractor signed (C5 SOW)
+- Reference Panel ≥200 recruited
+- SME Content Lead hire (I2)
+- Senior Engineer #1 hire (I1)
+- First 3 Recruiter Subscription logos (H2)
+- First Bosch GCC discovery call (E4)
+- Production cred-drop to `.env.bootstrap` (unblocks SES /
+  observability / multi-region IaC apply + Serper.dev anti-leak in
+  prod + variant-generator pipeline)
+- NSDC NQR cross-check (CC-02-A) — flips nos-mapper mappings to verified
+- Wave-3 v0.1 → v1 ratification (Constitutional Amendment v2.1)
+
+### Stop conditions hit
+
+None. Pure code. The admin console reuses existing auth, headers,
+audit-logging primitives — no new secrets, no new outbound surface,
+no new compute requirement.
+
+### Out of scope (Sprint 2+)
+
+- **Edit / approve / reject** actions on the SME queue — needs the
+  I/O Psych contractor to sign off on the workflow per CC-02-A
+- **Calibration cron worker** — wraps `@qorium/irt` calibrateItems
+  - the panel-ingest data; needs PM2 ecosystem.config update
+- **Variant generator pipeline** for confirmed leaks — needs
+  Anthropic API key (cred-bound)
+- **DIF reporting page** in the admin console — needs panel-demographic
+  metadata to accumulate first
+- **Embedding-based similarity** (CTO-DELTA in Run #37)
+
+### Bridge with Cowork
+
+The static-SPA pattern is consistent with Stream A's recruiter
+dashboard pattern (Run #31). Stream A can mirror or extend the admin
+pages on its next sync. The admin API endpoints are documented above
+and live at `/v1/admin/*` — same auth contract as the recruiter
+session pages.
+
+---
+
+**Phase 1 engineering boundary closed.** Auto-Mode meter advances to
+the Phase 2 (India Stack) backlog per
+`governance/Auto-Mode-Remote-Plan-v1.md` §4 Phase D. Human-Bound lane
+remains the dominant blocker on the master meter — every entry on
+that list is one CEO action away from unblocking the next jump.

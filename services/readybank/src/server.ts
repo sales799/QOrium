@@ -16,6 +16,7 @@ import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
 import { adminAuthRouter, authRouter } from './routes/auth.js';
+import { adminRouter } from './routes/admin.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
@@ -67,9 +68,17 @@ export function createServer(deps: ServerDeps): ServerHandle {
   app.use(express.urlencoded({ extended: false, limit: '1mb' }));
   app.use(cookieParser());
 
-  // Static recruiter portal entry point — login.html + companion css/js.
-  // Served from <serviceRoot>/public; harmless when missing.
-  app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
+  // Convenience redirects so operators can land on /admin without
+  // remembering the dashboard.html suffix. Mount BEFORE express.static so
+  // serve-static's default 301-to-trailing-slash redirect doesn't preempt.
+  app.get('/admin', (_req, res) => res.redirect(302, '/admin/dashboard.html'));
+  app.get('/admin/', (_req, res) => res.redirect(302, '/admin/dashboard.html'));
+
+  // Static recruiter + admin portals — login.html + companion css/js.
+  // Served from <serviceRoot>/public; harmless when missing. `redirect:
+  // false` disables the default trailing-slash 301 so our explicit /admin
+  // and /admin/ handlers above retain authority.
+  app.use(express.static(path.join(__dirname, '..', 'public'), { index: false, redirect: false }));
 
   // Health endpoints are unauthenticated (PM2 / load balancer probes).
   app.use(healthRouter({ config: deps.config, pool: deps.pool }));
@@ -87,6 +96,12 @@ export function createServer(deps: ServerDeps): ServerHandle {
       );
     }
     app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
+
+    // Admin console API (Sprint 1.8d) — gated by recruiter cookie auth
+    // (no separate API key). Mounted at /v1/admin/* via its own router
+    // so each route applies recruiterAuth individually; static admin
+    // pages live at /admin/*.
+    app.use(adminRouter({ pool: deps.pool, config: deps.config }));
 
     // Reference Panel ingestion (Sprint 1.8b) — its own bearer-token
     // middleware against `app.reference_panel_tokens`. Mounted BEFORE the

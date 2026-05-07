@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-07T12:00:00+05:30",
-  "lastReconcileRun": 37,
+  "lastRefresh": "2026-05-07T12:15:00+05:30",
+  "lastReconcileRun": 38,
   "source": {
     "streamB": {
       "branch": "main",
@@ -15,15 +15,15 @@
     }
   },
   "masterMeter": {
-    "auto": 0.64,
+    "auto": 0.67,
     "human": 0.0,
-    "total": 0.45,
+    "total": 0.47,
     "autoCeiling": 0.78,
     "note": "auto = engineering/spec/content lane progress; human = sales/hiring/panel/M&A lane; total weights both. autoCeiling is the structural cap of pure auto-mode per Constitution Article IX."
   },
   "lanes": {
     "auto": {
-      "completed": 21,
+      "completed": 22,
       "total": 33,
       "tiles": [
         { "id": "sprint-0.1", "name": "Monorepo bootstrap", "status": "complete", "evidence": "PR #1 d401018" },
@@ -49,7 +49,7 @@
         { "id": "sprint-1.8.irt", "name": "IRT calibration pipeline (production)", "status": "in_progress", "evidence": "packages/irt — 2PL/3PL prob, ability MLE, JMLE calibration, Mantel-Haenszel DIF, SO-21 quality gate (18 tests)" },
         { "id": "sprint-1.8.panel-api", "name": "Reference-panel ingestion API", "status": "in_progress", "evidence": "POST /v1/reference-panel/responses + migration 0007 + panel-token auth (8 tests)" },
         { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "in_progress", "evidence": "services/anti-leak — n-gram extraction · Jaccard similarity · classifier · MockSearchProvider + SerperSearchProvider · runScan orchestrator · 20 tests" },
-        { "id": "sprint-1.8.admin", "name": "Admin console (Next.js apps/admin)", "status": "pending" },
+        { "id": "sprint-1.8.admin", "name": "Admin console (static HTML/JS — CTO-DELTA from Next.js)", "status": "in_progress", "evidence": "services/readybank/public/admin/* + /v1/admin/* routes (5 pages, 13 tests)" },
         { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "pending" },
         { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "pending" },
         { "id": "phase-2.inr-gst", "name": "INR pricing + GST handling", "status": "pending" },
@@ -84,7 +84,7 @@
   },
   "phases": [
     { "id": 0, "name": "Foundation", "percent": 100, "status": "complete" },
-    { "id": 1, "name": "Engine MVP", "percent": 92, "status": "active", "note": "Sprint 1.7 fully closed; Sprint 1.8 (a + b + c) shipped — IRT + reference-panel API + anti-leak engine. 1.8d (Next.js admin console) remaining for Phase 1 100%." },
+    { "id": 1, "name": "Engine MVP", "percent": 100, "status": "engineering-complete", "note": "Sprint 1.8d shipped admin console (static SPA pattern, CTO-DELTA from Next.js). Phase 1 engineering 100%. Customer-facing 100% requires the human lane: I/O Psych contractor, Reference Panel ≥200, first 5 logos, first REAL Talpro candidate." },
     { "id": 2, "name": "India Stack", "percent": 0, "status": "queued" },
     { "id": 3, "name": "SKU Maturity", "percent": 0, "status": "queued" },
     { "id": 4, "name": "Year-1 Close", "percent": 0, "status": "queued" },
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 38, "date": "2026-05-07", "summary": "Sprint 1.8d — Admin console shipped + Phase 1 = 100% on engineering. /v1/admin/* routes (leak-alerts, sme-queue, calibration, panel-tokens) + 5 static pages (dashboard, anti-leak inbox with review action, SME queue, IRT calibration, reference-panel token issuance). CSP-compliant; reuses recruiter JWT cookie auth (CTO-DELTA: skipped Next.js per §spec; static SPA pattern matches existing recruiter dashboard). 13 admin tests; 175 total active workspace tests." },
     { "id": 37, "date": "2026-05-07", "summary": "Sprint 1.8c: services/anti-leak service productionized — n-gram extraction, lexical Jaccard similarity, severity classifier per spec §6, Mock + Serper.dev search providers, runScan orchestrator, content.leak_alerts persistence + audit-log integration, CLI entrypoint, 20 unit tests. 162 active workspace tests (was 142)." },
     { "id": 36, "date": "2026-05-07", "summary": "Sprint 1.8 (a + b): @qorium/irt package — 2PL/3PL probability, ability MLE, JMLE calibration with location+scale anchor, Mantel-Haenszel DIF, SO-21 quality gate (18 tests). POST /v1/reference-panel/responses + migration 0007 + panel-token auth (8 tests). 142 active workspace tests (was 116)." },
     { "id": 35, "date": "2026-05-07", "summary": "Sprint 1.7 (b + d) closeout: @qorium/nos-mapper package with NSQF descriptors + 13 NOS mappings + 16 tests · infra/auto-bootstrap/email-auth.tf Terraform module (SES + DKIM + SPF + DMARC, halts on cred-drop) + apply.sh wrapper. Sprint 1.7 fully closed pending merge." },
