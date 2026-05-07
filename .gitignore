@@ -46,3 +46,10 @@ infra/docker/data/
 
 # Migrations artifacts (generated)
 packages/db/drizzle/meta/
+
+# Auto-bootstrap (Terraform) — cred-drop file + per-module workdirs
+infra/auto-bootstrap/.env.bootstrap
+infra/auto-bootstrap/.terraform-*/
+infra/auto-bootstrap/*.tfstate
+infra/auto-bootstrap/*.tfstate.backup
+infra/auto-bootstrap/.terraform.lock.hcl

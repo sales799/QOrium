@@ -1,0 +1,29 @@
+{
+  "name": "@qorium/nos-mapper",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NSDC / NOS / NSQF competency mapper. Translates QOrium skill slugs ↔ NSQF levels + NOS codes for India-Stack regulatory + tender alignment (Sprint 1.7b).",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./data": {
+      "types": "./dist/data/index.d.ts",
+      "import": "./dist/data/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

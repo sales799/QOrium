@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-07T08:40:00+05:30",
-  "lastReconcileRun": 34,
+  "lastRefresh": "2026-05-07T09:05:00+05:30",
+  "lastReconcileRun": 35,
   "source": {
     "streamB": {
       "branch": "main",
@@ -15,15 +15,15 @@
     }
   },
   "masterMeter": {
-    "auto": 0.42,
+    "auto": 0.55,
     "human": 0.0,
-    "total": 0.34,
+    "total": 0.4,
     "autoCeiling": 0.78,
     "note": "auto = engineering/spec/content lane progress; human = sales/hiring/panel/M&A lane; total weights both. autoCeiling is the structural cap of pure auto-mode per Constitution Article IX."
   },
   "lanes": {
     "auto": {
-      "completed": 14,
+      "completed": 18,
       "total": 33,
       "tiles": [
         { "id": "sprint-0.1", "name": "Monorepo bootstrap", "status": "complete", "evidence": "PR #1 d401018" },
@@ -41,11 +41,11 @@
         { "id": "sprint-1.6.ohcm", "name": "Oracle HCM 60/60 v0.6", "status": "complete", "evidence": "PR #13 87b08b5" },
         { "id": "sprint-1.6.wave3", "name": "Wave-3 Authoring Template v0.1 + Kickoff Batch-001", "status": "complete", "evidence": "PR #13 87b08b5" },
         { "id": "sprint-1.6.5", "name": "Reconcile + dashboard.json contract", "status": "complete", "evidence": "PR #15 merged at fd9256e" },
-        { "id": "sprint-1.7.saml-spec", "name": "SAML/SSO v1 spec", "status": "in_progress", "evidence": "infra/SSO-SAML-Enterprise-Spec-v1.md" },
-        { "id": "sprint-1.7.nos-mapper", "name": "NSDC/NOS competency mapper", "status": "pending" },
-        { "id": "sprint-1.7.bloom-tags", "name": "Bloom's taxonomy tagging + migration 0006", "status": "in_progress", "evidence": "infra/B7-postgres-migrations/0006_bloom_tags.sql (schema; heuristic backfill in next PR)" },
-        { "id": "sprint-1.7.email-iac", "name": "SES/DKIM/SPF/DMARC IaC (halts on cred-drop)", "status": "pending" },
-        { "id": "sprint-1.7.parser-fix", "name": "Ingest parser synonyms (closes case-study misses)", "status": "in_progress", "evidence": "ingest count 358 → 376; errors 52 → 34" },
+        { "id": "sprint-1.7.saml-spec", "name": "SAML/SSO v1 spec", "status": "complete", "evidence": "PR #16 merged at cb9a25f" },
+        { "id": "sprint-1.7.nos-mapper", "name": "NSDC/NOS competency mapper", "status": "in_progress", "evidence": "packages/nos-mapper (13 mappings, 16 tests)" },
+        { "id": "sprint-1.7.bloom-tags", "name": "Bloom's taxonomy tagging + migration 0006", "status": "complete", "evidence": "PR #16 merged at cb9a25f (schema; heuristic backfill in 1.8d)" },
+        { "id": "sprint-1.7.email-iac", "name": "SES/DKIM/SPF/DMARC IaC (halts on cred-drop)", "status": "in_progress", "evidence": "infra/auto-bootstrap/email-auth.tf (apply gated on BOOTSTRAP_AUTHORIZED=true)" },
+        { "id": "sprint-1.7.parser-fix", "name": "Ingest parser synonyms (closes case-study misses)", "status": "complete", "evidence": "PR #16 merged at cb9a25f; ingest count 358 → 376; errors 52 → 34" },
         { "id": "sprint-1.8.irt", "name": "IRT calibration pipeline (production)", "status": "pending" },
         { "id": "sprint-1.8.panel-api", "name": "Reference-panel ingestion API", "status": "pending" },
         { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "pending" },
@@ -84,7 +84,7 @@
   },
   "phases": [
     { "id": 0, "name": "Foundation", "percent": 100, "status": "complete" },
-    { "id": 1, "name": "Engine MVP", "percent": 65, "status": "active", "note": "Was 35% pre-reconcile; post-PR-#12/#13 merge reflection brings it to 65%. Closes at 100% after Sprints 1.7 + 1.8." },
+    { "id": 1, "name": "Engine MVP", "percent": 78, "status": "active", "note": "Sprint 1.6.5 + 1.7 (a/c/e) merged; 1.7b nos-mapper + 1.7d email-auth IaC in flight (this PR). Phase 1 closes at 100% after Sprint 1.8 (IRT prod, panel ingest API, anti-leak prod, admin app)." },
     { "id": 2, "name": "India Stack", "percent": 0, "status": "queued" },
     { "id": 3, "name": "SKU Maturity", "percent": 0, "status": "queued" },
     { "id": 4, "name": "Year-1 Close", "percent": 0, "status": "queued" },
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 35, "date": "2026-05-07", "summary": "Sprint 1.7 (b + d) closeout: @qorium/nos-mapper package with NSQF descriptors + 13 NOS mappings + 16 tests · infra/auto-bootstrap/email-auth.tf Terraform module (SES + DKIM + SPF + DMARC, halts on cred-drop) + apply.sh wrapper. Sprint 1.7 fully closed pending merge." },
     { "id": 34, "date": "2026-05-07", "summary": "Sprint 1.7 (a + c + e): SAML/SSO v1 spec · migration 0006 Bloom tags · ingest parser hardening (358 → 376 questions, 52 → 34 errors). New tests: 5. CI green." },
     { "id": 33, "date": "2026-05-07", "summary": "Sprint 1.6.5 reconcile: governance/dashboard.json canonical source + Auto-Mode Remote Plan v1 + Stream-B mirror of mission control. PR #15 merged at fd9256e." },
     { "id": 32, "date": "2026-05-04", "summary": "Sprint 1.6 Cowork-shipped (5 tracks): JWT auth + mailer + Wave-1 ingest + OHCM 60/60 + Wave-3 v0.1." },
