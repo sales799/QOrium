@@ -14,19 +14,37 @@ import {
   listAuditEvents,
   summariseAuditEvents,
 } from '../repositories/audit-events.js';
+import {
+  countActiveAuditExportJobs,
+  createAuditExportJob,
+  getAuditExportJobById,
+  getAuditExportJobContentById,
+  type AuditExportJobRow,
+} from '../repositories/audit-exports.js';
+import { scheduleAuditExportJob } from '../jobs/audit-export-worker.js';
 import type { Config } from '../config.js';
 
 /**
- * Sprint 4.4.1 — Audit Log API (tenant-scoped).
+ * Sprint 4.4.2 — Audit Log API (tenant-scoped reads + bulk export).
  *
  * Read-only externalisation of `audit.events` per
- * `infra/Audit-Log-API-Spec-v0.md`. Phase 1 ships GET list / detail /
- * summary; export + webhook integration land in Sprint 4.4.2+.
+ * `infra/Audit-Log-API-Spec-v0.md`. Surface area:
  *
- * Auth: existing recruiter cookie session (Sprint 1.6 JWT). v1 scopes
- * results by `tenant_id = recruiter.tenantId` with a transitional
- * OR-fallback to `actor_id = recruiter.id` for v0-era events whose
- * tenant_id is still NULL (see repository comment).
+ *   GET  /v1/audit/events                  — list (cursor-paginated)
+ *   GET  /v1/audit/events/:id              — single event
+ *   GET  /v1/audit/summary                 — aggregate over a window
+ *   POST /v1/audit/events/export           — async bulk export (Sprint 4.4.2)
+ *   GET  /v1/audit/exports/:id             — poll job status
+ *   GET  /v1/audit/exports/:id/download    — stream completed bytes
+ *
+ * Auth: existing recruiter cookie session (Sprint 1.6 JWT). Scopes results
+ * by `tenant_id = recruiter.tenantId` with a transitional OR-fallback to
+ * `actor_id = recruiter.id` for v0-era events whose tenant_id is still NULL
+ * (see services/readybank/src/repositories/audit-events.ts).
+ *
+ * Export jobs (Sprint 4.4.2 v0): synchronous in-process worker writes the
+ * rendered bytes to `app.audit_export_jobs.content`. Real distributed worker
+ * + S3-backed storage is Sprint 4.4.2.1.
  *
  * Routes are mounted at `/v1/audit/*`.
  */
@@ -57,6 +75,17 @@ const SummaryQuerySchema = z.object({
   top_n: z.coerce.number().int().min(1).max(50).default(10),
 });
 
+const MAX_ACTIVE_EXPORT_JOBS = 5;
+const MAX_EXPORT_RANGE_DAYS = 366;
+
+const ExportBodySchema = z.object({
+  format: z.enum(['csv', 'json']),
+  start_date: z.string().regex(ISO_OR_DATE_PATTERN).optional(),
+  end_date: z.string().regex(ISO_OR_DATE_PATTERN).optional(),
+  actions: z.array(z.string().regex(EVENT_TYPE_PATTERN)).max(50).optional(),
+  resource_type: z.string().regex(ENTITY_TYPE_PATTERN).optional(),
+});
+
 function parseDateOrThrow(raw: string, field: string): Date {
   const ms = Date.parse(raw);
   if (Number.isNaN(ms)) {
@@ -67,6 +96,26 @@ function parseDateOrThrow(raw: string, field: string): Date {
     });
   }
   return new Date(ms);
+}
+
+function exportFilenameFor(job: AuditExportJobRow): string {
+  const ext = job.format === 'json' ? 'json' : 'csv';
+  return `qorium-audit-${job.id}.${ext}`;
+}
+
+function jobStatusEnvelope(job: AuditExportJobRow): Record<string, unknown> {
+  const downloadUrl = job.status === 'completed' ? `/v1/audit/exports/${job.id}/download` : null;
+  return {
+    job_id: job.id,
+    format: job.format,
+    status: job.status,
+    row_count: job.row_count,
+    error_message: job.error_message,
+    created_at: job.created_at.toISOString(),
+    completed_at: job.completed_at !== null ? job.completed_at.toISOString() : null,
+    expires_at: job.expires_at.toISOString(),
+    download_url: downloadUrl,
+  };
 }
 
 export function auditRouter(deps: AuditRouterDeps): Router {
@@ -186,6 +235,158 @@ export function auditRouter(deps: AuditRouterDeps): Router {
     }
   });
 
+  // POST /v1/audit/events/export ────────────────────────────────────
+  router.post('/v1/audit/events/export', auth, async (req: Request, res, next) => {
+    try {
+      const recruiter = (req as RecruiterRequest).recruiter;
+      if (!recruiter) {
+        throw new HttpProblem({ status: 401, title: 'audit/unauthorized' });
+      }
+      const parsed = ExportBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'audit/invalid-body',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const body = parsed.data;
+      const startDate = body.start_date ? parseDateOrThrow(body.start_date, 'start_date') : null;
+      const endDate = body.end_date ? parseDateOrThrow(body.end_date, 'end_date') : null;
+      if (startDate && endDate && startDate > endDate) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'audit/invalid-body',
+          detail: 'start_date must be on or before end_date',
+        });
+      }
+      if (startDate && endDate) {
+        const spanDays = (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000);
+        if (spanDays > MAX_EXPORT_RANGE_DAYS) {
+          throw new HttpProblem({
+            status: 400,
+            title: 'audit/range-too-large',
+            detail: `date range may not exceed ${MAX_EXPORT_RANGE_DAYS} days`,
+          });
+        }
+      }
+
+      // Concurrency limit per spec §7: max 5 active jobs per tenant.
+      const active = await countActiveAuditExportJobs(deps.pool, recruiter.tenantId, recruiter.id);
+      if (active >= MAX_ACTIVE_EXPORT_JOBS) {
+        throw new HttpProblem({
+          status: 429,
+          title: 'audit/too-many-active-exports',
+          detail: `you have ${active} active export jobs; max ${MAX_ACTIVE_EXPORT_JOBS} concurrent per tenant`,
+        });
+      }
+
+      const job = await createAuditExportJob(deps.pool, {
+        tenantId: recruiter.tenantId,
+        actorId: recruiter.id,
+        format: body.format,
+        filters: {
+          actions: body.actions ?? null,
+          resource_type: body.resource_type ?? null,
+        },
+        startDate,
+        endDate,
+      });
+
+      // Kick off the worker; never await — keep response snappy. Tests
+      // can opt-in to awaiting via the exposed scheduleAuditExportJob.
+      void scheduleAuditExportJob({
+        pool: deps.pool,
+        jobId: job.id,
+        tenantId: recruiter.tenantId,
+        actorId: recruiter.id,
+        format: body.format,
+        startDate,
+        endDate,
+        actions: body.actions,
+        resourceType: body.resource_type,
+        logError: (err) => {
+          (req as Request & { log?: { warn?: (...args: unknown[]) => void } }).log?.warn?.(
+            { err, jobId: job.id },
+            'audit-export worker failed',
+          );
+        },
+      });
+
+      res.status(202).json(jobStatusEnvelope(job));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/audit/exports/:id ───────────────────────────────────────
+  router.get('/v1/audit/exports/:id', auth, async (req: Request, res, next) => {
+    try {
+      const recruiter = (req as RecruiterRequest).recruiter;
+      if (!recruiter) {
+        throw new HttpProblem({ status: 401, title: 'audit/unauthorized' });
+      }
+      const idRaw = req.params['id'];
+      const id = typeof idRaw === 'string' ? idRaw : '';
+      if (!ID_PATTERN.test(id)) {
+        throw new HttpProblem({ status: 400, title: 'audit/invalid-id' });
+      }
+      const job = await getAuditExportJobById(deps.pool, recruiter.tenantId, recruiter.id, id);
+      if (!job) {
+        throw new HttpProblem({ status: 404, title: 'audit/export-not-found' });
+      }
+      res.json(jobStatusEnvelope(job));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/audit/exports/:id/download ──────────────────────────────
+  router.get('/v1/audit/exports/:id/download', auth, async (req: Request, res, next) => {
+    try {
+      const recruiter = (req as RecruiterRequest).recruiter;
+      if (!recruiter) {
+        throw new HttpProblem({ status: 401, title: 'audit/unauthorized' });
+      }
+      const idRaw = req.params['id'];
+      const id = typeof idRaw === 'string' ? idRaw : '';
+      if (!ID_PATTERN.test(id)) {
+        throw new HttpProblem({ status: 400, title: 'audit/invalid-id' });
+      }
+      const job = await getAuditExportJobById(deps.pool, recruiter.tenantId, recruiter.id, id);
+      if (!job) {
+        throw new HttpProblem({ status: 404, title: 'audit/export-not-found' });
+      }
+      if (job.status !== 'completed') {
+        throw new HttpProblem({
+          status: 409,
+          title: 'audit/export-not-ready',
+          detail: `job status is ${job.status}`,
+        });
+      }
+      if (job.expires_at.getTime() <= Date.now()) {
+        throw new HttpProblem({ status: 410, title: 'audit/export-expired' });
+      }
+      const blob = await getAuditExportJobContentById(
+        deps.pool,
+        recruiter.tenantId,
+        recruiter.id,
+        id,
+      );
+      if (!blob) {
+        throw new HttpProblem({ status: 410, title: 'audit/export-expired' });
+      }
+      const filename = exportFilenameFor(job);
+      res.setHeader('Content-Type', blob.content_type);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'private, no-store');
+      res.setHeader('Content-Length', String(blob.content.length));
+      res.status(200).end(blob.content);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 
@@ -201,5 +402,5 @@ function safeDecodeCursor(raw: string) {
 }
 
 export function _testHelpers() {
-  return { ListQuerySchema, SummaryQuerySchema };
+  return { ListQuerySchema, SummaryQuerySchema, ExportBodySchema };
 }
