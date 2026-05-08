@@ -1641,3 +1641,110 @@ auto-mode progress: Sprint 2.1 (Wave-1 60→100 across 8 sub-skills,
 None across the 4 commits. Pure content authoring; no code changes;
 no SDK calls; no $-spend; no outbound; no prod-cred ops. Ingest
 dry-run only.
+
+---
+
+## 2026-05-08 — Run #61 — Sprint 4.4 v0 Audit Log API (extends auto-lane past 33-tile cap)
+
+CTO-recommendation directive after the auto-lane reached 33/33 cap at
+Run #60 (Sprint 4.2 PITR closeout). Picked Sprint 4.4 — Audit Log API
+v0 — as the next legal extension because: (a) pure code, no creds,
+(b) leverages the already-populated `audit.events` table, (c) SOC 2
+prerequisite that unblocks Sprint 5.1 SOC2-readiness harness,
+(d) cleanest single-PR scope of the four queued specs.
+
+### What landed
+
+New routes on `services/readybank` per
+`infra/Audit-Log-API-Spec-v0.md` §3 (Phase 1 only):
+
+- `GET /v1/audit/events` — list with cursor pagination + filters
+  (`action`, `resource_type`, `start_date`, `end_date`, `limit ≤ 200`)
+- `GET /v1/audit/events/:id` — single event detail (UUID-validated)
+- `GET /v1/audit/summary` — total + top-N actions over a window
+  (default last 30 days; top_n default 10, max 50)
+
+All three apply the existing `recruiterAuth` cookie middleware
+individually (matching the `adminRouter` pattern). Each rejects with
+RFC 7807 `application/problem+json` on auth/validation failures.
+
+### Files
+
+| Path                                                  | Purpose                                                                           |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `services/readybank/src/types/audit-event.ts`         | DB row + API envelope mapping; opaque (occurred_at, id) cursor encode/decode      |
+| `services/readybank/src/repositories/audit-events.ts` | `listAuditEvents` (cursor-paginated), `getAuditEventById`, `summariseAuditEvents` |
+| `services/readybank/src/routes/audit.ts`              | Express router; zod query schemas; reuses `HttpProblem`                           |
+| `services/readybank/src/server.ts`                    | Mounts `auditRouter` after `adminRouter`                                          |
+| `services/readybank/__tests__/audit.test.ts`          | 19 unit tests (stub Pool, signed JWT cookie, supertest)                           |
+
+### Field-name aliasing (DB → API envelope)
+
+The `audit.events` table predates the spec; the spec uses different
+names. The envelope mapper aliases without schema change:
+
+| DB column                          | API field                   |
+| ---------------------------------- | --------------------------- |
+| `event_type`                       | `action`                    |
+| `entity_type`                      | `resource_type`             |
+| `entity_id`                        | `resource_id`               |
+| `changes.before` / `changes.after` | `old_values` / `new_values` |
+| `payload`                          | `details`                   |
+| `occurred_at`                      | `timestamp` (ISO 8601)      |
+
+### v0 tenant scope (and why)
+
+`audit.events` has `actor_id REFERENCES app.users(id)` but **no
+`tenant_id` column**. The cleanest tenant-safe v0 is "recruiter sees
+their own audit trail" (filter `actor_id = recruiter.id`). Org-wide
+read scope is gated on adding `tenant_id` to `audit.events`,
+deferred to Sprint 4.4.1.
+
+### Tests
+
+19 new unit tests, all passing. Workspace totals:
+
+| Metric                 | Pre | Post          |
+| ---------------------- | --- | ------------- |
+| Active tests           | 121 | **140** (+19) |
+| Skipped DB-integration | 21  | 21            |
+| Failures               | 0   | 0             |
+
+### Quality gates
+
+- `pnpm typecheck` — 10/10 workspaces clean
+- `pnpm lint` — clean
+- `pnpm --filter @qorium/readybank test` — 140 passed / 21 skipped / 0 failed
+- `pnpm build` — 10/10 workspaces clean
+- gitleaks — relied on CI (not installed in sandbox)
+
+### Deferred (explicit follow-ups)
+
+- **Sprint 4.4.1** — Add `tenant_id` column to `audit.events`; expand
+  read scope from "own actor_id" to "tenant-scoped events"; add a
+  dedicated `audit:read:tenant` scope on the recruiter JWT.
+- **Sprint 4.4.2** — Phase 2 export endpoints
+  (`POST /v1/audit/events/export`, `GET /v1/audit/exports/:job_id`)
+  and webhook integration with the (future) webhooks-service.
+- **Sprint 4.4.3** — Phase 3 hash-chaining + SIEM streaming.
+
+### Stop conditions hit
+
+None. No constitutional touch (Articles I/IV/VII/IX), no monetary
+commitment, no outbound message, no production-credential operation,
+no IRT auto-fail, no anti-leak detection, no Gatekeeper sub-88
+score, no destructive migration. Pure additive read-only API.
+
+### Dashboard
+
+`governance/dashboard.json` updated:
+
+- `lastRefresh` → 2026-05-08T23:30:00+05:30
+- `lastReconcileRun` → 61
+- `lanes.auto.completed` 33 → 34, `lanes.auto.total` 33 → 34
+- New tile `sprint-4.4.audit-log-v0` (status=complete) appended
+- New entry at top of `runs[]` (id 61)
+- Run #60 evidence string corrected: `scripts/restore-pitr.sh` →
+  `infra/B7-postgres-migrations/scripts/restore-pitr.sh` (the actual
+  on-disk path; pure documentation correction, no code change)
+- `masterMeter.auto` UNCHANGED at 0.78 (Constitution Article IX cap)
