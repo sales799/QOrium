@@ -37,6 +37,7 @@ paths = [
   '''.*\.test\.ts$''',
   '''.*\.spec\.ts$''',
   '''packages/auth/README\.md''',
+  '''packages/db/README\.md''',
   '''node_modules/.*''',
   '''dist/.*''',
   '''\.next/.*''',
