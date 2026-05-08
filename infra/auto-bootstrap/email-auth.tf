@@ -5,13 +5,21 @@
 # transactional sender domain. Halts before applying unless the wrapper
 # script (apply.sh) confirms BOOTSTRAP_AUTHORIZED=true.
 #
-# What this module creates (when applied):
+# DNS provider (Sprint 4.4 update — Run #62 migration to Cloudflare):
+#   var.dns_provider switches DNS record management between:
+#     - "cloudflare" (default since 2026-05-08): SES identity created here;
+#       DNS records managed in cloudflare-dns.tf using the captured tokens
+#     - "route53"  : SES identity AND DNS records created here (legacy path)
+#
+# What this module always creates:
 #   1. AWS SES Email Identity for var.domain
-#   2. Three SES DKIM CNAME records in Route 53 (selectors 1/2/3)
-#   3. SPF TXT record  ("v=spf1 include:amazonses.com ~all")
-#   4. DMARC TXT record at _dmarc.<domain> (p=quarantine; rua + ruf reports)
-#   5. Mail FROM domain configured to "qorium.<domain>" with its own
-#      MX + SPF records (improves deliverability + DMARC alignment)
+#   2. Mail FROM attribute config (subdomain configured but DNS deferred)
+#
+# What this module conditionally creates (when dns_provider == "route53"):
+#   3. Three SES DKIM CNAME records in Route 53 (selectors 1/2/3)
+#   4. SPF TXT record  ("v=spf1 include:amazonses.com ~all")
+#   5. DMARC TXT record at _dmarc.<domain>
+#   6. Mail FROM MX + SPF in Route 53
 #
 # What this module does NOT do (intentional gates):
 #   - Provision IAM users or access keys (use IAM Identity Center)
@@ -53,9 +61,21 @@ variable "aws_region" {
   default     = "ap-south-1"
 }
 
-variable "route53_zone_id" {
-  description = "Route 53 hosted zone ID for var.domain (zone is assumed pre-existing)"
+variable "dns_provider" {
+  description = "Which DNS provider manages records. 'cloudflare' (current) creates SES identity here; DNS in cloudflare-dns.tf. 'route53' creates SES identity AND records in this module."
   type        = string
+  default     = "cloudflare"
+
+  validation {
+    condition     = contains(["cloudflare", "route53"], var.dns_provider)
+    error_message = "dns_provider must be one of: cloudflare, route53."
+  }
+}
+
+variable "route53_zone_id" {
+  description = "Route 53 hosted zone ID for var.domain (only required when dns_provider == 'route53'; ignored otherwise)"
+  type        = string
+  default     = ""
 }
 
 variable "mail_from_subdomain" {
@@ -110,12 +130,19 @@ resource "aws_sesv2_email_identity" "qorium_domain" {
   }
 }
 
+locals {
+  manage_route53 = var.dns_provider == "route53"
+}
+
 ###############################################################################
 # 2. DKIM CNAMEs (SES generates 3 selectors)
+#
+# count: only fires when dns_provider == "route53"; under Cloudflare these
+# CNAMEs are managed in cloudflare-dns.tf using ses_dkim_tokens output.
 ###############################################################################
 
 resource "aws_route53_record" "dkim" {
-  count   = 3
+  count   = local.manage_route53 ? 3 : 0
   zone_id = var.route53_zone_id
   name    = "${aws_sesv2_email_identity.qorium_domain.dkim_signing_attributes[0].tokens[count.index]}._domainkey.${var.domain}"
   type    = "CNAME"
@@ -124,10 +151,11 @@ resource "aws_route53_record" "dkim" {
 }
 
 ###############################################################################
-# 3. SPF — apex TXT record permitting Amazon SES
+# 3. SPF — apex TXT record permitting Amazon SES (Route 53 path only)
 ###############################################################################
 
 resource "aws_route53_record" "spf" {
+  count   = local.manage_route53 ? 1 : 0
   zone_id = var.route53_zone_id
   name    = var.domain
   type    = "TXT"
@@ -147,6 +175,7 @@ resource "aws_sesv2_email_identity_mail_from_attributes" "mail_from" {
 }
 
 resource "aws_route53_record" "mail_from_mx" {
+  count   = local.manage_route53 ? 1 : 0
   zone_id = var.route53_zone_id
   name    = "${var.mail_from_subdomain}.${var.domain}"
   type    = "MX"
@@ -155,6 +184,7 @@ resource "aws_route53_record" "mail_from_mx" {
 }
 
 resource "aws_route53_record" "mail_from_spf" {
+  count   = local.manage_route53 ? 1 : 0
   zone_id = var.route53_zone_id
   name    = "${var.mail_from_subdomain}.${var.domain}"
   type    = "TXT"
@@ -163,10 +193,11 @@ resource "aws_route53_record" "mail_from_spf" {
 }
 
 ###############################################################################
-# 5. DMARC — enforcement policy + reporting
+# 5. DMARC — enforcement policy + reporting (Route 53 path only)
 ###############################################################################
 
 resource "aws_route53_record" "dmarc" {
+  count   = local.manage_route53 ? 1 : 0
   zone_id = var.route53_zone_id
   name    = "_dmarc.${var.domain}"
   type    = "TXT"
@@ -196,8 +227,13 @@ output "mail_from_domain" {
   value       = aws_sesv2_email_identity_mail_from_attributes.mail_from.mail_from_domain
 }
 
+output "dkim_tokens" {
+  description = "Three SES Easy DKIM tokens. Feed into cloudflare-dns.tf var.ses_dkim_tokens when dns_provider == 'cloudflare'."
+  value       = aws_sesv2_email_identity.qorium_domain.dkim_signing_attributes[0].tokens
+}
+
 output "dkim_records" {
-  description = "DKIM CNAME records that must propagate before SES verifies"
+  description = "Route 53 DKIM CNAME records (empty when dns_provider == 'cloudflare'; see cloudflare-dns.tf)"
   value = [
     for r in aws_route53_record.dkim : {
       name   = r.name
@@ -207,6 +243,6 @@ output "dkim_records" {
 }
 
 output "dmarc_record_value" {
-  description = "Final DMARC TXT value for verification"
-  value       = aws_route53_record.dmarc.records[0]
+  description = "Final DMARC TXT value for verification (only populated when dns_provider == 'route53')"
+  value       = local.manage_route53 ? aws_route53_record.dmarc[0].records[0] : null
 }
