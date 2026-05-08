@@ -18,6 +18,7 @@ import { packsRouter } from './routes/packs.js';
 import { adminAuthRouter, authRouter } from './routes/auth.js';
 import { adminRouter } from './routes/admin.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
+import { stackVaultRouter } from './routes/stack-vault.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
 
@@ -123,6 +124,11 @@ export function createServer(deps: ServerDeps): ServerHandle {
         adminAuthRouter({ pool: deps.pool, config: deps.config, mailer: deps.mailer }),
       );
     }
+
+    // Stack-Vault routes (SKU 3): per-tenant exclusive library. Layered on
+    // top of api-key auth; vault-membership + per-vault pepper are
+    // enforced by `requireActiveVault` inside the router.
+    app.use('/v1', auth, stackVaultRouter({ pool: deps.pool }));
 
     app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }));
   }
