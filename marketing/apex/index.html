@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QOrium — India's role-graph-native tech hiring platform</title>
+    <meta
+      name="description"
+      content="QOrium is a Question-Bank-as-a-Service platform built for Indian recruiting orgs that hire 50-500 engineers a year. Three SKUs: ReadyBank API, JD-Forge on-demand, Stack-Vault customer-isolated."
+    />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://qorium.online/" />
+    <style>
+      :root {
+        --bg: #0a0e1a;
+        --bg-card: #121826;
+        --fg: #e6edf7;
+        --fg-muted: #8b9ab0;
+        --accent: #4a90e2;
+        --accent-hover: #5fa3f0;
+        --border: #1f2937;
+        --max: 1100px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .container {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      header {
+        padding: 24px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .brand {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .brand .dot {
+        color: var(--accent);
+      }
+      nav a {
+        color: var(--fg-muted);
+        text-decoration: none;
+        margin-left: 24px;
+        font-size: 14px;
+      }
+      nav a:hover {
+        color: var(--fg);
+      }
+      .hero {
+        padding: 96px 0 64px;
+      }
+      .hero h1 {
+        font-size: clamp(36px, 5vw, 56px);
+        line-height: 1.1;
+        margin: 0 0 24px;
+        letter-spacing: -0.02em;
+      }
+      .hero h1 .accent {
+        color: var(--accent);
+      }
+      .hero p.lede {
+        font-size: 20px;
+        color: var(--fg-muted);
+        max-width: 720px;
+        margin: 0 0 32px;
+      }
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-block;
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+        font-size: 15px;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+      }
+      .btn-secondary {
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        border-color: var(--fg-muted);
+      }
+      .trust {
+        margin-top: 48px;
+        padding: 16px 24px;
+        background: var(--bg-card);
+        border-radius: 8px;
+        display: inline-block;
+        color: var(--fg-muted);
+        font-size: 14px;
+      }
+      .trust strong {
+        color: var(--fg);
+      }
+      section {
+        padding: 64px 0;
+        border-top: 1px solid var(--border);
+      }
+      h2 {
+        font-size: 28px;
+        margin: 0 0 8px;
+        letter-spacing: -0.01em;
+      }
+      h2 + p.section-lede {
+        color: var(--fg-muted);
+        max-width: 640px;
+        margin: 0 0 40px;
+      }
+      .skus {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+      .sku {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+      }
+      .sku h3 {
+        margin: 0 0 4px;
+        font-size: 18px;
+      }
+      .sku .tag {
+        display: inline-block;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 16px;
+      }
+      .sku .price {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 8px 0;
+      }
+      .sku .price .from {
+        font-size: 12px;
+        color: var(--fg-muted);
+        font-weight: 400;
+      }
+      .sku ul {
+        margin: 16px 0 0;
+        padding-left: 20px;
+        color: var(--fg-muted);
+        font-size: 14px;
+      }
+      .sku ul li {
+        margin: 8px 0;
+      }
+      .differentiators {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+      }
+      .diff h3 {
+        font-size: 16px;
+        margin: 0 0 8px;
+      }
+      .diff p {
+        color: var(--fg-muted);
+        font-size: 14px;
+        margin: 0;
+      }
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 40px 0;
+        color: var(--fg-muted);
+        font-size: 13px;
+      }
+      footer .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      footer a {
+        color: var(--fg-muted);
+        text-decoration: none;
+        margin-right: 16px;
+      }
+      footer a:hover {
+        color: var(--fg);
+      }
+      .honesty {
+        background: var(--bg-card);
+        border-left: 3px solid var(--accent);
+        padding: 20px 24px;
+        margin-top: 24px;
+        border-radius: 0 8px 8px 0;
+        font-size: 14px;
+        color: var(--fg-muted);
+      }
+      .honesty strong {
+        color: var(--fg);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="brand">QOrium<span class="dot">.</span></div>
+        <nav>
+          <a href="#skus">Products</a>
+          <a href="#why">Why QOrium</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <h1>India's <span class="accent">role-graph-native</span> tech hiring platform.</h1>
+          <p class="lede">
+            Question-Bank-as-a-Service for recruiting orgs hiring 50-500 engineers a year. Owned
+            content. Anti-leak engine. Tenant-isolated IP-protected libraries.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#contact">Request a demo</a>
+            <a class="btn btn-secondary" href="#skus">See pricing</a>
+          </div>
+          <div class="trust">
+            Customer-Zero anchor: <strong>Talpro India</strong> · Built in India · DPDPA-compliant
+          </div>
+        </div>
+      </section>
+
+      <section id="skus">
+        <div class="container">
+          <h2>Three SKUs, one platform</h2>
+          <p class="section-lede">
+            Pricing locked per Constitution §1.2. Customer can tier up at any time; cannot tier
+            down.
+          </p>
+          <div class="skus">
+            <div class="sku">
+              <h3>ReadyBank</h3>
+              <span class="tag">Shared question library</span>
+              <div class="price">
+                $5K<span class="from"> / yr · Starter</span>
+              </div>
+              <ul>
+                <li>API-first; integrate with your ATS in a day</li>
+                <li>1,300+ questions across 8 sub-skills (Java/Python/React/SQL/DevOps/SF/AWS/AIPE)</li>
+                <li>IRT-calibrated difficulty bands</li>
+                <li>Watermark engine catches leaks within 24 h</li>
+                <li>Tiers: Starter $5K · Growth $10K · Scale $15K · Enterprise $25K</li>
+              </ul>
+            </div>
+            <div class="sku">
+              <h3>JD-Forge</h3>
+              <span class="tag">On-demand JD-specific generation</span>
+              <div class="price">
+                $49<span class="from"> / JD · Standard</span>
+              </div>
+              <ul>
+                <li>Paste a JD, get a 20-question pack in 30 seconds</li>
+                <li>Role-graph mapped; export JSON/CSV/HackerRank format</li>
+                <li>Standard $49 · Reviewed (24h SME pass) $199 · Enterprise $499</li>
+                <li>Subscriptions $499 / $1,999 / $9,999 per month</li>
+              </ul>
+            </div>
+            <div class="sku">
+              <h3>Stack-Vault</h3>
+              <span class="tag">Customer-isolated IP-protected library</span>
+              <div class="price">
+                ₹10L<span class="from"> / yr · Bronze floor</span>
+              </div>
+              <ul>
+                <li>Per-tenant question library; no overlap with shared bank</li>
+                <li>Double watermark: visible footer + invisible homoglyph stego</li>
+                <li>Per-vault pepper rotation; tenant isolation enforced at DB layer</li>
+                <li>Bronze ₹10L–25L · Silver ₹40L–80L · Gold ₹1Cr+ uncapped</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="why">
+        <div class="container">
+          <h2>Why QOrium</h2>
+          <p class="section-lede">Three things that aren't on Mettl, SHL, or iMocha.</p>
+          <div class="differentiators">
+            <div class="diff">
+              <h3>Owned content</h3>
+              <p>
+                Our 1,300+ questions are authored in-house and IRT-calibrated, not licensed from a
+                vendor that can squeeze your pricing later.
+              </p>
+            </div>
+            <div class="diff">
+              <h3>Anti-leak engine</h3>
+              <p>
+                Watermarks survive copy-paste; we detect leaks to Glassdoor / Reddit / GitHub gists
+                within 24h with attribution to the leak source.
+              </p>
+            </div>
+            <div class="diff">
+              <h3>Stack-Vault tier</h3>
+              <p>
+                Enterprise customers get an exclusive library with double watermark + tenant
+                isolation. The only true content-IP guarantee in the Indian market.
+              </p>
+            </div>
+          </div>
+          <div class="honesty">
+            <strong>Honest where we are:</strong> we are early production. Our content is
+            AI-drafted today and SME-validated by quarter-end. ATS integrations (Greenhouse,
+            Workday, Ashby, Darwinbox) are on the roadmap. We don't promise what we haven't
+            shipped — under-promise, over-deliver.
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="container">
+          <h2>15-minute demo</h2>
+          <p class="section-lede">
+            Real platform, real candidate data (anonymised), no slide deck. If it's not interesting
+            in the first 5 minutes, we owe you coffee.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="mailto:bhaskar@qorium.online?subject=QOrium%20demo%20request"
+              >Email Bhaskar</a
+            >
+            <a class="btn btn-secondary" href="https://calendly.com/bhaskar-qorium/15-min-demo"
+              >Book on Calendly</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div>© 2026 Talpro India Pvt Ltd · QOrium is a product brand</div>
+        <div>
+          <a href="/privacy">Privacy</a>
+          <a href="/dpdpa">DPDPA</a>
+          <a href="https://api.qorium.online/healthz">Status</a>
+          <a href="https://github.com/sales799/QOrium">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
