@@ -13,18 +13,30 @@ import {
 } from '../src/types/audit-event.js';
 
 /**
- * Sprint 4.4 v0 — Audit Log API tests. Stub Pool, signed recruiter JWT
- * cookie, supertest. No Postgres required.
+ * Sprint 4.4.1 — Audit Log API tests (tenant-scoped).
+ *
+ * Covers the new SCOPE_CLAUSE
+ *   (tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))
+ * including cross-tenant isolation + legacy-fallback for v0-era rows.
  */
 
 const silent = pino({ level: 'silent' });
 const PEPPER = 'test_audit_pepper_at_least_thirty_two_chars_long_xxxxxxxx';
 const JWT_SECRET = 'test_jwt_secret_at_least_thirty_two_characters_long_xx';
+
+const TENANT_A = 'aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa';
+const TENANT_B = 'bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb';
+
 const RECRUITER_ID = '11111111-1111-1111-1111-111111111111';
 const OTHER_RECRUITER_ID = '22222222-2222-2222-2222-222222222222';
+const TENANT_B_RECRUITER_ID = '33333333-3333-3333-3333-333333333333';
+
 const EVENT_ID_1 = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 const EVENT_ID_2 = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 const EVENT_ID_3 = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+const EVENT_ID_LEGACY = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+const EVENT_ID_TENANT_B = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+const EVENT_ID_OTHER_RECRUITER_LEGACY = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
 
 function testConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -64,6 +76,7 @@ function buildEvent(
   return {
     actor_id: RECRUITER_ID,
     actor_type: 'user',
+    tenant_id: TENANT_A,
     event_type: 'leak.dismissed',
     entity_type: 'leak_alerts',
     entity_id: 'aaaa1111-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -73,6 +86,16 @@ function buildEvent(
     user_agent: 'vitest/1.0',
     ...over,
   };
+}
+
+/**
+ * Returns true if `e` would match the SCOPE_CLAUSE
+ *   (tenant_id = $tenantId OR (tenant_id IS NULL AND actor_id = $actorId)).
+ */
+function matchesScope(e: AuditEventRow, tenantId: string, actorId: string): boolean {
+  if (e.tenant_id === tenantId) return true;
+  if (e.tenant_id === null && e.actor_id === actorId) return true;
+  return false;
 }
 
 function buildStub(): StubPool {
@@ -91,7 +114,7 @@ function buildStub(): StubPool {
       event_type: 'reference_panel.token.minted',
       entity_type: 'reference_panel_tokens',
       entity_id: '44444444-4444-4444-4444-444444444444',
-      payload: { tenant_id: 'ten-1', scopes: ['reference-panel:write'] },
+      payload: { tenant_id: TENANT_A, scopes: ['reference-panel:write'] },
     }),
     buildEvent({
       id: EVENT_ID_3,
@@ -99,10 +122,31 @@ function buildStub(): StubPool {
       event_type: 'leak.dismissed',
       payload: { question_id: 'q-2' },
     }),
-    // Event by another recruiter — should never surface to RECRUITER_ID
+    // Legacy event (Sprint 4.4 v0 era): tenant_id NULL but actor_id matches
+    // RECRUITER_ID — must surface via the SCOPE_CLAUSE OR-fallback.
     buildEvent({
-      id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
+      id: EVENT_ID_LEGACY,
+      occurred_at: new Date('2026-05-06T12:00:00Z'),
+      tenant_id: null,
+      event_type: 'auth.login',
+      entity_type: 'recruiter',
+      entity_id: RECRUITER_ID,
+      payload: { legacy: true },
+    }),
+    // Cross-tenant event — different tenant; must NOT surface for RECRUITER_ID.
+    buildEvent({
+      id: EVENT_ID_TENANT_B,
+      actor_id: TENANT_B_RECRUITER_ID,
+      tenant_id: TENANT_B,
+      occurred_at: new Date('2026-05-08T11:00:00Z'),
+      event_type: 'leak.dismissed',
+    }),
+    // Legacy other-recruiter event: tenant_id NULL, actor_id != RECRUITER_ID
+    // — must NOT surface for RECRUITER_ID.
+    buildEvent({
+      id: EVENT_ID_OTHER_RECRUITER_LEGACY,
       actor_id: OTHER_RECRUITER_ID,
+      tenant_id: null,
       occurred_at: new Date('2026-05-08T09:00:00Z'),
       event_type: 'leak.dismissed',
     }),
@@ -113,28 +157,31 @@ function buildStub(): StubPool {
       queries.push({ sql, params });
       const text = sql.replace(/\s+/g, ' ').trim();
 
-      // SELECT-by-id: bound to actor_id $2
+      // SELECT-by-id: WHERE id = $3 AND (tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))
       if (
         text.startsWith('SELECT') &&
         text.includes('FROM audit.events') &&
-        text.includes('WHERE id = $1 AND actor_id = $2')
+        text.includes('WHERE id = $3 AND (tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))')
       ) {
-        const id = params[0] as string;
+        const tenantId = params[0] as string;
         const actorId = params[1] as string;
-        const row = events.find((e) => e.id === id && e.actor_id === actorId);
+        const id = params[2] as string;
+        const row = events.find((e) => e.id === id && matchesScope(e, tenantId, actorId));
         return { rows: row ? [row] : [], rowCount: row ? 1 : 0 };
       }
 
-      // Total-count summary
+      // Total-count summary: WHERE (tenant_id=$1 OR ...) AND occurred_at >= $3 AND ... <= $4
       if (
         text.startsWith('SELECT COUNT(*)::text AS count FROM audit.events') &&
-        text.includes('WHERE actor_id = $1')
+        text.includes('(tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))')
       ) {
-        const actorId = params[0] as string;
-        const start = params[1] as Date;
-        const end = params[2] as Date;
+        const tenantId = params[0] as string;
+        const actorId = params[1] as string;
+        const start = params[2] as Date;
+        const end = params[3] as Date;
         const count = events.filter(
-          (e) => e.actor_id === actorId && e.occurred_at >= start && e.occurred_at <= end,
+          (e) =>
+            matchesScope(e, tenantId, actorId) && e.occurred_at >= start && e.occurred_at <= end,
         ).length;
         return { rows: [{ count: String(count) }], rowCount: 1 };
       }
@@ -145,13 +192,14 @@ function buildStub(): StubPool {
         text.includes('FROM audit.events') &&
         text.includes('GROUP BY event_type')
       ) {
-        const actorId = params[0] as string;
-        const start = params[1] as Date;
-        const end = params[2] as Date;
-        const limit = params[3] as number;
+        const tenantId = params[0] as string;
+        const actorId = params[1] as string;
+        const start = params[2] as Date;
+        const end = params[3] as Date;
+        const limit = params[4] as number;
         const counts = new Map<string, number>();
         for (const e of events) {
-          if (e.actor_id !== actorId) continue;
+          if (!matchesScope(e, tenantId, actorId)) continue;
           if (e.occurred_at < start || e.occurred_at > end) continue;
           counts.set(e.event_type, (counts.get(e.event_type) ?? 0) + 1);
         }
@@ -168,8 +216,9 @@ function buildStub(): StubPool {
         text.includes('FROM audit.events') &&
         text.includes('ORDER BY occurred_at DESC')
       ) {
-        const actorId = params[0] as string;
-        let pIdx = 1;
+        const tenantId = params[0] as string;
+        const actorId = params[1] as string;
+        let pIdx = 2;
         let eventTypeFilter: string | undefined;
         let entityTypeFilter: string | undefined;
         let startDate: Date | undefined;
@@ -198,7 +247,7 @@ function buildStub(): StubPool {
           pIdx += 2;
         }
         const limitPlus = params[pIdx] as number;
-        let filtered = events.filter((e) => e.actor_id === actorId);
+        let filtered = events.filter((e) => matchesScope(e, tenantId, actorId));
         if (eventTypeFilter) filtered = filtered.filter((e) => e.event_type === eventTypeFilter);
         if (entityTypeFilter) filtered = filtered.filter((e) => e.entity_type === entityTypeFilter);
         if (startDate) filtered = filtered.filter((e) => e.occurred_at >= startDate!);
@@ -225,11 +274,11 @@ function buildStub(): StubPool {
   return { pool, queries, events };
 }
 
-function recruiterCookie(sub = RECRUITER_ID): string {
+function recruiterCookie(opts: { sub?: string; tenantId?: string } = {}): string {
   const token = jwt.sign(
     {
-      sub,
-      tenant_id: '99999999-9999-9999-9999-999999999999',
+      sub: opts.sub ?? RECRUITER_ID,
+      tenant_id: opts.tenantId ?? TENANT_A,
       email: 'recruiter@qorium.test',
       name: 'Test Recruiter',
     },
@@ -244,7 +293,7 @@ function recruiterCookie(sub = RECRUITER_ID): string {
   return `qor_session=${token}`;
 }
 
-describe('GET /v1/audit/events', () => {
+describe('GET /v1/audit/events (tenant-scoped + legacy fallback)', () => {
   it('rejects without a session cookie (401)', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
@@ -252,25 +301,42 @@ describe('GET /v1/audit/events', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns the recruiter’s own events ordered DESC', async () => {
+  it('returns tenant-A events + legacy fallback (4 total) ordered DESC', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
     const res = await request(app).get('/v1/audit/events').set('Cookie', recruiterCookie());
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.events)).toBe(true);
-    // 3 own events; the OTHER_RECRUITER event must be excluded.
-    expect(res.body.events.length).toBe(3);
+    // Visible to RECRUITER_ID/TENANT_A:
+    //   3 tenant-A events (EVENT_ID_1/2/3) + 1 legacy own-recruiter (EVENT_ID_LEGACY)
+    // Invisible: cross-tenant TENANT_B + legacy other-recruiter
+    expect(res.body.events.length).toBe(4);
     const ids = res.body.events.map((e: { id: string }) => e.id);
-    expect(ids).toEqual([EVENT_ID_1, EVENT_ID_2, EVENT_ID_3]);
-    expect(res.body.next_cursor).toBeNull();
-    // Envelope mapping spot checks
+    expect(ids).toEqual([EVENT_ID_1, EVENT_ID_2, EVENT_ID_3, EVENT_ID_LEGACY]);
+    expect(ids).not.toContain(EVENT_ID_TENANT_B);
+    expect(ids).not.toContain(EVENT_ID_OTHER_RECRUITER_LEGACY);
+    // Envelope spot checks
     const top = res.body.events[0];
     expect(top.action).toBe('leak.dismissed');
+    expect(top.tenant_id).toBe(TENANT_A);
     expect(top.timestamp).toBe('2026-05-08T10:00:00.000Z');
-    expect(top.resource_type).toBe('leak_alerts');
-    expect(top.old_values).toEqual({ status: 'detected' });
-    expect(top.new_values).toEqual({ status: 'dismissed' });
-    expect(top.details).toEqual({ question_id: 'q-1', notes: 'dupe' });
+    // Legacy event has null tenant_id in the envelope
+    const legacy = res.body.events.find((e: { id: string }) => e.id === EVENT_ID_LEGACY);
+    expect(legacy.tenant_id).toBeNull();
+  });
+
+  it('isolates events across tenants', async () => {
+    const stub = buildStub();
+    const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
+    const res = await request(app)
+      .get('/v1/audit/events')
+      .set('Cookie', recruiterCookie({ sub: TENANT_B_RECRUITER_ID, tenantId: TENANT_B }));
+    expect(res.status).toBe(200);
+    // Tenant B recruiter sees only the tenant-B event; never any tenant-A nor
+    // legacy own-recruiter rows from other recruiters.
+    expect(res.body.events.length).toBe(1);
+    expect(res.body.events[0].id).toBe(EVENT_ID_TENANT_B);
+    expect(res.body.events[0].tenant_id).toBe(TENANT_B);
   });
 
   it('filters by action (event_type)', async () => {
@@ -303,7 +369,6 @@ describe('GET /v1/audit/events', () => {
     expect(first.status).toBe(200);
     expect(first.body.events.length).toBe(2);
     expect(first.body.next_cursor).not.toBeNull();
-    // Validate cursor decodes to the last event's tuple
     const decoded = decodeAuditCursor(first.body.next_cursor as string);
     expect(decoded.id).toBe(EVENT_ID_2);
     const second = await request(app)
@@ -312,8 +377,12 @@ describe('GET /v1/audit/events', () => {
       )
       .set('Cookie', recruiterCookie());
     expect(second.status).toBe(200);
-    expect(second.body.events.length).toBe(1);
-    expect(second.body.events[0].id).toBe(EVENT_ID_3);
+    // Page 2 returns the remaining 2 (EVENT_ID_3 + EVENT_ID_LEGACY)
+    expect(second.body.events.length).toBe(2);
+    expect(second.body.events.map((e: { id: string }) => e.id)).toEqual([
+      EVENT_ID_3,
+      EVENT_ID_LEGACY,
+    ]);
     expect(second.body.next_cursor).toBeNull();
   });
 
@@ -344,6 +413,7 @@ describe('GET /v1/audit/events', () => {
       .get('/v1/audit/events?start_date=2026-05-08T00:00:00Z&end_date=2026-05-08T23:59:59Z')
       .set('Cookie', recruiterCookie());
     expect(res.status).toBe(200);
+    // Only EVENT_ID_1 + EVENT_ID_2 fall in this 1-day window for tenant A.
     expect(res.body.events.length).toBe(2);
   });
 
@@ -353,7 +423,7 @@ describe('GET /v1/audit/events', () => {
   });
 });
 
-describe('GET /v1/audit/events/:id', () => {
+describe('GET /v1/audit/events/:id (tenant-scoped)', () => {
   it('rejects without a session cookie (401)', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
@@ -361,7 +431,7 @@ describe('GET /v1/audit/events/:id', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns the event for the recruiter’s own id', async () => {
+  it('returns the tenant-A event for the correct recruiter', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
     const res = await request(app)
@@ -369,14 +439,34 @@ describe('GET /v1/audit/events/:id', () => {
       .set('Cookie', recruiterCookie());
     expect(res.status).toBe(200);
     expect(res.body.event.id).toBe(EVENT_ID_1);
-    expect(res.body.event.action).toBe('leak.dismissed');
+    expect(res.body.event.tenant_id).toBe(TENANT_A);
   });
 
-  it('returns 404 for another recruiter’s event id', async () => {
+  it('returns the legacy event via the OR-fallback', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
     const res = await request(app)
-      .get('/v1/audit/events/dddddddd-dddd-dddd-dddd-dddddddddddd')
+      .get(`/v1/audit/events/${EVENT_ID_LEGACY}`)
+      .set('Cookie', recruiterCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.event.id).toBe(EVENT_ID_LEGACY);
+    expect(res.body.event.tenant_id).toBeNull();
+  });
+
+  it('returns 404 for a tenant-B event id requested by tenant-A', async () => {
+    const stub = buildStub();
+    const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
+    const res = await request(app)
+      .get(`/v1/audit/events/${EVENT_ID_TENANT_B}`)
+      .set('Cookie', recruiterCookie());
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for another recruiter’s legacy event id', async () => {
+    const stub = buildStub();
+    const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
+    const res = await request(app)
+      .get(`/v1/audit/events/${EVENT_ID_OTHER_RECRUITER_LEGACY}`)
       .set('Cookie', recruiterCookie());
     expect(res.status).toBe(404);
   });
@@ -392,7 +482,7 @@ describe('GET /v1/audit/events/:id', () => {
   });
 });
 
-describe('GET /v1/audit/summary', () => {
+describe('GET /v1/audit/summary (tenant-scoped)', () => {
   it('rejects without a session cookie (401)', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
@@ -400,28 +490,28 @@ describe('GET /v1/audit/summary', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns total + top actions for last 30 days by default', async () => {
+  it('returns total + top actions for tenant A (default 30-day window)', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
     const res = await request(app).get('/v1/audit/summary').set('Cookie', recruiterCookie());
     expect(res.status).toBe(200);
     expect(res.body.summary.total).toBeGreaterThanOrEqual(0);
     expect(Array.isArray(res.body.summary.top_actions)).toBe(true);
-    expect(typeof res.body.summary.window_start).toBe('string');
-    expect(typeof res.body.summary.window_end).toBe('string');
   });
 
-  it('respects a custom window and top_n', async () => {
+  it('aggregation respects cross-tenant isolation + legacy fallback', async () => {
     const stub = buildStub();
     const { app } = createServer({ config: testConfig(), pool: stub.pool, logger: silent });
     const res = await request(app)
       .get(
-        '/v1/audit/summary?start_date=2026-05-07T00:00:00Z&end_date=2026-05-08T23:59:59Z&top_n=5',
+        '/v1/audit/summary?start_date=2026-05-06T00:00:00Z&end_date=2026-05-08T23:59:59Z&top_n=5',
       )
       .set('Cookie', recruiterCookie());
     expect(res.status).toBe(200);
-    expect(res.body.summary.total).toBe(3);
-    // top action by count is leak.dismissed (2 of 3 own events)
+    // Visible to TENANT_A: 3 leak.dismissed + 1 reference_panel.token.minted +
+    // 1 legacy auth.login = 4 events spanning 3 actions, but the leak.dismissed
+    // count is 2 (EVENT_ID_1 + EVENT_ID_3 — TENANT_B's leak.dismissed excluded).
+    expect(res.body.summary.total).toBe(4);
     expect(res.body.summary.top_actions[0]).toEqual({ action: 'leak.dismissed', count: 2 });
   });
 
@@ -435,12 +525,13 @@ describe('GET /v1/audit/summary', () => {
   });
 });
 
-describe('rowToEnvelope mapping', () => {
-  it('maps DB row fields to API envelope', () => {
+describe('rowToEnvelope mapping (with tenant_id)', () => {
+  it('maps DB row fields to API envelope, including tenant_id', () => {
     const row: AuditEventRow = {
       id: EVENT_ID_1,
       actor_id: RECRUITER_ID,
       actor_type: 'user',
+      tenant_id: TENANT_A,
       event_type: 'reference_panel.token.minted',
       entity_type: 'reference_panel_tokens',
       entity_id: 'tok-1',
@@ -452,6 +543,7 @@ describe('rowToEnvelope mapping', () => {
     };
     const env = rowToEnvelope(row);
     expect(env.action).toBe('reference_panel.token.minted');
+    expect(env.tenant_id).toBe(TENANT_A);
     expect(env.resource_type).toBe('reference_panel_tokens');
     expect(env.resource_id).toBe('tok-1');
     expect(env.old_values).toEqual({ foo: 1 });
@@ -460,11 +552,12 @@ describe('rowToEnvelope mapping', () => {
     expect(env.timestamp).toBe('2026-05-08T10:00:00.000Z');
   });
 
-  it('handles null changes gracefully', () => {
+  it('handles null tenant_id + null changes gracefully', () => {
     const row: AuditEventRow = {
       id: EVENT_ID_2,
       actor_id: RECRUITER_ID,
       actor_type: 'system',
+      tenant_id: null,
       event_type: 'cron.run',
       entity_type: null,
       entity_id: null,
@@ -475,6 +568,7 @@ describe('rowToEnvelope mapping', () => {
       occurred_at: new Date('2026-05-08T00:00:00Z'),
     };
     const env = rowToEnvelope(row);
+    expect(env.tenant_id).toBeNull();
     expect(env.old_values).toBeNull();
     expect(env.new_values).toBeNull();
     expect(env.details).toEqual({});

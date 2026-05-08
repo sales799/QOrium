@@ -105,10 +105,11 @@ export function createServer(deps: ServerDeps): ServerHandle {
     // pages live at /admin/*.
     app.use(adminRouter({ pool: deps.pool, config: deps.config }));
 
-    // Audit Log API (Sprint 4.4 v0) — read-only externalisation of
+    // Audit Log API (Sprint 4.4.1) — read-only externalisation of
     // `audit.events`. Each route applies recruiterAuth individually
-    // (cookie session). v0 scopes results to actor_id = recruiter.id;
-    // org-wide scoping awaits Sprint 4.4.1 (tenant_id column).
+    // (cookie session). Scopes results by tenant_id = recruiter.tenantId
+    // with a transitional OR-fallback to actor_id for legacy v0-era rows
+    // (see services/readybank/src/repositories/audit-events.ts).
     app.use(auditRouter({ pool: deps.pool, config: deps.config }));
 
     // Reference Panel ingestion (Sprint 1.8b) — its own bearer-token

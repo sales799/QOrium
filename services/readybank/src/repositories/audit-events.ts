@@ -7,11 +7,20 @@ import type {
 } from '../types/audit-event.js';
 
 /**
- * Sprint 4.4 v0 — Audit Log repository.
+ * Sprint 4.4.1 — Audit Log repository (tenant-scoped).
  *
- * Read-only over `audit.events`. Every method scopes by `actor_id` so a
- * recruiter sees only their own events; org-wide scoping awaits the
- * `tenant_id` column on `audit.events` (Sprint 4.4.1).
+ * Read-only over `audit.events`. Tenant scope is enforced via the recruiter's
+ * JWT-carried `tenantId`. Until every legacy event has its `tenant_id`
+ * backfilled, the WHERE clause uses a transitional OR-fallback:
+ *
+ *     tenant_id = $1
+ *       OR (tenant_id IS NULL AND actor_id = $2)
+ *
+ * The first clause matches new events written via Sprint 4.4.1's
+ * tenant-aware `recordAuditEvent`. The second matches v0-era events where
+ * tenant_id is NULL but the recruiter wrote it themselves; this preserves
+ * each recruiter's own audit trail without leaking other recruiters'
+ * legacy events into the new tenant scope.
  *
  * Pagination follows the (occurred_at DESC, id DESC) tuple so concurrent
  * inserts cannot duplicate or skip rows. Default + max page size from
@@ -19,7 +28,10 @@ import type {
  */
 
 export interface ListAuditEventsParams {
+  /** Recruiter's own id — used as the legacy-fallback filter when tenant_id IS NULL. */
   actorId: string;
+  /** Recruiter's tenant — primary scope for new (Sprint 4.4.1+) events. */
+  tenantId: string;
   eventType?: string | undefined;
   entityType?: string | undefined;
   startDate?: Date | undefined;
@@ -37,6 +49,7 @@ const SELECT_COLUMNS = `
   id,
   actor_id,
   actor_type,
+  tenant_id,
   event_type,
   entity_type,
   entity_id,
@@ -47,12 +60,14 @@ const SELECT_COLUMNS = `
   occurred_at
 `;
 
+const SCOPE_CLAUSE = `(tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))`;
+
 export async function listAuditEvents(
   pool: Pool,
   p: ListAuditEventsParams,
 ): Promise<ListAuditEventsResult> {
-  const conditions: string[] = ['actor_id = $1'];
-  const params: unknown[] = [p.actorId];
+  const conditions: string[] = [SCOPE_CLAUSE];
+  const params: unknown[] = [p.tenantId, p.actorId];
   if (p.eventType) {
     params.push(p.eventType);
     conditions.push(`event_type = $${params.length}`);
@@ -95,21 +110,23 @@ export async function listAuditEvents(
 
 export async function getAuditEventById(
   pool: Pool,
+  tenantId: string,
   actorId: string,
   id: string,
 ): Promise<AuditEventRow | null> {
   const result = await pool.query<AuditEventRow>(
     `SELECT ${SELECT_COLUMNS}
        FROM audit.events
-      WHERE id = $1 AND actor_id = $2
+      WHERE id = $3 AND ${SCOPE_CLAUSE}
       LIMIT 1`,
-    [id, actorId],
+    [tenantId, actorId, id],
   );
   return result.rows[0] ?? null;
 }
 
 export interface SummaryParams {
   actorId: string;
+  tenantId: string;
   startDate: Date;
   endDate: Date;
   topN: number;
@@ -119,21 +136,21 @@ export async function summariseAuditEvents(pool: Pool, p: SummaryParams): Promis
   const totalResult = await pool.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count
        FROM audit.events
-      WHERE actor_id = $1
-        AND occurred_at >= $2
-        AND occurred_at <= $3`,
-    [p.actorId, p.startDate, p.endDate],
+      WHERE ${SCOPE_CLAUSE}
+        AND occurred_at >= $3
+        AND occurred_at <= $4`,
+    [p.tenantId, p.actorId, p.startDate, p.endDate],
   );
   const topResult = await pool.query<{ action: string; count: string }>(
     `SELECT event_type AS action, COUNT(*)::text AS count
        FROM audit.events
-      WHERE actor_id = $1
-        AND occurred_at >= $2
-        AND occurred_at <= $3
+      WHERE ${SCOPE_CLAUSE}
+        AND occurred_at >= $3
+        AND occurred_at <= $4
       GROUP BY event_type
       ORDER BY COUNT(*) DESC, event_type ASC
-      LIMIT $4`,
-    [p.actorId, p.startDate, p.endDate, p.topN],
+      LIMIT $5`,
+    [p.tenantId, p.actorId, p.startDate, p.endDate, p.topN],
   );
   const top_actions: AuditSummaryByAction[] = topResult.rows.map((r) => ({
     action: r.action,
