@@ -20,11 +20,16 @@ import {
 
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { PillButton } from '@/components/site/PillButton';
+import { RoiCalculator } from '@/components/site/RoiCalculator';
+import { AnimatedPipeline } from '@/components/site/AnimatedPipeline';
 import { BlurFade } from '@/components/magicui/BlurFade';
-import { FlickeringGrid } from '@/components/magicui/FlickeringGrid';
+import { BorderBeam } from '@/components/magicui/BorderBeam';
+import { HeroVideoDialog } from '@/components/magicui/HeroVideoDialog';
 import { Marquee } from '@/components/magicui/Marquee';
 import { NumberTicker } from '@/components/magicui/NumberTicker';
 import { OrbitingCircles } from '@/components/magicui/OrbitingCircles';
+import { ShimmerButton } from '@/components/magicui/ShimmerButton';
+import { AuroraBackground } from '@/components/aceternity/AuroraBackground';
 
 import { ReadyBankBento } from '@/components/bento/ReadyBankBento';
 import { JdForgeBento } from '@/components/bento/JdForgeBento';
@@ -77,60 +82,77 @@ const BENTO_ITEMS = [
   },
 ];
 
+// Hero video src — placeholder until founder records the JD-Forge demo
+// (~30 sec). Real source lands here as a single change. Until then, the
+// dialog opens to an empty iframe; the play affordance is the visible asset.
+// See audit/LIVE-SITE-RECONCILIATION.md §6.
+const HERO_VIDEO_SRC = '';
+
 export default function HomePage() {
   return (
     <>
       <WebsiteJsonLd />
       <main className="flex flex-col items-center justify-center divide-y divide-border w-full">
-        {/* HERO */}
+        {/* HERO — Variant C Light: AuroraBackground + HeroVideoDialog right + copy left */}
         <section id="hero" className="relative w-full overflow-hidden">
-          <div className="relative flex w-full flex-col items-center px-6">
-            {/* Background — radial light wash */}
-            <div className="absolute inset-0 -z-10 h-[600px] md:h-[800px] w-full rounded-b-xl [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]" />
-            <FlickeringGrid
-              className="absolute inset-0 -z-10 h-[600px] md:h-[800px] w-full [mask-image:radial-gradient(ellipse_at_center,transparent_30%,black_80%)]"
-              squareSize={3}
-              gridGap={4}
-              flickerChance={0.18}
-              maxOpacity={0.18}
-              color="var(--secondary)"
-            />
-
-            <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-10 pt-32">
-              <BlurFade delay={0.1}>
-                <p className="inline-flex h-8 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm shadow-sm">
-                  <Zap className="size-3.5 text-secondary" />
-                  {homeCopy.hero.eyebrow}
-                </p>
-              </BlurFade>
-
-              <BlurFade delay={0.2}>
-                <div className="flex flex-col items-center justify-center gap-5">
-                  <h1 className="text-balance text-center font-sans text-3xl font-medium tracking-tighter text-primary md:text-4xl lg:text-5xl xl:text-6xl">
-                    {homeCopy.hero.headline}
-                  </h1>
-                  <p className="text-balance text-center text-base font-medium leading-relaxed tracking-tight text-muted-foreground md:text-lg">
-                    {homeCopy.hero.sub}
+          <AuroraBackground className="-z-10 h-[800px] md:h-[900px]" />
+          <div className="relative z-10 flex w-full flex-col px-6">
+            <div className="mx-auto grid w-full max-w-6xl gap-12 pt-28 pb-12 md:pt-32 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-16">
+              {/* Left column — copy + CTAs */}
+              <div className="flex flex-col gap-8">
+                <BlurFade delay={0.1}>
+                  <p className="inline-flex h-8 w-fit items-center gap-2 rounded-full border border-border bg-card/80 px-3 text-sm shadow-sm backdrop-blur">
+                    <Zap className="size-3.5 text-secondary" />
+                    {homeCopy.hero.eyebrow}
                   </p>
-                </div>
-              </BlurFade>
+                </BlurFade>
 
-              <BlurFade delay={0.3}>
-                <div className="flex flex-wrap items-center justify-center gap-2.5">
-                  <PillButton href={homeCopy.hero.primaryCta.href} variant="primary">
-                    {homeCopy.hero.primaryCta.label}
-                  </PillButton>
-                  <PillButton href={homeCopy.hero.secondaryCta.href} variant="secondary">
-                    {homeCopy.hero.secondaryCta.label}
-                  </PillButton>
+                <BlurFade delay={0.2}>
+                  <div className="flex flex-col gap-5">
+                    <h1 className="text-balance font-sans text-4xl font-medium tracking-tighter text-primary md:text-5xl lg:text-6xl">
+                      {homeCopy.hero.headline}
+                    </h1>
+                    <p className="max-w-xl text-balance text-base font-medium leading-relaxed tracking-tight text-muted-foreground md:text-lg">
+                      {homeCopy.hero.sub}
+                    </p>
+                  </div>
+                </BlurFade>
+
+                <BlurFade delay={0.3}>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <ShimmerButton
+                      href={homeCopy.hero.primaryCta.href}
+                      background="var(--secondary)"
+                      shimmerColor="var(--secondary)"
+                      className="text-secondary-foreground"
+                    >
+                      {homeCopy.hero.primaryCta.label}
+                    </ShimmerButton>
+                    <PillButton href={homeCopy.hero.secondaryCta.href} variant="secondary">
+                      {homeCopy.hero.secondaryCta.label}
+                    </PillButton>
+                  </div>
+                </BlurFade>
+              </div>
+
+              {/* Right column — HeroVideoDialog framed by BorderBeam */}
+              <BlurFade delay={0.35}>
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card/40 shadow-xl backdrop-blur">
+                  <HeroVideoDialog videoSrc={HERO_VIDEO_SRC} className="aspect-video w-full" />
+                  <BorderBeam
+                    duration={12}
+                    size={220}
+                    colorFrom="oklch(54.65% 0.246 262.87)"
+                    colorTo="oklch(0.85 0.12 220)"
+                  />
                 </div>
               </BlurFade>
             </div>
 
             {/* Hero proof bar */}
             <BlurFade
-              delay={0.45}
-              className="relative z-10 mt-16 grid w-full max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4 pb-16"
+              delay={0.5}
+              className="mx-auto mt-4 grid w-full max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-4 pb-16"
             >
               {homeCopy.proof.map((p) => (
                 <div
@@ -172,7 +194,7 @@ export default function HomePage() {
           </MaxWidth>
         </section>
 
-        {/* BENTO */}
+        {/* BENTO (2x2) */}
         <section
           id="bento"
           className="relative flex w-full flex-col items-center justify-center px-5 md:px-10"
@@ -215,7 +237,36 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* QUOTE / 7-STAGE PIPELINE */}
+        {/* ROI CALCULATOR — between Bento and Pipeline per LIVE-SITE-RECONCILIATION §7 */}
+        <section id="roi" className="relative w-full py-24">
+          <MaxWidth as="div">
+            <BlurFade>
+              <p className="text-center font-mono text-[11px] uppercase tracking-[0.2em] text-secondary">
+                ROI in your numbers
+              </p>
+              <h2 className="mx-auto mt-4 max-w-2xl text-balance text-center text-3xl font-medium tracking-tighter md:text-4xl">
+                Plug in your hiring volume. Watch the math.
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-balance text-center text-muted-foreground">
+                JD-Forge typically pays for itself by JD #40. Slide the inputs to see net value vs. an
+                internal TA team building packs by hand.
+              </p>
+            </BlurFade>
+            <BlurFade delay={0.1}>
+              <div className="relative mt-10 overflow-hidden rounded-xl">
+                <RoiCalculator />
+                <BorderBeam
+                  duration={16}
+                  size={260}
+                  colorFrom="oklch(54.65% 0.246 262.87)"
+                  colorTo="oklch(0.85 0.12 220)"
+                />
+              </div>
+            </BlurFade>
+          </MaxWidth>
+        </section>
+
+        {/* 7-STAGE PIPELINE — animated with AnimatedBeam */}
         <section className="relative w-full py-24">
           <MaxWidth as="div">
             <BlurFade>
@@ -229,25 +280,8 @@ export default function HomePage() {
                 {homeCopy.pipeline.description}
               </p>
             </BlurFade>
-
             <BlurFade delay={0.1}>
-              <div className="mt-12 grid gap-3 md:grid-cols-7">
-                {homeCopy.pipeline.stages.map((stage, i) => (
-                  <div
-                    key={stage.label}
-                    className="relative flex h-full flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
-                  >
-                    <span className="font-mono text-xs text-muted-foreground">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <h3 className="text-sm font-semibold text-foreground">{stage.label}</h3>
-                    <p className="text-xs text-muted-foreground">{stage.detail}</p>
-                    {i < homeCopy.pipeline.stages.length - 1 ? (
-                      <div className="absolute -right-3 top-1/2 hidden h-px w-6 -translate-y-1/2 bg-gradient-to-r from-secondary/40 to-transparent md:block" />
-                    ) : null}
-                  </div>
-                ))}
-              </div>
+              <AnimatedPipeline stages={homeCopy.pipeline.stages} />
             </BlurFade>
           </MaxWidth>
         </section>
@@ -353,9 +387,14 @@ export default function HomePage() {
                 {homeCopy.finalCta.description}
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <PillButton href={homeCopy.finalCta.primary.href} variant="primary">
+                <ShimmerButton
+                  href={homeCopy.finalCta.primary.href}
+                  background="var(--secondary)"
+                  shimmerColor="var(--secondary)"
+                  className="text-secondary-foreground"
+                >
                   {homeCopy.finalCta.primary.label}
-                </PillButton>
+                </ShimmerButton>
                 <PillButton href={homeCopy.finalCta.secondary.href} variant="secondary">
                   {homeCopy.finalCta.secondary.label}
                 </PillButton>
