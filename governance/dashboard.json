@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-08T19:00:00+05:30",
-  "lastReconcileRun": 54,
+  "lastRefresh": "2026-05-08T20:00:00+05:30",
+  "lastReconcileRun": 55,
   "source": {
     "streamB": {
       "branch": "main",
@@ -56,7 +56,7 @@
         { "id": "phase-2.i18n", "name": "i18n framework", "status": "in_progress", "evidence": "packages/i18n — Accept-Language parser · locale resolver · CLDR plural rules (en/hi/ta/te) · translator with bundle-chain fallback · Intl number/currency/date formatting · coverage diagnostics · 34 tests" },
         { "id": "phase-3.jd-forge", "name": "JD-Forge service alpha→beta", "status": "pending" },
         { "id": "phase-3.stack-vault", "name": "Stack-Vault tenant isolation + double watermark", "status": "pending" },
-        { "id": "phase-3.saml-impl", "name": "SAML/SSO implementation", "status": "pending" },
+        { "id": "phase-3.saml-impl", "name": "SAML/SSO implementation", "status": "in_progress", "evidence": "Sprint 3.3 alpha: migration 0008_sso_jit_provisioning.sql (tenant_sso_config + saml_assertions_seen + scim_external_id_map + sp_signing_certs) + @qorium/saml package (validate, jit, scim-token, replay-guard) + 37 unit tests passing. Live IdP integration tests halt on cred-drop per spec §9 — that's Sprint 3.3.1+." },
         { "id": "phase-4.observability", "name": "OTel + Grafana + Sentry IaC (halts on cred-drop)", "status": "pending" },
         { "id": "phase-4.pitr", "name": "PITR + backup automation", "status": "pending" }
       ]
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 55, "date": "2026-05-08", "summary": "Sprint 3.3 alpha: SAML/SSO implementation. Migration 0008_sso_jit_provisioning.sql adds app.tenant_sso_config (per-tenant SAML/OIDC + SCIM config), app.saml_assertions_seen (replay-attack guard with HMAC-pepper-bound IDs), app.scim_external_id_map (idempotent SCIM CRUD), app.sp_signing_certs (rotation overlap), and recruiters.auth_source column. New @qorium/saml package: types.ts, validate.ts (assertion validator with issuer/audience/recipient/clock-skew/replay/InResponseTo checks), jit.ts (create/claim/login/reject decision tree), scim-token.ts (HMAC-SHA256 pepper hash + rotation overlap), replay-guard.ts. 37 unit tests passing across 4 files. Live IdP integration tests halt on cred-drop per spec §9. 277 active workspace tests (was 240)." },
     { "id": 54, "date": "2026-05-08", "summary": "🟢 SPRINT 2.1 COMPLETE — Wave-1 8/8 ALL SUB-SKILLS AT 100/100 ✅✅✅. AIPE +60 questions (Q041-Q100) closes the 8th and final Wave-1 sub-skill. Coverage: prompt caching, structured output, RAG patterns, tool use, hallucination mitigation, prompt injection defense, model cascade, agent design, multi-tenant LLM platform, RAG quality crisis, AI product PMF, AI Center of Excellence. Ingest 926 → 986 parsable. Wave-1 final tally: Java 100, Python 100, React 100, SQL/Data 100, DevOps/SRE 100, Salesforce 100, AWS 100, AIPE 100 = 800/800. Combined with Wave-2 5/5 domains 100/100 (500/500), library now 1486 authored / 986 parsable. Auto-mode lane structurally complete; master meter remains at 0.78 cap pending human-bound items (Customer-Zero, Reference Panel ≥200, SME Lead hire, first 3 logos)." },
     { "id": 53, "date": "2026-05-08", "summary": "Sprint 2.1 Wave-1 milestone: AWS +60 questions (Q041-Q100) closes 7th Wave-1 sub-skill at 100/100 ✅. Coverage: VPC/IAM/S3 fundamentals; Lambda + DynamoDB + Step Functions; ALB vs NLB vs API Gateway; KMS; PrivateLink; Aurora Global; Backup; Organizations + SCPs; cost optimization; CDK; data lake (Iceberg + Lake Formation); region outage response; on-prem migration; multi-account governance; Black Friday scaling crisis; Cloud CoE. Ingest 866 → 926 parsable." },
     { "id": 52, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: Salesforce +60 questions (Q041-Q100) closes 6th Wave-1 sub-skill at 100/100 ✅. Coverage: Apex governor limits + bulkification; SOQL selectivity + indexing; LWC vs Aura; Flow vs Apex; PSG; Big Objects; Platform Events; Salesforce Connect; Custom Metadata; FLS + WITH SECURITY_ENFORCED; trigger frameworks + recursion guard; Continuation; HttpCalloutMock testing; Shield Encryption; Multi-currency; Sandbox strategy; SFDX + scratch orgs; sharing model layers; Approval Flow; Marketing Cloud Connect; Experience Cloud; Einstein GPT + Trust Layer; multi-org strategy + CoE; Slack integration; trigger perf crisis; legacy CRM->Salesforce migration; data privacy crisis (DPDPA/RBI); Salesforce CoE federated charter. Ingest 806 → 866 parsable. Wave-1: 6 of 8 sub-skills at 100/100. AWS + AIPE remaining (deferred to next session per auto-mode context budget; durable progress recorded on PR #24)." },
