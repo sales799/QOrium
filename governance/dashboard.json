@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-08T23:00:00+05:30",
-  "lastReconcileRun": 60,
+  "lastRefresh": "2026-05-08T23:30:00+05:30",
+  "lastReconcileRun": 70,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,9 +23,10 @@
   },
   "lanes": {
     "auto": {
-      "completed": 33,
-      "total": 33,
+      "completed": 34,
+      "total": 34,
       "tiles": [
+        { "id": "human-prep.merge-the-9-PRs.merge-order-doc", "name": "Tier-A1 prep — merge-order doc for PRs #31–#40", "status": "complete", "auto_eligible": true, "linkedHumanTile": "human.merge-the-PRs", "evidence": "governance/merge-order/PRs-31-through-40.md (Run #70). 10 PRs sequenced: #32 (CI fix) → #31 → #33 → #34 → #35 (audit stack) → #36 → #37 → #38 → #39 → #40. Migration order 0010–0015. Smoke-test checklist + rollback per PR + stop conditions documented." },
         { "id": "sprint-0.1", "name": "Monorepo bootstrap", "status": "complete", "evidence": "PR #1 d401018" },
         { "id": "sprint-0.2", "name": "Dev orchestration", "status": "complete", "evidence": "PR #1 d401018" },
         { "id": "sprint-0.3", "name": "@qorium/db migration runner", "status": "complete", "evidence": "PR #3 0a74e6f" },
@@ -63,8 +64,9 @@
     },
     "human": {
       "completed": 4,
-      "total": 14,
+      "total": 15,
       "tiles": [
+        { "id": "human.merge-the-PRs", "name": "Merge 10 open draft PRs (#31–#40) per merge-order doc", "status": "blocked-on-human", "owner": "CEO", "blocker": "needs CEO to merge in order #32 → #31 → #33 → #34 → #35 → #36 → #37 → #38 → #39 → #40 and run pm2 reload", "linkedAutoTile": "human-prep.merge-the-9-PRs.merge-order-doc" },
         { "id": "cc-01", "name": "₹50L sub-budget tagged in Talpro India books", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
         { "id": "cc-02-a", "name": "K&S Partners IP-counsel engagement email sent", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
         { "id": "cc-03", "name": "Talpro Delivery Head Customer-Zero brief", "status": "complete", "owner": "CEO", "closedOn": "2026-05-02" },
@@ -119,6 +121,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 70, "date": "2026-05-08", "summary": "Tier-A1 (human-lane acceleration): merge-order doc shipped at governance/merge-order/PRs-31-through-40.md. Sequences the 10 PRs from the autonomous run (#31–#40): PR #32 first to unblock CI, then audit-log stack #31 → #33 → #34 → #35 (must merge in order — code stack), then #36/#37/#38/#39/#40 in any order. Migrations 0010–0015 apply in numeric order via @qorium/db runner. Per-PR rollback + smoke-test checklist + stop-conditions documented. Auto-tile human-prep.merge-the-9-PRs.merge-order-doc complete; linked human-tile human.merge-the-PRs added (blocked-on-CEO). Master meter unchanged at 0.78 cap per Constitution Article IX." },
     { "id": 60, "date": "2026-05-08", "summary": "🟢 AUTO-LANE 33/33 ENGINEERING-COMPLETE. Sprint 4.2 closeout: PITR + DR runbook. infra/auto-bootstrap/pitr.tf (per-region KMS + cross-region S3 backup with 7d→30d→1y→7y lifecycle + bucket policy denying unencrypted+insecure transport + AWS Backup vaults primary+destination + daily PITR plan with copy_action + CloudWatch alarm on job-failure). scripts/restore-pitr.sh (dry-run default; ISO8601+uniqueness validation; --execute gate). governance/dr-runbook.md (failure-mode matrix, RPO 5min/RTO 60min, decision tree, on-call procedure, smoke-test, cutover, comms template, quarterly drill cadence, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true. Auto lane: 33/33 engineering-complete; remaining cred-bound items annotated. Master meter HOLDS at 0.78 ceiling per Constitution Article IX — human-bound items unchanged." },
     { "id": 59, "date": "2026-05-08", "summary": "Sprint 4.1 closeout: Observability IaC. infra/auto-bootstrap/observability.tf (Grafana Cloud stack ap-south-1 default + Sentry org + per-service projects readybank-api, anti-leak + per-region OTLP gRPC endpoint outputs). services/readybank/src/observability/otel.ts: lazy-import dynamic-specifier so TS doesn't resolve absent @opentelemetry/sdk-node at typecheck; no-op when OTEL_EXPORTER_OTLP_ENDPOINT unset; SIGTERM flush within 5s; idempotent init. 4 unit tests pass. governance/observability-runbook.md (multi-burn-rate SLO catalog, 6 pre-built dashboards spec, incident response checklist, tier-2 alerts (IRT auto-fail / anti-leak severity-2 / audit-log gap / Stack-Vault watermark anomaly), audit retention 30d hot / 1y warm / 7y cold, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true." },
     { "id": 58, "date": "2026-05-08", "summary": "Sprint 3.5 alpha: JD-Forge SKU 2 library. New @qorium/jd-forge package: types.ts (ParsedJobDescription, GenerationSpec, DraftQuestion, QuestionFormat union of v0.6 formats), parsing/jd-parser.ts (validateParsed exhaustive shape check + retry-once wrapper around injectable LlmExtractor), role-graph/mapper.ts (8-prefix starter catalog covering exactly the Wave-1 100/100 sub-skills: java/python/react/sqldata/devops/sf/aws/aipe; matchSingleSkill pattern matching + mapRoleToSubSkills aggregating with weight + coverage report + unmatched-skills surfacing for SME catalog extension), generation/spec-builder.ts (largest-remainder distribution + 40/30/20/10 format mix per spec §3.3 + role-family-aware design-vs-SJT routing + 4-band difficulty IRT b targets + per-question round-robin assignment; guards on total range), output/exporters.ts (canonical JSON envelope, RFC-4180 CSV with quote+comma+newline escaping, HackerRank-v1 mapped JSON preserving QOrium watermark in metadata; exhaustive switch-never on format). 40 unit tests pass. Live LLM call (services/jd-forge Express + ANTHROPIC_API_KEY) is cred-bound; defers to cred-drop. Workspace: 8 packages + 2 services typecheck clean." },
