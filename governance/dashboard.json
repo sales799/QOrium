@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-09T11:55:00+05:30",
-  "lastReconcileRun": 63,
+  "lastRefresh": "2026-05-08T17:05:00+05:30",
+  "lastReconcileRun": 64,
   "source": {
     "streamB": {
       "branch": "main",
@@ -78,7 +78,8 @@
         { "id": "human.senior-eng-hire", "name": "Senior Engineer #1 hired", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "M2 hire per I1" },
         { "id": "human.first-3-recruiter-logos", "name": "First 3 Recruiter Subscription logos signed", "status": "blocked-on-human", "owner": "CEO+AE", "blocker": "M3 sales target H2" },
         { "id": "human.bosch-discovery-call", "name": "First Bosch GCC discovery call", "status": "blocked-on-human", "owner": "CEO", "blocker": "warm intro per E1-E4" },
-        { "id": "human.cred-drop", "name": "Production credentials dropped to .env.bootstrap", "status": "blocked-on-human", "owner": "CEO", "blocker": "needed to unblock SES/observability/multi-region IaC apply" }
+        { "id": "human.cred-drop", "name": "Production credentials dropped to .env.bootstrap", "status": "blocked-on-human", "owner": "CEO", "blocker": "needed to unblock SES/observability/multi-region IaC apply" },
+        { "id": "human.cred-drop-ses", "name": "AWS SES email auth live (DKIM Verified + prod-access requested)", "status": "in-progress", "owner": "CEO+CTO Office", "blocker": "AWS Support case 177825922400683 'SES: Production Access' filed 2026-05-08 16:53:44 IST; 24-48h review SLA. Domain qorium.online verified ap-south-1 with Easy DKIM RSA_2048 Successful (3 CNAMEs in Cloudflare); SPF + DMARC published. ARN: arn:aws:ses:ap-south-1:049666818793:identity/qorium.online. Sandbox limits in force until AWS approves: 200/day, 1/sec." }
       ]
     }
   },
