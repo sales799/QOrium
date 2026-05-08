@@ -1895,3 +1895,52 @@ production-credential operation, no destructive migration.
   pg-boss), S3-backed storage with signed URLs, raise row cap to 100K
   with paginated SELECT loop.
 - **Sprint 4.4.3** — hash-chaining + SIEM streaming (next).
+
+---
+
+## 2026-05-09 — Run #64 — Sprint 4.4.3 Audit Log hash-chaining + verify (§10)
+
+CTO autonomous-run sprint #3 of 8. Adds tamper-evidence to audit.events
+via SHA-256 hashing. SIEM streaming (spec §8) explicitly deferred —
+spec marks it "Month 9 roadmap"; ships separately as Sprint 4.4.4.
+
+### What landed
+
+- Migration `0012` adds `hash_current` + `hash_previous` VARCHAR(64) +
+  partial chain-walk index.
+- `@qorium/auth/audit-hash`: `canonicalAuditEventJson`,
+  `computeAuditHash`, `verifyAuditChain`.
+- `recordAuditEvent` computes `hash_current` synchronously per event.
+  `hash_previous` async-materialized (Sprint 4.4.3.1) so writes never
+  serialize on the prior row.
+- New `GET /v1/audit/verify` walks the recruiter's chain (≤10K rows)
+  and returns `{ valid, total, breaks, unmaterialized }` for SOC 2.
+- `AuditEventRow` + `AuditEventEnvelope` expose `hash_current` +
+  `hash_previous`; mapper passthrough.
+- Pre-existing test bug fixed in middleware mock (was reading
+  `event_type` from `values[2]` which is `tenant_id` since 4.4.1).
+
+### Quality gates
+
+- `pnpm typecheck` 10/10 clean
+- `pnpm lint` clean
+- `pnpm test` 198 passed / 21 skipped / 0 failed (full workspace)
+- `pnpm build` 10/10 clean
+- `prettier` clean · `gitleaks` clean
+
+### Stop conditions
+
+None. Pure additive surface.
+
+### Dashboard
+
+- `lanes.auto` 36/36 → 37/37
+- `lastReconcileRun` 63 → 64
+- New tile `sprint-4.4.3.audit-hash-chain`
+- Run #64 prepended to `runs[]`
+- `masterMeter.auto` UNCHANGED at 0.78
+
+### Deferred follow-ups
+
+- **Sprint 4.4.3.1** — async `hash_previous` materializer.
+- **Sprint 4.4.4** — SIEM streaming (TLS+batched syslog per §8).
