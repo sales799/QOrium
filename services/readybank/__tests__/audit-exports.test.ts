@@ -89,6 +89,8 @@ function buildEvent(over: Partial<AuditEventRow> & Pick<AuditEventRow, 'id'>): A
     payload: { question_id: 'q-1' },
     ip_address: '203.0.113.10',
     user_agent: 'vitest/1.0',
+    hash_current: null,
+    hash_previous: null,
     occurred_at: new Date('2026-05-08T10:00:00Z'),
     ...over,
   };

@@ -57,6 +57,8 @@ const SELECT_COLUMNS = `
   COALESCE(payload, '{}'::jsonb) AS payload,
   ip_address::text AS ip_address,
   user_agent,
+  hash_current,
+  hash_previous,
   occurred_at
 `;
 

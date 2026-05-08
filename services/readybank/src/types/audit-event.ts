@@ -33,6 +33,10 @@ export interface AuditEventRow {
   payload: Record<string, unknown>;
   ip_address: string | null;
   user_agent: string | null;
+  /** SHA-256 (hex) of canonical event form. Sprint 4.4.3. */
+  hash_current: string | null;
+  /** SHA-256 (hex) of the prior event in (tenant_id, occurred_at, id) ordering. Materialized async. */
+  hash_previous: string | null;
   occurred_at: Date;
 }
 
@@ -50,6 +54,8 @@ export interface AuditEventEnvelope {
   details: Record<string, unknown>;
   ip_address: string | null;
   user_agent: string | null;
+  hash_current: string | null;
+  hash_previous: string | null;
 }
 
 export interface AuditCursor {
@@ -116,6 +122,8 @@ export function rowToEnvelope(row: AuditEventRow): AuditEventEnvelope {
     details: row.payload ?? {},
     ip_address: row.ip_address,
     user_agent: row.user_agent,
+    hash_current: row.hash_current,
+    hash_previous: row.hash_previous,
   };
 }
 
