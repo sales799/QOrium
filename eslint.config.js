@@ -13,6 +13,8 @@ export default tseslint.config(
       '**/coverage/**',
       '**/*.tsbuildinfo',
       'infra/docker/data/**',
+      // Marketing site (apps/web) — owned by Next's own lint config.
+      'apps/web/**',
       // Canonical Cowork-authored configs (read-only per handoff §6)
       'infra/B10-ecosystem.config.js',
     ],

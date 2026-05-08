@@ -40,3 +40,7 @@ infra/B10-ecosystem.config.js
 *.docx
 *.xlsx
 
+
+# Marketing site (apps/web) — owned by Next's own lint/format. Avoids fighting
+# the Magic UI Pro template's formatting style with the backend monorepo.
+apps/web/
