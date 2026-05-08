@@ -1748,3 +1748,84 @@ score, no destructive migration. Pure additive read-only API.
   `infra/B7-postgres-migrations/scripts/restore-pitr.sh` (the actual
   on-disk path; pure documentation correction, no code change)
 - `masterMeter.auto` UNCHANGED at 0.78 (Constitution Article IX cap)
+
+---
+
+## 2026-05-08 — Run #62 — Sprint 4.4.1 Audit Log API v1 (tenant-scoped reads)
+
+CTO autonomous-run sprint #1 of 8. Extends Sprint 4.4 v0's actor-scoped
+read API to a tenant-scoped v1 by adding `tenant_id` to `audit.events`
+and rewriting the API repository's WHERE clause as a transitional
+SCOPE_CLAUSE that bridges new + legacy rows.
+
+### What landed
+
+| File                                                                 | Purpose                                                                                                                          |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `infra/B7-postgres-migrations/0010_audit_events_tenant_id.sql` (new) | `ALTER TABLE audit.events ADD COLUMN tenant_id UUID` + partial index `(tenant_id, occurred_at DESC) WHERE tenant_id IS NOT NULL` |
+| `packages/auth/src/audit.ts` (mod)                                   | `recordAuditEvent` accepts optional `tenant_id`; non-breaking                                                                    |
+| `services/readybank/src/types/audit-event.ts` (mod)                  | `tenant_id` added to `AuditEventRow` + envelope; passthrough mapper                                                              |
+| `services/readybank/src/repositories/audit-events.ts` (mod)          | `SCOPE_CLAUSE = (tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))` applied to list / detail / summary                    |
+| `services/readybank/src/routes/audit.ts` (mod)                       | All three endpoints pass `recruiter.tenantId` alongside `recruiter.id`                                                           |
+| `services/readybank/src/server.ts` (mod)                             | Mount comment updated                                                                                                            |
+| `services/readybank/src/routes/admin.ts` (mod)                       | Two call sites pass `reviewer?.tenantId`                                                                                         |
+| `services/readybank/src/routes/reference-panel.ts` (mod)             | Call site passes `panel.tenantId`                                                                                                |
+| `services/readybank/__tests__/audit.test.ts` (rewrite)               | 22 tests covering SCOPE_CLAUSE end-to-end                                                                                        |
+
+### SCOPE_CLAUSE semantics
+
+```
+(tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2))
+```
+
+- **Primary scope** — Sprint 4.4.1+ writes carry the recruiter's
+  `tenant_id`; clause 1 matches.
+- **Transitional fallback** — pre-migration writes have `tenant_id =
+NULL`. Each recruiter still sees only their **own** legacy rows via
+  the actor_id match. Cross-tenant + other-recruiter legacy rows stay
+  invisible.
+- **Sweep plan (Sprint 4.4.1.1)** — when every audit-write call site
+  sets `tenant_id` and a one-shot UPDATE backfills history, the
+  OR-fallback can be dropped.
+
+### Test coverage (22 audit.test.ts cases)
+
+- 401 without cookie on each of 3 endpoints
+- Tenant A recruiter sees: 3 own tenant-A events + 1 own legacy NULL row
+- Tenant A recruiter does NOT see: tenant-B event, other-recruiter legacy
+- Tenant B recruiter sees ONLY tenant-B event (cross-tenant isolation)
+- Detail by id: 4 cases (tenant-A OK, legacy own OK, tenant-B → 404, other-recruiter legacy → 404)
+- Summary aggregation respects SCOPE_CLAUSE + window
+- Cursor pagination still correct under tenant scope
+- Filter regex / start>end / malformed cursor preserved from v0
+- Envelope mapping covers `tenant_id` field
+
+### Quality gates
+
+| Gate               | Result                                                  |
+| ------------------ | ------------------------------------------------------- |
+| `pnpm typecheck`   | 10/10 workspaces clean                                  |
+| `pnpm lint`        | clean                                                   |
+| `pnpm test`        | 143 passed / 21 skipped / 0 failed (+3 net audit tests) |
+| `pnpm build`       | 10/10 clean                                             |
+| `prettier --check` | clean                                                   |
+| `gitleaks`         | clean                                                   |
+
+### Stop conditions
+
+None. Pure additive migration + read-API expansion.
+
+### Dashboard
+
+- `lanes.auto` 34/34 → 35/35
+- `lastReconcileRun` 61 → 62
+- New tile `sprint-4.4.1.audit-tenant-scope` (complete)
+- Run #62 entry prepended to `runs[]`
+- `masterMeter.auto` UNCHANGED at 0.78
+
+### Deferred follow-ups
+
+- **Sprint 4.4.1.1** — tenant_id sweep + historical backfill, drop
+  OR-fallback.
+- **Sprint 4.4.2** — export endpoints + webhook hook (next in run).
+- **Sprint 4.4.3** — hash-chaining + SIEM streaming.
