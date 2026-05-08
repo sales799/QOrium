@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-08T23:00:00+05:30",
-  "lastReconcileRun": 60,
+  "lastRefresh": "2026-05-08T23:30:00+05:30",
+  "lastReconcileRun": 61,
   "source": {
     "streamB": {
       "branch": "main",
@@ -62,7 +62,7 @@
       ]
     },
     "human": {
-      "completed": 4,
+      "completed": 5,
       "total": 14,
       "tiles": [
         { "id": "cc-01", "name": "₹50L sub-budget tagged in Talpro India books", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
@@ -70,7 +70,7 @@
         { "id": "cc-03", "name": "Talpro Delivery Head Customer-Zero brief", "status": "complete", "owner": "CEO", "closedOn": "2026-05-02" },
         { "id": "cc-04", "name": "Domain registration (qorium.online)", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
         { "id": "human.first-talpro-candidate", "name": "First REAL Talpro candidate run end-to-end", "status": "blocked-on-human", "owner": "Talpro Delivery Head", "blocker": "needs Talpro recruiter to run a real candidate post-SES verification" },
-        { "id": "human.amendment-2.1-ratify", "name": "Wave-3 AUTHORED ratification (CEO YES/NO)", "status": "blocked-on-human", "owner": "CEO", "blocker": "30-min review of Constitutional Amendment v2.1" },
+        { "id": "human.amendment-2.1-ratify", "name": "Wave-3 AUTHORED ratification (CEO YES/NO)", "status": "complete", "owner": "CEO", "closedOn": "2026-05-08", "evidence": "AGREE plain — full ₹65L Year 1 budget envelope ratified, no conditions. PR #27 comment + amendment doc updated to RATIFIED status." },
         { "id": "human.cc-13-whatsapp", "name": "WhatsApp group QOrium Customer Zero", "status": "blocked-on-human", "owner": "CEO", "blocker": "60-sec optional accelerator" },
         { "id": "human.io-psych-contractor", "name": "I/O Psychologist contractor signed (C5 SOW)", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "needs hire / contract" },
         { "id": "human.reference-panel-200", "name": "Reference Panel ≥200 recruited", "status": "blocked-on-human", "owner": "CDO/I-O Psych", "blocker": "needs panel recruitment + IRT calibration runs" },
@@ -119,6 +119,7 @@
     { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
   ],
   "runs": [
+    { "id": 61, "date": "2026-05-08", "summary": "🟢 FIRST HUMAN-LANE TILE CLOSED. CEO Bhaskar Anand ratified Constitutional Amendment v2.1 (Article IX M9: psychometric NATIVELY AUTHORED instead of LICENSED) per Article XI §11.5(b) async sign-off. Decision: AGREE plain — full ₹65L Year 1 budget envelope authorized, no conditions. Ratification record: PR #27 comment thread + governance/Constitutional-Amendment-v2.1-Article-IX-M9-Psychometric.md updated to ✅ RATIFIED status. Constitution v2.1 supersedes v2.0; v2.0 preserved as historical record. Board notification scheduled for next quarterly review. Human-lane: 4/14 → 5/14. Wave-3 authoring legally unblocked — actual spend gated on SME Lead hire (item §3) + I/O Psych contractor sign (item §2) per CEO Decision Packet sequencing §7. In parallel: WhatsApp sent to Talpro CTO proposing Saturday 11 AM IST sandbox candidate-run (item D / Customer Zero Option C). Master meter HOLDS at 0.78 ceiling — single tile flip doesn't move the structural cap; the cap moves when SME Lead + cred-drop + Customer-Zero close together." },
     { "id": 60, "date": "2026-05-08", "summary": "🟢 AUTO-LANE 33/33 ENGINEERING-COMPLETE. Sprint 4.2 closeout: PITR + DR runbook. infra/auto-bootstrap/pitr.tf (per-region KMS + cross-region S3 backup with 7d→30d→1y→7y lifecycle + bucket policy denying unencrypted+insecure transport + AWS Backup vaults primary+destination + daily PITR plan with copy_action + CloudWatch alarm on job-failure). scripts/restore-pitr.sh (dry-run default; ISO8601+uniqueness validation; --execute gate). governance/dr-runbook.md (failure-mode matrix, RPO 5min/RTO 60min, decision tree, on-call procedure, smoke-test, cutover, comms template, quarterly drill cadence, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true. Auto lane: 33/33 engineering-complete; remaining cred-bound items annotated. Master meter HOLDS at 0.78 ceiling per Constitution Article IX — human-bound items unchanged." },
     { "id": 59, "date": "2026-05-08", "summary": "Sprint 4.1 closeout: Observability IaC. infra/auto-bootstrap/observability.tf (Grafana Cloud stack ap-south-1 default + Sentry org + per-service projects readybank-api, anti-leak + per-region OTLP gRPC endpoint outputs). services/readybank/src/observability/otel.ts: lazy-import dynamic-specifier so TS doesn't resolve absent @opentelemetry/sdk-node at typecheck; no-op when OTEL_EXPORTER_OTLP_ENDPOINT unset; SIGTERM flush within 5s; idempotent init. 4 unit tests pass. governance/observability-runbook.md (multi-burn-rate SLO catalog, 6 pre-built dashboards spec, incident response checklist, tier-2 alerts (IRT auto-fail / anti-leak severity-2 / audit-log gap / Stack-Vault watermark anomaly), audit retention 30d hot / 1y warm / 7y cold, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true." },
     { "id": 58, "date": "2026-05-08", "summary": "Sprint 3.5 alpha: JD-Forge SKU 2 library. New @qorium/jd-forge package: types.ts (ParsedJobDescription, GenerationSpec, DraftQuestion, QuestionFormat union of v0.6 formats), parsing/jd-parser.ts (validateParsed exhaustive shape check + retry-once wrapper around injectable LlmExtractor), role-graph/mapper.ts (8-prefix starter catalog covering exactly the Wave-1 100/100 sub-skills: java/python/react/sqldata/devops/sf/aws/aipe; matchSingleSkill pattern matching + mapRoleToSubSkills aggregating with weight + coverage report + unmatched-skills surfacing for SME catalog extension), generation/spec-builder.ts (largest-remainder distribution + 40/30/20/10 format mix per spec §3.3 + role-family-aware design-vs-SJT routing + 4-band difficulty IRT b targets + per-question round-robin assignment; guards on total range), output/exporters.ts (canonical JSON envelope, RFC-4180 CSV with quote+comma+newline escaping, HackerRank-v1 mapped JSON preserving QOrium watermark in metadata; exhaustive switch-never on format). 40 unit tests pass. Live LLM call (services/jd-forge Express + ANTHROPIC_API_KEY) is cred-bound; defers to cred-drop. Workspace: 8 packages + 2 services typecheck clean." },

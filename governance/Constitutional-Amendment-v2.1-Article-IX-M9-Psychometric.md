@@ -1,9 +1,10 @@
 # QOrium Constitutional Amendment v2.1 — Article IX M9 (Psychometric Authoring)
 
-**Status:** v0.1 PROPOSAL — autonomous-mode authored; pending CEO + Board ratification per Article XI §11.5 amendment procedure
+**Status:** ✅ **RATIFIED 2026-05-08** by CEO Bhaskar Anand (async per Article XI §11.5(b)). Constitution v2.1 supersedes v2.0; v2.0 preserved as historical record. Board notification at next quarterly review.
 **Authored:** 2026-05-03 (autonomous mode)
-**Authority:** CTO Office proposes; CEO + Board sign-off required for ratification
-**Effective on ratification:** Constitution v2.1 supersedes v2.0; v2.0 preserved as historical record per Article XI §11.5
+**Ratified:** 2026-05-08 — full ₹65L Year 1 budget envelope authorized, no conditions. Ratification record: PR #27 comment thread.
+**Authority:** CTO Office proposed; CEO ratified; Board notification deferred per §11.5(b).
+**Effective:** 2026-05-08. Constitution v2.1 supersedes v2.0.
 
 ---
 
