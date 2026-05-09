@@ -1,0 +1,25 @@
+{
+  "name": "@qorium/webhooks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Webhooks Service v0 alpha — pure-TS primitives for the future webhooks-service: HMAC-SHA256 signing per spec §5, exponential-backoff retry schedule per §6, attempt classifier, event envelope + idempotency types. The PM2 service + delivery worker lands in Sprint 4.5.1.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
