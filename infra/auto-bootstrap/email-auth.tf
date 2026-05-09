@@ -201,12 +201,12 @@ output "dkim_records" {
   value = [
     for r in aws_route53_record.dkim : {
       name   = r.name
-      target = r.records[0]
+      target = tolist(r.records)[0]
     }
   ]
 }
 
 output "dmarc_record_value" {
   description = "Final DMARC TXT value for verification"
-  value       = aws_route53_record.dmarc.records[0]
+  value       = tolist(aws_route53_record.dmarc.records)[0]
 }

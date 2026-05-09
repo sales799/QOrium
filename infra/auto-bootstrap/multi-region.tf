@@ -165,9 +165,9 @@ resource "aws_s3_bucket" "dr_replica" {
   provider = aws.dr
   bucket   = "qorium-audit-replica-${var.dr_region}"
   tags = {
-    Name      = "qorium-audit-replica"
-    Sprint    = "5.0"
-    Purpose   = "cross-region-replica"
+    Name    = "qorium-audit-replica"
+    Sprint  = "5.0"
+    Purpose = "cross-region-replica"
   }
 }
 
@@ -202,11 +202,11 @@ resource "aws_route53_health_check" "primary_health" {
 # -----------------------------------------------------------------------------
 
 resource "aws_cloudwatch_composite_alarm" "primary_region_down" {
-  provider           = aws.primary
-  alarm_name         = "qorium-primary-region-down"
-  alarm_description  = "Triggers DR cutover decision tree per multi-region-runbook.md"
-  alarm_rule         = "ALARM(qorium-primary-health)"
-  actions_enabled    = true
+  provider          = aws.primary
+  alarm_name        = "qorium-primary-region-down"
+  alarm_description = "Triggers DR cutover decision tree per multi-region-runbook.md"
+  alarm_rule        = "ALARM(qorium-primary-health)"
+  actions_enabled   = true
 }
 
 # -----------------------------------------------------------------------------
