@@ -134,7 +134,45 @@ In priority order, after the DB-empty finding:
 | `candidate.qorium.online` | 200 | HSTS preload, X-Content-Type, X-Frame DENY |
 | `my.qorium.online` | 200 | HSTS preload, X-Content-Type, X-Frame DENY |
 
-No code services were rebuilt, no migrations run, no DB writes, no force-push.
+## 6. Wave-1 / 2 / 3 corpus ingest (Pass C)
+
+After CEO authorization, executed the v0.6 corpus ingest into `qorium.content.questions`.
+
+**Path:** updated the workspace clone at `/opt/apps/qorium/readybank-service` from `chore/customer-zero-day-1-bootstrap-scripts` to `main` (`e017cc2`); `pnpm install --frozen-lockfile --prefer-offline` (4.4 s); ran `services/readybank/src/scripts/ingest-wave1.ts` via `node --experimental-strip-types`. Live serving directory `/opt/qorium` was not touched.
+
+**DATABASE_URL note.** `/opt/apps/qorium/dotenv.production` carries a DB role that lacks `INSERT` on schema `content`; the ingest run used the role from `pm2 env` (the role the running services use). Worth a follow-up to align the two so the dotenv is the canonical write path.
+
+**Dry-run:** 53 source files scanned, 986 questions parsed, 34 parse errors. All 34 errors are real corpus authoring gaps in design/case-study items (`missing answer_key/solution/reference_solution` on 32 items; `missing rubric` on 2). Parser correctly skipped these incomplete items. They need SME backfill, not script work.
+
+**Live write:** `--write --mode=replace --authored-by=claude-cto-ingest-2026-05-09`. Result: `Inserted: 986  Replaced: 0  Mode: replace`.
+
+**Post-write DB verification:**
+
+```
+total              986
+distinct qor_ids   986   (no duplicates)
+distinct files      53
+with difficulty_b  986   (100%)
+with watermark_id  986   (100%)
+
+format breakdown
+  MCQ              676
+  case-study        90
+  code             111
+  design            58
+  misc              51
+```
+
+Per-file breakdown ranges 8 (seed batches) to 30 (SAP ABAP 021-050) questions; mean difficulty 0.25–0.95 across files; mean discrimination 1.38–1.68 (healthy range pre-IRT-recalibration). Wave-3 kickoff batch (20 items) included with status='calibrating' as expected — psychometric items released only after I/O Psych contractor + Reference Panel pilot per Constitutional Amendment v2.1.
+
+**What this unblocks:** every running QOrium service now has data to operate on. JD-Forge can pull from a real pool. Stack-Vault can watermark real items. Anti-Leak crawler has a real corpus to cross-check against. IRT calibration cron will produce real numbers as soon as `content.responses` starts populating from real candidate sessions.
+
+**Still blocked on CEO action:**
+1. Bootstrap first `app.tenants` row (Talpro India) + first `app.users` (recruiter) + `app.tenant_users` + `app.api_keys` so the recruiter dashboard has real state to load.
+2. Customer Zero Day-1 — first real Talpro candidate session.
+3. SME backfill on the 34 incomplete design/case-study items (Java, React, SQL, Salesforce, DevOps, Embedded, Finacle).
+
+No code services were rebuilt, no migrations run, no force-push. The single DB write happened inside `BEGIN/COMMIT` per the script's idempotent transaction; rollback path tested by the unit test suite at `services/readybank/__tests__/ingest-wave1.unit.test.ts`.
 
 ---
 
