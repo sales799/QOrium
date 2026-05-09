@@ -2,7 +2,7 @@
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
   "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 72,
+  "lastReconcileRun": 73,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 45,
-      "total": 45,
+      "completed": 46,
+      "total": 46,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -301,6 +301,14 @@
           "auto_eligible": true,
           "linkedHumanTile": "human.sme-lead-hire",
           "evidence": "governance/hiring/sme-content-lead/ — README + JD (publishable copy: ₹40-60 LPA + 0.4-0.8% ESOP, Director-IC, Mumbai/remote-India), sourcing-pipeline (5 channels: direct outreach + LinkedIn/Naukri + recruiter + referrals + ISIOP/AICTE; budget ~₹4L; weekly metrics), screening-rubric (4 dimensions × 1-5 each: methodological depth + volume judgement + author leadership + communication; calibrated against CTO Office baseline), compensation-band (Senior+/Senior/Senior-junior tiers; recommended anchor ₹50L + 0.5% ESOP), interview-process (5 stages, ~23 business days target SLA). NO outreach sent."
+        },
+        {
+          "id": "human-prep.senior-eng-hire.jd-and-pipeline",
+          "name": "Tier-A4 prep — Senior Engineer #1 JD + sourcing pipeline",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.senior-eng-hire",
+          "evidence": "governance/hiring/senior-engineer-1/ — README + JD (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, peer-to-CTO, TS+pg+AWS), sourcing-pipeline (5 channels: LinkedIn/Naukri + 30-name target list + boutique recruiter ₹3L + ₹1L referral bounty + community; ~₹5L budget), screening-rubric (4 dimensions: code quality via paid ₹10K take-home audit-chain verifier + system design webhook delivery + production incident-replay + written ADR-style essay; calibrated to CTO Office baseline), compensation-band (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire timing for budget fit), interview-process (5 stages, ~28 business days SLA; paid take-home discipline). NO outreach sent."
         }
       ]
     },
@@ -571,6 +579,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 73,
+      "date": "2026-05-09",
+      "summary": "Tier-A4 (human-lane acceleration): Senior Engineer #1 hiring pack shipped at governance/hiring/senior-engineer-1/. Files: README (rationale + 5-question CEO decision matrix; first non-founder engineer = peer to CTO, not direct report), JD.md (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, TS+pg+AWS, requires one of {IRT/SAML/multi-tenant/anti-cheat/compliance}; first-90-days plan), sourcing-pipeline.md (5 channels including 30-name target list of HackerRank/Mettl/Razorpay/Cred/Atlassian alumni + boutique recruiter + ₹1L referral bounty; ~₹5L budget; weekly funnel metrics), screening-rubric.md (4 dimensions calibrated to CTO Office baseline: paid ₹10K take-home audit-chain verifier + system-design webhook-delivery exercise + 30-min incident-replay scenario + written technical-disagreement essay; mandatory floors), compensation-band.md (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire fits Y1 budget alongside SME Lead + I/O Psych), interview-process.md (5 stages ~28 business day SLA; paid take-home discipline non-negotiable). Auto-tile human-prep.senior-eng-hire.jd-and-pipeline complete; links to existing human.senior-eng-hire. NO outreach sent. Master meter unchanged at 0.78 cap."
+    },
     {
       "id": 72,
       "date": "2026-05-09",
