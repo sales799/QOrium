@@ -15,14 +15,14 @@ flag before it executes.
 
 ## Modules
 
-| File                | What it manages                                                            | Halt condition                                              |
-| ------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `state-backend.tf`  | S3 bucket + DynamoDB lock table for remote Terraform state                 | `BOOTSTRAP_AUTHORIZED=true` env var must be set             |
-| `dns-zone.tf`       | Route 53 public hosted zone for the apex domain                            | `BOOTSTRAP_AUTHORIZED=true` env var must be set             |
-| `email-auth.tf`     | SES domain identity · DKIM CNAMEs · SPF + DMARC TXT records · Mail-FROM    | `BOOTSTRAP_AUTHORIZED=true` env var must be set; needs zone |
-| `multi-region.tf`   | DR pair (VPC peering, RDS replica, Route53 failover) — Sprint 5.0          | `BOOTSTRAP_AUTHORIZED=true` + audit-log bucket ARN          |
-| `pitr.tf`           | RDS PITR + cross-region backup replication                                 | `BOOTSTRAP_AUTHORIZED=true` env var must be set             |
-| `observability.tf`  | Grafana Cloud stack + Sentry projects                                      | Non-empty `QORIUM_GRAFANA_API_TOKEN` + `QORIUM_SENTRY_AUTH_TOKEN` |
+| File               | What it manages                                                         | Halt condition                                                    |
+| ------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `state-backend.tf` | S3 bucket + DynamoDB lock table for remote Terraform state              | `BOOTSTRAP_AUTHORIZED=true` env var must be set                   |
+| `dns-zone.tf`      | Route 53 public hosted zone for the apex domain                         | `BOOTSTRAP_AUTHORIZED=true` env var must be set                   |
+| `email-auth.tf`    | SES domain identity · DKIM CNAMEs · SPF + DMARC TXT records · Mail-FROM | `BOOTSTRAP_AUTHORIZED=true` env var must be set; needs zone       |
+| `multi-region.tf`  | DR pair (VPC peering, RDS replica, Route53 failover) — Sprint 5.0       | `BOOTSTRAP_AUTHORIZED=true` + audit-log bucket ARN                |
+| `pitr.tf`          | RDS PITR + cross-region backup replication                              | `BOOTSTRAP_AUTHORIZED=true` env var must be set                   |
+| `observability.tf` | Grafana Cloud stack + Sentry projects                                   | Non-empty `QORIUM_GRAFANA_API_TOKEN` + `QORIUM_SENTRY_AUTH_TOKEN` |
 
 The wrapper script `apply.sh` enforces every gate and is the only
 sanctioned way to invoke `terraform apply` on these modules.

@@ -21,18 +21,18 @@ Both gaps had to be closed before the email-auth module (Sprint 1.7d critical-pa
 
 Three new files plus one wrapper rewrite plus one CI workflow:
 
-| File                                                | Purpose                                                                                              |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `infra/auto-bootstrap/state-backend.tf`             | S3 bucket (versioned, encrypted, private) + DynamoDB lock table (PAY_PER_REQUEST) for remote state   |
-| `infra/auto-bootstrap/dns-zone.tf`                  | Route 53 public hosted zone for the apex domain; emits `zone_id` + `name_servers` outputs            |
-| `infra/auto-bootstrap/apply.sh` (rewritten)         | Variables now exported as `TF_VAR_*` so one wrapper drives heterogeneous modules without dispatch    |
-| `infra/auto-bootstrap/.env.bootstrap.example`       | Documents new modules + introduces `AWS_PROFILE` as a credential source (alongside raw access keys)  |
-| `infra/auto-bootstrap/README.md`                    | Updated module table + recommended apply order + zone-delegation step                                |
-| `.github/workflows/terraform-plan.yml`              | Plan-only CI: matrix runs `fmt -check` + `init -backend=false` + `validate` per module on PR         |
+| File                                          | Purpose                                                                                             |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `infra/auto-bootstrap/state-backend.tf`       | S3 bucket (versioned, encrypted, private) + DynamoDB lock table (PAY_PER_REQUEST) for remote state  |
+| `infra/auto-bootstrap/dns-zone.tf`            | Route 53 public hosted zone for the apex domain; emits `zone_id` + `name_servers` outputs           |
+| `infra/auto-bootstrap/apply.sh` (rewritten)   | Variables now exported as `TF_VAR_*` so one wrapper drives heterogeneous modules without dispatch   |
+| `infra/auto-bootstrap/.env.bootstrap.example` | Documents new modules + introduces `AWS_PROFILE` as a credential source (alongside raw access keys) |
+| `infra/auto-bootstrap/README.md`              | Updated module table + recommended apply order + zone-delegation step                               |
+| `.github/workflows/terraform-plan.yml`        | Plan-only CI: matrix runs `fmt -check` + `init -backend=false` + `validate` per module on PR        |
 
 ### Why `TF_VAR_*` env exports instead of `-var foo=bar`
 
-The previous `apply.sh` hard-coded six `-var` flags tuned to `email-auth.tf`. Running `multi-region.tf` or `pitr.tf` through it would have errored with *"Value for undeclared variable: domain"* because those modules don't declare `domain`. Per Terraform docs, `TF_VAR_*` env vars are silently ignored when the module doesn't declare the corresponding variable, which is exactly the "one wrapper, many modules" semantic we want. The new `apply.sh` exports the union of variables across all current modules; each module reads only the ones it declares.
+The previous `apply.sh` hard-coded six `-var` flags tuned to `email-auth.tf`. Running `multi-region.tf` or `pitr.tf` through it would have errored with _"Value for undeclared variable: domain"_ because those modules don't declare `domain`. Per Terraform docs, `TF_VAR_*` env vars are silently ignored when the module doesn't declare the corresponding variable, which is exactly the "one wrapper, many modules" semantic we want. The new `apply.sh` exports the union of variables across all current modules; each module reads only the ones it declares.
 
 ### Why state-backend uses local state itself
 
@@ -63,6 +63,7 @@ The exact bucket name is emitted as a `state-backend` output for paste-in.
 2. **No production state created at PR-merge time.** CI runs `validate` only — no AWS API calls, no credentials in CI, no state files committed. Apply remains a CEO-only manual action.
 
 3. **Charter halt conditions preserved.**
+
    - Monetary commitment: still gated by `BOOTSTRAP_AUTHORIZED=true`.
    - Production-credential operation: cred-drop file still gitignored; agent never reads it.
    - DNS / live-service mutation: same gate. `dns-zone.tf` cannot run unless the CEO has flipped the gate.
@@ -116,6 +117,7 @@ Local `terraform validate` revealed three pre-existing issues that were holding 
 2. **`multi-region.tf` and `pitr.tf` — fmt drift.** Pure whitespace alignment differences. Auto-fixed with `terraform fmt -write` so the new CI matrix passes `fmt -check`.
 
 3. **`observability.tf` — pre-existing validation errors deferred.** Two errors:
+
    - `sentry_project.<name>.dsn_public` — attribute does not exist in the current sentry provider (it's surfaced as a `sentry_key` resource attribute now).
    - `data.sentry_organization.qorium.id` deprecated in favour of `.slug`.
 
