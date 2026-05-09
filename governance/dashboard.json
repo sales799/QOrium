@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-09T02:10:00+05:30",
-  "lastReconcileRun": 67,
+  "lastRefresh": "2026-05-09T02:30:00+05:30",
+  "lastReconcileRun": 68,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 40,
-      "total": 40,
+      "completed": 41,
+      "total": 41,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -265,6 +265,12 @@
           "name": "Multi-region terraform skeleton (DR pair)",
           "status": "engineering-complete-cred-bound",
           "evidence": "Sprint 5.0 (Run #67): infra/auto-bootstrap/multi-region.tf — paired ap-south-1 + ap-southeast-1 VPCs (10.10/16 + 10.20/16), cross-region VPC peering with auto-accept on the DR side, S3 cross-region replication bucket for audit-log + export buckets (Sprint 4.2 + 4.4.2), Route53 /healthz health check + composite CloudWatch alarm 'qorium-primary-region-down', RPO=15min / RTO=60min variables. Existing apply.sh wrapper already supports the new module (BOOTSTRAP_AUTHORIZED=true ./apply.sh multi-region). New governance/multi-region-runbook.md complements dr-runbook.md with the cross-region cutover decision tree (verify region failure → decide → notify → promote replica → re-point Route53 → smoke test → declare complete; ~50 min total under 60-min RTO target), failover triggers, RPO/RTO mechanism table, failback procedure, quarterly drill cadence, cred-drop checklist. Engineering-complete; apply halts on cred-drop per Constitution Article IX. The replica wiring (post primary RDS migration) lands in Sprint 5.0.1."
+        },
+        {
+          "id": "sprint-5.1.soc2-harness",
+          "name": "SOC 2 readiness harness — control mapping + evidence pull",
+          "status": "complete",
+          "evidence": "Sprint 5.1 (Run #68): governance/soc2/{README, control-mapping, evidence-collection}.md ship the full TSC-to-QOrium control map covering CC1.1–CC9.2 (each row has a control description, QOrium implementation reference, and an evidence query). Quarterly evidence-pull runbook covers Q1–Q4 cadence, output JSON shape, AWS S3 archive path with Object-Lock + cross-region replication target. New services/readybank/src/scripts/soc2-evidence-pull.ts (skeleton): reads audit.events with optional --tenant filter, classifies by category (auth/leak/api_key_rotation/stack_vault/compliance/other), pulls api_keys snapshot + rotation count, lists migrations applied in window, leaves hash-chain verification to Sprint 5.1.1 (per-tenant parallel calls). 6 unit tests for classifyEventType. CTO-DELTA: Sprint 5.1.1 wires the cron + per-tenant hash-chain walk + S3 upload; v0 ships the auditable contract (control map + evidence shape + manual run). Workspace: 127 readybank tests (+6 soc2). Typecheck/lint/test all green."
         }
       ]
     },
@@ -527,6 +533,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 68,
+      "date": "2026-05-09",
+      "summary": "Sprint 5.1 — SOC 2 readiness harness. governance/soc2/{README, control-mapping, evidence-collection}.md ship the full TSC-to-QOrium control map (CC1.1–CC9.2) + quarterly evidence-pull runbook. New services/readybank/src/scripts/soc2-evidence-pull.ts skeleton reads audit.events + api_keys + migrations within a window and writes a single JSON evidence package; classifies events by 6 SOC2-relevant categories. 6 new unit tests for classifyEventType. Sprint 5.1.1 wires cron + per-tenant hash-chain walk + S3 upload with Object-Lock immutability. Auto lane (main view): 33/33 → 34/34. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
     {
       "id": 67,
       "date": "2026-05-09",
