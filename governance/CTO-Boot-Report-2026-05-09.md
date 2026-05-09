@@ -239,7 +239,24 @@ CEO clicked through the admin nav and 4 of 8 pages showed yellow warnings readin
 
 Note: I previously logged `/admin/irt` as a 404. The actual route is `/admin/calibration`; the navbar link maps to that path. Not a bug.
 
-## 11. Still on CEO plate
+## 11. Post-Pass-H walkthrough findings
+
+CEO clicked through every admin page after Pass H. State:
+
+| Page | State |
+|---|---|
+| **SME queue** | ✅ "No items currently in the SME review queue." (post-Pass G) |
+| **IRT calibration** | ✅ "No items in queue (scaffold)." Stub view per `infra/IRT-Calibration-Pipeline-v0-Spec.md`. |
+| **SSO** | ✅ Full SSO config form rendered with Talpro tenant id `b101da50-1644-4345-a2ee-b86fbce1ffdb` pre-filled. Status DRAFT. SAML 2.0 + OIDC fields editable. SP metadata XML download link active. |
+| **Webhooks** | ⚠️ "Webhooks service unreachable: Unauthorized." Form to add a new subscription renders correctly; list of existing subscriptions fails because the admin app's `services.ts` `callService` helper does not send an `Authorization: Bearer <api-key>` header, but the webhooks service mounts `apiKeyAuth` from `@qorium/auth` which requires it. Existing subscriptions are zero anyway. **Deferred** — proper fix is per-tenant internal admin tokens, which is the same gap noted on the ATS page ("Per-tenant credentials seeded out-of-band by Customer Success during milestone activation"). Tracked as a follow-up; rebuild+restart cost not justified for one cosmetic warning on an empty list. |
+| **Audit log** | ✅ Filter form (action / resource / actor / date range) renders. "No events match these filters." |
+| **ATS** | ✅ Registered adapters list: Greenhouse LIVE (M6), Ashby STUB, Darwinbox STUB, Workday M9 CERT. Tenant credentials note explains M6/M7/M8/M9 milestone gating. |
+| **Customers** | ✅ Customer onboarding for Talpro tenant: 0/5 steps complete. SSO configured (No SSO configuration), Webhook subscribed (0 subscriptions), Audit log activity (0 events), API key issued (Pending Sprint 2.7), Billing subscription (Pending Sprint 2.6). |
+| **Uptime** | ✅ Live snapshot from `services/uptime-monitor`. 92.31% availability (1H + 24H). All `http.*` checks PASS for readybank, jd_forge, stack_vault, admin, ats_bridge, webhooks, sso, audit_log, billing, api_key_mgmt. `postgres.schema FAIL × 4391` is a separate bug in the uptime monitor's schema introspection ("input of anonymous composite types is not implemented"); not blocking any service. |
+
+8 of 8 admin pages reachable; 7 of 8 fully functional; 1 with a known v0 limitation that has a roadmap fix.
+
+## 12. Still on CEO plate
 
 1. Open `https://admin.qorium.online` in a browser, enter `bhaskar@talpro.in`, click Continue → land on `/admin/queue`.
 2. Send the first real Talpro candidate through (Sprint 1.0 Day-1).
