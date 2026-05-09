@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-09T02:30:00+05:30",
-  "lastReconcileRun": 68,
+  "lastRefresh": "2026-05-09T02:50:00+05:30",
+  "lastReconcileRun": 69,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 41,
-      "total": 41,
+      "completed": 42,
+      "total": 42,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -271,6 +271,12 @@
           "name": "SOC 2 readiness harness — control mapping + evidence pull",
           "status": "complete",
           "evidence": "Sprint 5.1 (Run #68): governance/soc2/{README, control-mapping, evidence-collection}.md ship the full TSC-to-QOrium control map covering CC1.1–CC9.2 (each row has a control description, QOrium implementation reference, and an evidence query). Quarterly evidence-pull runbook covers Q1–Q4 cadence, output JSON shape, AWS S3 archive path with Object-Lock + cross-region replication target. New services/readybank/src/scripts/soc2-evidence-pull.ts (skeleton): reads audit.events with optional --tenant filter, classifies by category (auth/leak/api_key_rotation/stack_vault/compliance/other), pulls api_keys snapshot + rotation count, lists migrations applied in window, leaves hash-chain verification to Sprint 5.1.1 (per-tenant parallel calls). 6 unit tests for classifyEventType. CTO-DELTA: Sprint 5.1.1 wires the cron + per-tenant hash-chain walk + S3 upload; v0 ships the auditable contract (control map + evidence shape + manual run). Workspace: 127 readybank tests (+6 soc2). Typecheck/lint/test all green."
+        },
+        {
+          "id": "sprint-7.0.outcome-instrumentation",
+          "name": "Outcome metrics — SQL views + dashboards spec",
+          "status": "complete",
+          "evidence": "Sprint 7.0 (Run #69): governance/metrics/{README, outcome-metrics-spec, dashboards}.md ship the canonical metric definitions (ARR/MRR/NRR · DAU/MAU/stickiness · content-throughput-30d · wave-coverage · IRT-coverage · leak-rate-quarterly · webhook-success · ats-sync-success · audit-volume · hash-chain-coverage) and Grafana panel specs (4 dashboards: Revenue, Adoption, Content Quality, Engineering Health) + alerting rules (Sprint 7.0.2). Migration 0015_outcome_metrics_views.sql creates schema metrics with 9 read-only views over canonical tables (audit.events, content.questions, content.leak_alerts, app.subscriptions, app.tenants); each view defensive against empty source tables (e.g., metrics.tenant_arr returns 0 rows when subscriptions table is empty — correct, not broken). v0 uses regular VIEWs; Sprint 7.0.0.1 promotes any slow ones to MATERIALIZED VIEW with REFRESH CONCURRENTLY 5-min cadence. Sprint 7.0.1 provisions the actual Grafana dashboards (cred-bound on Sprint 4.1 observability.tf apply); Sprint 7.0.2 wires alerting; Sprint 7.0.3 ships public investor metrics page at metrics.qorium.online. Master meter UNCHANGED at 0.78 per Constitution Article IX: business outcomes (ARR / IPO / first 3 logos) are HUMAN-BOUND; this sprint ships the engineering surface that measures progress, not the outcomes themselves."
         }
       ]
     },
@@ -533,6 +539,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 69,
+      "date": "2026-05-09",
+      "summary": "Sprint 7.0 — Outcome instrumentation (final auto-mode-run sprint #8 of 8). governance/metrics/{README, outcome-metrics-spec, dashboards}.md + migration 0015 ship the engineering surface for measuring progress against Constitution Article IX outcomes (ARR / DAU / content throughput / quality signals). 9 read-only SQL views in new metrics schema. Grafana panel specs for 4 dashboards (Revenue / Adoption / Content / Engineering) + alerting rules. Master meter UNCHANGED at 0.78 — business outcomes themselves are human-bound. Auto lane (main view): 33/33 → 34/34. 🟢 AUTO-LANE EXTENDED COMPLETE — all 8 autonomous-run sprints (4.4.1, 4.4.2, 4.4.3, 4.5, 4.6, 5.0, 5.1, 7.0) shipped + the audit-log foundation (4.4 v0) + the CI fix that unblocks them all."
+    },
     {
       "id": 68,
       "date": "2026-05-09",
