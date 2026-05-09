@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-09T01:30:00+05:30",
-  "lastReconcileRun": 65,
+  "lastRefresh": "2026-05-09T01:50:00+05:30",
+  "lastReconcileRun": 66,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 38,
-      "total": 38,
+      "completed": 39,
+      "total": 39,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -253,6 +253,12 @@
           "name": "Webhooks Service v0 alpha (library + schema)",
           "status": "complete",
           "evidence": "Sprint 4.5 (Run #65): migration 0013_webhooks.sql creates webhooks.{subscriptions, events, deliveries} per Webhooks-Service-v0-Spec.md §2 — 180-day signing-secret rotation slot, dispatcher index (next_retry_at, id) WHERE status='pending', subscription history index, customer-history view-friendly subscription_idx. New @qorium/webhooks package ships 4 pure-TS modules: signature.ts (HMAC-SHA256 over `{event_type}.{timestamp}.{body}` per spec §5; constant-time verifyWebhookSignature with 5-min replay tolerance; buildWebhookHeaders emits X-QOrium-{Signature,Timestamp,Delivery}), retry.ts (exact spec §6 schedule [0s, 60s, 5m, 30m, 4h, 24h] over 35-hour window; computeNextRetryAt returns null past MAX_ATTEMPTS), attempt-classifier.ts (success/retryable/dead-letter for HTTP status + transport-level errors per spec §6), event-envelope.ts (spec §4 payload shape; idempotency_key=id; 15-event catalog spanning ReadyBank/JD-Forge/Stack-Vault/Security; isValidEventType accepts catalog + open `prefix.subject` slugs ≤64 chars). 43 unit tests across 4 files: signature determinism + drift + tamper + length checks; retry schedule values + null-past-max + window math; classifier full HTTP + transport-error matrix; envelope id-prefixing + key invariants. The PM2 service + Redis-backed delivery worker land in Sprint 4.5.1 — at which point services subscribe to in-process emitters (e.g., the audit-log webhook hook) and dispatch via the queue. 43 active tests; typecheck/lint/test/build/prettier all green; gitleaks clean."
+        },
+        {
+          "id": "sprint-4.6.ats-connectors-v0",
+          "name": "ATS Connector Framework v0 alpha (lib + Lever stub + schema)",
+          "status": "complete",
+          "evidence": "Sprint 4.6 (Run #66): migration 0014_ats_connectors.sql creates ats.{connections, sync_runs}; HMAC-keyed credential_hash slot for static API tokens + OAuth refresh slot for Workday-class ATSes (Sprint 4.6.2). New @qorium/ats-connectors package per ATS-Connector-Framework-v0.md §2.3: types.ts (Candidate / Job / AssessmentResult / ConnectorAdapter / SyncCursor / SyncPage), sync-state.ts (idle→running→succeeded|failed FSM with terminal-status guard + counts arithmetic), field-mapper.ts (dotted-path source resolution + string/number/boolean/date coercion + per-tenant overrides), adapters/lever.ts (LeverAdapter implementing ConnectorAdapter; default field mapping for Lever's id/firstName/lastName/emails[0]/stage.text/categories shape; createMockLeverFetcher seeded for tests). 23 unit tests across 3 files (sync-state FSM 7, field-mapper 9, Lever adapter 7). Live HTTP fetch + Greenhouse/Workday/Ashby/Darwinbox adapters land in Sprint 4.6.1+ per spec §3 + Constitution Article IX M9 phase-gate mandate. Typecheck/lint/test/build/prettier all green; gitleaks clean."
         }
       ]
     },
@@ -515,6 +521,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 66,
+      "date": "2026-05-09",
+      "summary": "Sprint 4.6 — ATS Connector Framework v0 alpha (library + schema). Migration 0014 creates ats.{connections, sync_runs} per ATS-Connector-Framework-v0.md §2. New @qorium/ats-connectors package: universal Candidate/Job/AssessmentResult abstraction, ConnectorAdapter interface, SyncStateMachine (idle→running→succeeded|failed FSM), generic field-mapper (dotted-path source + type coercion + per-tenant overrides), LeverAdapter stub with createMockLeverFetcher. 23 unit tests. Live HTTP fetch + Greenhouse/Workday/Ashby/Darwinbox adapters land in Sprint 4.6.1+ per Constitution Article IX M9 phase-gate. Auto lane (main view): 33/33 → 34/34. Master meter UNCHANGED at 0.78 ceiling per Article IX."
+    },
     {
       "id": 65,
       "date": "2026-05-09",
