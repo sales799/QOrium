@@ -194,11 +194,29 @@ The raw key was the pre-issued one at `/opt/apps/qorium/bin/CUSTOMER-ZERO-KEY-00
 
 **Scratch-file hygiene:** all bootstrap scripts and pasted source extracts in `/tmp` deleted. Three nginx config backups retained at `/tmp/qorium.conf.bak.*` for ~24h until automatic reaping.
 
-**Still on CEO plate:**
-1. Open `https://admin.qorium.online` and confirm you can log in (likely via SSO route — the Next.js admin app redirects to login). If it asks for an API key directly, paste the contents of `/opt/apps/qorium/bin/CUSTOMER-ZERO-KEY-001.txt`.
+## 8. Admin sign-in path made live (Pass E)
+
+CEO opened `https://admin.qorium.online` and got a Next.js 500 with digest `3652701592`. Two fixes applied to make the sign-in path live.
+
+**Fix 1 — Server Actions header mismatch.** PM2 logs showed `x-forwarded-host header with value 'qorium_admin' does not match origin header with value 'admin.qorium.online'`. Cause: `qorium.conf` lacked an explicit `proxy_set_header X-Forwarded-Host $host;` (other Next.js vhosts on this VPS — talprouniverse.com, hcitalks — do set it). With the upstream pool name `qorium_admin`, nginx was sending the pool name as `X-Forwarded-Host`, and Next.js 15's Server Actions origin check correctly aborted. Patched with a single `sed` insertion (`/etc/nginx/sites-enabled/qorium.conf`); backup at `/tmp/qorium.conf.bak.xfh.20260509-082305`; `nginx -t` PASS; reload. After fix, `https://admin.qorium.online` returns 307 → `/login` with the QOrium Admin sign-in form rendering cleanly.
+
+**Fix 2 — empty allowlist.** Login form rendered, but the credentials provider in `apps/admin/src/auth.ts` rejects any email not on `ADMIN_EMAIL_ALLOWLIST`. PM2 env had it as empty string. The ecosystem `env_production` block at `infra/B10-ecosystem.config.js` does not declare this var, so PM2 inherits whatever's in the parent shell. Sed-patched `/opt/qorium/.env` (backup at `/tmp/qorium.env.bak.20260509-082813`, mode 600), then sourced `.env` in the bash before `pm2 restart qorium-admin --update-env`. All 8 cluster instances restarted clean (uptime 13s, healthy). `pm2 env 42` now shows `ADMIN_EMAIL_ALLOWLIST: bhaskar@talpro.in`.
+
+**End-to-end sign-in verified by curl:**
+1. `GET /api/auth/csrf` → CSRF token (64 chars).
+2. `POST /api/auth/callback/credentials` with email + CSRF → **302** redirect to `/admin/queue` with `__Secure-authjs.session-token` cookie set.
+3. `GET /admin/queue` with the cookie → **200** "QOrium Admin" — protected page reachable.
+
+OTP delivery is stubbed in this build per `apps/admin/src/auth.ts` comments; allowlist match alone signs you in. Real MSG91 OTP and optional Google OAuth activate when those credentials are provisioned.
+
+## 9. Still on CEO plate
+
+1. Open `https://admin.qorium.online` in a browser, enter `bhaskar@talpro.in`, click Continue → land on `/admin/queue`.
 2. Send the first real Talpro candidate through (Sprint 1.0 Day-1).
 3. SME backfill on the 34 incomplete corpus items.
-4. Align `/opt/apps/qorium/dotenv.production` DB role to match the PM2 role (so the canonical write path is the dotenv, not pm2 env extraction).
+4. Align `/opt/apps/qorium/dotenv.production` DB role to match the PM2 role (so dotenv is the canonical write path).
+5. Provision real MSG91 + (optional) Google OAuth credentials so the admin console moves from email-only allowlist to OTP-gated.
+6. Add `ADMIN_EMAIL_ALLOWLIST` (and any other vars currently inherited only via shell-sourced `.env`) into `infra/B10-ecosystem.config.js` `env_production` block, so a clean `pm2 startOrReload` round-trip preserves the allowlist without needing a sourced shell.
 
 No code services were rebuilt, no migrations run, no force-push. The single DB write happened inside `BEGIN/COMMIT` per the script's idempotent transaction; rollback path tested by the unit test suite at `services/readybank/__tests__/ingest-wave1.unit.test.ts`.
 
