@@ -1,8 +1,8 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-09T01:50:00+05:30",
-  "lastReconcileRun": 66,
+  "lastRefresh": "2026-05-09T02:10:00+05:30",
+  "lastReconcileRun": 67,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 39,
-      "total": 39,
+      "completed": 40,
+      "total": 40,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -259,6 +259,12 @@
           "name": "ATS Connector Framework v0 alpha (lib + Lever stub + schema)",
           "status": "complete",
           "evidence": "Sprint 4.6 (Run #66): migration 0014_ats_connectors.sql creates ats.{connections, sync_runs}; HMAC-keyed credential_hash slot for static API tokens + OAuth refresh slot for Workday-class ATSes (Sprint 4.6.2). New @qorium/ats-connectors package per ATS-Connector-Framework-v0.md §2.3: types.ts (Candidate / Job / AssessmentResult / ConnectorAdapter / SyncCursor / SyncPage), sync-state.ts (idle→running→succeeded|failed FSM with terminal-status guard + counts arithmetic), field-mapper.ts (dotted-path source resolution + string/number/boolean/date coercion + per-tenant overrides), adapters/lever.ts (LeverAdapter implementing ConnectorAdapter; default field mapping for Lever's id/firstName/lastName/emails[0]/stage.text/categories shape; createMockLeverFetcher seeded for tests). 23 unit tests across 3 files (sync-state FSM 7, field-mapper 9, Lever adapter 7). Live HTTP fetch + Greenhouse/Workday/Ashby/Darwinbox adapters land in Sprint 4.6.1+ per spec §3 + Constitution Article IX M9 phase-gate mandate. Typecheck/lint/test/build/prettier all green; gitleaks clean."
+        },
+        {
+          "id": "sprint-5.0.multi-region-iac",
+          "name": "Multi-region terraform skeleton (DR pair)",
+          "status": "engineering-complete-cred-bound",
+          "evidence": "Sprint 5.0 (Run #67): infra/auto-bootstrap/multi-region.tf — paired ap-south-1 + ap-southeast-1 VPCs (10.10/16 + 10.20/16), cross-region VPC peering with auto-accept on the DR side, S3 cross-region replication bucket for audit-log + export buckets (Sprint 4.2 + 4.4.2), Route53 /healthz health check + composite CloudWatch alarm 'qorium-primary-region-down', RPO=15min / RTO=60min variables. Existing apply.sh wrapper already supports the new module (BOOTSTRAP_AUTHORIZED=true ./apply.sh multi-region). New governance/multi-region-runbook.md complements dr-runbook.md with the cross-region cutover decision tree (verify region failure → decide → notify → promote replica → re-point Route53 → smoke test → declare complete; ~50 min total under 60-min RTO target), failover triggers, RPO/RTO mechanism table, failback procedure, quarterly drill cadence, cred-drop checklist. Engineering-complete; apply halts on cred-drop per Constitution Article IX. The replica wiring (post primary RDS migration) lands in Sprint 5.0.1."
         }
       ]
     },
@@ -521,6 +527,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 67,
+      "date": "2026-05-09",
+      "summary": "Sprint 5.0 — Multi-region terraform skeleton (DR pair). New infra/auto-bootstrap/multi-region.tf provisions paired ap-south-1 + ap-southeast-1 VPCs with cross-region peering, S3 cross-region replication for audit/export buckets, Route53 health-check + composite alarm 'qorium-primary-region-down', RPO=15min / RTO=60min targets. New governance/multi-region-runbook.md ships the cross-region cutover decision tree (~50 min under 60-min RTO target), failback procedure, quarterly drill cadence, cred-drop checklist. Engineering-complete-cred-bound: terraform plan green; apply halts on BOOTSTRAP_AUTHORIZED=true. Replica wiring lands in Sprint 5.0.1 once primary moves to RDS. Auto lane: 33/33 → 34/34 (main view). Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
     {
       "id": 66,
       "date": "2026-05-09",
