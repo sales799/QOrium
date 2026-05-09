@@ -2,7 +2,7 @@
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
   "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 74,
+  "lastReconcileRun": 75,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 47,
-      "total": 47,
+      "completed": 48,
+      "total": 48,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -317,6 +317,14 @@
           "auto_eligible": true,
           "linkedHumanTile": "human.reference-panel-200",
           "evidence": "governance/reference-panel-recruitment/ — README + landing-page-spec (panel.qorium.online; single-CTA conversion surface; WCAG 2.1 AA + LCP ≤1.5s; cred-bound on cred-drop) + intake-form (7-field schema with conflict-of-interest auto-decline + 4 mandatory consents; migration 0016_panel_applications.sql preview) + outreach-channels (3 channels: campus partnerships ₹2L + professional outreach ₹2L + organic+referrals ₹1L; ₹4L honorarium budget; cohort balance dashboard; per-week metrics) + cohort-balance-spec (65-cell skill×experience grid; protected-category cuts ≥30% binary / ≥15% multigroup; WEIRD-skew defenses) + compensation-and-ethics (₹2K/session symmetric across cohorts; ₹500 participation fee for failed attention-checks; IRB-equivalent + DPDPA + ISIOP-aligned; no caste/religion/marital data). NO outreach sent."
+        },
+        {
+          "id": "human-prep.first-3-logos.outbound-sales-stack",
+          "name": "Tier-A6 prep — First 3 logos outbound sales stack",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.first-3-recruiter-logos",
+          "evidence": "governance/sales/first-3-logos/ — README + 3 ICP profiles (staffing/RPO + mid-market enterprise + India HRTech) with firmographic + buyer + pain + pricing + 1-5 conversion rubric per ICP + 55-name target list approach + outbound sequences (5-touch over 28 days; LinkedIn DM + email; Apollo + Lemlist + Sales Nav stack ₹16K/month) + ROI calculator (5 savings lines + total annual ROI formula + sample sheet showing ₹148L savings vs ₹38L QOrium cost = 3.9× ROI / 3-month payback) + JD-Forge demo script (30-min dogfooded demo) + audit-export wiring (10-min compliance demo flow per Sprint 4.4.2/4.4.3) + qualification scorecard (5-dim BANT-equivalent; mandatory floors; anti-patterns) + pricing-conversation-guide (range-only discipline per BRAND.md; 7 objection responses; pilot-to-subscription transition). NO outreach sent. SO-2 USP discipline enforced throughout."
         }
       ]
     },
@@ -587,6 +595,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 75,
+      "date": "2026-05-09",
+      "summary": "Tier-A6 (human-lane acceleration): First 3 logos outbound sales stack shipped at governance/sales/first-3-logos/. 7 files: README (rationale + 5-question CEO decision matrix), icp-profiles.md (3 canonical Y1 ICPs with firmographic + buyer + pain + pricing + 1-5 conversion rubric per ICP; 55-name target list across 20+25+10), outbound-sequences.md (5-touch sequences over 28 days; LinkedIn DM + email per ICP; Apollo + Lemlist + Sales Nav tech stack ~₹16K/month; cadence discipline + stop conditions), roi-calculator.md (7-input discovery worksheet + 5-line savings model; sample sheet shows ₹148L savings vs ₹38L QOrium cost = 3.9× ROI / 3-month payback; conservative-input discipline; range-only on QOrium pricing), jd-forge-demo-script.md (30-min dogfooded demo of QOrium SKU-2 with live JD-parse + spec-build + exporters + pilot offer), audit-export-wiring.md (10-min compliance demo using Sprint 4.4.2 export + Sprint 4.4.3 verify; SOC 2 control mapping handout from Sprint 5.1; estimated ₹14.4L savings per audit cycle), qualification-scorecard.md (5-dim BANT-equivalent: pain + champion + technical + budget + decision-speed; mandatory floors; anti-pattern guards; calibration cadence), pricing-conversation-guide.md (range-only discipline per BRAND.md + Constitution §1.2 LOCKED; 7 common objection responses; pilot-to-subscription 35-day transition flow). Auto-tile human-prep.first-3-logos.outbound-sales-stack complete; links to existing human.first-3-recruiter-logos. NO outreach sent. SO-2 USP discipline enforced throughout (IRT-calibrated + anti-leak-rotated + watermark-per-candidate fragments in every customer-facing artifact). Master meter unchanged at 0.78 cap; first revenue + ARR signal will light up metrics.tenant_arr (Sprint 7.0) when first logo signs."
+    },
     {
       "id": 74,
       "date": "2026-05-09",
