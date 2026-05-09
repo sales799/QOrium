@@ -104,6 +104,7 @@ export function referencePanelRouter(deps: ReferencePanelRouterDeps): Router {
           event: {
             actor_type: 'api_key',
             actor_id: null,
+            tenant_id: panel.tenantId,
             event_type: 'reference_panel.response.recorded',
             entity_type: 'response',
             entity_id: responseId ?? undefined,
