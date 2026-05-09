@@ -191,9 +191,9 @@ resource "aws_s3_bucket_policy" "snapshots_deny_unencrypted" {
 
 data "aws_iam_policy_document" "snapshots_deny_unencrypted" {
   statement {
-    sid     = "DenyUnencryptedUploads"
-    effect  = "Deny"
-    actions = ["s3:PutObject"]
+    sid       = "DenyUnencryptedUploads"
+    effect    = "Deny"
+    actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.snapshots.arn}/*"]
     principals {
       type        = "*"
@@ -241,11 +241,11 @@ resource "aws_backup_plan" "rds_daily_pitr" {
   name = "qorium-rds-daily-pitr"
 
   rule {
-    rule_name           = "daily-snapshot"
-    target_vault_name   = aws_backup_vault.primary.name
-    schedule            = "cron(0 16 * * ? *)" # 16:00 UTC = 21:30 IST
-    start_window        = 60
-    completion_window   = 180
+    rule_name                = "daily-snapshot"
+    target_vault_name        = aws_backup_vault.primary.name
+    schedule                 = "cron(0 16 * * ? *)" # 16:00 UTC = 21:30 IST
+    start_window             = 60
+    completion_window        = 180
     enable_continuous_backup = true # PITR
 
     lifecycle {
