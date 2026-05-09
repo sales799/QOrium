@@ -1829,3 +1829,69 @@ None. Pure additive migration + read-API expansion.
   OR-fallback.
 - **Sprint 4.4.2** — export endpoints + webhook hook (next in run).
 - **Sprint 4.4.3** — hash-chaining + SIEM streaming.
+
+---
+
+## 2026-05-09 — Run #63 — Sprint 4.4.2 Audit Log API bulk export (Phase 2 §7)
+
+CTO autonomous-run sprint #2 of 8. Adds the async-export surface to
+the Audit Log API per spec §7: customers can request bulk CSV/JSON
+exports of their audit history, get a job_id back, poll status, and
+download the rendered bytes.
+
+### What landed
+
+| File                                                            | Purpose                                                                                                                                                                                                             |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `infra/B7-postgres-migrations/0011_audit_export_jobs.sql` (new) | `app.audit_export_jobs` table (tenant-scoped, BYTEA-stored content, 7-day expiry)                                                                                                                                   |
+| `services/readybank/src/repositories/audit-exports.ts` (new)    | `createAuditExportJob`, `getAuditExportJobById`, `getAuditExportJobContentById`, `countActiveAuditExportJobs`, `markAuditExportJobCompleted/Failed`, `renderAuditEventsExport` (RFC 4180 CSV + JSON)                |
+| `services/readybank/src/jobs/audit-export-worker.ts` (new)      | `runAuditExportJob` (synchronous v0) + `scheduleAuditExportJob` (setImmediate)                                                                                                                                      |
+| `services/readybank/src/routes/audit.ts` (mod)                  | `POST /v1/audit/events/export` (5/tenant active cap, 366-day range cap, returns 202+job_id), `GET /v1/audit/exports/:id` (status envelope), `GET /v1/audit/exports/:id/download` (streams bytes; 409/410/404 paths) |
+| `services/readybank/__tests__/audit-exports.test.ts` (new)      | 17 unit tests (POST creation, status, download, RFC-4180 CSV escaping, cross-tenant isolation, rate limit, range cap)                                                                                               |
+
+### Spec alignment
+
+| Spec §7 contract         | Sprint 4.4.2 v0                                                   |
+| ------------------------ | ----------------------------------------------------------------- |
+| Async export with job_id | ✅                                                                |
+| `format` ∈ {csv, json}   | ✅                                                                |
+| Date range filter        | ✅                                                                |
+| `actions` whitelist      | ✅ (multi-action; ≤1 narrows at SQL, >1 filters in worker)        |
+| `resource_type` filter   | ✅                                                                |
+| 5 concurrent per tenant  | ✅                                                                |
+| 7-day expiry             | ✅                                                                |
+| 1-year max range         | ✅ (366 days)                                                     |
+| 100K row cap             | ⚠ v0 caps at 10K (single-page fetch); 4.4.2.1 promotes to looping |
+| S3-backed download URL   | ⚠ v0 streams from BYTEA; 4.4.2.1 emits signed URL                 |
+
+### Quality gates
+
+| Gate               | Result                                                          |
+| ------------------ | --------------------------------------------------------------- |
+| `pnpm typecheck`   | 10/10 workspaces clean                                          |
+| `pnpm lint`        | clean                                                           |
+| `pnpm test`        | 160 passed / 21 skipped / 0 failed (+17 net audit-export tests) |
+| `pnpm build`       | 10/10 clean                                                     |
+| `prettier --check` | clean                                                           |
+| `gitleaks`         | clean (pre-commit + manual scan)                                |
+
+### Stop conditions
+
+None. Pure additive migration + read-API expansion. No constitutional
+touch, no monetary commitment, no outbound message, no
+production-credential operation, no destructive migration.
+
+### Dashboard
+
+- `lanes.auto` 35/35 → 36/36
+- `lastReconcileRun` 62 → 63
+- New tile `sprint-4.4.2.audit-export` (status=complete)
+- Run #63 entry prepended to `runs[]`
+- `masterMeter.auto` UNCHANGED at 0.78
+
+### Deferred follow-ups
+
+- **Sprint 4.4.2.1** — promote worker to distributed queue (Redis or
+  pg-boss), S3-backed storage with signed URLs, raise row cap to 100K
+  with paginated SELECT loop.
+- **Sprint 4.4.3** — hash-chaining + SIEM streaming (next).
