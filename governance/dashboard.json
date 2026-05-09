@@ -2,7 +2,7 @@
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
   "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 69,
+  "lastReconcileRun": 70,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 42,
-      "total": 42,
+      "completed": 43,
+      "total": 43,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -277,12 +277,20 @@
           "name": "Outcome metrics — SQL views + dashboards spec",
           "status": "complete",
           "evidence": "Sprint 7.0 (Run #69): governance/metrics/{README, outcome-metrics-spec, dashboards}.md ship the canonical metric definitions (ARR/MRR/NRR · DAU/MAU/stickiness · content-throughput-30d · wave-coverage · IRT-coverage · leak-rate-quarterly · webhook-success · ats-sync-success · audit-volume · hash-chain-coverage) and Grafana panel specs (4 dashboards: Revenue, Adoption, Content Quality, Engineering Health) + alerting rules (Sprint 7.0.2). Migration 0015_outcome_metrics_views.sql creates schema metrics with 9 read-only views over canonical tables (audit.events, content.questions, content.leak_alerts, app.subscriptions, app.tenants); each view defensive against empty source tables (e.g., metrics.tenant_arr returns 0 rows when subscriptions table is empty — correct, not broken). v0 uses regular VIEWs; Sprint 7.0.0.1 promotes any slow ones to MATERIALIZED VIEW with REFRESH CONCURRENTLY 5-min cadence. Sprint 7.0.1 provisions the actual Grafana dashboards (cred-bound on Sprint 4.1 observability.tf apply); Sprint 7.0.2 wires alerting; Sprint 7.0.3 ships public investor metrics page at metrics.qorium.online. Master meter UNCHANGED at 0.78 per Constitution Article IX: business outcomes (ARR / IPO / first 3 logos) are HUMAN-BOUND; this sprint ships the engineering surface that measures progress, not the outcomes themselves."
+        },
+        {
+          "id": "human-prep.merge-the-9-PRs.merge-order-doc",
+          "name": "Tier-A1 prep — merge-order doc for PRs #31–#40",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.merge-the-PRs",
+          "evidence": "governance/merge-order/PRs-31-through-40.md (Run #70). 10 PRs sequenced: #32 (CI fix) → #31 → #33 → #34 → #35 (audit stack) → #36 → #37 → #38 → #39 → #40. Migration order 0010–0015. Smoke-test checklist + rollback per PR + stop conditions documented."
         }
       ]
     },
     "human": {
       "completed": 4,
-      "total": 14,
+      "total": 15,
       "tiles": [
         {
           "id": "cc-01",
@@ -381,6 +389,14 @@
           "status": "blocked-on-human",
           "owner": "CEO",
           "blocker": "needed to unblock SES/observability/multi-region IaC apply"
+        },
+        {
+          "id": "human.merge-the-PRs",
+          "name": "Merge 10 open draft PRs (#31–#40) per merge-order doc",
+          "status": "blocked-on-human",
+          "owner": "CEO",
+          "blocker": "needs CEO to merge in order #32 → #31 → #33 → #34 → #35 → #36 → #37 → #38 → #39 → #40 and run pm2 reload",
+          "linkedAutoTile": "human-prep.merge-the-9-PRs.merge-order-doc"
         }
       ]
     }
@@ -539,6 +555,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 70,
+      "date": "2026-05-08",
+      "summary": "Tier-A1 (human-lane acceleration): merge-order doc shipped at governance/merge-order/PRs-31-through-40.md. Sequences the 10 PRs from the autonomous run (#31–#40): PR #32 first to unblock CI, then audit-log stack #31 → #33 → #34 → #35 (must merge in order — code stack), then #36/#37/#38/#39/#40 in any order. Migrations 0010–0015 apply in numeric order via @qorium/db runner. Per-PR rollback + smoke-test checklist + stop-conditions documented. Auto-tile human-prep.merge-the-9-PRs.merge-order-doc complete; linked human-tile human.merge-the-PRs added (blocked-on-CEO). Master meter unchanged at 0.78 cap per Constitution Article IX."
+    },
     {
       "id": 69,
       "date": "2026-05-09",
