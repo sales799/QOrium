@@ -22,6 +22,7 @@ import {
   type AuditExportJobRow,
 } from '../repositories/audit-exports.js';
 import { scheduleAuditExportJob } from '../jobs/audit-export-worker.js';
+import { verifyAuditChain } from '@qorium/auth';
 import type { Config } from '../config.js';
 
 /**
@@ -77,6 +78,12 @@ const SummaryQuerySchema = z.object({
 
 const MAX_ACTIVE_EXPORT_JOBS = 5;
 const MAX_EXPORT_RANGE_DAYS = 366;
+const MAX_VERIFY_ROWS = 10_000;
+
+const VerifyQuerySchema = z.object({
+  start_date: z.string().regex(ISO_OR_DATE_PATTERN).optional(),
+  end_date: z.string().regex(ISO_OR_DATE_PATTERN).optional(),
+});
 
 const ExportBodySchema = z.object({
   format: z.enum(['csv', 'json']),
@@ -230,6 +237,61 @@ export function auditRouter(deps: AuditRouterDeps): Router {
         topN: parsed.data.top_n,
       });
       res.json({ summary });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/audit/verify ────────────────────────────────────────────
+  // Sprint 4.4.3 — walks the recruiter's hash-chain in (occurred_at, id) ASC
+  // order and reports any breaks. Tolerates rows with hash_previous IS NULL
+  // (pre-Sprint-4.4.3.1 unmaterialized rows) by counting under
+  // `unmaterialized` instead of `breaks`.
+  router.get('/v1/audit/verify', auth, async (req: Request, res, next) => {
+    try {
+      const recruiter = (req as RecruiterRequest).recruiter;
+      if (!recruiter) {
+        throw new HttpProblem({ status: 401, title: 'audit/unauthorized' });
+      }
+      const parsed = VerifyQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'audit/invalid-query',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const startDate = parsed.data.start_date
+        ? parseDateOrThrow(parsed.data.start_date, 'start_date')
+        : undefined;
+      const endDate = parsed.data.end_date
+        ? parseDateOrThrow(parsed.data.end_date, 'end_date')
+        : undefined;
+      if (startDate && endDate && startDate > endDate) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'audit/invalid-query',
+          detail: 'start_date must be on or before end_date',
+        });
+      }
+      const { rows } = await listAuditEvents(deps.pool, {
+        actorId: recruiter.id,
+        tenantId: recruiter.tenantId,
+        startDate,
+        endDate,
+        limit: MAX_VERIFY_ROWS,
+        cursor: undefined,
+      });
+      // listAuditEvents returns DESC; reverse to chronological for chain walk.
+      const ascending = [...rows].reverse();
+      const result = verifyAuditChain(
+        ascending.map((r) => ({
+          id: r.id,
+          hash_current: r.hash_current,
+          hash_previous: r.hash_previous,
+        })),
+      );
+      res.json({ verification: result });
     } catch (err) {
       next(err);
     }

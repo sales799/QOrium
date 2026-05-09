@@ -84,6 +84,8 @@ function buildEvent(
     payload: { question_id: 'q-1' },
     ip_address: '203.0.113.10',
     user_agent: 'vitest/1.0',
+    hash_current: null,
+    hash_previous: null,
     ...over,
   };
 }
@@ -539,6 +541,8 @@ describe('rowToEnvelope mapping (with tenant_id)', () => {
       payload: { scopes: ['x'] },
       ip_address: '203.0.113.1',
       user_agent: 'ua/1',
+      hash_current: 'h-current',
+      hash_previous: 'h-prev',
       occurred_at: new Date('2026-05-08T10:00:00Z'),
     };
     const env = rowToEnvelope(row);
@@ -565,6 +569,8 @@ describe('rowToEnvelope mapping (with tenant_id)', () => {
       payload: {},
       ip_address: null,
       user_agent: null,
+      hash_current: null,
+      hash_previous: null,
       occurred_at: new Date('2026-05-08T00:00:00Z'),
     };
     const env = rowToEnvelope(row);
