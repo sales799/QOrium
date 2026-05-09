@@ -17,6 +17,7 @@ import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
 import { adminAuthRouter, authRouter } from './routes/auth.js';
 import { adminRouter } from './routes/admin.js';
+import { auditRouter } from './routes/audit.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
 import { stackVaultRouter } from './routes/stack-vault.js';
 import type { Mailer } from './mailer/index.js';
@@ -103,6 +104,12 @@ export function createServer(deps: ServerDeps): ServerHandle {
     // so each route applies recruiterAuth individually; static admin
     // pages live at /admin/*.
     app.use(adminRouter({ pool: deps.pool, config: deps.config }));
+
+    // Audit Log API (Sprint 4.4 v0) — read-only externalisation of
+    // `audit.events`. Each route applies recruiterAuth individually
+    // (cookie session). v0 scopes results to actor_id = recruiter.id;
+    // org-wide scoping awaits Sprint 4.4.1 (tenant_id column).
+    app.use(auditRouter({ pool: deps.pool, config: deps.config }));
 
     // Reference Panel ingestion (Sprint 1.8b) — its own bearer-token
     // middleware against `app.reference_panel_tokens`. Mounted BEFORE the
