@@ -226,7 +226,20 @@ After successful sign-in, the SME review queue page showed yellow:
 
 **Cross-page audit during the fix:** probed all 8 admin nav links with an authenticated cookie. Only `/admin/queue` had a SQL error. `/admin/irt` returns 404 (route not implemented on this branch); `/admin/sso`, `/admin/webhooks`, `/admin/audit`, `/admin/ats`, `/admin/customers`, `/admin/uptime` all return **200**. After the column add, `/admin/queue` returns 200 with the empty-state message *"No items currently in the SME review queue"* — correct, because the 986 ingested questions all carry `status='calibrating'`, not `status='sme_review'`.
 
-## 10. Still on CEO plate
+## 10. Admin tenant-context env (Pass H)
+
+CEO clicked through the admin nav and 4 of 8 pages showed yellow warnings reading *"ADMIN_DEFAULT_TENANT_ID is not configured. Set it in apps/admin/.env to load …"* (SSO, Webhooks, Audit log, Customers). The other 4 pages — SME queue, IRT calibration, ATS, Uptime — render their own data without needing the tenant default.
+
+**Cause:** the admin app uses `ADMIN_DEFAULT_TENANT_ID` to scope tenant-scoped pages (SSO config, webhook subscriptions, tenant-scoped audit, customer onboarding state). It wasn't set anywhere.
+
+**Fix:** appended `ADMIN_DEFAULT_TENANT_ID=b101da50-1644-4345-a2ee-b86fbce1ffdb` (the Talpro India tenant id from Pass D) to `/opt/qorium/.env`; backup at `/tmp/qorium.env.bak.20260509-091819` (mode 600). Sourced `.env`, `pm2 restart qorium-admin --update-env`. `pm2 env 42` confirms the new var is set.
+
+**Verification:** all 8 admin pages now return HTTP 200 with no error/warning text:
+`/admin/queue` · `/admin/calibration` · `/admin/sso` · `/admin/webhooks` · `/admin/audit` · `/admin/ats` · `/admin/customers` · `/admin/uptime`.
+
+Note: I previously logged `/admin/irt` as a 404. The actual route is `/admin/calibration`; the navbar link maps to that path. Not a bug.
+
+## 11. Still on CEO plate
 
 1. Open `https://admin.qorium.online` in a browser, enter `bhaskar@talpro.in`, click Continue → land on `/admin/queue`.
 2. Send the first real Talpro candidate through (Sprint 1.0 Day-1).
