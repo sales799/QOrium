@@ -215,7 +215,18 @@ Second pass (F): rewrote `qorium.conf` so each Next.js subdomain location block 
 
 OTP delivery is stubbed in this build per `apps/admin/src/auth.ts` comments; allowlist match alone signs you in. Real MSG91 OTP and optional Google OAuth activate when those credentials are provisioned.
 
-## 9. Still on CEO plate
+## 9. Admin queue page schema fix (Pass G)
+
+After successful sign-in, the SME review queue page showed yellow:
+*"Failed to load queue: column 'uuid' does not exist"*.
+
+**Cause:** `/opt/qorium/apps/admin/src/server/queue.ts` (deployed from the older `claude/setup-qorium-build-agent-zA0l5` branch — admin source isn't on `main`) hardcodes `SELECT id, uuid, sku, format, body_md, ... FROM content.questions` in two queries (`listReviewQueue` + `getReviewable`). The `content.questions` schema only has `id`; no separate `uuid` column.
+
+**Fix:** added a generated column `uuid uuid GENERATED ALWAYS AS (id) STORED` to `content.questions`. Additive, idempotent (`IF NOT EXISTS`), reversible (`DROP COLUMN uuid`). All 986 rows now satisfy `uuid = id`. The proper long-term fix is in the admin source (drop the `uuid,` from the SELECT and the `r.uuid` references), but that requires a Next.js rebuild and a cluster restart; the schema-side workaround is lower blast radius for now.
+
+**Cross-page audit during the fix:** probed all 8 admin nav links with an authenticated cookie. Only `/admin/queue` had a SQL error. `/admin/irt` returns 404 (route not implemented on this branch); `/admin/sso`, `/admin/webhooks`, `/admin/audit`, `/admin/ats`, `/admin/customers`, `/admin/uptime` all return **200**. After the column add, `/admin/queue` returns 200 with the empty-state message *"No items currently in the SME review queue"* — correct, because the 986 ingested questions all carry `status='calibrating'`, not `status='sme_review'`.
+
+## 10. Still on CEO plate
 
 1. Open `https://admin.qorium.online` in a browser, enter `bhaskar@talpro.in`, click Continue → land on `/admin/queue`.
 2. Send the first real Talpro candidate through (Sprint 1.0 Day-1).
