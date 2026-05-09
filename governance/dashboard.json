@@ -2,7 +2,7 @@
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
   "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 70,
+  "lastReconcileRun": 71,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 43,
-      "total": 43,
+      "completed": 44,
+      "total": 44,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -285,6 +285,14 @@
           "auto_eligible": true,
           "linkedHumanTile": "human.merge-the-PRs",
           "evidence": "governance/merge-order/PRs-31-through-40.md (Run #70). 10 PRs sequenced: #32 (CI fix) → #31 → #33 → #34 → #35 (audit stack) → #36 → #37 → #38 → #39 → #40. Migration order 0010–0015. Smoke-test checklist + rollback per PR + stop conditions documented."
+        },
+        {
+          "id": "human-prep.io-psych-contractor.sow-and-outreach",
+          "name": "Tier-A2 prep — I/O Psych contractor SOW + outreach pack",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.io-psych-contractor",
+          "evidence": "governance/hiring/io-psych-contractor/ — README + SOW (14 sections, IP/conflicts/anti-leak/convert-to-FTE) + 5 outreach templates (cold/warm-intro/LinkedIn/2 follow-ups) + 12-question reference rubric + comp benchmark (₹18L mid-tier 6mo, defensible band) + week-by-week deliverable schedule (D1-D6 + ongoing batch reviews + payment milestones M1-M5). NO outreach sent — gated on CEO approval per Auto-Mode-Remote-Plan."
         }
       ]
     },
@@ -555,6 +563,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 71,
+      "date": "2026-05-08",
+      "summary": "Tier-A2 (human-lane acceleration): I/O Psych contractor hiring pack shipped at governance/hiring/io-psych-contractor/. Files: README (one-page rationale + decision matrix for CEO), SOW.md (14 sections: scope, qualifications, deliverables D1-D6, milestone payments M1-M5, IP work-for-hire, confidentiality 5yr tail, anti-leak SO-9 binding, conflicts list, convert-to-FTE option, indemnity, dispute resolution), outreach-templates.md (5 drafts: cold email + warm-intro + LinkedIn DM + 2 follow-ups, all unsent), reference-check-rubric.md (12 questions across 5 dimensions + scoring matrix + decision rule), compensation-benchmark.md (Indian academic-applied + global platform + QOrium-internal triangulation; recommended ₹18L 6-month mid-tier), deliverable-schedule.md (week-by-week with payment triggers). Auto-tile human-prep.io-psych-contractor.sow-and-outreach complete; links to existing human.io-psych-contractor tile. NO outreach has been sent. Master meter unchanged at 0.78 cap."
+    },
     {
       "id": 70,
       "date": "2026-05-08",
