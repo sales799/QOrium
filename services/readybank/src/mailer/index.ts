@@ -59,5 +59,17 @@ export async function createMailer(cfg: MailerConfig): Promise<Mailer> {
 export type { Mailer, MailerMessage, MailerSendResult } from './types.js';
 export { MailerError } from './types.js';
 export { MockMailer } from './mock.js';
-export { renderInvitationEmail } from './templates.js';
-export type { InvitationTemplateInput } from './templates.js';
+export {
+  renderInvitationEmail,
+  renderCandidateInviteEmail,
+  renderCandidateReminderEmail,
+  renderCandidateResultEmail,
+  renderRecruiterResultNotifyEmail,
+} from './templates.js';
+export type {
+  InvitationTemplateInput,
+  CandidateInviteInput,
+  CandidateReminderInput,
+  CandidateResultInput,
+  RecruiterResultNotifyInput,
+} from './templates.js';
