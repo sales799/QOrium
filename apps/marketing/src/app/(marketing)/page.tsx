@@ -22,6 +22,7 @@ import { MaxWidth } from '@/components/site/MaxWidth';
 import { PillButton } from '@/components/site/PillButton';
 import { RoiCalculator } from '@/components/site/RoiCalculator';
 import { AnimatedPipeline } from '@/components/site/AnimatedPipeline';
+import { Reveal } from '@/components/motion/Reveal';
 import { BlurFade } from '@/components/magicui/BlurFade';
 import { BorderBeam } from '@/components/magicui/BorderBeam';
 import { HeroVideoDialog } from '@/components/magicui/HeroVideoDialog';
@@ -219,9 +220,11 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 overflow-hidden md:grid-cols-2">
-              {BENTO_ITEMS.map((item) => (
-                <div
+              {BENTO_ITEMS.map((item, i) => (
+                <Reveal
                   key={item.id}
+                  delay={i * 0.08}
+                  direction="up"
                   className="group relative flex max-h-[420px] min-h-[480px] flex-col items-start justify-end p-0.5 before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-[''] after:absolute after:-top-0.5 after:left-0 after:z-10 after:h-px after:w-screen after:bg-border after:content-[''] md:min-h-[460px]"
                 >
                   <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
@@ -231,7 +234,7 @@ export default function HomePage() {
                     <h3 className="text-lg font-semibold tracking-tighter">{item.title}</h3>
                     <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -248,8 +251,8 @@ export default function HomePage() {
                 Plug in your hiring volume. Watch the math.
               </h2>
               <p className="mx-auto mt-3 max-w-xl text-balance text-center text-muted-foreground">
-                JD-Forge typically pays for itself by JD #40. Slide the inputs to see net value vs. an
-                internal TA team building packs by hand.
+                JD-Forge typically pays for itself by JD #40. Slide the inputs to see net value vs.
+                an internal TA team building packs by hand.
               </p>
             </BlurFade>
             <BlurFade delay={0.1}>
