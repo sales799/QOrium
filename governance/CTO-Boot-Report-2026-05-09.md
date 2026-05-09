@@ -167,10 +167,38 @@ Per-file breakdown ranges 8 (seed batches) to 30 (SAP ABAP 021-050) questions; m
 
 **What this unblocks:** every running QOrium service now has data to operate on. JD-Forge can pull from a real pool. Stack-Vault can watermark real items. Anti-Leak crawler has a real corpus to cross-check against. IRT calibration cron will produce real numbers as soon as `content.responses` starts populating from real candidate sessions.
 
-**Still blocked on CEO action:**
-1. Bootstrap first `app.tenants` row (Talpro India) + first `app.users` (recruiter) + `app.tenant_users` + `app.api_keys` so the recruiter dashboard has real state to load.
-2. Customer Zero Day-1 — first real Talpro candidate session.
-3. SME backfill on the 34 incomplete design/case-study items (Java, React, SQL, Salesforce, DevOps, Embedded, Finacle).
+## 7. Customer Zero bootstrap (Pass D)
+
+After authorization, executed the minimum DB writes to make the recruiter login path live.
+
+**One transaction inserted the following:**
+
+| Table | Row | Notes |
+|---|---|---|
+| `app.tenants` | `talind001 / Talpro India` | type=`internal`, plan=`enterprise`, status=`active`, billing_contact_email=`bhaskar@talpro.in` |
+| `app.users` | `bhaskar@talpro.in / Bhaskar Anand` | role=`owner`, status=`active` |
+| `app.tenant_users` | (talind001 ↔ Bhaskar) | role=`owner` |
+| `app.api_keys` | "Customer Zero internal key #001" | prefix=`qor_intern`, scopes=`{read,write}`, rate_limit=60/min, hash via `HMAC-SHA256(API_KEY_PEPPER, raw)` matching the running `qorium-api-key-mgmt` service's `@qorium/auth.hashApiKey` |
+
+The raw key was the pre-issued one at `/opt/apps/qorium/bin/CUSTOMER-ZERO-KEY-001.txt` (already on the VPS, not generated this run). Script idempotent: re-running is a no-op.
+
+**End-to-end auth verification:** `GET https://api.qorium.online/v1/billing/customers` with `Authorization: Bearer qor_internal_talind001_…` → **HTTP 200** `{"count":0,"customers":[]}`. The qorium-billing service successfully resolved the tenant, applied scope checks, and returned an empty result set.
+
+`/v1/api-keys`, `/v1/audit/events` returned 401 — these are admin-scope endpoints requiring SSO/admin auth, not tenant API key auth. Expected.
+
+**What's now functional end-to-end:**
+1. DNS resolves for the marketing apex + 5 subdomains over HTTPS.
+2. ReadyBank API alpha at `api.qorium.online` over HTTPS with HSTS preload.
+3. 986 questions in `content.questions`, all watermarked, all with difficulty + discrimination metadata.
+4. First tenant + first owner + first API key bootstrapped; auth verified against the live billing service.
+
+**Scratch-file hygiene:** all bootstrap scripts and pasted source extracts in `/tmp` deleted. Three nginx config backups retained at `/tmp/qorium.conf.bak.*` for ~24h until automatic reaping.
+
+**Still on CEO plate:**
+1. Open `https://admin.qorium.online` and confirm you can log in (likely via SSO route — the Next.js admin app redirects to login). If it asks for an API key directly, paste the contents of `/opt/apps/qorium/bin/CUSTOMER-ZERO-KEY-001.txt`.
+2. Send the first real Talpro candidate through (Sprint 1.0 Day-1).
+3. SME backfill on the 34 incomplete corpus items.
+4. Align `/opt/apps/qorium/dotenv.production` DB role to match the PM2 role (so the canonical write path is the dotenv, not pm2 env extraction).
 
 No code services were rebuilt, no migrations run, no force-push. The single DB write happened inside `BEGIN/COMMIT` per the script's idempotent transaction; rollback path tested by the unit test suite at `services/readybank/__tests__/ingest-wave1.unit.test.ts`.
 
