@@ -79,17 +79,39 @@ Conclusion: the §3 IN-SCOPE list is mostly **already shipped**. Re-implementing
 
 **False alarms cleared:** The "flapping" `qorium-irt-calibration` (6 restarts/2h) and `qorium-leak-crawler` (6 restarts/3h) are **cron-driven daily runs** (`0 3 * * *` and `0 2 * * *` respectively). PM2 counts cron-restarts as restarts. Both processes online with healthy heap. No remediation needed.
 
+### 3.1 DB row-count verify — strategic-pivot finding
+
+Direct query against the `qorium` Postgres database (38 tables across `app`, `content`, `audit`, `billing`, `webhooks`, `sso` schemas):
+
+| Table | Row count |
+|---|---|
+| `content.questions` | **0** |
+| `content.responses` | 0 |
+| `content.skills` / `sub_skills` / `roles` / `role_skills` | 0 / 0 / 0 / 0 |
+| `content.question_variants` / `calibration_history` / `leak_alerts` / `review_decisions` | 0 / 0 / 0 / 0 |
+| `app.tenants` / `users` / `tenant_users` / `api_keys` / `packs` | 0 / 0 / 0 / 0 / 0 |
+| `webhooks.subscriptions` / `deliveries` | 0 / 0 |
+| `billing.customers` / `subscriptions` | 0 / 0 |
+| `audit.events` | 2 (system bootstrap) |
+
+**The QOrium production database is essentially empty.** Of the §3 prompt premises, "Wave-1 not in DB" was the **only** live-accurate one. The other claims ("apex marketing missing", "JD-Forge / Stack-Vault / ATS / SAML / Anti-Leak v1 not built") are stale; these services are deployed in PM2. But none of them have data to operate on — no questions, no candidates, no tenants, no recruiters.
+
+**Strategic implication:** infrastructure has shipped, outcome has not. The bottleneck is no longer "build more services" — it is the bootstrap path: seed `content.skills`/`sub_skills`/`roles` → ingest the v0.6 corpus from `customer-zero/Wave-*-Extension-*.md` (which exists in the repo) into `content.questions` → bootstrap the first Talpro tenant + recruiter row → first candidate session. Until that path runs end-to-end with real data, every "tech-side complete" claim is fiction in the SO-24 sense.
+
+**Corpus availability:** Wave-1 and Wave-2 markdown source files are present in `customer-zero/` (Java, React, SQL/Data, DevOps, Salesforce, Python, AWS, AIPE for Wave-1; SAP ABAP, Oracle HCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive for Wave-2). `services/readybank/` and `packages/db/` exist for write paths. Ingest is feasible from this branch — but is a multi-hour piece of work with production DB writes; not started this run.
+
 ---
 
-## 4. Highest-leverage real next steps (CTO recommendation)
+## 4. Highest-leverage real next steps (CTO recommendation, revised after §3.1)
 
-In priority order:
+In priority order, after the DB-empty finding:
 
-1. **DNS + 443 SSL for the four subdomains** that have running services but unreachable hostnames — `admin.qorium.online`, `docs.qorium.online`, `candidate.qorium.online`, `my.qorium.online`. Each needs (a) DNS A record at the registrar (out of this session's reach without DNS API access), (b) Let's Encrypt cert via certbot, (c) a 443 SSL server block in `qorium.conf` mirroring the api block I just added. Estimated effort: ~45 min once DNS resolves.
-2. **DNS + new vhost blocks for `jdforge.qorium.online` and `vault.qorium.online`** if the prompt's UX intent (paste-JD form / customer-portal) is to live on dedicated subdomains rather than under `api.qorium.online/v1/jd-forge/` and `/v1/stack-vault/`. Otherwise, the current path-prefix routing is sufficient and the subdomain plan can be dropped.
-3. **DB verification of Wave-1 + Wave-2 ingest counts** — single SELECTs against `content.questions`. Closes §3-D and §3-E with evidence.
-4. **Reconcile the three governance attachments** uploaded with the prompt (`QORIUM-Sprint-Plan-v1.md`, `QORIUM-MISSION-CONTROL.md`, `CLAUDE-CODE-100-TECH-BUILD-PROMPT-v1.md`) against the live repo. They should either be committed under `governance/` as canonical refs, or formally retired in favour of the human-prep-tier docs that did land via PRs #41–#47.
-5. **Shift focus from "build more" to "use what's built"** — the human-prep PRs (#41–#47: I/O Psych SOW, SME Lead JD, Senior Eng JD, Reference Panel funnel, first-3-logos sales stack, Bosch GCC pitch) signal the build is past the point of diminishing return on more autonomous infra. The next genuine-leverage move is Customer Zero Day-1 with a real Talpro candidate (per Sprint 1.0 of `QORIUM-Sprint-Plan-v1.md`) — that requires CEO physical action, not code.
+1. **Ingest the v0.6 corpus into `content.questions`.** This is the actual binding constraint — every shipped service is idle until questions exist. Scope: (a) seed `content.skills` / `sub_skills` / `roles` / `role_skills` from a hand-built mapping or from a header-extraction over the Wave files; (b) parse `customer-zero/Wave-1-*-Extension-*.md` and `customer-zero/Wave-2-*-Extension-*.md` (markdown question format with `## QUESTION` / `### QUESTION` headings per the prompt's Track-C spec) into `content.questions` rows; (c) idempotent UPSERT keyed on a stable hash of `(sub_skill, source_corpus, ordinal)`; (d) set `source_corpus='wave-1-v0.6'` / `'wave-2-v0.6'`, `language='en'`, `format` per question, `status='released'`, `released_at=now()` for v0.6 corpus; (e) write a manifest of inserted/updated/skipped rows. **Authorization required** — production DB writes; multi-hour scope; could conflict with any in-flight Sprint 1.6 ingest spec the team has elsewhere.
+2. **Bootstrap the first tenant + recruiter row.** A row in `app.tenants` (Talpro India), one in `app.users` (Bhaskar / Talpro recruiter), one in `app.tenant_users`, and one `app.api_keys` row so the recruiter dashboard / `/v1/api-keys` flow has real state to load.
+3. **DNS + 443 SSL for the four subdomains** that have running services but unreachable hostnames — `admin.qorium.online`, `docs.qorium.online`, `candidate.qorium.online`, `my.qorium.online`. Each needs (a) DNS A record at the registrar — Cloudflare/Hostinger DNS API not in scope of any tool I have, so this is genuinely a CEO action; (b) Let's Encrypt cert via certbot; (c) a 443 SSL server block in `qorium.conf` mirroring the api block I just added.
+4. **DNS + new vhost blocks for `jdforge.qorium.online` and `vault.qorium.online`** if the prompt's UX intent is for dedicated subdomains rather than under `api.qorium.online/v1/jd-forge/` and `/v1/stack-vault/`. Otherwise the current path-prefix routing is sufficient and the subdomain plan can be dropped — explicit decision needed.
+5. **Reconcile the three governance attachments uploaded with the prompt** (`QORIUM-Sprint-Plan-v1.md`, `QORIUM-MISSION-CONTROL.md`, `CLAUDE-CODE-100-TECH-BUILD-PROMPT-v1.md`) against the live repo. They are not in `main`. The Mission Control attachment claims "Library 791 Qs" — live DB shows 0. SO-24 mandates explicit reconciliation: either (a) commit them under `governance/` as canonical refs and re-mark them with the live DB-zero state, (b) retire them in favour of the human-prep-tier docs that did land via PRs #41–#47, or (c) revise to align with reality.
+6. **Customer Zero Day-1 with a real Talpro candidate** — gates on items 1 + 2 above. Sprint 1.0 in the uploaded Sprint Plan. Needs CEO physical action (recruiter login, send invite, etc.), not more code.
 
 ---
 
