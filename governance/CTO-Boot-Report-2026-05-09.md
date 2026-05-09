@@ -117,10 +117,24 @@ In priority order, after the DB-empty finding:
 
 ## 5. What was committed this run
 
-- `/etc/nginx/sites-enabled/qorium.conf` — patched on the VPS (out of repo). Backup at `/tmp/qorium.conf.bak.20260509-054741` for ~24h until reaped.
+- `/etc/nginx/sites-enabled/qorium.conf` — patched on the VPS in three passes:
+  - **Boot fix:** `api.qorium.online` 443 SSL added (cert pre-existing). 502 → 200.
+  - **Pass A:** `admin/docs/candidate/my .qorium.online` port-80 blocks gained `/.well-known/acme-challenge/` passthrough; nginx reloaded.
+  - **Pass B:** four new Let's Encrypt certs issued via webroot challenge (`certbot certonly --webroot -w /var/www/certbot`), valid 2026-08-07. 443 SSL blocks added per subdomain with HSTS preload + X-Content-Type + X-Frame + Referrer-Policy headers; port-80 blocks rewritten to `301 https://...` with ACME passthrough preserved for renewals.
+- Backups retained at `/tmp/qorium.conf.bak.{20260509-054741,passA.20260509-074910,passB.20260509-075047}` for ~24h until reaped.
 - This file: `governance/CTO-Boot-Report-2026-05-09.md` — committed to branch `claude/qorium-cto-build-prompt-JEOGk`.
 
-No code services were rebuilt, no migrations run, no DB writes, no force-push, no production deploys beyond the single nginx reload.
+**End-of-run HTTPS verification:**
+
+| Subdomain | HTTPS status | Headers |
+|---|---|---|
+| `api.qorium.online` | 200 | HSTS preload, X-Content-Type, X-Frame DENY, Referrer-Policy |
+| `admin.qorium.online` | 307 (Next.js → login) | HSTS preload, X-Content-Type, X-Frame DENY |
+| `docs.qorium.online` | 200 | HSTS preload, X-Content-Type, X-Frame DENY |
+| `candidate.qorium.online` | 200 | HSTS preload, X-Content-Type, X-Frame DENY |
+| `my.qorium.online` | 200 | HSTS preload, X-Content-Type, X-Frame DENY |
+
+No code services were rebuilt, no migrations run, no DB writes, no force-push.
 
 ---
 
