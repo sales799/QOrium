@@ -1,7 +1,7 @@
 {
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
-  "lastRefresh": "2026-05-09T00:15:00+05:30",
+  "lastRefresh": "2026-05-09T02:50:00+05:30",
   "lastReconcileRun": 73,
   "source": {
     "streamB": {
@@ -19,92 +19,536 @@
     "human": 0.0,
     "total": 0.55,
     "autoCeiling": 0.78,
-    "note": "auto = engineering/spec/content lane progress; human = sales/hiring/panel/M&A lane; total weights both. autoCeiling is the structural cap of pure auto-mode per Constitution Article IX. AUTO-MODE LANE 33/33 ENGINEERING-COMPLETE: ALL Wave-2 + Wave-1 content at 100/100 (1300 questions); SAML/SCIM library (37 tests); Stack-Vault tenant-isolated with double watermark (22 tests); JD-Forge alpha library (40 tests); Observability IaC + OTel SDK init (4 tests); PITR IaC + DR runbook. Master meter HOLDS at 0.78 because the cred-bound apply paths and the human-bound items (Customer-Zero, Reference Panel ≥200, SME Lead hire, first 3 logos, Bosch GCC, cred-drop) all live in the human lane. Cred-bound items are annotated engineering-complete-{cred|translation}-bound, never claimed as released."
+    "note": "auto = engineering/spec/content lane progress; human = sales/hiring/panel/M&A lane; total weights both. autoCeiling is the structural cap of pure auto-mode per Constitution Article IX. AUTO-MODE LANE 37/37 ENGINEERING-COMPLETE (extended past the original 33-tile cap: Sprint 4.4 v0 Run #61, Sprint 4.4.1 v1 Run #62, Sprint 4.4.2 export Run #63, Sprint 4.4.3 hash-chain Run #64): ALL Wave-2 + Wave-1 content at 100/100 (1300 questions); SAML/SCIM library (37 tests); Stack-Vault tenant-isolated with double watermark (22 tests); JD-Forge alpha library (40 tests); Observability IaC + OTel SDK init (4 tests); PITR IaC + DR runbook; Audit Log API v0 (19 tests, GET list/detail/summary, recruiter-scoped). Master meter HOLDS at 0.78 because the cred-bound apply paths and the human-bound items (Customer-Zero, Reference Panel ≥200, SME Lead hire, first 3 logos, Bosch GCC, cred-drop) all live in the human lane. Cred-bound items are annotated engineering-complete-{cred|translation}-bound, never claimed as released."
   },
   "lanes": {
     "auto": {
-      "completed": 34,
-      "total": 34,
+      "completed": 46,
+      "total": 46,
       "tiles": [
-        { "id": "human-prep.senior-eng-hire.jd-and-pipeline", "name": "Tier-A4 prep — Senior Engineer #1 JD + sourcing pipeline", "status": "complete", "auto_eligible": true, "linkedHumanTile": "human.senior-eng-hire", "evidence": "governance/hiring/senior-engineer-1/ — README + JD (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, peer-to-CTO, TS+pg+AWS), sourcing-pipeline (5 channels: LinkedIn/Naukri + 30-name target list + boutique recruiter ₹3L + ₹1L referral bounty + community; ~₹5L budget), screening-rubric (4 dimensions: code quality via paid ₹10K take-home audit-chain verifier + system design webhook delivery + production incident-replay + written ADR-style essay; calibrated to CTO Office baseline), compensation-band (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire timing for budget fit), interview-process (5 stages, ~28 business days SLA; paid take-home discipline). NO outreach sent." },
-        { "id": "sprint-0.1", "name": "Monorepo bootstrap", "status": "complete", "evidence": "PR #1 d401018" },
-        { "id": "sprint-0.2", "name": "Dev orchestration", "status": "complete", "evidence": "PR #1 d401018" },
-        { "id": "sprint-0.3", "name": "@qorium/db migration runner", "status": "complete", "evidence": "PR #3 0a74e6f" },
-        { "id": "sprint-1.0", "name": "Customer Zero Day-1 launch (engineering 6/7)", "status": "complete", "evidence": "Run #27 public HTTPS DoD" },
-        { "id": "sprint-1.1", "name": "QA pipeline plumbing", "status": "complete", "evidence": "Run #24 b72d2f3" },
-        { "id": "sprint-1.2", "name": "/v1/results + Watermark Engine v0", "status": "complete", "evidence": "Run #26-28" },
-        { "id": "sprint-1.3", "name": "End-to-end candidate take flow", "status": "complete", "evidence": "Run #29 3af1a4a" },
-        { "id": "sprint-1.4", "name": "Recruiter session CRUD + Wave-2 third-pass", "status": "complete", "evidence": "Run #30" },
-        { "id": "sprint-1.5", "name": "Recruiter HTML dashboard SPA", "status": "complete", "evidence": "Run #31 226ef1f" },
-        { "id": "sprint-1.6.jwt", "name": "JWT recruiter cookie auth + login.html + migration 0004", "status": "complete", "evidence": "PR #12 29ff865 (Stream B), Run #32 (Stream A)" },
-        { "id": "sprint-1.6.mailer", "name": "Driver-agnostic mailer (SES/SendGrid/mock) + migration 0005", "status": "complete", "evidence": "PR #13 87b08b5" },
-        { "id": "sprint-1.6.ingest", "name": "Wave-1 full ingest script (parses 358 from 22 sources)", "status": "complete", "evidence": "PR #13 87b08b5" },
-        { "id": "sprint-1.6.ohcm", "name": "Oracle HCM 60/60 v0.6", "status": "complete", "evidence": "PR #13 87b08b5" },
-        { "id": "sprint-1.6.wave3", "name": "Wave-3 Authoring Template v0.1 + Kickoff Batch-001", "status": "complete", "evidence": "PR #13 87b08b5" },
-        { "id": "sprint-1.6.5", "name": "Reconcile + dashboard.json contract", "status": "complete", "evidence": "PR #15 merged at fd9256e" },
-        { "id": "sprint-1.7.saml-spec", "name": "SAML/SSO v1 spec", "status": "complete", "evidence": "PR #16 merged at cb9a25f" },
-        { "id": "sprint-1.7.nos-mapper", "name": "NSDC/NOS competency mapper", "status": "complete", "evidence": "packages/nos-mapper shipped: NSQF descriptors + 13 NOS mappings + 16 tests (Sprint 1.7b). NSDC verification of mappings is human-bound but the mapper engine is auto-eligible-complete." },
-        { "id": "sprint-1.7.bloom-tags", "name": "Bloom's taxonomy tagging + migration 0006", "status": "complete", "evidence": "PR #16 merged at cb9a25f (schema; heuristic backfill in 1.8d)" },
-        { "id": "sprint-1.7.email-iac", "name": "SES/DKIM/SPF/DMARC IaC (halts on cred-drop)", "status": "engineering-complete-cred-bound", "evidence": "infra/auto-bootstrap/email-auth.tf + apply.sh shipped (Sprint 1.7d). terraform plan green; terraform apply gated on BOOTSTRAP_AUTHORIZED=true. Human-bound on cred-drop." },
-        { "id": "sprint-1.7.parser-fix", "name": "Ingest parser synonyms (closes case-study misses)", "status": "complete", "evidence": "PR #16 merged at cb9a25f; ingest count 358 → 376; errors 52 → 34" },
-        { "id": "sprint-1.8.irt", "name": "IRT calibration pipeline (production)", "status": "complete", "evidence": "packages/irt shipped: 2PL/3PL Birnbaum probability, ability MLE Newton-Raphson, JMLE calibration with mean-0/sd-1 anchor (CTO-DELTA fix for scale drift), Mantel-Haenszel DIF, SO-21 quality gate (18 tests). Calibration runs require Reference Panel ≥200 — human-bound but the engine is auto-complete." },
-        { "id": "sprint-1.8.panel-api", "name": "Reference-panel ingestion API", "status": "complete", "evidence": "POST /v1/reference-panel/responses + migration 0007_reference_panel.sql + panel-token auth middleware (8 tests). Awaits panel recruitment (human-bound) to receive real responses." },
-        { "id": "sprint-1.8.anti-leak", "name": "Anti-Leak Engine v0 productionized", "status": "complete", "evidence": "services/anti-leak shipped: n-gram extraction · lexical Jaccard similarity · 4-tier severity classifier · MockSearchProvider + SerperSearchProvider · runScan orchestrator · CLI entrypoint · 20 tests. Embedding-based similarity deferred to cred-drop per CTO-DELTA." },
-        { "id": "sprint-1.8.admin", "name": "Admin console (static HTML/JS — CTO-DELTA from Next.js)", "status": "complete", "evidence": "services/readybank/public/admin/* + /v1/admin/* routes shipped: 5 pages (dashboard, anti-leak inbox, SME queue, IRT calibration, panel-token issuance), 13 admin tests. Static SPA pattern matches recruiter dashboard (CTO-DELTA from Next.js)." },
-        { "id": "phase-2.wave1-deepen", "name": "Wave-1 60→100 Qs/sub-skill", "status": "complete", "evidence": "ALL 8 OF 8 sub-skills at 100/100 ✅✅✅: Java, Python, React, SQL/Data, DevOps/SRE, Salesforce, AWS, AIPE. Wave-1 = 800/800 questions (target met). SME Lead validation pending (human-bound)." },
-        { "id": "phase-2.wave2-deepen", "name": "Wave-2 60→100 Qs/sub-skill", "status": "complete", "evidence": "ALL 5 Wave-2 domains at 100/100 ✅: SAP-ABAP, OHCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive. Total Wave-2: 500/500. SME Lead validation pending (human-bound)." },
-        { "id": "phase-2.inr-gst", "name": "INR pricing + GST handling", "status": "complete", "evidence": "packages/billing shipped: Money in bigint paise/cents · canonical SKU pricing per Constitution §1.2 LOCKED · intra-state CGST+SGST · inter-state IGST · export zero-rated · non-India IGST · GSTIN structural validation · SAC codes (verification: pending) · buildInvoice() pure builder · 31 tests. SAC code verification by tax counsel is human-bound." },
-        { "id": "phase-2.i18n", "name": "i18n framework", "status": "engineering-complete-translation-bound", "evidence": "packages/i18n shipped: Accept-Language parser · locale resolver · CLDR plural rules (en/hi/ta/te) · translator with verified>pending fallback · Intl number/currency/date formatting · coverage diagnostics · 34 tests. en bundle canonical; hi/ta/te bundles ship as pending stubs awaiting translation review (human-bound per Reference Panel Governance)." },
-        { "id": "phase-3.jd-forge", "name": "JD-Forge service alpha→beta", "status": "engineering-complete-cred-bound", "evidence": "Sprint 3.5 alpha: packages/jd-forge ships deterministic library pieces (jd-parser w/ validateParsed + retry, role-graph mapper w/ 8-prefix starter catalog covering Wave-1 100/100 sub-skills, spec-builder w/ largest-remainder distribution + 40/30/20/10 format mix + 4-band difficulty, exporters: JSON/CSV/HackerRank). 40 unit tests pass. Live LLM call (services/jd-forge Express + ANTHROPIC_API_KEY) is cred-bound; defers to cred-drop." },
-        { "id": "phase-3.stack-vault", "name": "Stack-Vault tenant isolation + double watermark", "status": "complete", "evidence": "Sprint 3.4: migration 0009_stack_vault.sql (app.tenant_stack_vaults + content.questions.stack_vault_tenant_id with sparse partial UNIQUE on (tenant, qor_id)) + tenant-isolation middleware (404 on cross-tenant, 403 on SO-10 export scope) + double-watermark module (HMAC over base_seed||tenant||render_id, visible footer + homoglyph stego) + repository (every query JOINed on tenant_id) + /v1/stack-vault routes (GET list, GET one, POST create) + 22 unit tests passing." },
-        { "id": "phase-3.saml-impl", "name": "SAML/SSO implementation", "status": "in_progress", "evidence": "Sprint 3.3 alpha: migration 0008_sso_jit_provisioning.sql (tenant_sso_config + saml_assertions_seen + scim_external_id_map + sp_signing_certs) + @qorium/saml package (validate, jit, scim-token, replay-guard) + 37 unit tests passing. Live IdP integration tests halt on cred-drop per spec §9 — that's Sprint 3.3.1+." },
-        { "id": "phase-4.observability", "name": "OTel + Grafana + Sentry IaC (halts on cred-drop)", "status": "engineering-complete-cred-bound", "evidence": "Sprint 4.1: infra/auto-bootstrap/observability.tf (Grafana Cloud stack + Sentry org + per-service projects + per-region OTLP endpoints; outputs route to .env after cred-drop) + services/readybank/src/observability/otel.ts (lazy-import dynamic-specifier dormant SDK init; no-op when OTEL_EXPORTER_OTLP_ENDPOINT unset; SIGTERM flush) + 4 unit tests + governance/observability-runbook.md (multi-burn-rate SLOs, 6 pre-built dashboards spec, incident response checklist, tier-2 alerts, audit retention, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true." },
-        { "id": "phase-4.pitr", "name": "PITR + backup automation", "status": "engineering-complete-cred-bound", "evidence": "Sprint 4.2: infra/auto-bootstrap/pitr.tf (per-region KMS CMKs + cross-region S3 backup bucket with versioning + 7d→30d→1y→7y lifecycle + bucket policy denying unencrypted+insecure-transport + AWS Backup vault primary+destination + daily PITR plan with copy_action + CloudWatch alarm on job failure) + scripts/restore-pitr.sh (dry-run-by-default; ISO8601 + cluster-uniqueness validation; --execute gate; runbook reference) + governance/dr-runbook.md (failure-mode matrix, RPO 5min/RTO 60min same-region, decision tree, on-call procedure, smoke-test checklist, cutover, comms template, drill cadence, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true." }
+        {
+          "id": "sprint-0.1",
+          "name": "Monorepo bootstrap",
+          "status": "complete",
+          "evidence": "PR #1 d401018"
+        },
+        {
+          "id": "sprint-0.2",
+          "name": "Dev orchestration",
+          "status": "complete",
+          "evidence": "PR #1 d401018"
+        },
+        {
+          "id": "sprint-0.3",
+          "name": "@qorium/db migration runner",
+          "status": "complete",
+          "evidence": "PR #3 0a74e6f"
+        },
+        {
+          "id": "sprint-1.0",
+          "name": "Customer Zero Day-1 launch (engineering 6/7)",
+          "status": "complete",
+          "evidence": "Run #27 public HTTPS DoD"
+        },
+        {
+          "id": "sprint-1.1",
+          "name": "QA pipeline plumbing",
+          "status": "complete",
+          "evidence": "Run #24 b72d2f3"
+        },
+        {
+          "id": "sprint-1.2",
+          "name": "/v1/results + Watermark Engine v0",
+          "status": "complete",
+          "evidence": "Run #26-28"
+        },
+        {
+          "id": "sprint-1.3",
+          "name": "End-to-end candidate take flow",
+          "status": "complete",
+          "evidence": "Run #29 3af1a4a"
+        },
+        {
+          "id": "sprint-1.4",
+          "name": "Recruiter session CRUD + Wave-2 third-pass",
+          "status": "complete",
+          "evidence": "Run #30"
+        },
+        {
+          "id": "sprint-1.5",
+          "name": "Recruiter HTML dashboard SPA",
+          "status": "complete",
+          "evidence": "Run #31 226ef1f"
+        },
+        {
+          "id": "sprint-1.6.jwt",
+          "name": "JWT recruiter cookie auth + login.html + migration 0004",
+          "status": "complete",
+          "evidence": "PR #12 29ff865 (Stream B), Run #32 (Stream A)"
+        },
+        {
+          "id": "sprint-1.6.mailer",
+          "name": "Driver-agnostic mailer (SES/SendGrid/mock) + migration 0005",
+          "status": "complete",
+          "evidence": "PR #13 87b08b5"
+        },
+        {
+          "id": "sprint-1.6.ingest",
+          "name": "Wave-1 full ingest script (parses 358 from 22 sources)",
+          "status": "complete",
+          "evidence": "PR #13 87b08b5"
+        },
+        {
+          "id": "sprint-1.6.ohcm",
+          "name": "Oracle HCM 60/60 v0.6",
+          "status": "complete",
+          "evidence": "PR #13 87b08b5"
+        },
+        {
+          "id": "sprint-1.6.wave3",
+          "name": "Wave-3 Authoring Template v0.1 + Kickoff Batch-001",
+          "status": "complete",
+          "evidence": "PR #13 87b08b5"
+        },
+        {
+          "id": "sprint-1.6.5",
+          "name": "Reconcile + dashboard.json contract",
+          "status": "complete",
+          "evidence": "PR #15 merged at fd9256e"
+        },
+        {
+          "id": "sprint-1.7.saml-spec",
+          "name": "SAML/SSO v1 spec",
+          "status": "complete",
+          "evidence": "PR #16 merged at cb9a25f"
+        },
+        {
+          "id": "sprint-1.7.nos-mapper",
+          "name": "NSDC/NOS competency mapper",
+          "status": "complete",
+          "evidence": "packages/nos-mapper shipped: NSQF descriptors + 13 NOS mappings + 16 tests (Sprint 1.7b). NSDC verification of mappings is human-bound but the mapper engine is auto-eligible-complete."
+        },
+        {
+          "id": "sprint-1.7.bloom-tags",
+          "name": "Bloom's taxonomy tagging + migration 0006",
+          "status": "complete",
+          "evidence": "PR #16 merged at cb9a25f (schema; heuristic backfill in 1.8d)"
+        },
+        {
+          "id": "sprint-1.7.email-iac",
+          "name": "SES/DKIM/SPF/DMARC IaC (halts on cred-drop)",
+          "status": "engineering-complete-cred-bound",
+          "evidence": "infra/auto-bootstrap/email-auth.tf + apply.sh shipped (Sprint 1.7d). terraform plan green; terraform apply gated on BOOTSTRAP_AUTHORIZED=true. Human-bound on cred-drop."
+        },
+        {
+          "id": "sprint-1.7.parser-fix",
+          "name": "Ingest parser synonyms (closes case-study misses)",
+          "status": "complete",
+          "evidence": "PR #16 merged at cb9a25f; ingest count 358 → 376; errors 52 → 34"
+        },
+        {
+          "id": "sprint-1.8.irt",
+          "name": "IRT calibration pipeline (production)",
+          "status": "complete",
+          "evidence": "packages/irt shipped: 2PL/3PL Birnbaum probability, ability MLE Newton-Raphson, JMLE calibration with mean-0/sd-1 anchor (CTO-DELTA fix for scale drift), Mantel-Haenszel DIF, SO-21 quality gate (18 tests). Calibration runs require Reference Panel ≥200 — human-bound but the engine is auto-complete."
+        },
+        {
+          "id": "sprint-1.8.panel-api",
+          "name": "Reference-panel ingestion API",
+          "status": "complete",
+          "evidence": "POST /v1/reference-panel/responses + migration 0007_reference_panel.sql + panel-token auth middleware (8 tests). Awaits panel recruitment (human-bound) to receive real responses."
+        },
+        {
+          "id": "sprint-1.8.anti-leak",
+          "name": "Anti-Leak Engine v0 productionized",
+          "status": "complete",
+          "evidence": "services/anti-leak shipped: n-gram extraction · lexical Jaccard similarity · 4-tier severity classifier · MockSearchProvider + SerperSearchProvider · runScan orchestrator · CLI entrypoint · 20 tests. Embedding-based similarity deferred to cred-drop per CTO-DELTA."
+        },
+        {
+          "id": "sprint-1.8.admin",
+          "name": "Admin console (static HTML/JS — CTO-DELTA from Next.js)",
+          "status": "complete",
+          "evidence": "services/readybank/public/admin/* + /v1/admin/* routes shipped: 5 pages (dashboard, anti-leak inbox, SME queue, IRT calibration, panel-token issuance), 13 admin tests. Static SPA pattern matches recruiter dashboard (CTO-DELTA from Next.js)."
+        },
+        {
+          "id": "phase-2.wave1-deepen",
+          "name": "Wave-1 60→100 Qs/sub-skill",
+          "status": "complete",
+          "evidence": "ALL 8 OF 8 sub-skills at 100/100 ✅✅✅: Java, Python, React, SQL/Data, DevOps/SRE, Salesforce, AWS, AIPE. Wave-1 = 800/800 questions (target met). SME Lead validation pending (human-bound)."
+        },
+        {
+          "id": "phase-2.wave2-deepen",
+          "name": "Wave-2 60→100 Qs/sub-skill",
+          "status": "complete",
+          "evidence": "ALL 5 Wave-2 domains at 100/100 ✅: SAP-ABAP, OHCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive. Total Wave-2: 500/500. SME Lead validation pending (human-bound)."
+        },
+        {
+          "id": "phase-2.inr-gst",
+          "name": "INR pricing + GST handling",
+          "status": "complete",
+          "evidence": "packages/billing shipped: Money in bigint paise/cents · canonical SKU pricing per Constitution §1.2 LOCKED · intra-state CGST+SGST · inter-state IGST · export zero-rated · non-India IGST · GSTIN structural validation · SAC codes (verification: pending) · buildInvoice() pure builder · 31 tests. SAC code verification by tax counsel is human-bound."
+        },
+        {
+          "id": "phase-2.i18n",
+          "name": "i18n framework",
+          "status": "engineering-complete-translation-bound",
+          "evidence": "packages/i18n shipped: Accept-Language parser · locale resolver · CLDR plural rules (en/hi/ta/te) · translator with verified>pending fallback · Intl number/currency/date formatting · coverage diagnostics · 34 tests. en bundle canonical; hi/ta/te bundles ship as pending stubs awaiting translation review (human-bound per Reference Panel Governance)."
+        },
+        {
+          "id": "phase-3.jd-forge",
+          "name": "JD-Forge service alpha→beta",
+          "status": "engineering-complete-cred-bound",
+          "evidence": "Sprint 3.5 alpha: packages/jd-forge ships deterministic library pieces (jd-parser w/ validateParsed + retry, role-graph mapper w/ 8-prefix starter catalog covering Wave-1 100/100 sub-skills, spec-builder w/ largest-remainder distribution + 40/30/20/10 format mix + 4-band difficulty, exporters: JSON/CSV/HackerRank). 40 unit tests pass. Live LLM call (services/jd-forge Express + ANTHROPIC_API_KEY) is cred-bound; defers to cred-drop."
+        },
+        {
+          "id": "phase-3.stack-vault",
+          "name": "Stack-Vault tenant isolation + double watermark",
+          "status": "complete",
+          "evidence": "Sprint 3.4: migration 0009_stack_vault.sql (app.tenant_stack_vaults + content.questions.stack_vault_tenant_id with sparse partial UNIQUE on (tenant, qor_id)) + tenant-isolation middleware (404 on cross-tenant, 403 on SO-10 export scope) + double-watermark module (HMAC over base_seed||tenant||render_id, visible footer + homoglyph stego) + repository (every query JOINed on tenant_id) + /v1/stack-vault routes (GET list, GET one, POST create) + 22 unit tests passing."
+        },
+        {
+          "id": "phase-3.saml-impl",
+          "name": "SAML/SSO implementation",
+          "status": "in_progress",
+          "evidence": "Sprint 3.3 alpha: migration 0008_sso_jit_provisioning.sql (tenant_sso_config + saml_assertions_seen + scim_external_id_map + sp_signing_certs) + @qorium/saml package (validate, jit, scim-token, replay-guard) + 37 unit tests passing. Live IdP integration tests halt on cred-drop per spec §9 — that's Sprint 3.3.1+."
+        },
+        {
+          "id": "phase-4.observability",
+          "name": "OTel + Grafana + Sentry IaC (halts on cred-drop)",
+          "status": "engineering-complete-cred-bound",
+          "evidence": "Sprint 4.1: infra/auto-bootstrap/observability.tf (Grafana Cloud stack + Sentry org + per-service projects + per-region OTLP endpoints; outputs route to .env after cred-drop) + services/readybank/src/observability/otel.ts (lazy-import dynamic-specifier dormant SDK init; no-op when OTEL_EXPORTER_OTLP_ENDPOINT unset; SIGTERM flush) + 4 unit tests + governance/observability-runbook.md (multi-burn-rate SLOs, 6 pre-built dashboards spec, incident response checklist, tier-2 alerts, audit retention, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true."
+        },
+        {
+          "id": "phase-4.pitr",
+          "name": "PITR + backup automation",
+          "status": "engineering-complete-cred-bound",
+          "evidence": "Sprint 4.2: infra/auto-bootstrap/pitr.tf (per-region KMS CMKs + cross-region S3 backup bucket with versioning + 7d→30d→1y→7y lifecycle + bucket policy denying unencrypted+insecure-transport + AWS Backup vault primary+destination + daily PITR plan with copy_action + CloudWatch alarm on job failure) + infra/B7-postgres-migrations/scripts/restore-pitr.sh (dry-run-by-default; ISO8601 + cluster-uniqueness validation; --execute gate; runbook reference) + governance/dr-runbook.md (failure-mode matrix, RPO 5min/RTO 60min same-region, decision tree, on-call procedure, smoke-test checklist, cutover, comms template, drill cadence, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true."
+        },
+        {
+          "id": "sprint-4.4.audit-log-v0",
+          "name": "Audit Log API v0 (read-only externalisation)",
+          "status": "complete",
+          "evidence": "Sprint 4.4 v0 (Run #61): services/readybank ships /v1/audit/* per infra/Audit-Log-API-Spec-v0.md §3 — GET /v1/audit/events with cursor pagination + filters, GET /v1/audit/events/:id, GET /v1/audit/summary. v0 tenant scope: actor_id = recruiter.id. 19 unit tests; superseded by Sprint 4.4.1 v1 tenant-scoped scan."
+        },
+        {
+          "id": "sprint-4.4.1.audit-tenant-scope",
+          "name": "Audit Log API v1 — tenant-scoped reads + tenant_id column",
+          "status": "complete",
+          "evidence": "Sprint 4.4.1 (Run #62): migration 0010 adds tenant_id UUID to audit.events; SCOPE_CLAUSE = (tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2)) bridges new + legacy rows. recordAuditEvent helper accepts optional tenant_id; admin.ts + reference-panel.ts call sites pass it. 22 unit tests; cross-tenant isolation + legacy fallback enforced."
+        },
+        {
+          "id": "sprint-4.4.2.audit-export",
+          "name": "Audit Log API — bulk export endpoints (Phase 2 §7)",
+          "status": "complete",
+          "evidence": "Sprint 4.4.2 (Run #63): migration 0011 + POST /v1/audit/events/export + GET /v1/audit/exports/:id + GET /v1/audit/exports/:id/download. v0 stores rendered bytes in BYTEA, caps 10K rows. 17 unit tests; cross-tenant isolation + RFC-4180 escaping verified."
+        },
+        {
+          "id": "sprint-4.4.3.audit-hash-chain",
+          "name": "Audit Log hash-chaining + chain verification endpoint (§10)",
+          "status": "complete",
+          "evidence": "Sprint 4.4.3 (Run #64): migration 0012_audit_events_hash_columns.sql adds hash_current + hash_previous VARCHAR(64) + partial chain-walk index. New @qorium/auth/audit-hash module exports canonicalAuditEventJson (deterministic key-sorted serialization that excludes occurred_at/hash_*), computeAuditHash (SHA-256 hex), and verifyAuditChain (walks ordered chunk, returns {valid, total, breaks, unmaterialized}). recordAuditEvent now computes hash_current synchronously per event; INSERT bumps to 11 columns. hash_previous remains nullable — Sprint 4.4.3.1 ships an async materializer that walks (tenant_id, occurred_at, id) and links each row to its predecessor without serializing the audit hot path. New GET /v1/audit/verify endpoint runs verifyAuditChain over the recruiter's tenant chain (up to 10K rows) for SOC 2 tamper-evidence. SIEM streaming explicitly deferred per spec §8 'Month 9 roadmap'. AuditEventRow + AuditEventEnvelope expose hash_current + hash_previous; SELECT_COLUMNS in repository updated. 12 new tests in packages/auth/__tests__/audit-hash.test.ts (canonical-form key-order invariance, null/omitted equivalence, occurred_at/hash_* exclusion, hash determinism, chain validation incl. break detection + unmaterialized counting). Pre-existing test bug fixed in middleware.test.ts mock (extracted event_type from values[2]; was tenant_id since 4.4.1, now correctly values[3]). Workspace: 198 active tests (+38 net auth: 12 audit-hash + bug-fixed 9 middleware; +0 readybank net since 4.4.1's audit.test/audit-exports.test add hash_current/hash_previous to row constructors only). Typecheck/lint/test/build/prettier all green; gitleaks clean."
+        },
+        {
+          "id": "sprint-4.5.webhooks-v0",
+          "name": "Webhooks Service v0 alpha (library + schema)",
+          "status": "complete",
+          "evidence": "Sprint 4.5 (Run #65): migration 0013_webhooks.sql creates webhooks.{subscriptions, events, deliveries} per Webhooks-Service-v0-Spec.md §2 — 180-day signing-secret rotation slot, dispatcher index (next_retry_at, id) WHERE status='pending', subscription history index, customer-history view-friendly subscription_idx. New @qorium/webhooks package ships 4 pure-TS modules: signature.ts (HMAC-SHA256 over `{event_type}.{timestamp}.{body}` per spec §5; constant-time verifyWebhookSignature with 5-min replay tolerance; buildWebhookHeaders emits X-QOrium-{Signature,Timestamp,Delivery}), retry.ts (exact spec §6 schedule [0s, 60s, 5m, 30m, 4h, 24h] over 35-hour window; computeNextRetryAt returns null past MAX_ATTEMPTS), attempt-classifier.ts (success/retryable/dead-letter for HTTP status + transport-level errors per spec §6), event-envelope.ts (spec §4 payload shape; idempotency_key=id; 15-event catalog spanning ReadyBank/JD-Forge/Stack-Vault/Security; isValidEventType accepts catalog + open `prefix.subject` slugs ≤64 chars). 43 unit tests across 4 files: signature determinism + drift + tamper + length checks; retry schedule values + null-past-max + window math; classifier full HTTP + transport-error matrix; envelope id-prefixing + key invariants. The PM2 service + Redis-backed delivery worker land in Sprint 4.5.1 — at which point services subscribe to in-process emitters (e.g., the audit-log webhook hook) and dispatch via the queue. 43 active tests; typecheck/lint/test/build/prettier all green; gitleaks clean."
+        },
+        {
+          "id": "sprint-4.6.ats-connectors-v0",
+          "name": "ATS Connector Framework v0 alpha (lib + Lever stub + schema)",
+          "status": "complete",
+          "evidence": "Sprint 4.6 (Run #66): migration 0014_ats_connectors.sql creates ats.{connections, sync_runs}; HMAC-keyed credential_hash slot for static API tokens + OAuth refresh slot for Workday-class ATSes (Sprint 4.6.2). New @qorium/ats-connectors package per ATS-Connector-Framework-v0.md §2.3: types.ts (Candidate / Job / AssessmentResult / ConnectorAdapter / SyncCursor / SyncPage), sync-state.ts (idle→running→succeeded|failed FSM with terminal-status guard + counts arithmetic), field-mapper.ts (dotted-path source resolution + string/number/boolean/date coercion + per-tenant overrides), adapters/lever.ts (LeverAdapter implementing ConnectorAdapter; default field mapping for Lever's id/firstName/lastName/emails[0]/stage.text/categories shape; createMockLeverFetcher seeded for tests). 23 unit tests across 3 files (sync-state FSM 7, field-mapper 9, Lever adapter 7). Live HTTP fetch + Greenhouse/Workday/Ashby/Darwinbox adapters land in Sprint 4.6.1+ per spec §3 + Constitution Article IX M9 phase-gate mandate. Typecheck/lint/test/build/prettier all green; gitleaks clean."
+        },
+        {
+          "id": "sprint-5.0.multi-region-iac",
+          "name": "Multi-region terraform skeleton (DR pair)",
+          "status": "engineering-complete-cred-bound",
+          "evidence": "Sprint 5.0 (Run #67): infra/auto-bootstrap/multi-region.tf — paired ap-south-1 + ap-southeast-1 VPCs (10.10/16 + 10.20/16), cross-region VPC peering with auto-accept on the DR side, S3 cross-region replication bucket for audit-log + export buckets (Sprint 4.2 + 4.4.2), Route53 /healthz health check + composite CloudWatch alarm 'qorium-primary-region-down', RPO=15min / RTO=60min variables. Existing apply.sh wrapper already supports the new module (BOOTSTRAP_AUTHORIZED=true ./apply.sh multi-region). New governance/multi-region-runbook.md complements dr-runbook.md with the cross-region cutover decision tree (verify region failure → decide → notify → promote replica → re-point Route53 → smoke test → declare complete; ~50 min total under 60-min RTO target), failover triggers, RPO/RTO mechanism table, failback procedure, quarterly drill cadence, cred-drop checklist. Engineering-complete; apply halts on cred-drop per Constitution Article IX. The replica wiring (post primary RDS migration) lands in Sprint 5.0.1."
+        },
+        {
+          "id": "sprint-5.1.soc2-harness",
+          "name": "SOC 2 readiness harness — control mapping + evidence pull",
+          "status": "complete",
+          "evidence": "Sprint 5.1 (Run #68): governance/soc2/{README, control-mapping, evidence-collection}.md ship the full TSC-to-QOrium control map covering CC1.1–CC9.2 (each row has a control description, QOrium implementation reference, and an evidence query). Quarterly evidence-pull runbook covers Q1–Q4 cadence, output JSON shape, AWS S3 archive path with Object-Lock + cross-region replication target. New services/readybank/src/scripts/soc2-evidence-pull.ts (skeleton): reads audit.events with optional --tenant filter, classifies by category (auth/leak/api_key_rotation/stack_vault/compliance/other), pulls api_keys snapshot + rotation count, lists migrations applied in window, leaves hash-chain verification to Sprint 5.1.1 (per-tenant parallel calls). 6 unit tests for classifyEventType. CTO-DELTA: Sprint 5.1.1 wires the cron + per-tenant hash-chain walk + S3 upload; v0 ships the auditable contract (control map + evidence shape + manual run). Workspace: 127 readybank tests (+6 soc2). Typecheck/lint/test all green."
+        },
+        {
+          "id": "sprint-7.0.outcome-instrumentation",
+          "name": "Outcome metrics — SQL views + dashboards spec",
+          "status": "complete",
+          "evidence": "Sprint 7.0 (Run #69): governance/metrics/{README, outcome-metrics-spec, dashboards}.md ship the canonical metric definitions (ARR/MRR/NRR · DAU/MAU/stickiness · content-throughput-30d · wave-coverage · IRT-coverage · leak-rate-quarterly · webhook-success · ats-sync-success · audit-volume · hash-chain-coverage) and Grafana panel specs (4 dashboards: Revenue, Adoption, Content Quality, Engineering Health) + alerting rules (Sprint 7.0.2). Migration 0015_outcome_metrics_views.sql creates schema metrics with 9 read-only views over canonical tables (audit.events, content.questions, content.leak_alerts, app.subscriptions, app.tenants); each view defensive against empty source tables (e.g., metrics.tenant_arr returns 0 rows when subscriptions table is empty — correct, not broken). v0 uses regular VIEWs; Sprint 7.0.0.1 promotes any slow ones to MATERIALIZED VIEW with REFRESH CONCURRENTLY 5-min cadence. Sprint 7.0.1 provisions the actual Grafana dashboards (cred-bound on Sprint 4.1 observability.tf apply); Sprint 7.0.2 wires alerting; Sprint 7.0.3 ships public investor metrics page at metrics.qorium.online. Master meter UNCHANGED at 0.78 per Constitution Article IX: business outcomes (ARR / IPO / first 3 logos) are HUMAN-BOUND; this sprint ships the engineering surface that measures progress, not the outcomes themselves."
+        },
+        {
+          "id": "human-prep.merge-the-9-PRs.merge-order-doc",
+          "name": "Tier-A1 prep — merge-order doc for PRs #31–#40",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.merge-the-PRs",
+          "evidence": "governance/merge-order/PRs-31-through-40.md (Run #70). 10 PRs sequenced: #32 (CI fix) → #31 → #33 → #34 → #35 (audit stack) → #36 → #37 → #38 → #39 → #40. Migration order 0010–0015. Smoke-test checklist + rollback per PR + stop conditions documented."
+        },
+        {
+          "id": "human-prep.io-psych-contractor.sow-and-outreach",
+          "name": "Tier-A2 prep — I/O Psych contractor SOW + outreach pack",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.io-psych-contractor",
+          "evidence": "governance/hiring/io-psych-contractor/ — README + SOW (14 sections, IP/conflicts/anti-leak/convert-to-FTE) + 5 outreach templates (cold/warm-intro/LinkedIn/2 follow-ups) + 12-question reference rubric + comp benchmark (₹18L mid-tier 6mo, defensible band) + week-by-week deliverable schedule (D1-D6 + ongoing batch reviews + payment milestones M1-M5). NO outreach sent — gated on CEO approval per Auto-Mode-Remote-Plan."
+        },
+        {
+          "id": "human-prep.sme-lead-hire.jd-and-pipeline",
+          "name": "Tier-A3 prep — SME Content Lead JD + sourcing pipeline",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.sme-lead-hire",
+          "evidence": "governance/hiring/sme-content-lead/ — README + JD (publishable copy: ₹40-60 LPA + 0.4-0.8% ESOP, Director-IC, Mumbai/remote-India), sourcing-pipeline (5 channels: direct outreach + LinkedIn/Naukri + recruiter + referrals + ISIOP/AICTE; budget ~₹4L; weekly metrics), screening-rubric (4 dimensions × 1-5 each: methodological depth + volume judgement + author leadership + communication; calibrated against CTO Office baseline), compensation-band (Senior+/Senior/Senior-junior tiers; recommended anchor ₹50L + 0.5% ESOP), interview-process (5 stages, ~23 business days target SLA). NO outreach sent."
+        },
+        {
+          "id": "human-prep.senior-eng-hire.jd-and-pipeline",
+          "name": "Tier-A4 prep — Senior Engineer #1 JD + sourcing pipeline",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.senior-eng-hire",
+          "evidence": "governance/hiring/senior-engineer-1/ — README + JD (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, peer-to-CTO, TS+pg+AWS), sourcing-pipeline (5 channels: LinkedIn/Naukri + 30-name target list + boutique recruiter ₹3L + ₹1L referral bounty + community; ~₹5L budget), screening-rubric (4 dimensions: code quality via paid ₹10K take-home audit-chain verifier + system design webhook delivery + production incident-replay + written ADR-style essay; calibrated to CTO Office baseline), compensation-band (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire timing for budget fit), interview-process (5 stages, ~28 business days SLA; paid take-home discipline). NO outreach sent."
+        }
       ]
     },
     "human": {
       "completed": 4,
-      "total": 14,
+      "total": 15,
       "tiles": [
-        { "id": "cc-01", "name": "₹50L sub-budget tagged in Talpro India books", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
-        { "id": "cc-02-a", "name": "K&S Partners IP-counsel engagement email sent", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
-        { "id": "cc-03", "name": "Talpro Delivery Head Customer-Zero brief", "status": "complete", "owner": "CEO", "closedOn": "2026-05-02" },
-        { "id": "cc-04", "name": "Domain registration (qorium.online)", "status": "complete", "owner": "CEO", "closedOn": "2026-05-03" },
-        { "id": "human.first-talpro-candidate", "name": "First REAL Talpro candidate run end-to-end", "status": "blocked-on-human", "owner": "Talpro Delivery Head", "blocker": "needs Talpro recruiter to run a real candidate post-SES verification" },
-        { "id": "human.amendment-2.1-ratify", "name": "Wave-3 AUTHORED ratification (CEO YES/NO)", "status": "blocked-on-human", "owner": "CEO", "blocker": "30-min review of Constitutional Amendment v2.1" },
-        { "id": "human.cc-13-whatsapp", "name": "WhatsApp group QOrium Customer Zero", "status": "blocked-on-human", "owner": "CEO", "blocker": "60-sec optional accelerator" },
-        { "id": "human.io-psych-contractor", "name": "I/O Psychologist contractor signed (C5 SOW)", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "needs hire / contract" },
-        { "id": "human.reference-panel-200", "name": "Reference Panel ≥200 recruited", "status": "blocked-on-human", "owner": "CDO/I-O Psych", "blocker": "needs panel recruitment + IRT calibration runs" },
-        { "id": "human.sme-lead-hire", "name": "SME Content Lead hired", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "M2 hire per Phase 1 punchlist I2" },
-        { "id": "human.senior-eng-hire", "name": "Senior Engineer #1 hired", "status": "blocked-on-human", "owner": "CEO+CTO", "blocker": "M2 hire per I1" },
-        { "id": "human.first-3-recruiter-logos", "name": "First 3 Recruiter Subscription logos signed", "status": "blocked-on-human", "owner": "CEO+AE", "blocker": "M3 sales target H2" },
-        { "id": "human.bosch-discovery-call", "name": "First Bosch GCC discovery call", "status": "blocked-on-human", "owner": "CEO", "blocker": "warm intro per E1-E4" },
-        { "id": "human.cred-drop", "name": "Production credentials dropped to .env.bootstrap", "status": "blocked-on-human", "owner": "CEO", "blocker": "needed to unblock SES/observability/multi-region IaC apply" }
+        {
+          "id": "cc-01",
+          "name": "₹50L sub-budget tagged in Talpro India books",
+          "status": "complete",
+          "owner": "CEO",
+          "closedOn": "2026-05-03"
+        },
+        {
+          "id": "cc-02-a",
+          "name": "K&S Partners IP-counsel engagement email sent",
+          "status": "complete",
+          "owner": "CEO",
+          "closedOn": "2026-05-03"
+        },
+        {
+          "id": "cc-03",
+          "name": "Talpro Delivery Head Customer-Zero brief",
+          "status": "complete",
+          "owner": "CEO",
+          "closedOn": "2026-05-02"
+        },
+        {
+          "id": "cc-04",
+          "name": "Domain registration (qorium.online)",
+          "status": "complete",
+          "owner": "CEO",
+          "closedOn": "2026-05-03"
+        },
+        {
+          "id": "human.first-talpro-candidate",
+          "name": "First REAL Talpro candidate run end-to-end",
+          "status": "blocked-on-human",
+          "owner": "Talpro Delivery Head",
+          "blocker": "needs Talpro recruiter to run a real candidate post-SES verification"
+        },
+        {
+          "id": "human.amendment-2.1-ratify",
+          "name": "Wave-3 AUTHORED ratification (CEO YES/NO)",
+          "status": "blocked-on-human",
+          "owner": "CEO",
+          "blocker": "30-min review of Constitutional Amendment v2.1"
+        },
+        {
+          "id": "human.cc-13-whatsapp",
+          "name": "WhatsApp group QOrium Customer Zero",
+          "status": "blocked-on-human",
+          "owner": "CEO",
+          "blocker": "60-sec optional accelerator"
+        },
+        {
+          "id": "human.io-psych-contractor",
+          "name": "I/O Psychologist contractor signed (C5 SOW)",
+          "status": "blocked-on-human",
+          "owner": "CEO+CTO",
+          "blocker": "needs hire / contract"
+        },
+        {
+          "id": "human.reference-panel-200",
+          "name": "Reference Panel ≥200 recruited",
+          "status": "blocked-on-human",
+          "owner": "CDO/I-O Psych",
+          "blocker": "needs panel recruitment + IRT calibration runs"
+        },
+        {
+          "id": "human.sme-lead-hire",
+          "name": "SME Content Lead hired",
+          "status": "blocked-on-human",
+          "owner": "CEO+CTO",
+          "blocker": "M2 hire per Phase 1 punchlist I2"
+        },
+        {
+          "id": "human.senior-eng-hire",
+          "name": "Senior Engineer #1 hired",
+          "status": "blocked-on-human",
+          "owner": "CEO+CTO",
+          "blocker": "M2 hire per I1"
+        },
+        {
+          "id": "human.first-3-recruiter-logos",
+          "name": "First 3 Recruiter Subscription logos signed",
+          "status": "blocked-on-human",
+          "owner": "CEO+AE",
+          "blocker": "M3 sales target H2"
+        },
+        {
+          "id": "human.bosch-discovery-call",
+          "name": "First Bosch GCC discovery call",
+          "status": "blocked-on-human",
+          "owner": "CEO",
+          "blocker": "warm intro per E1-E4"
+        },
+        {
+          "id": "human.cred-drop",
+          "name": "Production credentials dropped to .env.bootstrap",
+          "status": "blocked-on-human",
+          "owner": "CEO",
+          "blocker": "needed to unblock SES/observability/multi-region IaC apply"
+        },
+        {
+          "id": "human.merge-the-PRs",
+          "name": "Merge 10 open draft PRs (#31–#40) per merge-order doc",
+          "status": "blocked-on-human",
+          "owner": "CEO",
+          "blocker": "needs CEO to merge in order #32 → #31 → #33 → #34 → #35 → #36 → #37 → #38 → #39 → #40 and run pm2 reload",
+          "linkedAutoTile": "human-prep.merge-the-9-PRs.merge-order-doc"
+        }
       ]
     }
   },
   "phases": [
-    { "id": 0, "name": "Foundation", "percent": 100, "status": "complete" },
-    { "id": 1, "name": "Engine MVP", "percent": 100, "status": "engineering-complete", "note": "Sprint 1.8d shipped admin console (static SPA pattern, CTO-DELTA from Next.js). Phase 1 engineering 100%. Customer-facing 100% requires the human lane: I/O Psych contractor, Reference Panel ≥200, first 5 logos, first REAL Talpro candidate." },
-    { "id": 2, "name": "India Stack", "percent": 95, "status": "active", "note": "Phase 2 — Sprint 2.0 ALL 5 Wave-2 domains 100/100 ✅. Sprint 2.1 ALL 8 Wave-1 sub-skills 100/100 ✅✅✅ (Java/Python/React/SQLData/DevOps/Salesforce/AWS/AIPE). Sprint 2.2 billing + 2.3 i18n merged. Auto-mode lane structurally complete. Remaining 5%: SME validation (human-bound) + translation review (human-bound)." },
-    { "id": 3, "name": "SKU Maturity", "percent": 0, "status": "queued" },
-    { "id": 4, "name": "Year-1 Close", "percent": 0, "status": "queued" },
-    { "id": 5, "name": "Y2 International", "percent": 0, "status": "queued" },
-    { "id": 6, "name": "Y3 Multi-Region", "percent": 0, "status": "queued" },
-    { "id": 7, "name": "Y5 Outcome", "percent": 0, "status": "queued", "note": "Project Completion per Constitution Article IX = $300M acquisition / IPO ≥₹3,000Cr / $50M ARR. Human-bound." }
+    {
+      "id": 0,
+      "name": "Foundation",
+      "percent": 100,
+      "status": "complete"
+    },
+    {
+      "id": 1,
+      "name": "Engine MVP",
+      "percent": 100,
+      "status": "engineering-complete",
+      "note": "Sprint 1.8d shipped admin console (static SPA pattern, CTO-DELTA from Next.js). Phase 1 engineering 100%. Customer-facing 100% requires the human lane: I/O Psych contractor, Reference Panel ≥200, first 5 logos, first REAL Talpro candidate."
+    },
+    {
+      "id": 2,
+      "name": "India Stack",
+      "percent": 95,
+      "status": "active",
+      "note": "Phase 2 — Sprint 2.0 ALL 5 Wave-2 domains 100/100 ✅. Sprint 2.1 ALL 8 Wave-1 sub-skills 100/100 ✅✅✅ (Java/Python/React/SQLData/DevOps/Salesforce/AWS/AIPE). Sprint 2.2 billing + 2.3 i18n merged. Auto-mode lane structurally complete. Remaining 5%: SME validation (human-bound) + translation review (human-bound)."
+    },
+    {
+      "id": 3,
+      "name": "SKU Maturity",
+      "percent": 0,
+      "status": "queued"
+    },
+    {
+      "id": 4,
+      "name": "Year-1 Close",
+      "percent": 0,
+      "status": "queued"
+    },
+    {
+      "id": 5,
+      "name": "Y2 International",
+      "percent": 0,
+      "status": "queued"
+    },
+    {
+      "id": 6,
+      "name": "Y3 Multi-Region",
+      "percent": 0,
+      "status": "queued"
+    },
+    {
+      "id": 7,
+      "name": "Y5 Outcome",
+      "percent": 0,
+      "status": "queued",
+      "note": "Project Completion per Constitution Article IX = $300M acquisition / IPO ≥₹3,000Cr / $50M ARR. Human-bound."
+    }
   ],
   "surfaces": [
-    { "id": 1, "name": "ReadyBank API", "status": "live", "url": "https://api.qorium.online/healthz", "since": "Run #27" },
-    { "id": 2, "name": "Recruiter Portal SPA", "status": "live", "path": "/recruiter/dashboard.html", "since": "Run #31" },
-    { "id": 3, "name": "Candidate Take Flow", "status": "live", "path": "/take/<token>", "since": "Run #29" },
-    { "id": 4, "name": "Result Renderer", "status": "live", "path": "/v1/results/<candidate_id>", "since": "Run #26" },
-    { "id": 5, "name": "Watermark Engine v0 (Anti-Leak Moat)", "status": "live", "path": "/v1/questions/:uuid?candidate_id=...", "since": "Run #28" },
-    { "id": 6, "name": "Recruiter JWT Auth Hardening", "status": "live", "path": "/v1/auth/login", "since": "PR #12 29ff865", "previousStatus": "spec-ready-merge-next", "reconciledOn": "2026-05-07" }
+    {
+      "id": 1,
+      "name": "ReadyBank API",
+      "status": "live",
+      "url": "https://api.qorium.online/healthz",
+      "since": "Run #27"
+    },
+    {
+      "id": 2,
+      "name": "Recruiter Portal SPA",
+      "status": "live",
+      "path": "/recruiter/dashboard.html",
+      "since": "Run #31"
+    },
+    {
+      "id": 3,
+      "name": "Candidate Take Flow",
+      "status": "live",
+      "path": "/take/<token>",
+      "since": "Run #29"
+    },
+    {
+      "id": 4,
+      "name": "Result Renderer",
+      "status": "live",
+      "path": "/v1/results/<candidate_id>",
+      "since": "Run #26"
+    },
+    {
+      "id": 5,
+      "name": "Watermark Engine v0 (Anti-Leak Moat)",
+      "status": "live",
+      "path": "/v1/questions/:uuid?candidate_id=...",
+      "since": "Run #28"
+    },
+    {
+      "id": 6,
+      "name": "Recruiter JWT Auth Hardening",
+      "status": "live",
+      "path": "/v1/auth/login",
+      "since": "PR #12 29ff865",
+      "previousStatus": "spec-ready-merge-next",
+      "reconciledOn": "2026-05-07"
+    }
   ],
   "waves": [
-    { "id": 1, "name": "Tech Core", "count": 986, "target": 800, "quality": "v0.6", "note": "Wave-1 ALL 8 OF 8 sub-skills at 100/100 ✅✅✅: Java, Python, React, SQL/Data, DevOps/SRE, Salesforce, AWS, AIPE. Wave-1 target FULLY MET. SME Lead validation pending (human-bound) before flipping to status='released'." },
-    { "id": 2, "name": "India Stack", "count": 500, "target": 500, "quality": "v0.6", "note": "ALL 5 Wave-2 domains at 100/100 ✅: SAP-ABAP, OHCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive. SME Lead validation pending (human-bound) before flipping to status='released'." },
-    { "id": 3, "name": "Psychometric", "count": 20, "target": 200, "quality": "v0.1", "blocker": "I/O Psych sign-off + Reference Panel ≥200" }
+    {
+      "id": 1,
+      "name": "Tech Core",
+      "count": 986,
+      "target": 800,
+      "quality": "v0.6",
+      "note": "Wave-1 ALL 8 OF 8 sub-skills at 100/100 ✅✅✅: Java, Python, React, SQL/Data, DevOps/SRE, Salesforce, AWS, AIPE. Wave-1 target FULLY MET. SME Lead validation pending (human-bound) before flipping to status='released'."
+    },
+    {
+      "id": 2,
+      "name": "India Stack",
+      "count": 500,
+      "target": 500,
+      "quality": "v0.6",
+      "note": "ALL 5 Wave-2 domains at 100/100 ✅: SAP-ABAP, OHCM, Salesforce CPQ, Finacle/Flexcube, Embedded Automotive. SME Lead validation pending (human-bound) before flipping to status='released'."
+    },
+    {
+      "id": 3,
+      "name": "Psychometric",
+      "count": 20,
+      "target": 200,
+      "quality": "v0.1",
+      "blocker": "I/O Psych sign-off + Reference Panel ≥200"
+    }
   ],
   "library": {
     "totalAuthored": 1421,
@@ -115,55 +559,290 @@
     "note": "Sprint 2.1 Wave-1 60→100 COMPLETE — ALL 8 of 8 sub-skills at 100/100 ✅✅✅. totalParsable 986 (was 566 at Sprint 2.1 start; +420 questions in Sprint 2.1). Wave-1 = 800 target met. SME Lead validation pending (human-bound)."
   },
   "skus": [
-    { "id": "readybank", "name": "ReadyBank", "pricing": "$5K-$25K/yr API", "status": "alpha-shipped" },
-    { "id": "jd-forge", "name": "JD-Forge", "pricing": "$49/$199/$499 per JD", "status": "spec-only" },
-    { "id": "stack-vault", "name": "Stack-Vault", "pricing": "₹10L/₹40L/₹1Cr+/yr", "status": "watermark-engine-live; tenant-isolation pending" }
+    {
+      "id": "readybank",
+      "name": "ReadyBank",
+      "pricing": "$5K-$25K/yr API",
+      "status": "alpha-shipped"
+    },
+    {
+      "id": "jd-forge",
+      "name": "JD-Forge",
+      "pricing": "$49/$199/$499 per JD",
+      "status": "spec-only"
+    },
+    {
+      "id": "stack-vault",
+      "name": "Stack-Vault",
+      "pricing": "₹10L/₹40L/₹1Cr+/yr",
+      "status": "watermark-engine-live; tenant-isolation pending"
+    }
   ],
   "runs": [
-    { "id": 73, "date": "2026-05-09", "summary": "Tier-A4 (human-lane acceleration): Senior Engineer #1 hiring pack shipped at governance/hiring/senior-engineer-1/. Files: README (rationale + 5-question CEO decision matrix; first non-founder engineer = peer to CTO, not direct report), JD.md (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, TS+pg+AWS, requires one of {IRT/SAML/multi-tenant/anti-cheat/compliance}; first-90-days plan), sourcing-pipeline.md (5 channels including 30-name target list of HackerRank/Mettl/Razorpay/Cred/Atlassian alumni + boutique recruiter + ₹1L referral bounty; ~₹5L budget; weekly funnel metrics), screening-rubric.md (4 dimensions calibrated to CTO Office baseline: paid ₹10K take-home audit-chain verifier + system-design webhook-delivery exercise + 30-min incident-replay scenario + written technical-disagreement essay; mandatory floors), compensation-band.md (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire fits Y1 budget alongside SME Lead + I/O Psych), interview-process.md (5 stages ~28 business day SLA; paid take-home discipline non-negotiable). Auto-tile human-prep.senior-eng-hire.jd-and-pipeline complete; links to existing human.senior-eng-hire. NO outreach sent. Master meter unchanged at 0.78 cap." },
-    { "id": 60, "date": "2026-05-08", "summary": "🟢 AUTO-LANE 33/33 ENGINEERING-COMPLETE. Sprint 4.2 closeout: PITR + DR runbook. infra/auto-bootstrap/pitr.tf (per-region KMS + cross-region S3 backup with 7d→30d→1y→7y lifecycle + bucket policy denying unencrypted+insecure transport + AWS Backup vaults primary+destination + daily PITR plan with copy_action + CloudWatch alarm on job-failure). scripts/restore-pitr.sh (dry-run default; ISO8601+uniqueness validation; --execute gate). governance/dr-runbook.md (failure-mode matrix, RPO 5min/RTO 60min, decision tree, on-call procedure, smoke-test, cutover, comms template, quarterly drill cadence, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true. Auto lane: 33/33 engineering-complete; remaining cred-bound items annotated. Master meter HOLDS at 0.78 ceiling per Constitution Article IX — human-bound items unchanged." },
-    { "id": 59, "date": "2026-05-08", "summary": "Sprint 4.1 closeout: Observability IaC. infra/auto-bootstrap/observability.tf (Grafana Cloud stack ap-south-1 default + Sentry org + per-service projects readybank-api, anti-leak + per-region OTLP gRPC endpoint outputs). services/readybank/src/observability/otel.ts: lazy-import dynamic-specifier so TS doesn't resolve absent @opentelemetry/sdk-node at typecheck; no-op when OTEL_EXPORTER_OTLP_ENDPOINT unset; SIGTERM flush within 5s; idempotent init. 4 unit tests pass. governance/observability-runbook.md (multi-burn-rate SLO catalog, 6 pre-built dashboards spec, incident response checklist, tier-2 alerts (IRT auto-fail / anti-leak severity-2 / audit-log gap / Stack-Vault watermark anomaly), audit retention 30d hot / 1y warm / 7y cold, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true." },
-    { "id": 58, "date": "2026-05-08", "summary": "Sprint 3.5 alpha: JD-Forge SKU 2 library. New @qorium/jd-forge package: types.ts (ParsedJobDescription, GenerationSpec, DraftQuestion, QuestionFormat union of v0.6 formats), parsing/jd-parser.ts (validateParsed exhaustive shape check + retry-once wrapper around injectable LlmExtractor), role-graph/mapper.ts (8-prefix starter catalog covering exactly the Wave-1 100/100 sub-skills: java/python/react/sqldata/devops/sf/aws/aipe; matchSingleSkill pattern matching + mapRoleToSubSkills aggregating with weight + coverage report + unmatched-skills surfacing for SME catalog extension), generation/spec-builder.ts (largest-remainder distribution + 40/30/20/10 format mix per spec §3.3 + role-family-aware design-vs-SJT routing + 4-band difficulty IRT b targets + per-question round-robin assignment; guards on total range), output/exporters.ts (canonical JSON envelope, RFC-4180 CSV with quote+comma+newline escaping, HackerRank-v1 mapped JSON preserving QOrium watermark in metadata; exhaustive switch-never on format). 40 unit tests pass. Live LLM call (services/jd-forge Express + ANTHROPIC_API_KEY) is cred-bound; defers to cred-drop. Workspace: 8 packages + 2 services typecheck clean." },
-    { "id": 57, "date": "2026-05-08", "summary": "Sprint 3.4: Stack-Vault tenant isolation + double watermark. Migration 0009_stack_vault.sql adds app.tenant_stack_vaults (per-tenant tier/floor/expiry/encrypted-pepper) and content.questions.stack_vault_tenant_id with sparse partial UNIQUE INDEX (stack_vault_tenant_id, qor_id) so the same qor_id is independent across tenants. New services/readybank/src/middleware/tenant-isolation.ts: requireActiveVault layered on @qorium/auth AuthContext — returns 401 unauth, 403 on SO-10 export:stack-vault scope (forbidden per Constitution + D3), 404 on no/lapsed/expired vault (no existence leak), 503 on missing pepper, attaches VaultContext on success. New services/readybank/src/stack-vault/watermark.ts: computeDoubleWatermark (HMAC-SHA256 over baseSeed||tenantId||renderId; per-vault pepper), applyVisibleFooter (idempotent), applyHomoglyphStego (Latin→Cyrillic homoglyph mask driven by signature bits). New services/readybank/src/repositories/stack-vault.ts: every SELECT/INSERT joins on tenant_id (defense in depth). New services/readybank/src/routes/stack-vault.ts: GET list / GET one (renders with double watermark) / POST create with 23505 → 409 mapping. 22 new unit tests pass: 14 watermark (determinism, cross-tenant unforgeable, pepper rotation, render-event uniqueness, footer format, homoglyph determinism) + 8 middleware (401/403/404/503/success). Workspace: 138 active tests, 0 failures, 21 DB-integration tests skipped per existing pattern." },
-    { "id": 56, "date": "2026-05-08", "summary": "Sprint 4.3 reconcile: Auto-lane tile audit. Promoted 6 tiles in_progress→complete with evidence (sprint-1.7.nos-mapper, sprint-1.8.irt, sprint-1.8.panel-api, sprint-1.8.anti-leak, sprint-1.8.admin, phase-2.inr-gst). Promoted 2 tiles in_progress→engineering-complete-{cred|translation}-bound (sprint-1.7.email-iac, phase-2.i18n) — engineering predicate met; deployment / translation human-bound. Auto lane: 25/33 → 31/33 (94%). Remaining 2: phase-3.jd-forge + phase-3.stack-vault + phase-4.observability + phase-4.pitr (next sprints). Master meter holds at 0.78 ceiling per Constitution Article IX." },
-    { "id": 55, "date": "2026-05-08", "summary": "Sprint 3.3 alpha: SAML/SSO implementation. Migration 0008_sso_jit_provisioning.sql adds app.tenant_sso_config (per-tenant SAML/OIDC + SCIM config), app.saml_assertions_seen (replay-attack guard with HMAC-pepper-bound IDs), app.scim_external_id_map (idempotent SCIM CRUD), app.sp_signing_certs (rotation overlap), and recruiters.auth_source column. New @qorium/saml package: types.ts, validate.ts (assertion validator with issuer/audience/recipient/clock-skew/replay/InResponseTo checks), jit.ts (create/claim/login/reject decision tree), scim-token.ts (HMAC-SHA256 pepper hash + rotation overlap), replay-guard.ts. 37 unit tests passing across 4 files. Live IdP integration tests halt on cred-drop per spec §9. 277 active workspace tests (was 240)." },
-    { "id": 54, "date": "2026-05-08", "summary": "🟢 SPRINT 2.1 COMPLETE — Wave-1 8/8 ALL SUB-SKILLS AT 100/100 ✅✅✅. AIPE +60 questions (Q041-Q100) closes the 8th and final Wave-1 sub-skill. Coverage: prompt caching, structured output, RAG patterns, tool use, hallucination mitigation, prompt injection defense, model cascade, agent design, multi-tenant LLM platform, RAG quality crisis, AI product PMF, AI Center of Excellence. Ingest 926 → 986 parsable. Wave-1 final tally: Java 100, Python 100, React 100, SQL/Data 100, DevOps/SRE 100, Salesforce 100, AWS 100, AIPE 100 = 800/800. Combined with Wave-2 5/5 domains 100/100 (500/500), library now 1486 authored / 986 parsable. Auto-mode lane structurally complete; master meter remains at 0.78 cap pending human-bound items (Customer-Zero, Reference Panel ≥200, SME Lead hire, first 3 logos)." },
-    { "id": 53, "date": "2026-05-08", "summary": "Sprint 2.1 Wave-1 milestone: AWS +60 questions (Q041-Q100) closes 7th Wave-1 sub-skill at 100/100 ✅. Coverage: VPC/IAM/S3 fundamentals; Lambda + DynamoDB + Step Functions; ALB vs NLB vs API Gateway; KMS; PrivateLink; Aurora Global; Backup; Organizations + SCPs; cost optimization; CDK; data lake (Iceberg + Lake Formation); region outage response; on-prem migration; multi-account governance; Black Friday scaling crisis; Cloud CoE. Ingest 866 → 926 parsable." },
-    { "id": 52, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: Salesforce +60 questions (Q041-Q100) closes 6th Wave-1 sub-skill at 100/100 ✅. Coverage: Apex governor limits + bulkification; SOQL selectivity + indexing; LWC vs Aura; Flow vs Apex; PSG; Big Objects; Platform Events; Salesforce Connect; Custom Metadata; FLS + WITH SECURITY_ENFORCED; trigger frameworks + recursion guard; Continuation; HttpCalloutMock testing; Shield Encryption; Multi-currency; Sandbox strategy; SFDX + scratch orgs; sharing model layers; Approval Flow; Marketing Cloud Connect; Experience Cloud; Einstein GPT + Trust Layer; multi-org strategy + CoE; Slack integration; trigger perf crisis; legacy CRM->Salesforce migration; data privacy crisis (DPDPA/RBI); Salesforce CoE federated charter. Ingest 806 → 866 parsable. Wave-1: 6 of 8 sub-skills at 100/100. AWS + AIPE remaining (deferred to next session per auto-mode context budget; durable progress recorded on PR #24)." },
-    { "id": 51, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: DevOps/SRE +60 questions (Q041-Q100) closes 5th Wave-1 sub-skill at 100/100 ✅. Coverage: K8s probes/lifecycle/HPA/PDB/operators/Karpenter; service mesh; SLI/SLO error budgets w/ multi-burn-rate; PromQL/OpenTelemetry; Argo CD GitOps + Argo Rollouts; Terraform; Helm + Kustomize; secrets (ESO + Vault); Cilium eBPF + zero-trust; FinOps + OpenCost; chaos engineering; major incident response; multi-cloud decision; container image sprawl; on-call burnout; K8s upgrade; cost overrun 30% reduction; platform engineering team build. Ingest 746 → 806 parsable. Wave-1: 5 of 8 sub-skills at 100/100 (Java/Python/React/SQL-Data/DevOps-SRE). Remaining: Salesforce, AWS, AIPE." },
-    { "id": 50, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: SQL/Data +60 questions (Q041-Q100) closes 4th Wave-1 sub-skill at 100/100 ✅. Coverage: Postgres EXPLAIN/MVCC/locking/JSONB/replication; Snowflake/BigQuery; ClickHouse columnar; Iceberg; dbt incremental + snapshots; recursive CTEs; window functions; gap-free sequences; SCD Type 2; pgvector; multi-region active-active; data warehouse architecture; data mesh hybrid; A/B test drift; quarter-end perf crisis; DR failure recovery; Mongo->Postgres migration. Ingest 686 → 746 parsable." },
-    { "id": 49, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: React +40 questions (Q061-Q100) closes 3rd Wave-1 sub-skill at 100/100 ✅. Coverage: React 19 use()/useTransition/RSC; TanStack Query; Zustand vs RTK; Suspense waterfalls; React.memo equality; hydration mismatch; virtualization; optimistic updates; RHF+zod; collab editor design (Yjs+ProseMirror); bundle splitting; WebSocket hook; useId; Server Actions; useDeferredValue; tearing/useSyncExternalStore; useEvent workaround; component library design; INP crisis; class->hooks migration; headless frontend platform. Ingest 646 → 686." },
-    { "id": 48, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: Python +40 questions (Q061-Q100) closes 2nd Wave-1 sub-skill at 100/100 ✅. Coverage: TaskGroup/ExceptionGroup; Pydantic v2; SQLAlchemy 2.x async; PEP 695 generics; Polars lazy; contextvars; py-spy; __slots__; GIL+multiprocessing; Protocol; mutable-default; FastAPI testing; Cython/mypyc; async generator backpressure; OTel; retry+jitter; multi-tenant SaaS design; memory leak; Py2->Py3.13 migration; Decimal vs float; COPY streaming loader; Python SDK design; Pandas->Polars migration; Black-Friday pool exhaustion; realtime ML inference architecture. Ingest 606 → 646." },
-    { "id": 47, "date": "2026-05-07", "summary": "Sprint 2.1 Wave-1 milestone: Java +40 questions (Q061-Q100) closes 1st Wave-1 sub-skill at 100/100 ✅. Coverage: virtual threads (Loom), records, sealed classes, GraalVM native, ZGC vs G1GC, JMH, JIT tiered compilation, escape analysis, JFR, Resilience4j, OpenTelemetry, JWT validation, JPA N+1, Caffeine, Kafka idempotent producer, jOOQ vs JPA, Spring Security filter chain, K8s deployment, GraalVM Truffle, memory leak patterns, 18-month microservice replatform, production crisis case study, AWS cloud-native arch, 36-month Java platform modernisation. Ingest 566 → 606." },
-    { "id": 46, "date": "2026-05-07", "summary": "Sprint 2.0 CLOSEOUT: Embedded Automotive +40 questions (Q061-Q100) closes the final Wave-2 domain at 100/100 ✅. Coverage: AUTOSAR Classic+Adaptive, ISO 26262 ASIL, ASPICE, CAN-FD, automotive Ethernet+TSN, ECU bootloader (UDS), MISRA-C, HiL testing, ISO 21434 cybersecurity (TARA), V2X (DSRC vs C-V2X), real-time scheduling RMS, AUTOSAR BSW layers, V-model traceability, OTA updates, PREEMPT-RT, HARA, ECU cybersecurity architecture, ADAS sensor fusion, AUTOSAR COM, DoIP, lockstep CPU cores, ARA APIs, BMS cell balancing, FOC motor control, sensor extrinsic calibration, EVITA HSM, V2X PKI, POSIX PSE51-54, watchdog timer, SecOC, ECC SECDED, TMR, TrustZone, E/E architecture (zonal), ML inference, L4 ADAS program, vehicle software lifecycle, post-launch ops. ALL 5 Wave-2 domains 100/100 ✅: SAP-ABAP + OHCM + CPQ + Finacle + Embedded Automotive = 500/500." },
-    { "id": 45, "date": "2026-05-07", "summary": "Sprint 2.0 closeout: Finacle/Flexcube +40 questions (Q061-Q100) closes 4th Wave-2 domain at 100/100. Coverage: NEFT/RTGS/IMPS/UPI, KYC, EOD batch, LC + SWIFT MT/MX, AML structuring, loan restructuring, ISO 20022, ATM switching, mobile banking security, BBPS, eKYC Aadhaar, Account Aggregator, OBPM, OFSAA, SARFAESI, IBC, fraud detection, statement generation, reconciliation, multi-bank modernisation. 4 of 5 Wave-2 domains at 100/100." },
-    { "id": 44, "date": "2026-05-07", "summary": "Sprint 2.0 closeout: Salesforce CPQ +40 questions (Q061-Q100) closes 3rd Wave-2 domain at 100/100. Coverage: Apex governor limits, Queueable, LWC, Flow vs Apex, Quote Templates, Price Rules, Product Rules, Bundle structuring, pricing waterfall, asset/order lifecycle, SOQL selectivity, Big Objects, Salesforce DX, QCP, DocuSign integration, Approval Process, Apex bulkification, FlexQuote LWC, Apex testing, Field-Level Security, Permission Sets, Shield Encryption, Industries CPQ, Revenue Cloud, Custom Metadata, Salesforce Connect, Platform Events, Field Audit Trail, Conga migration, CRM Analytics, Sandbox refresh, multi-cloud integration, 18-month CPQ implementation. 3 of 5 Wave-2 domains at 100/100." },
-    { "id": 43, "date": "2026-05-07", "summary": "Sprint 2.0 closeout: Oracle HCM Cloud +40 questions (Q061-Q100) closes 2nd Wave-2 domain at 100/100. Coverage: HDL, BPM approvals, Page Composer layers, HCM Extracts vs BIP, OTBI, Recruiting AI bias mitigation, Position Management, India PF, OIC, AMX hierarchy, Fast Formula, REST pagination + Etag, multi-country setup, Workforce Modeling, ESS, VBCS, data sovereignty (DPDPA), Talent Profile, Goal cascading, Learning recommendations, Performance documents, Sandbox promotion, 9-box Talent Review, Succession readiness, OTBI Logical SQL, BIP bursting, Retire/Rehire, quarterly updates, ServiceNow integration, GDPR Right to Erasure, Mass-update HDL, Workday migration, 3-year Indian conglomerate roll-out, post-go-live ops. 2 of 5 Wave-2 domains at 100/100." },
-    { "id": 42, "date": "2026-05-07", "summary": "Sprint 2.0 (second PR): Wave-2 SAP-ABAP +10 questions (Q091-Q100) closing 100/100 SAP-ABAP target. Coverage: internal-table secondary keys, string templates, resumable exceptions, dynamic data references, background processing API, ABAP Doc + clean ABAP, ALV OO toolbar events, V1/V2 update tasks, IDoc reprocessing strategy, multi-team transport landscape design. Distribution: 6 MCQ + 2 code + 1 design + 1 case-study; difficulty 2 Easy / 4 Medium / 3 Hard / 1 Very Hard. Ingest 396 → 406 parsable (+10, 10/10 clean). Library 831 → 841 authored. SAP-ABAP target reached at 100/100." },
-    { "id": 41, "date": "2026-05-07", "summary": "Sprint 2.0 (first PR): Wave-2 SAP-ABAP +20 questions (Q071-Q090) covering RAP, CDS view entities, AMDP, ATC custom checks, ABAP Unit, enqueue locking, bgRFC, BTP destinations, output management, multi-tenant SaaS design, 18-month migration case study. Distribution: 12 MCQ + 4 code + 2 design + 2 case-study; difficulty 3 Easy / 9 Medium / 6 Hard / 2 Very Hard. Ingest 376 → 396 parsable (+20, 20/20 clean). Library 811 → 831 authored. SME validation pending per SO-21." },
-    { "id": 40, "date": "2026-05-07", "summary": "Sprint 2.3: @qorium/i18n package — pure-TS i18n framework. Accept-Language parser; locale resolver with bundle-chain fallback (target → en); CLDR plural rules for en/hi/ta/te; translator with parameter interpolation + status-aware fallback (verified > pending > English fallback); Intl-based formatNumber/formatDate; coverage report for admin queue. en bundle canonical (40+ keys); hi/ta/te bundles ship as pending stubs (translation review human-bound per Reference Panel Governance). 34 unit tests. 240 total active workspace tests." },
-    { "id": 39, "date": "2026-05-07", "summary": "Sprint 2.2 (Phase 2 opening): @qorium/billing package — pure-TS pricing/GST/HSN library. Money in bigint minor units; canonical SKU pricing per Constitution §1.2 LOCKED (6 ReadyBank tiers, 6 JD-Forge tiers, 3 Stack-Vault tiers); intra-state CGST+SGST · inter-state IGST · export zero-rated · non-India IGST schemes; GSTIN structural validation; SAC codes per SKU (verification: pending); buildInvoice() pure builder. 31 unit tests. 206 total active workspace tests." },
-    { "id": 38, "date": "2026-05-07", "summary": "Sprint 1.8d — Admin console shipped + Phase 1 = 100% on engineering. /v1/admin/* routes (leak-alerts, sme-queue, calibration, panel-tokens) + 5 static pages (dashboard, anti-leak inbox with review action, SME queue, IRT calibration, reference-panel token issuance). CSP-compliant; reuses recruiter JWT cookie auth (CTO-DELTA: skipped Next.js per §spec; static SPA pattern matches existing recruiter dashboard). 13 admin tests; 175 total active workspace tests." },
-    { "id": 37, "date": "2026-05-07", "summary": "Sprint 1.8c: services/anti-leak service productionized — n-gram extraction, lexical Jaccard similarity, severity classifier per spec §6, Mock + Serper.dev search providers, runScan orchestrator, content.leak_alerts persistence + audit-log integration, CLI entrypoint, 20 unit tests. 162 active workspace tests (was 142)." },
-    { "id": 36, "date": "2026-05-07", "summary": "Sprint 1.8 (a + b): @qorium/irt package — 2PL/3PL probability, ability MLE, JMLE calibration with location+scale anchor, Mantel-Haenszel DIF, SO-21 quality gate (18 tests). POST /v1/reference-panel/responses + migration 0007 + panel-token auth (8 tests). 142 active workspace tests (was 116)." },
-    { "id": 35, "date": "2026-05-07", "summary": "Sprint 1.7 (b + d) closeout: @qorium/nos-mapper package with NSQF descriptors + 13 NOS mappings + 16 tests · infra/auto-bootstrap/email-auth.tf Terraform module (SES + DKIM + SPF + DMARC, halts on cred-drop) + apply.sh wrapper. Sprint 1.7 fully closed pending merge." },
-    { "id": 34, "date": "2026-05-07", "summary": "Sprint 1.7 (a + c + e): SAML/SSO v1 spec · migration 0006 Bloom tags · ingest parser hardening (358 → 376 questions, 52 → 34 errors). New tests: 5. CI green." },
-    { "id": 33, "date": "2026-05-07", "summary": "Sprint 1.6.5 reconcile: governance/dashboard.json canonical source + Auto-Mode Remote Plan v1 + Stream-B mirror of mission control. PR #15 merged at fd9256e." },
-    { "id": 32, "date": "2026-05-04", "summary": "Sprint 1.6 Cowork-shipped (5 tracks): JWT auth + mailer + Wave-1 ingest + OHCM 60/60 + Wave-3 v0.1." },
-    { "id": 31, "date": "2026-05-04", "summary": "Sprint 1.5: Recruiter HTML dashboard SPA LIVE." },
-    { "id": 30, "date": "2026-05-04", "summary": "Sprint 1.4: Recruiter session CRUD + 3-agent parallel content scaling." },
-    { "id": 29, "date": "2026-05-04", "summary": "Sprint 1.3: End-to-end take flow LIVE." },
-    { "id": 28, "date": "2026-05-04", "summary": "Sprint 1.2 deeper: Watermark Engine LIVE in production." },
-    { "id": 27, "date": "2026-05-04", "summary": "Sprint 1.0 PUBLIC DoD ACHIEVED 🟢: public HTTPS." },
-    { "id": 26, "date": "2026-05-04", "summary": "Sprint 1.2 grind: Express /v1/results live." },
-    { "id": 25, "date": "2026-05-04", "summary": "Sprint 1.2 first piece: candidate result renderer." },
-    { "id": 24, "date": "2026-05-04", "summary": "Sprint 1.1 plumbing: anti-leak + AI-plagiarism + IRT scripts." }
+    {
+      "id": 73,
+      "date": "2026-05-09",
+      "summary": "Tier-A4 (human-lane acceleration): Senior Engineer #1 hiring pack shipped at governance/hiring/senior-engineer-1/. Files: README (rationale + 5-question CEO decision matrix; first non-founder engineer = peer to CTO, not direct report), JD.md (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, TS+pg+AWS, requires one of {IRT/SAML/multi-tenant/anti-cheat/compliance}; first-90-days plan), sourcing-pipeline.md (5 channels including 30-name target list of HackerRank/Mettl/Razorpay/Cred/Atlassian alumni + boutique recruiter + ₹1L referral bounty; ~₹5L budget; weekly funnel metrics), screening-rubric.md (4 dimensions calibrated to CTO Office baseline: paid ₹10K take-home audit-chain verifier + system-design webhook-delivery exercise + 30-min incident-replay scenario + written technical-disagreement essay; mandatory floors), compensation-band.md (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire fits Y1 budget alongside SME Lead + I/O Psych), interview-process.md (5 stages ~28 business day SLA; paid take-home discipline non-negotiable). Auto-tile human-prep.senior-eng-hire.jd-and-pipeline complete; links to existing human.senior-eng-hire. NO outreach sent. Master meter unchanged at 0.78 cap."
+    },
+    {
+      "id": 72,
+      "date": "2026-05-09",
+      "summary": "Tier-A3 (human-lane acceleration): SME Content Lead hiring pack shipped at governance/hiring/sme-content-lead/. Files: README (rationale + 5-question CEO decision matrix), JD.md (publishable copy: ₹40-60 LPA + 0.4-0.8% ESOP + benefits + anti-discrimination + process discipline; Director-IC, Mumbai/remote-India), sourcing-pipeline.md (5 channels: 25-name target list + LinkedIn/Naukri + boutique recruiter ₹3L retainer + referrals + ISIOP/AICTE community; ~₹4L budget; weekly funnel metrics with target ≥40 applications by W6), screening-rubric.md (4-dimension 1-5 rubric tested via 4-item review + 30-item batch + author email role-play + 300-word customer essay; calibrated against CTO Office baseline; anti-pattern guards), compensation-band.md (3-tier band; recommended anchor ₹50L + 0.5% ESOP; comparator anchors AspiringMinds/Pearson VUE/Mettl/BYJU's; Y1 budget impact analysis with hire-in-Q3 recommendation), interview-process.md (5 stages from app screen to offer; ~23 business days SLA; equity controls). Auto-tile human-prep.sme-lead-hire.jd-and-pipeline complete; links to existing human.sme-lead-hire. NO outreach sent. Master meter unchanged at 0.78 cap."
+    },
+    {
+      "id": 71,
+      "date": "2026-05-08",
+      "summary": "Tier-A2 (human-lane acceleration): I/O Psych contractor hiring pack shipped at governance/hiring/io-psych-contractor/. Files: README (one-page rationale + decision matrix for CEO), SOW.md (14 sections: scope, qualifications, deliverables D1-D6, milestone payments M1-M5, IP work-for-hire, confidentiality 5yr tail, anti-leak SO-9 binding, conflicts list, convert-to-FTE option, indemnity, dispute resolution), outreach-templates.md (5 drafts: cold email + warm-intro + LinkedIn DM + 2 follow-ups, all unsent), reference-check-rubric.md (12 questions across 5 dimensions + scoring matrix + decision rule), compensation-benchmark.md (Indian academic-applied + global platform + QOrium-internal triangulation; recommended ₹18L 6-month mid-tier), deliverable-schedule.md (week-by-week with payment triggers). Auto-tile human-prep.io-psych-contractor.sow-and-outreach complete; links to existing human.io-psych-contractor tile. NO outreach has been sent. Master meter unchanged at 0.78 cap."
+    },
+    {
+      "id": 70,
+      "date": "2026-05-08",
+      "summary": "Tier-A1 (human-lane acceleration): merge-order doc shipped at governance/merge-order/PRs-31-through-40.md. Sequences the 10 PRs from the autonomous run (#31–#40): PR #32 first to unblock CI, then audit-log stack #31 → #33 → #34 → #35 (must merge in order — code stack), then #36/#37/#38/#39/#40 in any order. Migrations 0010–0015 apply in numeric order via @qorium/db runner. Per-PR rollback + smoke-test checklist + stop-conditions documented. Auto-tile human-prep.merge-the-9-PRs.merge-order-doc complete; linked human-tile human.merge-the-PRs added (blocked-on-CEO). Master meter unchanged at 0.78 cap per Constitution Article IX."
+    },
+    {
+      "id": 69,
+      "date": "2026-05-09",
+      "summary": "Sprint 7.0 — Outcome instrumentation (final auto-mode-run sprint #8 of 8). governance/metrics/{README, outcome-metrics-spec, dashboards}.md + migration 0015 ship the engineering surface for measuring progress against Constitution Article IX outcomes (ARR / DAU / content throughput / quality signals). 9 read-only SQL views in new metrics schema. Grafana panel specs for 4 dashboards (Revenue / Adoption / Content / Engineering) + alerting rules. Master meter UNCHANGED at 0.78 — business outcomes themselves are human-bound. Auto lane (main view): 33/33 → 34/34. 🟢 AUTO-LANE EXTENDED COMPLETE — all 8 autonomous-run sprints (4.4.1, 4.4.2, 4.4.3, 4.5, 4.6, 5.0, 5.1, 7.0) shipped + the audit-log foundation (4.4 v0) + the CI fix that unblocks them all."
+    },
+    {
+      "id": 68,
+      "date": "2026-05-09",
+      "summary": "Sprint 5.1 — SOC 2 readiness harness. governance/soc2/{README, control-mapping, evidence-collection}.md ship the full TSC-to-QOrium control map (CC1.1–CC9.2) + quarterly evidence-pull runbook. New services/readybank/src/scripts/soc2-evidence-pull.ts skeleton reads audit.events + api_keys + migrations within a window and writes a single JSON evidence package; classifies events by 6 SOC2-relevant categories. 6 new unit tests for classifyEventType. Sprint 5.1.1 wires cron + per-tenant hash-chain walk + S3 upload with Object-Lock immutability. Auto lane (main view): 33/33 → 34/34. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 67,
+      "date": "2026-05-09",
+      "summary": "Sprint 5.0 — Multi-region terraform skeleton (DR pair). New infra/auto-bootstrap/multi-region.tf provisions paired ap-south-1 + ap-southeast-1 VPCs with cross-region peering, S3 cross-region replication for audit/export buckets, Route53 health-check + composite alarm 'qorium-primary-region-down', RPO=15min / RTO=60min targets. New governance/multi-region-runbook.md ships the cross-region cutover decision tree (~50 min under 60-min RTO target), failback procedure, quarterly drill cadence, cred-drop checklist. Engineering-complete-cred-bound: terraform plan green; apply halts on BOOTSTRAP_AUTHORIZED=true. Replica wiring lands in Sprint 5.0.1 once primary moves to RDS. Auto lane: 33/33 → 34/34 (main view). Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 66,
+      "date": "2026-05-09",
+      "summary": "Sprint 4.6 — ATS Connector Framework v0 alpha (library + schema). Migration 0014 creates ats.{connections, sync_runs} per ATS-Connector-Framework-v0.md §2. New @qorium/ats-connectors package: universal Candidate/Job/AssessmentResult abstraction, ConnectorAdapter interface, SyncStateMachine (idle→running→succeeded|failed FSM), generic field-mapper (dotted-path source + type coercion + per-tenant overrides), LeverAdapter stub with createMockLeverFetcher. 23 unit tests. Live HTTP fetch + Greenhouse/Workday/Ashby/Darwinbox adapters land in Sprint 4.6.1+ per Constitution Article IX M9 phase-gate. Auto lane (main view): 33/33 → 34/34. Master meter UNCHANGED at 0.78 ceiling per Article IX."
+    },
+    {
+      "id": 65,
+      "date": "2026-05-09",
+      "summary": "Sprint 4.5 — Webhooks Service v0 alpha (library + schema). Migration 0013 creates webhooks.{subscriptions, events, deliveries} per Webhooks-Service-v0-Spec.md §2. New @qorium/webhooks package ships 4 modules: signature (HMAC-SHA256 per §5), retry (spec §6 schedule [0,1m,5m,30m,4h,24h] over 35h), attempt-classifier (HTTP + transport-error matrix), event-envelope (§4 payload shape + 15-event catalog). 43 unit tests, all green. The PM2 service + Redis-backed delivery worker land in Sprint 4.5.1. Auto lane (main view): 33/33 → 34/34. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX. (Note: this PR branches directly off main; the audit-log series 4.4/4.4.1/4.4.2/4.4.3 stacked branches will reconcile run IDs 61-64 + auto-lane increments at merge time.)"
+    },
+    {
+      "id": 64,
+      "date": "2026-05-09",
+      "summary": "Sprint 4.4.3 — Audit Log hash-chaining + GET /v1/audit/verify (§10). Migration 0012 adds hash_current + hash_previous VARCHAR(64) + partial chain-walk index. New @qorium/auth/audit-hash exports canonicalAuditEventJson/computeAuditHash/verifyAuditChain (SHA-256, deterministic canonical form). recordAuditEvent computes hash_current synchronously per event; INSERT bumps to 11 columns. hash_previous remains async-materialized (Sprint 4.4.3.1) so writes never serialize on the prior row. New GET /v1/audit/verify walks the recruiter's chain (up to 10K rows) and returns {valid, total, breaks, unmaterialized} for SOC 2 tamper-evidence. SIEM streaming explicitly deferred per spec §8 'Month 9 roadmap'. 12 new audit-hash unit tests + middleware mock pre-existing event_type position bug fix. Auto lane: 36/36 → 37/37. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 63,
+      "date": "2026-05-09",
+      "summary": "Sprint 4.4.2 — Audit Log API bulk export (Phase 2 §7). Migration 0011 adds app.audit_export_jobs; POST /v1/audit/events/export creates a job (5 concurrent/tenant cap, 366-day range cap), kicks in-process worker via setImmediate, returns 202+job_id. GET /v1/audit/exports/:id returns status envelope; GET /v1/audit/exports/:id/download streams CSV/JSON bytes with Content-Disposition: attachment (409 not-ready, 410 expired, 404 cross-tenant). New jobs/audit-export-worker.ts + repositories/audit-exports.ts. v0 stores rendered bytes in BYTEA, caps at 10K rows; Sprint 4.4.2.1 promotes to S3 + true async worker. 17 new unit tests (audit-exports.test.ts) cover all paths + tenant isolation + RFC-4180 CSV escaping. Auto lane: 35/35 → 36/36. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 62,
+      "date": "2026-05-08",
+      "summary": "Sprint 4.4.1 — Audit Log API v1 (tenant-scoped). Migration 0010 adds tenant_id UUID to audit.events + partial index. recordAuditEvent helper accepts tenant_id (optional, non-breaking); admin.ts + reference-panel.ts call sites pass it. Repository SCOPE_CLAUSE: (tenant_id = $1 OR (tenant_id IS NULL AND actor_id = $2)) — primary tenant filter + transitional fallback for legacy v0-era rows so each recruiter still sees their own pre-migration audit trail without leaking cross-tenant or other-recruiter legacy rows. AuditEventRow + AuditEventEnvelope gain tenant_id field. Routes pass recruiter.tenantId. 22 unit tests cover cross-tenant isolation, legacy fallback (visible vs invisible cases), summary aggregation respecting both, envelope mapping with tenant_id. Auto lane: 34/34 → 35/35. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 61,
+      "date": "2026-05-08",
+      "summary": "Sprint 4.4 v0 — Audit Log API extension past the auto-lane 33-tile cap. New /v1/audit/* on services/readybank per infra/Audit-Log-API-Spec-v0.md §3 Phase 1: GET list with cursor pagination + (action, resource_type, start_date, end_date) filters, GET detail by id, GET summary (default 30-day window + top_n). Field aliasing event_type→action / entity_type→resource_type / entity_id→resource_id / changes.before|after→old_values|new_values / payload→details / occurred_at→timestamp. v0 tenant scope: recruiter sees their own audit trail (actor_id = recruiter.id); org-wide scope deferred to Sprint 4.4.1 with tenant_id column on audit.events. Phase 2 export + webhook integration deferred to Sprint 4.4.2. 19 unit tests (auth gates, envelope mapping, cursor roundtrip, cross-recruiter isolation, summary aggregation). Auto lane: 33/33 → 34/34. Master meter UNCHANGED at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 60,
+      "date": "2026-05-08",
+      "summary": "🟢 AUTO-LANE 33/33 ENGINEERING-COMPLETE. Sprint 4.2 closeout: PITR + DR runbook. infra/auto-bootstrap/pitr.tf (per-region KMS + cross-region S3 backup with 7d→30d→1y→7y lifecycle + bucket policy denying unencrypted+insecure transport + AWS Backup vaults primary+destination + daily PITR plan with copy_action + CloudWatch alarm on job-failure). scripts/restore-pitr.sh (dry-run default; ISO8601+uniqueness validation; --execute gate). governance/dr-runbook.md (failure-mode matrix, RPO 5min/RTO 60min, decision tree, on-call procedure, smoke-test, cutover, comms template, quarterly drill cadence, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true. Auto lane: 33/33 engineering-complete; remaining cred-bound items annotated. Master meter HOLDS at 0.78 ceiling per Constitution Article IX — human-bound items unchanged."
+    },
+    {
+      "id": 59,
+      "date": "2026-05-08",
+      "summary": "Sprint 4.1 closeout: Observability IaC. infra/auto-bootstrap/observability.tf (Grafana Cloud stack ap-south-1 default + Sentry org + per-service projects readybank-api, anti-leak + per-region OTLP gRPC endpoint outputs). services/readybank/src/observability/otel.ts: lazy-import dynamic-specifier so TS doesn't resolve absent @opentelemetry/sdk-node at typecheck; no-op when OTEL_EXPORTER_OTLP_ENDPOINT unset; SIGTERM flush within 5s; idempotent init. 4 unit tests pass. governance/observability-runbook.md (multi-burn-rate SLO catalog, 6 pre-built dashboards spec, incident response checklist, tier-2 alerts (IRT auto-fail / anti-leak severity-2 / audit-log gap / Stack-Vault watermark anomaly), audit retention 30d hot / 1y warm / 7y cold, cred-drop checklist). Apply gated on BOOTSTRAP_AUTHORIZED=true."
+    },
+    {
+      "id": 58,
+      "date": "2026-05-08",
+      "summary": "Sprint 3.5 alpha: JD-Forge SKU 2 library. New @qorium/jd-forge package: types.ts (ParsedJobDescription, GenerationSpec, DraftQuestion, QuestionFormat union of v0.6 formats), parsing/jd-parser.ts (validateParsed exhaustive shape check + retry-once wrapper around injectable LlmExtractor), role-graph/mapper.ts (8-prefix starter catalog covering exactly the Wave-1 100/100 sub-skills: java/python/react/sqldata/devops/sf/aws/aipe; matchSingleSkill pattern matching + mapRoleToSubSkills aggregating with weight + coverage report + unmatched-skills surfacing for SME catalog extension), generation/spec-builder.ts (largest-remainder distribution + 40/30/20/10 format mix per spec §3.3 + role-family-aware design-vs-SJT routing + 4-band difficulty IRT b targets + per-question round-robin assignment; guards on total range), output/exporters.ts (canonical JSON envelope, RFC-4180 CSV with quote+comma+newline escaping, HackerRank-v1 mapped JSON preserving QOrium watermark in metadata; exhaustive switch-never on format). 40 unit tests pass. Live LLM call (services/jd-forge Express + ANTHROPIC_API_KEY) is cred-bound; defers to cred-drop. Workspace: 8 packages + 2 services typecheck clean."
+    },
+    {
+      "id": 57,
+      "date": "2026-05-08",
+      "summary": "Sprint 3.4: Stack-Vault tenant isolation + double watermark. Migration 0009_stack_vault.sql adds app.tenant_stack_vaults (per-tenant tier/floor/expiry/encrypted-pepper) and content.questions.stack_vault_tenant_id with sparse partial UNIQUE INDEX (stack_vault_tenant_id, qor_id) so the same qor_id is independent across tenants. New services/readybank/src/middleware/tenant-isolation.ts: requireActiveVault layered on @qorium/auth AuthContext — returns 401 unauth, 403 on SO-10 export:stack-vault scope (forbidden per Constitution + D3), 404 on no/lapsed/expired vault (no existence leak), 503 on missing pepper, attaches VaultContext on success. New services/readybank/src/stack-vault/watermark.ts: computeDoubleWatermark (HMAC-SHA256 over baseSeed||tenantId||renderId; per-vault pepper), applyVisibleFooter (idempotent), applyHomoglyphStego (Latin→Cyrillic homoglyph mask driven by signature bits). New services/readybank/src/repositories/stack-vault.ts: every SELECT/INSERT joins on tenant_id (defense in depth). New services/readybank/src/routes/stack-vault.ts: GET list / GET one (renders with double watermark) / POST create with 23505 → 409 mapping. 22 new unit tests pass: 14 watermark (determinism, cross-tenant unforgeable, pepper rotation, render-event uniqueness, footer format, homoglyph determinism) + 8 middleware (401/403/404/503/success). Workspace: 138 active tests, 0 failures, 21 DB-integration tests skipped per existing pattern."
+    },
+    {
+      "id": 56,
+      "date": "2026-05-08",
+      "summary": "Sprint 4.3 reconcile: Auto-lane tile audit. Promoted 6 tiles in_progress→complete with evidence (sprint-1.7.nos-mapper, sprint-1.8.irt, sprint-1.8.panel-api, sprint-1.8.anti-leak, sprint-1.8.admin, phase-2.inr-gst). Promoted 2 tiles in_progress→engineering-complete-{cred|translation}-bound (sprint-1.7.email-iac, phase-2.i18n) — engineering predicate met; deployment / translation human-bound. Auto lane: 25/33 → 31/33 (94%). Remaining 2: phase-3.jd-forge + phase-3.stack-vault + phase-4.observability + phase-4.pitr (next sprints). Master meter holds at 0.78 ceiling per Constitution Article IX."
+    },
+    {
+      "id": 55,
+      "date": "2026-05-08",
+      "summary": "Sprint 3.3 alpha: SAML/SSO implementation. Migration 0008_sso_jit_provisioning.sql adds app.tenant_sso_config (per-tenant SAML/OIDC + SCIM config), app.saml_assertions_seen (replay-attack guard with HMAC-pepper-bound IDs), app.scim_external_id_map (idempotent SCIM CRUD), app.sp_signing_certs (rotation overlap), and recruiters.auth_source column. New @qorium/saml package: types.ts, validate.ts (assertion validator with issuer/audience/recipient/clock-skew/replay/InResponseTo checks), jit.ts (create/claim/login/reject decision tree), scim-token.ts (HMAC-SHA256 pepper hash + rotation overlap), replay-guard.ts. 37 unit tests passing across 4 files. Live IdP integration tests halt on cred-drop per spec §9. 277 active workspace tests (was 240)."
+    },
+    {
+      "id": 54,
+      "date": "2026-05-08",
+      "summary": "🟢 SPRINT 2.1 COMPLETE — Wave-1 8/8 ALL SUB-SKILLS AT 100/100 ✅✅✅. AIPE +60 questions (Q041-Q100) closes the 8th and final Wave-1 sub-skill. Coverage: prompt caching, structured output, RAG patterns, tool use, hallucination mitigation, prompt injection defense, model cascade, agent design, multi-tenant LLM platform, RAG quality crisis, AI product PMF, AI Center of Excellence. Ingest 926 → 986 parsable. Wave-1 final tally: Java 100, Python 100, React 100, SQL/Data 100, DevOps/SRE 100, Salesforce 100, AWS 100, AIPE 100 = 800/800. Combined with Wave-2 5/5 domains 100/100 (500/500), library now 1486 authored / 986 parsable. Auto-mode lane structurally complete; master meter remains at 0.78 cap pending human-bound items (Customer-Zero, Reference Panel ≥200, SME Lead hire, first 3 logos)."
+    },
+    {
+      "id": 53,
+      "date": "2026-05-08",
+      "summary": "Sprint 2.1 Wave-1 milestone: AWS +60 questions (Q041-Q100) closes 7th Wave-1 sub-skill at 100/100 ✅. Coverage: VPC/IAM/S3 fundamentals; Lambda + DynamoDB + Step Functions; ALB vs NLB vs API Gateway; KMS; PrivateLink; Aurora Global; Backup; Organizations + SCPs; cost optimization; CDK; data lake (Iceberg + Lake Formation); region outage response; on-prem migration; multi-account governance; Black Friday scaling crisis; Cloud CoE. Ingest 866 → 926 parsable."
+    },
+    {
+      "id": 52,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.1 Wave-1 milestone: Salesforce +60 questions (Q041-Q100) closes 6th Wave-1 sub-skill at 100/100 ✅. Coverage: Apex governor limits + bulkification; SOQL selectivity + indexing; LWC vs Aura; Flow vs Apex; PSG; Big Objects; Platform Events; Salesforce Connect; Custom Metadata; FLS + WITH SECURITY_ENFORCED; trigger frameworks + recursion guard; Continuation; HttpCalloutMock testing; Shield Encryption; Multi-currency; Sandbox strategy; SFDX + scratch orgs; sharing model layers; Approval Flow; Marketing Cloud Connect; Experience Cloud; Einstein GPT + Trust Layer; multi-org strategy + CoE; Slack integration; trigger perf crisis; legacy CRM->Salesforce migration; data privacy crisis (DPDPA/RBI); Salesforce CoE federated charter. Ingest 806 → 866 parsable. Wave-1: 6 of 8 sub-skills at 100/100. AWS + AIPE remaining (deferred to next session per auto-mode context budget; durable progress recorded on PR #24)."
+    },
+    {
+      "id": 51,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.1 Wave-1 milestone: DevOps/SRE +60 questions (Q041-Q100) closes 5th Wave-1 sub-skill at 100/100 ✅. Coverage: K8s probes/lifecycle/HPA/PDB/operators/Karpenter; service mesh; SLI/SLO error budgets w/ multi-burn-rate; PromQL/OpenTelemetry; Argo CD GitOps + Argo Rollouts; Terraform; Helm + Kustomize; secrets (ESO + Vault); Cilium eBPF + zero-trust; FinOps + OpenCost; chaos engineering; major incident response; multi-cloud decision; container image sprawl; on-call burnout; K8s upgrade; cost overrun 30% reduction; platform engineering team build. Ingest 746 → 806 parsable. Wave-1: 5 of 8 sub-skills at 100/100 (Java/Python/React/SQL-Data/DevOps-SRE). Remaining: Salesforce, AWS, AIPE."
+    },
+    {
+      "id": 50,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.1 Wave-1 milestone: SQL/Data +60 questions (Q041-Q100) closes 4th Wave-1 sub-skill at 100/100 ✅. Coverage: Postgres EXPLAIN/MVCC/locking/JSONB/replication; Snowflake/BigQuery; ClickHouse columnar; Iceberg; dbt incremental + snapshots; recursive CTEs; window functions; gap-free sequences; SCD Type 2; pgvector; multi-region active-active; data warehouse architecture; data mesh hybrid; A/B test drift; quarter-end perf crisis; DR failure recovery; Mongo->Postgres migration. Ingest 686 → 746 parsable."
+    },
+    {
+      "id": 49,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.1 Wave-1 milestone: React +40 questions (Q061-Q100) closes 3rd Wave-1 sub-skill at 100/100 ✅. Coverage: React 19 use()/useTransition/RSC; TanStack Query; Zustand vs RTK; Suspense waterfalls; React.memo equality; hydration mismatch; virtualization; optimistic updates; RHF+zod; collab editor design (Yjs+ProseMirror); bundle splitting; WebSocket hook; useId; Server Actions; useDeferredValue; tearing/useSyncExternalStore; useEvent workaround; component library design; INP crisis; class->hooks migration; headless frontend platform. Ingest 646 → 686."
+    },
+    {
+      "id": 48,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.1 Wave-1 milestone: Python +40 questions (Q061-Q100) closes 2nd Wave-1 sub-skill at 100/100 ✅. Coverage: TaskGroup/ExceptionGroup; Pydantic v2; SQLAlchemy 2.x async; PEP 695 generics; Polars lazy; contextvars; py-spy; __slots__; GIL+multiprocessing; Protocol; mutable-default; FastAPI testing; Cython/mypyc; async generator backpressure; OTel; retry+jitter; multi-tenant SaaS design; memory leak; Py2->Py3.13 migration; Decimal vs float; COPY streaming loader; Python SDK design; Pandas->Polars migration; Black-Friday pool exhaustion; realtime ML inference architecture. Ingest 606 → 646."
+    },
+    {
+      "id": 47,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.1 Wave-1 milestone: Java +40 questions (Q061-Q100) closes 1st Wave-1 sub-skill at 100/100 ✅. Coverage: virtual threads (Loom), records, sealed classes, GraalVM native, ZGC vs G1GC, JMH, JIT tiered compilation, escape analysis, JFR, Resilience4j, OpenTelemetry, JWT validation, JPA N+1, Caffeine, Kafka idempotent producer, jOOQ vs JPA, Spring Security filter chain, K8s deployment, GraalVM Truffle, memory leak patterns, 18-month microservice replatform, production crisis case study, AWS cloud-native arch, 36-month Java platform modernisation. Ingest 566 → 606."
+    },
+    {
+      "id": 46,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.0 CLOSEOUT: Embedded Automotive +40 questions (Q061-Q100) closes the final Wave-2 domain at 100/100 ✅. Coverage: AUTOSAR Classic+Adaptive, ISO 26262 ASIL, ASPICE, CAN-FD, automotive Ethernet+TSN, ECU bootloader (UDS), MISRA-C, HiL testing, ISO 21434 cybersecurity (TARA), V2X (DSRC vs C-V2X), real-time scheduling RMS, AUTOSAR BSW layers, V-model traceability, OTA updates, PREEMPT-RT, HARA, ECU cybersecurity architecture, ADAS sensor fusion, AUTOSAR COM, DoIP, lockstep CPU cores, ARA APIs, BMS cell balancing, FOC motor control, sensor extrinsic calibration, EVITA HSM, V2X PKI, POSIX PSE51-54, watchdog timer, SecOC, ECC SECDED, TMR, TrustZone, E/E architecture (zonal), ML inference, L4 ADAS program, vehicle software lifecycle, post-launch ops. ALL 5 Wave-2 domains 100/100 ✅: SAP-ABAP + OHCM + CPQ + Finacle + Embedded Automotive = 500/500."
+    },
+    {
+      "id": 45,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.0 closeout: Finacle/Flexcube +40 questions (Q061-Q100) closes 4th Wave-2 domain at 100/100. Coverage: NEFT/RTGS/IMPS/UPI, KYC, EOD batch, LC + SWIFT MT/MX, AML structuring, loan restructuring, ISO 20022, ATM switching, mobile banking security, BBPS, eKYC Aadhaar, Account Aggregator, OBPM, OFSAA, SARFAESI, IBC, fraud detection, statement generation, reconciliation, multi-bank modernisation. 4 of 5 Wave-2 domains at 100/100."
+    },
+    {
+      "id": 44,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.0 closeout: Salesforce CPQ +40 questions (Q061-Q100) closes 3rd Wave-2 domain at 100/100. Coverage: Apex governor limits, Queueable, LWC, Flow vs Apex, Quote Templates, Price Rules, Product Rules, Bundle structuring, pricing waterfall, asset/order lifecycle, SOQL selectivity, Big Objects, Salesforce DX, QCP, DocuSign integration, Approval Process, Apex bulkification, FlexQuote LWC, Apex testing, Field-Level Security, Permission Sets, Shield Encryption, Industries CPQ, Revenue Cloud, Custom Metadata, Salesforce Connect, Platform Events, Field Audit Trail, Conga migration, CRM Analytics, Sandbox refresh, multi-cloud integration, 18-month CPQ implementation. 3 of 5 Wave-2 domains at 100/100."
+    },
+    {
+      "id": 43,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.0 closeout: Oracle HCM Cloud +40 questions (Q061-Q100) closes 2nd Wave-2 domain at 100/100. Coverage: HDL, BPM approvals, Page Composer layers, HCM Extracts vs BIP, OTBI, Recruiting AI bias mitigation, Position Management, India PF, OIC, AMX hierarchy, Fast Formula, REST pagination + Etag, multi-country setup, Workforce Modeling, ESS, VBCS, data sovereignty (DPDPA), Talent Profile, Goal cascading, Learning recommendations, Performance documents, Sandbox promotion, 9-box Talent Review, Succession readiness, OTBI Logical SQL, BIP bursting, Retire/Rehire, quarterly updates, ServiceNow integration, GDPR Right to Erasure, Mass-update HDL, Workday migration, 3-year Indian conglomerate roll-out, post-go-live ops. 2 of 5 Wave-2 domains at 100/100."
+    },
+    {
+      "id": 42,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.0 (second PR): Wave-2 SAP-ABAP +10 questions (Q091-Q100) closing 100/100 SAP-ABAP target. Coverage: internal-table secondary keys, string templates, resumable exceptions, dynamic data references, background processing API, ABAP Doc + clean ABAP, ALV OO toolbar events, V1/V2 update tasks, IDoc reprocessing strategy, multi-team transport landscape design. Distribution: 6 MCQ + 2 code + 1 design + 1 case-study; difficulty 2 Easy / 4 Medium / 3 Hard / 1 Very Hard. Ingest 396 → 406 parsable (+10, 10/10 clean). Library 831 → 841 authored. SAP-ABAP target reached at 100/100."
+    },
+    {
+      "id": 41,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.0 (first PR): Wave-2 SAP-ABAP +20 questions (Q071-Q090) covering RAP, CDS view entities, AMDP, ATC custom checks, ABAP Unit, enqueue locking, bgRFC, BTP destinations, output management, multi-tenant SaaS design, 18-month migration case study. Distribution: 12 MCQ + 4 code + 2 design + 2 case-study; difficulty 3 Easy / 9 Medium / 6 Hard / 2 Very Hard. Ingest 376 → 396 parsable (+20, 20/20 clean). Library 811 → 831 authored. SME validation pending per SO-21."
+    },
+    {
+      "id": 40,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.3: @qorium/i18n package — pure-TS i18n framework. Accept-Language parser; locale resolver with bundle-chain fallback (target → en); CLDR plural rules for en/hi/ta/te; translator with parameter interpolation + status-aware fallback (verified > pending > English fallback); Intl-based formatNumber/formatDate; coverage report for admin queue. en bundle canonical (40+ keys); hi/ta/te bundles ship as pending stubs (translation review human-bound per Reference Panel Governance). 34 unit tests. 240 total active workspace tests."
+    },
+    {
+      "id": 39,
+      "date": "2026-05-07",
+      "summary": "Sprint 2.2 (Phase 2 opening): @qorium/billing package — pure-TS pricing/GST/HSN library. Money in bigint minor units; canonical SKU pricing per Constitution §1.2 LOCKED (6 ReadyBank tiers, 6 JD-Forge tiers, 3 Stack-Vault tiers); intra-state CGST+SGST · inter-state IGST · export zero-rated · non-India IGST schemes; GSTIN structural validation; SAC codes per SKU (verification: pending); buildInvoice() pure builder. 31 unit tests. 206 total active workspace tests."
+    },
+    {
+      "id": 38,
+      "date": "2026-05-07",
+      "summary": "Sprint 1.8d — Admin console shipped + Phase 1 = 100% on engineering. /v1/admin/* routes (leak-alerts, sme-queue, calibration, panel-tokens) + 5 static pages (dashboard, anti-leak inbox with review action, SME queue, IRT calibration, reference-panel token issuance). CSP-compliant; reuses recruiter JWT cookie auth (CTO-DELTA: skipped Next.js per §spec; static SPA pattern matches existing recruiter dashboard). 13 admin tests; 175 total active workspace tests."
+    },
+    {
+      "id": 37,
+      "date": "2026-05-07",
+      "summary": "Sprint 1.8c: services/anti-leak service productionized — n-gram extraction, lexical Jaccard similarity, severity classifier per spec §6, Mock + Serper.dev search providers, runScan orchestrator, content.leak_alerts persistence + audit-log integration, CLI entrypoint, 20 unit tests. 162 active workspace tests (was 142)."
+    },
+    {
+      "id": 36,
+      "date": "2026-05-07",
+      "summary": "Sprint 1.8 (a + b): @qorium/irt package — 2PL/3PL probability, ability MLE, JMLE calibration with location+scale anchor, Mantel-Haenszel DIF, SO-21 quality gate (18 tests). POST /v1/reference-panel/responses + migration 0007 + panel-token auth (8 tests). 142 active workspace tests (was 116)."
+    },
+    {
+      "id": 35,
+      "date": "2026-05-07",
+      "summary": "Sprint 1.7 (b + d) closeout: @qorium/nos-mapper package with NSQF descriptors + 13 NOS mappings + 16 tests · infra/auto-bootstrap/email-auth.tf Terraform module (SES + DKIM + SPF + DMARC, halts on cred-drop) + apply.sh wrapper. Sprint 1.7 fully closed pending merge."
+    },
+    {
+      "id": 34,
+      "date": "2026-05-07",
+      "summary": "Sprint 1.7 (a + c + e): SAML/SSO v1 spec · migration 0006 Bloom tags · ingest parser hardening (358 → 376 questions, 52 → 34 errors). New tests: 5. CI green."
+    },
+    {
+      "id": 33,
+      "date": "2026-05-07",
+      "summary": "Sprint 1.6.5 reconcile: governance/dashboard.json canonical source + Auto-Mode Remote Plan v1 + Stream-B mirror of mission control. PR #15 merged at fd9256e."
+    },
+    {
+      "id": 32,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.6 Cowork-shipped (5 tracks): JWT auth + mailer + Wave-1 ingest + OHCM 60/60 + Wave-3 v0.1."
+    },
+    {
+      "id": 31,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.5: Recruiter HTML dashboard SPA LIVE."
+    },
+    {
+      "id": 30,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.4: Recruiter session CRUD + 3-agent parallel content scaling."
+    },
+    {
+      "id": 29,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.3: End-to-end take flow LIVE."
+    },
+    {
+      "id": 28,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.2 deeper: Watermark Engine LIVE in production."
+    },
+    {
+      "id": 27,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.0 PUBLIC DoD ACHIEVED 🟢: public HTTPS."
+    },
+    {
+      "id": 26,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.2 grind: Express /v1/results live."
+    },
+    {
+      "id": 25,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.2 first piece: candidate result renderer."
+    },
+    {
+      "id": 24,
+      "date": "2026-05-04",
+      "summary": "Sprint 1.1 plumbing: anti-leak + AI-plagiarism + IRT scripts."
+    }
   ],
   "ceoCriticalPath": {
     "blockers": 0,
     "softAccelerators": [
-      { "id": "cc-13", "label": "WhatsApp group QOrium Customer Zero", "etaSec": 60 },
-      { "id": "amendment-2.1", "label": "Wave-3 AUTHORED ratification", "etaMin": 30 }
+      {
+        "id": "cc-13",
+        "label": "WhatsApp group QOrium Customer Zero",
+        "etaSec": 60
+      },
+      {
+        "id": "amendment-2.1",
+        "label": "Wave-3 AUTHORED ratification",
+        "etaMin": 30
+      }
     ]
   },
   "schemaInvariants": {
@@ -179,7 +858,10 @@
       "CTO-DELTA exceeding rubric",
       "Destructive migration on release-tagged schema"
     ],
-    "writers": ["Stream A (Cowork)", "Stream B (Claude Code)"],
+    "writers": [
+      "Stream A (Cowork)",
+      "Stream B (Claude Code)"
+    ],
     "reader": "qorium-live-progress dashboard HTML"
   }
 }
