@@ -2,7 +2,7 @@
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
   "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 71,
+  "lastReconcileRun": 72,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 44,
-      "total": 44,
+      "completed": 45,
+      "total": 45,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -293,6 +293,14 @@
           "auto_eligible": true,
           "linkedHumanTile": "human.io-psych-contractor",
           "evidence": "governance/hiring/io-psych-contractor/ — README + SOW (14 sections, IP/conflicts/anti-leak/convert-to-FTE) + 5 outreach templates (cold/warm-intro/LinkedIn/2 follow-ups) + 12-question reference rubric + comp benchmark (₹18L mid-tier 6mo, defensible band) + week-by-week deliverable schedule (D1-D6 + ongoing batch reviews + payment milestones M1-M5). NO outreach sent — gated on CEO approval per Auto-Mode-Remote-Plan."
+        },
+        {
+          "id": "human-prep.sme-lead-hire.jd-and-pipeline",
+          "name": "Tier-A3 prep — SME Content Lead JD + sourcing pipeline",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.sme-lead-hire",
+          "evidence": "governance/hiring/sme-content-lead/ — README + JD (publishable copy: ₹40-60 LPA + 0.4-0.8% ESOP, Director-IC, Mumbai/remote-India), sourcing-pipeline (5 channels: direct outreach + LinkedIn/Naukri + recruiter + referrals + ISIOP/AICTE; budget ~₹4L; weekly metrics), screening-rubric (4 dimensions × 1-5 each: methodological depth + volume judgement + author leadership + communication; calibrated against CTO Office baseline), compensation-band (Senior+/Senior/Senior-junior tiers; recommended anchor ₹50L + 0.5% ESOP), interview-process (5 stages, ~23 business days target SLA). NO outreach sent."
         }
       ]
     },
@@ -563,6 +571,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 72,
+      "date": "2026-05-09",
+      "summary": "Tier-A3 (human-lane acceleration): SME Content Lead hiring pack shipped at governance/hiring/sme-content-lead/. Files: README (rationale + 5-question CEO decision matrix), JD.md (publishable copy: ₹40-60 LPA + 0.4-0.8% ESOP + benefits + anti-discrimination + process discipline; Director-IC, Mumbai/remote-India), sourcing-pipeline.md (5 channels: 25-name target list + LinkedIn/Naukri + boutique recruiter ₹3L retainer + referrals + ISIOP/AICTE community; ~₹4L budget; weekly funnel metrics with target ≥40 applications by W6), screening-rubric.md (4-dimension 1-5 rubric tested via 4-item review + 30-item batch + author email role-play + 300-word customer essay; calibrated against CTO Office baseline; anti-pattern guards), compensation-band.md (3-tier band; recommended anchor ₹50L + 0.5% ESOP; comparator anchors AspiringMinds/Pearson VUE/Mettl/BYJU's; Y1 budget impact analysis with hire-in-Q3 recommendation), interview-process.md (5 stages from app screen to offer; ~23 business days SLA; equity controls). Auto-tile human-prep.sme-lead-hire.jd-and-pipeline complete; links to existing human.sme-lead-hire. NO outreach sent. Master meter unchanged at 0.78 cap."
+    },
     {
       "id": 71,
       "date": "2026-05-08",
