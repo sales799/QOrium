@@ -185,6 +185,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
         event: {
           actor_type: 'user',
           actor_id: reviewer?.id ?? null,
+          tenant_id: reviewer?.tenantId ?? null,
           event_type: `leak.${decision}`,
           entity_type: 'leak_alerts',
           entity_id: id,
@@ -339,6 +340,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
         event: {
           actor_type: 'user',
           actor_id: reviewer?.id ?? null,
+          tenant_id: reviewer?.tenantId ?? null,
           event_type: 'reference_panel.token.minted',
           entity_type: 'reference_panel_tokens',
           entity_id: tokenId ?? undefined,
