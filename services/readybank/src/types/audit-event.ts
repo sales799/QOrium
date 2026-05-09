@@ -1,8 +1,9 @@
 /**
- * Sprint 4.4 v0 — Audit Log API types.
+ * Sprint 4.4.1 — Audit Log API types (tenant-scoped).
  *
- * Maps the canonical `audit.events` schema (migration 0001) onto the
- * customer-facing envelope from `infra/Audit-Log-API-Spec-v0.md` §5.
+ * Maps the canonical `audit.events` schema (migration 0001 +
+ * 0010_audit_events_tenant_id.sql) onto the customer-facing envelope from
+ * `infra/Audit-Log-API-Spec-v0.md` §5.
  *
  * Field-name aliasing (DB → API):
  *   event_type  → action
@@ -11,16 +12,20 @@
  *   changes     → split into old_values (changes.before) + new_values (changes.after)
  *   payload     → details
  *   occurred_at → timestamp (ISO 8601 UTC)
+ *   tenant_id   → tenant_id (passthrough; nullable for legacy rows)
  *
- * v0 tenant scope: a recruiter can read audit events whose `actor_id` matches
- * their own recruiter id. Org-wide scoping is gated on adding `tenant_id` to
- * `audit.events` (Sprint 4.4.1) — flagged in the build log.
+ * Sprint 4.4 v0 scoped events by `actor_id = recruiter.id`. Sprint 4.4.1
+ * adds the `tenant_id` column and the API now scopes by
+ * `tenant_id = recruiter.tenantId` with a transitional OR-fallback for
+ * legacy rows where `tenant_id IS NULL` — see repository.
  */
 
 export interface AuditEventRow {
   id: string;
   actor_id: string | null;
   actor_type: string;
+  /** Tenant scope (Sprint 4.4.1). Nullable for legacy rows + system events. */
+  tenant_id: string | null;
   event_type: string;
   entity_type: string | null;
   entity_id: string | null;
@@ -37,6 +42,7 @@ export interface AuditEventEnvelope {
   action: string;
   actor_id: string | null;
   actor_type: string;
+  tenant_id: string | null;
   resource_type: string | null;
   resource_id: string | null;
   old_values: Record<string, unknown> | null;
@@ -102,6 +108,7 @@ export function rowToEnvelope(row: AuditEventRow): AuditEventEnvelope {
     action: row.event_type,
     actor_id: row.actor_id,
     actor_type: row.actor_type,
+    tenant_id: row.tenant_id,
     resource_type: row.entity_type,
     resource_id: row.entity_id,
     old_values: before,

@@ -17,16 +17,16 @@ import {
 import type { Config } from '../config.js';
 
 /**
- * Sprint 4.4 v0 — Audit Log API.
+ * Sprint 4.4.1 — Audit Log API (tenant-scoped).
  *
  * Read-only externalisation of `audit.events` per
  * `infra/Audit-Log-API-Spec-v0.md`. Phase 1 ships GET list / detail /
- * summary; export + webhook integration land in Sprint 4.4.1+.
+ * summary; export + webhook integration land in Sprint 4.4.2+.
  *
- * Auth: existing recruiter cookie session (Sprint 1.6 JWT). v0 returns
- * only events whose `actor_id` matches the authenticated recruiter; an
- * org-wide read scope (`audit:read:tenant`) requires `audit.events.tenant_id`,
- * planned for Sprint 4.4.1.
+ * Auth: existing recruiter cookie session (Sprint 1.6 JWT). v1 scopes
+ * results by `tenant_id = recruiter.tenantId` with a transitional
+ * OR-fallback to `actor_id = recruiter.id` for v0-era events whose
+ * tenant_id is still NULL (see repository comment).
  *
  * Routes are mounted at `/v1/audit/*`.
  */
@@ -104,6 +104,7 @@ export function auditRouter(deps: AuditRouterDeps): Router {
       }
       const { rows, next_cursor } = await listAuditEvents(deps.pool, {
         actorId: recruiter.id,
+        tenantId: recruiter.tenantId,
         eventType: q.action,
         entityType: q.resource_type,
         startDate,
@@ -132,7 +133,7 @@ export function auditRouter(deps: AuditRouterDeps): Router {
       if (!ID_PATTERN.test(id)) {
         throw new HttpProblem({ status: 400, title: 'audit/invalid-id' });
       }
-      const row = await getAuditEventById(deps.pool, recruiter.id, id);
+      const row = await getAuditEventById(deps.pool, recruiter.tenantId, recruiter.id, id);
       if (!row) {
         throw new HttpProblem({ status: 404, title: 'audit/event-not-found' });
       }
@@ -174,6 +175,7 @@ export function auditRouter(deps: AuditRouterDeps): Router {
       }
       const summary = await summariseAuditEvents(deps.pool, {
         actorId: recruiter.id,
+        tenantId: recruiter.tenantId,
         startDate,
         endDate,
         topN: parsed.data.top_n,

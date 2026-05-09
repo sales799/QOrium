@@ -14,6 +14,12 @@ import type { Pool } from '@qorium/db';
 export interface AuditEvent {
   actor_type: 'user' | 'api_key' | 'system' | 'scheduled_job';
   actor_id?: string | null;
+  /**
+   * Tenant scope for the Audit Log API's org-wide read endpoint (Sprint 4.4.1).
+   * Optional for legacy callers; system / scheduled-job events typically leave
+   * this null. Recruiter-context handlers should pass `req.recruiter.tenantId`.
+   */
+  tenant_id?: string | null;
   event_type: string;
   entity_type?: string | undefined;
   entity_id?: string | undefined;
@@ -31,9 +37,9 @@ export interface RecordAuditOptions {
 
 const INSERT_SQL = `
   INSERT INTO audit.events (
-    actor_type, actor_id, event_type, entity_type, entity_id,
+    actor_type, actor_id, tenant_id, event_type, entity_type, entity_id,
     changes, payload, ip_address, user_agent
-  ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8::inet, $9)
+  ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9::inet, $10)
 `;
 
 export async function recordAuditEvent(options: RecordAuditOptions): Promise<void> {
@@ -42,6 +48,7 @@ export async function recordAuditEvent(options: RecordAuditOptions): Promise<voi
     await pool.query(INSERT_SQL, [
       event.actor_type,
       event.actor_id ?? null,
+      event.tenant_id ?? null,
       event.event_type,
       event.entity_type ?? null,
       event.entity_id ?? null,
