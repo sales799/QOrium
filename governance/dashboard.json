@@ -2,7 +2,7 @@
   "$schema": "./dashboard.schema.json",
   "version": "1.0.0",
   "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 73,
+  "lastReconcileRun": 74,
   "source": {
     "streamB": {
       "branch": "main",
@@ -23,8 +23,8 @@
   },
   "lanes": {
     "auto": {
-      "completed": 46,
-      "total": 46,
+      "completed": 47,
+      "total": 47,
       "tiles": [
         {
           "id": "sprint-0.1",
@@ -309,6 +309,14 @@
           "auto_eligible": true,
           "linkedHumanTile": "human.senior-eng-hire",
           "evidence": "governance/hiring/senior-engineer-1/ — README + JD (publishable: ₹50-80 LPA + 0.5-1.0% ESOP, Senior IC, peer-to-CTO, TS+pg+AWS), sourcing-pipeline (5 channels: LinkedIn/Naukri + 30-name target list + boutique recruiter ₹3L + ₹1L referral bounty + community; ~₹5L budget), screening-rubric (4 dimensions: code quality via paid ₹10K take-home audit-chain verifier + system design webhook delivery + production incident-replay + written ADR-style essay; calibrated to CTO Office baseline), compensation-band (3 tiers; recommended ₹62L + 0.7% ESOP anchor; Stripe/Razorpay/Cred/Atlassian comparators; Q3 hire timing for budget fit), interview-process (5 stages, ~28 business days SLA; paid take-home discipline). NO outreach sent."
+        },
+        {
+          "id": "human-prep.reference-panel-200.recruitment-funnel",
+          "name": "Tier-A5 prep — Reference Panel ≥200 recruitment funnel",
+          "status": "complete",
+          "auto_eligible": true,
+          "linkedHumanTile": "human.reference-panel-200",
+          "evidence": "governance/reference-panel-recruitment/ — README + landing-page-spec (panel.qorium.online; single-CTA conversion surface; WCAG 2.1 AA + LCP ≤1.5s; cred-bound on cred-drop) + intake-form (7-field schema with conflict-of-interest auto-decline + 4 mandatory consents; migration 0016_panel_applications.sql preview) + outreach-channels (3 channels: campus partnerships ₹2L + professional outreach ₹2L + organic+referrals ₹1L; ₹4L honorarium budget; cohort balance dashboard; per-week metrics) + cohort-balance-spec (65-cell skill×experience grid; protected-category cuts ≥30% binary / ≥15% multigroup; WEIRD-skew defenses) + compensation-and-ethics (₹2K/session symmetric across cohorts; ₹500 participation fee for failed attention-checks; IRB-equivalent + DPDPA + ISIOP-aligned; no caste/religion/marital data). NO outreach sent."
         }
       ]
     },
@@ -579,6 +587,11 @@
     }
   ],
   "runs": [
+    {
+      "id": 74,
+      "date": "2026-05-09",
+      "summary": "Tier-A5 (human-lane acceleration): Reference Panel ≥200 recruitment funnel shipped at governance/reference-panel-recruitment/. 5 files: README (rationale + 5-question CEO decision matrix; ≥200 is IRT statistical floor), landing-page-spec (panel.qorium.online; 7-section single-CTA conversion surface; WCAG 2.1 AA + LCP≤1.5s; ₹300KB total; no third-party trackers; cred-bound on cred-drop), intake-form (7-field hard-cap schema with conflict-of-interest auto-decline + 4 mandatory consents + retention timeline; preview migration 0016_panel_applications.sql with all required indexes), outreach-channels (3 channels: campus partnerships ₹2L for Wave-1 junior bands + professional outreach ₹2L for Wave-2 scarce skills + organic+referrals ₹1L; ₹4L honorarium budget for first 200; per-week metrics; anti-fraud + attention-check defenses), cohort-balance-spec (65-cell skill×experience grid + Layer-2 protected-category cuts ≥30% binary / ≥15% multigroup; WEIRD-skew defenses; channel-attribution-to-gap mapping; quarterly composition report), compensation-and-ethics (₹2K/session symmetric across cohorts; ₹500 participation fee for failed attention-checks; voluntariness/informed-consent/minimum-necessary/anonymisation-90day/right-to-withdraw all spec'd; no caste/religion/marital data per India hiring law + ISIOP code; charter governance + audit cadence). Auto-tile human-prep.reference-panel-200.recruitment-funnel complete; links to existing human.reference-panel-200. NO outreach sent — Charter (Tier-A2 D2) co-authoring with I/O Psych contractor finalises numbers. Master meter unchanged at 0.78 cap."
+    },
     {
       "id": 73,
       "date": "2026-05-09",
