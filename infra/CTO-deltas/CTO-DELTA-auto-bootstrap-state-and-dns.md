@@ -63,7 +63,6 @@ The exact bucket name is emitted as a `state-backend` output for paste-in.
 2. **No production state created at PR-merge time.** CI runs `validate` only — no AWS API calls, no credentials in CI, no state files committed. Apply remains a CEO-only manual action.
 
 3. **Charter halt conditions preserved.**
-
    - Monetary commitment: still gated by `BOOTSTRAP_AUTHORIZED=true`.
    - Production-credential operation: cred-drop file still gitignored; agent never reads it.
    - DNS / live-service mutation: same gate. `dns-zone.tf` cannot run unless the CEO has flipped the gate.
@@ -117,7 +116,6 @@ Local `terraform validate` revealed three pre-existing issues that were holding 
 2. **`multi-region.tf` and `pitr.tf` — fmt drift.** Pure whitespace alignment differences. Auto-fixed with `terraform fmt -write` so the new CI matrix passes `fmt -check`.
 
 3. **`observability.tf` — pre-existing validation errors deferred.** Two errors:
-
    - `sentry_project.<name>.dsn_public` — attribute does not exist in the current sentry provider (it's surfaced as a `sentry_key` resource attribute now).
    - `data.sentry_organization.qorium.id` deprecated in favour of `.slug`.
 
