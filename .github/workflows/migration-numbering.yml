@@ -1,0 +1,37 @@
+# Migration-numbering guard
+# ----------------------------------------------------------------------------
+# Runs on every PR (and push to main) that touches the postgres migrations
+# directory. Enforces the reservation registry at:
+#
+#   infra/B7-postgres-migrations/RESERVED.md
+#
+# Catches the failure mode that produced the 2026-05-10 incident
+# (governance/incidents/2026-05-10-migration-divergence.md): two parallel
+# branches independently numbered migrations 0004-0014 with different content,
+# silently. The guard fails the PR if a new file collides with an existing
+# number or claims an undocumented one.
+#
+# Triggers narrowly so this doesn't run on every PR. To bypass intentionally
+# (e.g., reconciliation work), edit RESERVED.md in the same PR.
+
+name: migration-numbering
+
+on:
+  pull_request:
+    paths:
+      - 'infra/B7-postgres-migrations/**'
+      - '.github/workflows/migration-numbering.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'infra/B7-postgres-migrations/**'
+      - '.github/workflows/migration-numbering.yml'
+
+jobs:
+  check-numbering:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run check-numbering
+        run: bash infra/B7-postgres-migrations/scripts/check-numbering.sh
