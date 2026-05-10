@@ -10,7 +10,7 @@
 //
 // Health check:
 //   talpro_watchdog_add --app "qorium-mailer" \
-//     --health_url "http://localhost:5102/healthz" --interval_min 5
+//     --health_url "http://localhost:5150/healthz" --interval_min 5
 
 module.exports = {
   apps: [
@@ -35,7 +35,7 @@ module.exports = {
       // (Node 20+) or use pm2-runtime --env-file.
       env: {
         NODE_ENV: 'production',
-        PORT: 5102,
+        PORT: 5150,
         SERVICE_NAME: 'qorium-mailer',
       },
 

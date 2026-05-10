@@ -44,14 +44,14 @@ if ! pm2 list 2>/dev/null | grep -q qorium-api; then
   log "⚠ Warning: qorium-api not seen in pm2 list. Continuing anyway."
 fi
 
-# Confirm port 5102 is free.
-if ss -ltn | awk '{print $4}' | grep -qE ':5102$'; then
-  log "✗ Port 5102 already in use. Refusing to start."
+# Confirm port 5150 is free.
+if ss -ltn | awk '{print $4}' | grep -qE ':5150$'; then
+  log "✗ Port 5150 already in use. Refusing to start."
   exit 1
 fi
 
 # Confirm github-qorium SSH alias works (deploy key step done).
-if ! ssh -T -o BatchMode=yes -o ConnectTimeout=5 github-qorium 2>&1 | grep -q "sales799/qorium"; then
+if ! ssh -T -o BatchMode=yes -o ConnectTimeout=5 github-qorium 2>&1 | grep -qi "sales799/qorium"; then
   log "✗ SSH alias 'github-qorium' does not authenticate to sales799/qorium."
   log "  Run the Paste 1 steps from governance/email-bootstrap/2026-05-10-deploy-handoff.md first."
   exit 1
@@ -144,7 +144,7 @@ fi
 # ----- 7. Smoke test ---------------------------------------------------------
 log "→ Smoke test"
 sleep 3
-if curl -fsS http://127.0.0.1:5102/healthz >/dev/null 2>&1; then
+if curl -fsS http://127.0.0.1:5150/healthz >/dev/null 2>&1; then
   log "  ✓ qorium-mailer /healthz returned 200"
 else
   log "✗ qorium-mailer /healthz did NOT return 200"
