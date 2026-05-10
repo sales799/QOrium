@@ -1,9 +1,32 @@
 # Deploy handoff — recruiter invitation pipeline
 
-**Date:** 2026-05-10  
-**Branch:** `claude/qorium-continuation-eJJlB`  
-**SHA:** `b2f394ec40bd1f7599c3acfc243891d017777ce5`  
-**Status:** Code complete, typecheck clean, 166/187 tests pass (21 DB-integration skips expected without postgres). Branch is 106 commits ahead of `origin/main`.
+**Date:** 2026-05-10 (updated post-merge ~10:55 UTC)
+**Status:** Code is on `main`. Deploy still blocked by VPS deploy-key + migration-divergence reconciliation.
+
+## Post-merge state (2026-05-10 10:55 UTC)
+
+| Artifact | Value |
+|---|---|
+| PR | [#51](https://github.com/sales799/QOrium/pull/51) — **MERGED** |
+| Merge commit on `main` | `f96e886c303e1c2a367ad9b8507450e407776434` |
+| Source branch (now redundant) | `claude/qorium-continuation-eJJlB` |
+| CI status | 8/8 green (lint, typecheck, test, build, secret-scan, security-audit; deploys skipped pre-merge) |
+| Self-review | Posted on PR #51 (CTO autonomous mode) |
+
+### ⚠ NEW BLOCKER — sibling branch divergence
+
+`claude/setup-qorium-build-agent-zA0l5` (50 commits, the branch currently RUNNING on the VPS) **cannot be cleanly merged** to the new `main`. Both branches independently numbered migrations `0004`–`0014` with different content, and both authored ATS connectors. This means:
+
+- ❌ Cannot simply `git checkout main` on the VPS — it would attempt to apply `0004_recruiter_auth.sql` on top of a postgres state that was built from `0004_calibration_history.sql`.
+- ❌ Cannot just merge sibling branch via "Option A second half" — produces uncountable conflicts.
+
+Full incident report and reconciliation plan: [`governance/incidents/2026-05-10-migration-divergence.md`](../incidents/2026-05-10-migration-divergence.md).
+
+**Until reconciliation lands**, the recruiter invitation pipeline can be deployed to:
+
+- ✅ A fresh VPS bootstrapped from `main` (with pgcrypto + CITEXT extensions installed first).
+- ✅ A side-deployed `/opt/qorium-mailer` instance on a different port (Option B from the original plan).
+- ❌ NOT the existing `/opt/qorium` running on the VPS today, without the migration-tracker remap work.
 
 ---
 
@@ -26,19 +49,17 @@ Acceptance flow: admin POSTs `/v1/auth/invite` → service generates token, hash
 
 ---
 
-## Branch-strategy decision (BLOCKS deploy)
+## Branch-strategy decision (revised post-merge)
 
-The VPS currently runs `claude/setup-qorium-build-agent-zA0l5` (Sprint 2.20–2.21: leak-rotation worker, my self-service portal). That branch was never merged to main and is also ahead of main. **It does not contain the mailer.** This branch (`qorium-continuation-eJJlB`) does not contain the leak-rotation work. They are siblings off a stale `main`.
-
-Three options, in order of cleanliness:
+**Original "Option A" is dead** — the sibling branch cannot be cleanly merged (see incident report). Revised options:
 
 | Option | Steps | Pros | Cons |
 |---|---|---|---|
-| **A — Merge both to main** | 1) Merge this PR. 2) Merge a similar PR for `setup-qorium-build-agent-zA0l5`. 3) VPS pulls main. | Cleans up trunk; future deploys are simple. | Two PRs, two merges, possible conflicts to resolve. |
-| **B — Side-deploy** | Clone branch to `/opt/qorium-mailer`, run on a separate port (e.g. 5102), proxy `/v1/auth/*` from nginx. | No risk to running services. | Two codebases to maintain temporarily. |
-| **C — Force-checkout** | On VPS: `git checkout claude/qorium-continuation-eJJlB` directly. | Fastest. | **Loses Sprint 2.x work from running service** — anti-leak rotation stops. |
+| **B (recommended now) — Side-deploy** | Clone `main` to `/opt/qorium-mailer`, run readybank on a separate port (e.g. 5102), proxy `/v1/auth/invite` + `/v1/auth/accept` from nginx. Migration tracker stays per-instance. | Zero risk to the running VPS service; mailer ships in hours. | Two codebases to maintain until reconciliation. |
+| **A′ (long-term) — Reconciliation project** | Execute the 5-phase plan in the migration-divergence incident report. | Trunk health restored; one canonical codebase. | Multi-day; requires Phase A (postgres truth-establishment) first; needs human review. |
+| **C — Force-checkout main on VPS** | `cd /opt/qorium && git checkout main`. | Fastest. | **Will fail** — postgres rejects re-applying `0004` with new content. Even if forced, Sprint 2.x work disappears from the live service. **Don't do this.** |
 
-**CTO recommendation: Option A.** B is technically fine but adds ops burden. C is destructive and not worth the speed.
+**CTO recommendation: B for the mailer ship + A′ as a sprint-2-week project for trunk health.**
 
 ---
 
@@ -100,25 +121,41 @@ SES_SECRET_ACCESS_KEY=<paste from your AWS bootstrap secrets>
 
 ---
 
-## Deploy commands (after both pastes done, Option A path)
+## Deploy commands — Option B (side-deploy, recommended)
+
+After both pastes done:
 
 ```bash
-cd /opt/qorium && \
-git fetch origin && \
-git checkout main && \
-git pull origin main && \
+# 1. Clone main into a parallel directory (does NOT touch /opt/qorium)
+cd /opt && \
+git clone -b main git@github-qorium:sales799/qorium.git qorium-mailer && \
+cd qorium-mailer && \
 pnpm install --frozen-lockfile && \
 pnpm --filter @qorium/db build && \
 pnpm --filter @qorium/auth build && \
 pnpm --filter @qorium/readybank build && \
-# Run new migrations (0004 + 0005 if not already applied)
-pnpm --filter @qorium/db exec qorium-db migrate up && \
-pm2 restart qorium-api --update-env && \
-sleep 3 && \
-pm2 logs qorium-api --lines 30 --nostream | tail -40
+# 2. Set up its own postgres database (separate schema or separate DB)
+psql "$DATABASE_URL" -c "CREATE SCHEMA IF NOT EXISTS app_mailer;" && \
+# Then run migrations 0001, 0002, 0004, 0005 ONLY against app_mailer schema
+# (skip the 0006-0015 from main since this instance only needs auth + invitations)
+# Detailed migration script needed — see Phase A of the reconciliation plan
+# 3. Copy /opt/qorium/.env to /opt/qorium-mailer/.env, override:
+#    READYBANK_PORT=5102
+#    DATABASE_URL=...?currentSchema=app_mailer
+#    MAILER_DRIVER=ses (+ SES creds from Paste 2)
+# 4. Start under PM2 as a NEW process (not a restart of qorium-api)
+cd /opt/qorium-mailer && \
+pm2 start ecosystem.config.cjs --only qorium-mailer || \
+  pm2 start "node services/readybank/dist/index.js" --name qorium-mailer --env production
+# 5. Add nginx route on api.qorium.online:
+#    location /v1/auth/invite { proxy_pass http://localhost:5102; }
+#    location /v1/auth/accept { proxy_pass http://localhost:5102; }
+nginx -t && systemctl reload nginx
 ```
 
-Expected log: `mailer initialized driver=ses region=ap-south-1`.
+Expected log on `pm2 logs qorium-mailer`: `mailer initialized driver=ses region=ap-south-1`.
+
+**Note:** the side-deploy needs its own database (or schema) so its migration history doesn't collide with the live `qorium-api`. If a new DB is preferred, swap the `psql` line for `createdb qorium_mailer` and adjust `DATABASE_URL` accordingly. The CEO/CTO can decide schema-vs-database at execute time.
 
 ## Smoke test (first real send)
 
