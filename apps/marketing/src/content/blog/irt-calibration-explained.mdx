@@ -1,0 +1,42 @@
+---
+title: 'IRT calibration in 5 minutes: why difficulty scores matter more than pass rates'
+description: 'Item Response Theory turns gut-feel difficulty into a measurable parameter. Here is how QOrium calibrates every question before it reaches your candidate.'
+date: '2026-05-08'
+author: 'QOrium Engineering'
+tags: ['irt', 'calibration', 'psychometrics']
+---
+
+## The pass-rate trap
+
+Most question banks label difficulty as easy, medium, or hard. The label is assigned by the author, eyeballed by a reviewer, and never updated again.
+
+A question the author thinks is "medium" might be trivially easy for a 5-year backend engineer and impossibly hard for a fresh graduate. The label tells you nothing about the candidate.
+
+## What IRT actually measures
+
+Item Response Theory replaces the label with a number: the difficulty parameter (b). It sits on the same scale as candidate ability (θ). When b = θ, the candidate has a 50% chance of answering correctly.
+
+That single number does more work than easy/medium/hard ever could. It lets you compare questions across roles, across formats, across time. A b = 1.2 Java concurrency question and a b = 1.2 React state-management question are, statistically, equally hard.
+
+## The calibration loop
+
+QOrium calibrates every question through a four-step loop:
+
+1. **Seed estimation** — the author and two SMEs independently estimate difficulty. Their consensus becomes the prior.
+2. **Pilot exposure** — the question is served to a calibration cohort (minimum 30 responses) alongside anchor items with known parameters.
+3. **2PL fit** — we fit a two-parameter logistic model, estimating both difficulty (b) and discrimination (a). Questions with a < 0.4 are flagged for rewrite.
+4. **Drift watch** — every 90 days, or after 500 new responses, we re-estimate. If b shifts by more than 0.3 logits, the question is pulled for review.
+
+## Why this matters for your hiring
+
+When every question has a calibrated difficulty:
+
+- **Adaptive difficulty targeting** — serve a pack where 60% of questions sit within 0.5 logits of the candidate's estimated ability. The test is neither trivially easy nor demoralisingly hard.
+- **Cross-role comparison** — compare a backend engineer's percentile against a data engineer's percentile on a common scale.
+- **Fair rotation** — when anti-leak rotation swaps a question, the replacement must have a similar b value. Otherwise you change the test difficulty silently.
+
+## The cost of skipping calibration
+
+If you skip IRT, you are shipping untested content. Your pass rates fluctuate not because candidates changed, but because your content drifted.
+
+Every QOrium question — ReadyBank, JD-Forge, or Stack-Vault — passes through this loop before it reaches a candidate. No exceptions.

@@ -1,0 +1,213 @@
+# Tech Debt Register
+
+**Owner:** CTO Office · **Authority:** Constitution SO-3 (Quality Gate), SO-16 (Documentation as Code)
+**Cadence:** Reviewed every Friday in Bali debrief (10-min CTO slot); cleared in priority order in Mon weekly sprint planning.
+**Discipline:** Append-only. Never delete an entry; mark `RESOLVED` with commit reference and date.
+
+---
+
+## Why this exists
+
+Honest accounting of every shortcut taken during build sessions. The Constitution + ADRs + runbooks define the right way to do things. This register tracks where we knowingly diverged because the cost of doing it right wasn't worth the timeline cost.
+
+Two rules:
+
+1. **No silent shortcuts.** If you cut a corner, log it here in the same commit.
+2. **No compounding.** Tech debt entries that age >90 days without progress get escalated to the monthly business review for prioritization (or explicit deprioritization).
+
+---
+
+## Severity rubric
+
+| Severity     | Definition                                                                                                                 | Pay-down deadline |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| **Critical** | Constitutional violation (SO-3, SO-15, SO-16, etc.) currently in production. Active risk.                                  | 30 days           |
+| **High**     | Quality bar miss with measurable customer impact OR security weakness in a non-prod path that will become prod.            | 90 days           |
+| **Medium**   | Operational annoyance, missing test coverage, missing instrumentation. No active customer impact but slows next iteration. | 180 days          |
+| **Low**      | Style nits, documentation gaps, deferred polish.                                                                           | Y2+               |
+
+---
+
+## Open debt
+
+### TD-001 — UptimeRobot or equivalent uptime monitor not yet provisioned — PARTIALLY RESOLVED 2026-05-06
+
+- **Severity:** Medium → Low (after partial resolution)
+- **Logged:** 2026-05-06 (Completion Sprint v1)
+- **Original gap:** SLI uptime target documented in `cto/sli-slo.md` was unmeasured. Manual cURL checks happen on deploy; nothing checks 24/7.
+- **Partial resolution (2026-05-06, this commit):** Added `.github/workflows/uptime.yml` — GitHub Actions cron workflow runs every 5 min against `qorium.online`. Hits 6 critical routes; verifies TLS cert >14 days remaining; verifies qorium.in 301 redirect. On failure, the workflow run shows red + (when configured) emits webhook notification.
+- **Why GitHub Actions cron over UptimeRobot:** zero-cost, no third-party account required, alerts via the same GitHub mechanism the team already monitors. UptimeRobot would add multi-region probing + SMS alerts which are nice-to-have but not Y1-critical.
+- **Remaining gap (still tracked under this entry):** No SMS alert on failure (only GitHub notification). No multi-region probing (cron runs from one GitHub-hosted runner). No status-page surface. These are Y2+ if traffic warrants.
+- **Owner:** CTO
+- **Resolution commit:** (this commit — see `git log` for the SHA after push)
+
+### TD-002 — No real-time p95 latency metric
+
+- **Severity:** Medium
+- **Logged:** 2026-05-06
+- **Why:** Marketing claim of `<200ms p95` for ReadyBank API and `<500ms TTFB` for marketing site are unmeasured continuously. Sampled manually.
+- **Cost of doing it right:** Plausible Analytics performance plugin OR Vercel's Speed Insights (if we ever flip to Vercel) OR custom synthetic monitor.
+- **Why deferred:** ReadyBank has no live customers; marketing latency observed in smoke tests is acceptable. Same Y1 ROI calculus as TD-001.
+- **Pay-down trigger:** First ReadyBank customer onboards.
+- **Owner:** CTO
+- **ETA:** Within 14 days post-first-customer
+
+### TD-003 — Anti-leak engine + IRT calibration job not yet built
+
+- **Severity:** High (constitutional claim — `qorium.online` claims daily anti-leak rotation; SO-22 requires it)
+- **Logged:** 2026-05-06
+- **Why:** The website asserts a daily anti-leak SLA. Today, Talpro Customer Zero hires through manual question reuse + ad-hoc rotation. The automated engine (per CTO Architecture §6) is M2 deliverable.
+- **Cost of doing it right:** Significant — multi-week engineering project. Tracked in CTO Architecture v1 as M2 scope.
+- **Why we ship the claim now:** Customer Zero (Talpro India) does run a daily rotation discipline manually. The website's claim is honest at the daily-rotation level; the AUTOMATION is what's deferred.
+- **Pay-down trigger:** M2 sprint; per Blueprint trajectory.
+- **Owner:** CTO + CDO hat
+- **ETA:** M2 (approximately 60 days from current)
+
+### TD-004 — No status page (no customer-facing incident notification surface)
+
+- **Severity:** Low
+- **Logged:** 2026-05-06
+- **Why:** P0/P1 incidents currently notified via email per `cto/runbooks/incident-response.md` §Customer notification. No status.qorium.online page.
+- **Pay-down trigger:** First paid customer onboards.
+- **Owner:** CTO
+- **ETA:** Within 30 days post-first-paid-customer
+
+### TD-005 — Marketing site Vitest unit tests — PARTIALLY RESOLVED 2026-05-06
+
+- **Severity:** Low → Lower (partial resolution)
+- **Logged:** 2026-05-06
+- **Original gap:** Marketing app's test coverage was Playwright E2E only (5 critical-route smoke tests). Copy decks, utilities (`lib/cn`, `lib/seo`), components were untested.
+- **Partial resolution (PROVE autonomous run):** `apps/marketing/vitest.config.ts` + 3 test files + 20 tests covering:
+  - `lib/cn` utility (6 tests on classnames merging)
+  - Locked USP verbatim integrity across press-kit, home, site.config, LinkedIn announce, Bosch announce (7 tests)
+  - No [TBD] / lorem ipsum / placeholder markers in shipped copy decks + // SOURCE: comment audit (7 tests)
+- **Remaining gap:** Component-level tests (BlurFade, OrbitingCircles, etc.) still untested. SEO util `buildMetadata` untested. Reactive — add tests when bugs surface.
+- **Owner:** CTO
+- **Resolution commit:** `faee670` (PROVE autonomous run Track H)
+
+### TD-006 — Lighthouse + axe in CI run in `warn` mode (not enforced)
+
+- **Severity:** Low
+- **Logged:** 2026-05-06 (per `apps/marketing/lighthouserc.json` thresholds)
+- **Why:** Lighthouse perf ≥85, a11y ≥90, etc. configured as `warn` not `error` in `lighthouserc.json`. CI doesn't fail the PR if scores drop.
+- **Why deferred:** Need 3 successful PR runs to baseline real scores before flipping to `error`. Per `apps/marketing/PRE-LAUNCH-CHECKLIST.md` §B.
+- **Pay-down trigger:** After 3 PR runs land scores; flip warn → error in `lighthouserc.json`.
+- **Owner:** CTO
+- **ETA:** Within 30 days of first 3 PR runs
+
+### TD-007 — Sentry DSN not configured — PARTIALLY RESOLVED 2026-05-06
+
+- **Severity:** Medium → Low (partial resolution)
+- **Logged:** 2026-05-06
+- **Original gap:** Frontend errors and Server Action errors landed in PM2 logs (server-side) or browser console (client-side). No aggregation, no alerting.
+- **Partial resolution (PROVE autonomous run):** `apps/marketing/src/lib/sentry.ts` + `sentry-types.ts` — stub API surface (`captureException`, `captureMessage`, `setUser`, `getSentryConfig`). Env-gated via `NEXT_PUBLIC_SENTRY_DSN`; until DSN + `@sentry/nextjs` both land in same PR, all functions are no-op (dev console log only). When DSN is provisioned, swap stub bodies with the inline ACTIVATION comments — single PR away from real error tracking.
+- **Remaining gap:** Actual `@sentry/nextjs` install + DSN provisioning in repo secrets + activation. ETA: within 60 days post-first-paid-customer (unchanged).
+- **Owner:** CTO
+- **Resolution commit:** `faee670` (PROVE autonomous run Track I — scaffold)
+
+### TD-008 — No CRM integration for /contact and /demo form submissions
+
+- **Severity:** Medium
+- **Logged:** 2026-05-06
+- **Why:** Form submissions go via mailer (Resend → Gmail SMTP → console-fallback per ADR 0003). They do NOT auto-flow to a CRM (Pipedrive / HubSpot Free / etc.). Bali manually transcribes from email to CRM.
+- **Cost of doing it right:** Webhook integration in the Server Action → CRM API.
+- **Why deferred:** Volume is Y1 = low; manual entry is fine; CRM choice (Pipedrive vs HubSpot vs SFDC) is a Bali decision for Y1.
+- **Pay-down trigger:** Form submissions exceed 5/day OR Bali signals manual entry is the bottleneck.
+- **Owner:** CTO + Bali
+- **ETA:** Y1 Q3 (after CRM choice locks)
+
+### TD-009 — Bundle baseline not yet captured — RESOLVED 2026-05-06
+
+- **Severity:** Low
+- **Logged:** 2026-05-06
+- **Original gap:** `@next/bundle-analyzer` plumbed but baseline run not captured.
+- **Resolution (2026-05-06, this commit):** `apps/marketing/BUNDLE-BASELINE.md` written with per-route First Load JS sizes captured from `ANALYZE=true pnpm --filter @qorium/marketing build`. Includes shared baseline (102 kB), per-route table sorted by First Load JS, observations, action thresholds (any route +20% → CTO review; `/` >220 kB → P1; shared >130 kB → CTO review), and re-baseline cadence (quarterly + per major dep upgrade + per architectural change).
+- **Resolution commit:** (this commit — see `git log` after push)
+- **Note:** `BUNDLE-BASELINE.md` is the living doc; future bundle audits append a new dated section.
+
+### TD-010 — Logo SVG is placeholder; final brand identity pending
+
+- **Severity:** Low
+- **Logged:** 2026-05-06 (per PRE-LAUNCH-CHECKLIST D3)
+- **Why:** `apps/marketing/src/components/site/Logo.tsx` + `app/api/brand/{logo,wordmark}.svg/route.ts` are marked `// PLACEHOLDER`.
+- **Why deferred:** Final brand identity is a design review cycle (3-5 days). Site is launchable with the placeholder.
+- **Pay-down trigger:** CEO + design team complete the final brand asset.
+- **Owner:** CEO + design (CTO swaps file when delivered)
+- **ETA:** D3 in PRE-LAUNCH-CHECKLIST
+
+### TD-011 — Backfilled ADRs from prior build sessions
+
+- **Severity:** Low
+- **Logged:** 2026-05-06
+- **Why:** ADRs 0001-0006 were written in this CTO sprint after the decisions were already implemented in prior sessions. Going forward (per `cto/adrs/README.md` Backfill discipline), no new architectural decision merges to `main` without an ADR in the same PR.
+- **Pay-down trigger:** This entry stays open as a reminder of the discipline shift; no further action required (unless the rule is broken — which would be a separate entry).
+- **Owner:** CTO
+- **ETA:** Permanent reference
+
+### TD-012 — secret-rotation-log.md doesn't exist yet (no rotations have happened)
+
+- **Severity:** Low
+- **Logged:** 2026-05-06
+- **Why:** `cto/runbooks/secret-rotation.md` references `cto/secret-rotation-log.md` as the place to log rotations. The file will be created on the first rotation.
+- **Pay-down trigger:** First quarterly rotation (target 2026-08-05).
+- **Owner:** CTO
+- **ETA:** Q3 2026
+
+### TD-013 — Bali AI Agent service (services/bali-agent/) not built
+
+- **Severity:** Low (artifacts exist; engineering deferred)
+- **Logged:** 2026-05-06
+- **Why:** Per SO-18 + Bali Playbook §9, the Recruiter motion needs an AI Agent. Prompts + templates + escalation rubric + guardrails ALL shipped (in `bali/ai-agent/`). What's missing is the TypeScript service that loads them.
+- **Cost of doing it right:** ~2-3 week engineering sprint.
+- **Why deferred:** Per Blueprint, the AI Agent is M2 scope. Y1 first 3 months are content engine + first hires. Recruiter motion runs founder-led + manual until M2.
+- **Pay-down trigger:** M2 per Blueprint.
+- **Owner:** CTO + Bali
+- **ETA:** M2 (~60 days)
+
+---
+
+## Resolved debt (historical record)
+
+| Entry            | Resolved   | Approach                                                                                                                                                   |
+| ---------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TD-001 (partial) | 2026-05-06 | GH Actions cron uptime workflow; UptimeRobot replaced with zero-cost in-house monitor. Severity downgraded Medium → Low.                                   |
+| TD-005 (partial) | 2026-05-06 | Vitest config + 20 tests (cn util · locked-USP integrity · no-TBD copy audit). Component tests reactive. Commit `faee670`.                                 |
+| TD-007 (partial) | 2026-05-06 | Sentry stub API surface (`lib/sentry.ts`); env-gated; activates when DSN + `@sentry/nextjs` both land. Severity downgraded Medium → Low. Commit `faee670`. |
+| TD-009 (full)    | 2026-05-06 | Bundle baseline captured to `apps/marketing/BUNDLE-BASELINE.md` from `ANALYZE=true` build output.                                                          |
+
+(Future resolutions append in chronological order. Use this format:)
+
+```
+### TD-NNN — <title> — RESOLVED YYYY-MM-DD
+
+- Original severity: <X>
+- Original logged: YYYY-MM-DD
+- Resolved by: commit <SHA> + PR #NN
+- Pay-down approach: <one-line description>
+- Lessons learned: <if any>
+```
+
+---
+
+## Aging audit
+
+Entries older than 90 days without status change → flagged in monthly business review.
+
+| Entry               | Logged     | Days open | Status |
+| ------------------- | ---------- | --------- | ------ |
+| All current entries | 2026-05-06 | 0         | New    |
+
+(This table updates monthly during business review.)
+
+---
+
+## How to add an entry
+
+1. Pick the next TD-NNN number.
+2. Use the existing entry format (Severity / Logged / Why / Cost of doing it right / Why deferred / Pay-down trigger / Owner / ETA).
+3. Reference any ADR or runbook the entry relates to.
+4. Commit in the same PR as the shortcut you're logging.
+
+---
+
+_Cross-references: Constitution SO-3 (Quality Gate Discipline — tech debt is the honest accounting of where we knowingly violate it), SO-16 (Documentation as Code). Companion: `cto/sli-slo.md` (gaps tracked here become tech debt). Operating cadence: Friday CTO slot in Bali debrief + monthly business review aging audit._

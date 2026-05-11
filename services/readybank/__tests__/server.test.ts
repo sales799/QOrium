@@ -13,11 +13,6 @@ function testConfig(overrides: Partial<Config> = {}): Config {
     version: '0.0.0-test',
     gitSha: 'testsha',
     sentryDsn: undefined,
-    apiKeyPepper: undefined,
-    redisUrl: undefined,
-    jwtSecret: undefined,
-    cookieSecure: false,
-    recruiterLockoutMinutes: 15,
     ...overrides,
   };
 }

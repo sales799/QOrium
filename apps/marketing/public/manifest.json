@@ -1,0 +1,13 @@
+{
+  "name": "Qorium",
+  "short_name": "Qorium",
+  "description": "Question-Bank-as-a-Service for the assessment industry.",
+  "start_url": "/",
+  "display": "minimal-ui",
+  "background_color": "#0a0d14",
+  "theme_color": "#0a0d14",
+  "icons": [
+    { "src": "/icon", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png" }
+  ]
+}

@@ -2,7 +2,6 @@ import { createPool } from '@qorium/db';
 import type { Pool } from '@qorium/db';
 import { loadConfig } from './config.js';
 import { createServer } from './server.js';
-import { createMailer, type Mailer } from './mailer/index.js';
 
 async function main(): Promise<void> {
   const config = loadConfig();
@@ -17,19 +16,7 @@ async function main(): Promise<void> {
     pool = undefined;
   }
 
-  // Mailer is built when a pool exists; without DB there's nothing to invite into.
-  let mailer: Mailer | undefined;
-  if (pool) {
-    mailer = await createMailer({
-      driver: config.mailerDriver,
-      ...(config.sesRegion ? { sesRegion: config.sesRegion } : {}),
-      ...(config.sesAccessKeyId ? { sesAccessKeyId: config.sesAccessKeyId } : {}),
-      ...(config.sesSecretAccessKey ? { sesSecretAccessKey: config.sesSecretAccessKey } : {}),
-      ...(config.sendgridApiKey ? { sendgridApiKey: config.sendgridApiKey } : {}),
-    });
-  }
-
-  const server = createServer(pool ? { config, pool, ...(mailer ? { mailer } : {}) } : { config });
+  const server = createServer(pool ? { config, pool } : { config });
 
   const httpServer = server.app.listen(config.port, () => {
     server.logger.info(

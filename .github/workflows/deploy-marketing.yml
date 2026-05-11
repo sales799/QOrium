@@ -1,0 +1,89 @@
+name: Deploy marketing site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/marketing/**'
+      - 'infra/marketing-deploy.sh'
+      - '.github/workflows/deploy-marketing.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-marketing
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Requires repo secrets:
+    #   VPS_HOST                       — 147.93.103.194
+    #   VPS_USER                       — root
+    #   VPS_PORT                       — 2244
+    #   VPS_SSH_KEY                    — private key authorized on VPS 1.
+    #
+    # Optional env-injection secrets (when set, populated into apps/marketing/
+    # .env.local on VPS before deploy script runs; missing values fall back to
+    # console-log-only behavior, which is fine):
+    #   RESEND_API_KEY                 — primary mailer
+    #   GMAIL_USER                     — Gmail SMTP fallback (optional)
+    #   GMAIL_APP_PASSWORD             — Gmail SMTP fallback (optional)
+    #   NEXT_PUBLIC_CALENDLY_URL       — when set, /demo embeds Calendly
+    #   NEXT_PUBLIC_PLAUSIBLE_DOMAIN   — when set, analytics fires
+    if: ${{ vars.MARKETING_DEPLOY_ENABLED == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.VPS_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Inject env vars into VPS .env.local
+        # Secrets stream over stdin (cat > /dev/stdin) so they never appear in
+        # the SSH command line or in `ps`/`history`. The remote shell consumes
+        # them via heredoc → file. We always write the file; missing secrets
+        # become empty values which the app handles via fallback chains.
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NEXT_PUBLIC_CALENDLY_URL: ${{ secrets.NEXT_PUBLIC_CALENDLY_URL }}
+          NEXT_PUBLIC_PLAUSIBLE_DOMAIN: ${{ secrets.NEXT_PUBLIC_PLAUSIBLE_DOMAIN }}
+        run: |
+          ssh -p ${{ secrets.VPS_PORT }} \
+              -o StrictHostKeyChecking=accept-new \
+              -i ~/.ssh/id_ed25519 \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+              "cat > /opt/apps/qorium-marketing/apps/marketing/.env.local && chmod 600 /opt/apps/qorium-marketing/apps/marketing/.env.local" <<EOF
+          NEXT_PUBLIC_SITE_URL=https://qorium.online
+          NEXT_PUBLIC_PLAUSIBLE_DOMAIN=${NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+          NEXT_PUBLIC_CALENDLY_URL=${NEXT_PUBLIC_CALENDLY_URL}
+          RESEND_API_KEY=${RESEND_API_KEY}
+          CONTACT_TO_EMAIL=hello@qorium.online
+          CONTACT_FROM_EMAIL=noreply@qorium.online
+          GMAIL_USER=${GMAIL_USER}
+          GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+          EOF
+
+      - name: Run deploy script on VPS
+        run: |
+          ssh -p ${{ secrets.VPS_PORT }} \
+              -o StrictHostKeyChecking=accept-new \
+              -i ~/.ssh/id_ed25519 \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+              'cd /opt/apps/qorium-marketing && bash infra/marketing-deploy.sh'
+
+      - name: Smoke test the live URL
+        run: |
+          set -e
+          for path in / /product /pricing /security /changelog /press-kit; do
+            code=$(curl -s -m 15 -o /dev/null -w "%{http_code}" "https://qorium.online${path}")
+            echo "https://qorium.online${path} → ${code}"
+            [ "$code" = "200" ] || { echo "::error::Smoke test failed for ${path}"; exit 1; }
+          done
