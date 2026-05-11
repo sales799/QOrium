@@ -7,6 +7,7 @@ import { platformsCopy } from '@/content/copy/solutions';
 export const metadata: Metadata = {
   title: 'For assessment platforms',
   description: platformsCopy.hero.sub,
+  alternates: { canonical: '/solutions/platforms' },
 };
 
 export default function PlatformsPage() {

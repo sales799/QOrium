@@ -7,13 +7,13 @@ import { DemoForm } from '@/components/site/DemoForm';
 import { CalendlyEmbed } from '@/components/site/CalendlyEmbed';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Spotlight } from '@/components/aceternity/Spotlight';
-import { mailerStatus } from '@/lib/mailer';
 
 const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL ?? '';
 
 export const metadata: Metadata = {
   title: 'Book a demo',
   description: 'A 30-minute walk-through of the platform, the three SKUs, and one of your JDs.',
+  alternates: { canonical: '/demo' },
 };
 
 const AGENDA = [
@@ -60,12 +60,6 @@ export default function DemoPage() {
                   ))}
                 </ul>
               </div>
-              {mailerStatus === 'console-fallback' ? (
-                <p className="rounded-md border border-warning/40 bg-warning/5 p-3 text-xs text-warning">
-                  Pre-launch: requests are logged for manual scheduling until the mail provider is
-                  configured.
-                </p>
-              ) : null}
               <p className="rounded-md border border-border bg-surface-1 p-4 text-xs text-muted-foreground">
                 Booking your slot triggers a calendar invite via email. We confirm same-day if
                 received before 14:00 IST.

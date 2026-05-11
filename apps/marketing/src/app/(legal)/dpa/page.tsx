@@ -5,6 +5,7 @@ import { siteConfig } from '@/content/site.config';
 export const metadata: Metadata = {
   title: 'Data Processing Addendum',
   description: `Data Processing Addendum for ${siteConfig.name}.`,
+  alternates: { canonical: '/dpa' },
 };
 
 export default function DpaPage() {

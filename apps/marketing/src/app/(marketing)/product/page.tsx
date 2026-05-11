@@ -16,6 +16,7 @@ import { productCopy } from '@/content/copy/product';
 export const metadata: Metadata = {
   title: 'Platform overview',
   description: productCopy.hero.sub,
+  alternates: { canonical: '/product' },
 };
 
 const SECTION_NAV = [

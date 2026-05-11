@@ -12,6 +12,7 @@ import { listBlogPosts } from '@/lib/blog';
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Field notes from building the assessment-content layer.',
+  alternates: { canonical: '/blog' },
 };
 
 function fmtDate(iso: string): string {

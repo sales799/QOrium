@@ -6,6 +6,7 @@ import { enterprisesCopy } from '@/content/copy/solutions';
 export const metadata: Metadata = {
   title: 'For enterprises & GCCs',
   description: enterprisesCopy.hero.sub,
+  alternates: { canonical: '/solutions/enterprises' },
 };
 
 export default function EnterprisesPage() {

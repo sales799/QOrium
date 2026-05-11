@@ -12,6 +12,7 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 export const metadata: Metadata = {
   title: 'Press kit',
   description: 'Brand assets, boilerplate, founder note. Everything you need to mention us.',
+  alternates: { canonical: '/press-kit' },
 };
 
 // SOURCE: Constitution §1.1 — locked USP, verbatim

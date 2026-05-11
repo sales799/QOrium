@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -88,6 +89,15 @@ const BENTO_ITEMS = [
 // dialog opens to an empty iframe; the play affordance is the visible asset.
 // See audit/LIVE-SITE-RECONCILIATION.md §6.
 const HERO_VIDEO_SRC = '';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "QOrium — The world's question bank for hiring.",
+  },
+  description:
+    "QOrium is the world's first enterprise-grade Question-Bank-as-a-Service. IRT-calibrated, anti-leak-rotated, watermark-per-candidate assessment library.",
+  alternates: { canonical: '/' },
+};
 
 export default function HomePage() {
   return (

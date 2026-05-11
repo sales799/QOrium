@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: 'Security & Trust',
   description:
     'How QOrium protects customer data, watermarks Stack-Vault content, and earns enterprise trust.',
+  alternates: { canonical: '/security' },
 };
 
 const COMPLIANCE = [

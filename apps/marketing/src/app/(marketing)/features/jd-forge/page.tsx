@@ -7,6 +7,7 @@ import { jdforgeCopy } from '@/content/copy/features';
 export const metadata: Metadata = {
   title: 'JD-Forge — custom packs from any JD in 30 seconds',
   description: jdforgeCopy.hero.sub,
+  alternates: { canonical: '/features/jd-forge' },
 };
 
 export default function JdForgePage() {

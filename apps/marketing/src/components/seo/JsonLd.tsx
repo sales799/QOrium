@@ -102,3 +102,61 @@ export function ArticleJsonLd({
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
+
+export function FAQPageJsonLd({
+  questions,
+}: {
+  questions: Array<{ question: string; answer: string }>;
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: questions.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.answer,
+      },
+    })),
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+  );
+}
+
+export function SoftwareApplicationJsonLd({
+  name,
+  description,
+  url,
+  category,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  category?: string;
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name,
+    description,
+    url,
+    applicationCategory: category ?? 'BusinessApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+      description: 'Contact for pricing',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: siteConfig.legalEntity,
+      url: siteConfig.url,
+    },
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+  );
+}

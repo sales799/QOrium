@@ -13,6 +13,7 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 export const metadata: Metadata = {
   title: 'Customers',
   description: 'How our Day-0 cohort uses QOrium today, and where we go next.',
+  alternates: { canonical: '/customers' },
 };
 
 const STATS = [

@@ -11,6 +11,7 @@ import { CHANGELOG } from '@/content/changelog';
 export const metadata: Metadata = {
   title: 'Changelog',
   description: 'What we shipped, when. Append-only, grounded in commits and ratified docs.',
+  alternates: { canonical: '/changelog' },
 };
 
 const CATEGORY_COLOR: Record<string, string> = {

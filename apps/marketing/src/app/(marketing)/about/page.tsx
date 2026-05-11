@@ -13,6 +13,7 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 export const metadata: Metadata = {
   title: 'About',
   description: "QOrium's mission, founder note, and why we're based in India.",
+  alternates: { canonical: '/about' },
 };
 
 // SOURCE: 04-Blueprint §1 (vision/mission), governance/Investor-Brief §1 (founder voice)

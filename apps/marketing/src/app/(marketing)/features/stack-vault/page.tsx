@@ -7,6 +7,7 @@ import { stackvaultCopy } from '@/content/copy/features';
 export const metadata: Metadata = {
   title: 'Stack-Vault — customer-exclusive, watermarked private library',
   description: stackvaultCopy.hero.sub,
+  alternates: { canonical: '/features/stack-vault' },
 };
 
 export default function StackVaultPage() {

@@ -4,6 +4,7 @@ import { Github, Linkedin } from 'lucide-react';
 import { Logo } from './Logo';
 import { MaxWidth } from './MaxWidth';
 import { siteConfig } from '@/content/site.config';
+import { NewsletterSignup } from './NewsletterSignup';
 
 const COLUMNS = [
   {
@@ -30,6 +31,7 @@ const COLUMNS = [
     links: [
       { label: 'Blog', href: '/blog' },
       { label: 'Security', href: '/security' },
+      { label: 'FAQ', href: '/faq' },
     ],
   },
   {
@@ -46,6 +48,7 @@ const COLUMNS = [
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
       { label: 'DPA', href: '/dpa' },
+      { label: 'Cookies', href: '/cookie-policy' },
     ],
   },
 ];
@@ -70,6 +73,14 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+            <div className="mt-6">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Stay in the loop
+              </p>
+              <div className="mt-2 max-w-sm">
+                <NewsletterSignup />
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:col-span-8 lg:grid-cols-5">

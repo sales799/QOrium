@@ -288,3 +288,14 @@
     offset-distance: 100%;
   }
 }
+
+/* Smooth dark/light theme transitions */
+html.transitioning,
+html.transitioning *,
+html.transitioning *::before,
+html.transitioning *::after {
+  transition:
+    background-color 0.3s ease,
+    color 0.2s ease,
+    border-color 0.3s ease !important;
+}

@@ -12,6 +12,7 @@ import { featureIndex } from '@/content/copy/features';
 export const metadata: Metadata = {
   title: 'Features',
   description: 'Three SKUs, one library: ReadyBank, JD-Forge, Stack-Vault.',
+  alternates: { canonical: '/features' },
 };
 
 const ICON: Record<string, React.ComponentType<{ className?: string }>> = {

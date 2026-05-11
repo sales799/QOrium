@@ -74,6 +74,7 @@ export const siteConfig = {
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
       { label: 'DPA', href: '/dpa' },
+      { label: 'Cookies', href: '/cookie-policy' },
     ],
   },
 } as const;

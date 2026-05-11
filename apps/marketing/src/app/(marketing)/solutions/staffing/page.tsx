@@ -6,6 +6,7 @@ import { staffingCopy } from '@/content/copy/solutions';
 export const metadata: Metadata = {
   title: 'For staffing firms',
   description: staffingCopy.hero.sub,
+  alternates: { canonical: '/solutions/staffing' },
 };
 
 export default function StaffingPage() {

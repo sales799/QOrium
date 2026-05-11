@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
+import { CookieConsent } from '@/components/site/CookieConsent';
 import { siteConfig } from '@/content/site.config';
 import './globals.css';
 
@@ -43,13 +45,14 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: siteConfig.url,
     siteName: siteConfig.name,
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
-    description: siteConfig.description,
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${siteConfig.name} — ${siteConfig.tagline}`,
-    description: siteConfig.description,
+  },
+  alternates: {
+    types: {
+      'application/rss+xml': `${siteConfig.url}/rss.xml`,
+    },
   },
   robots: { index: true, follow: true },
   icons: {
@@ -86,12 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-secondary focus:px-3 focus:py-2 focus:text-secondary-foreground"
@@ -100,9 +98,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </a>
           {children}
         </ThemeProvider>
+        <CookieConsent />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <Script
+          src="https://plausible.io/js/script.js"
+          data-domain="qorium.online"
+          strategy="afterInteractive"
         />
       </body>
     </html>

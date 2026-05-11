@@ -6,6 +6,7 @@ import { readybankCopy } from '@/content/copy/features';
 export const metadata: Metadata = {
   title: 'ReadyBank — shared, IRT-calibrated, anti-leak-rotated',
   description: readybankCopy.hero.sub,
+  alternates: { canonical: '/features/readybank' },
 };
 
 const SAMPLE_RESPONSE = `{

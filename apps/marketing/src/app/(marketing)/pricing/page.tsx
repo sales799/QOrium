@@ -25,6 +25,7 @@ import { cn } from '@/lib/cn';
 export const metadata: Metadata = {
   title: 'Pricing',
   description: pricingCopy.hero.sub,
+  alternates: { canonical: '/pricing' },
 };
 
 export default function PricingPage() {

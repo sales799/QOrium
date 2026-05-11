@@ -7,11 +7,11 @@ import { ContactForm } from '@/components/site/ContactForm';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Spotlight } from '@/components/aceternity/Spotlight';
 import { siteConfig } from '@/content/site.config';
-import { mailerStatus } from '@/lib/mailer';
 
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Send us a note. We respond within one business day.',
+  alternates: { canonical: '/contact' },
 };
 
 export default function ContactPage() {
@@ -61,12 +61,6 @@ export default function ContactPage() {
                 <p className="text-sm font-medium text-foreground">Response time</p>
                 <p className="text-sm text-muted-foreground">≤ 1 business day · IST 09:00–18:00</p>
               </div>
-              {mailerStatus === 'console-fallback' ? (
-                <p className="rounded-md border border-warning/40 bg-warning/5 p-3 text-xs text-warning">
-                  Pre-launch: form submissions are logged for manual review until the mail provider
-                  is configured.
-                </p>
-              ) : null}
             </FadeIn>
           </aside>
           <div className="md:col-span-8">
