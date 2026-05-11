@@ -1,0 +1,12 @@
+.next/
+out/
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+node_modules/
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/

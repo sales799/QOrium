@@ -1,0 +1,47 @@
+---
+title: 'Anti-cheat beyond proctoring: why content-level security beats webcam surveillance'
+description: 'Proctoring catches copy-paste. It does not catch a candidate who memorised the leaked answer yesterday. Content-level anti-cheat does.'
+date: '2026-05-09'
+author: 'QOrium Engineering'
+tags: ['anti-cheat', 'anti-leak', 'security']
+---
+
+## The proctoring illusion
+
+Assessment platforms invest heavily in proctoring. Eye tracking, screen recording, browser lockdown, copy-paste detection. These tools catch a narrow category of cheating: the candidate who opens a second tab during the test.
+
+They do not catch the candidate who studied the leaked question last night.
+
+That is the category that actually breaks your hiring signal. The prepared cheater looks indistinguishable from a strong candidate. They finish on time. They do not look away from the screen. They do not copy-paste. They simply know the answer already.
+
+## Two layers of the problem
+
+Assessment integrity has two layers:
+
+**Layer 1 — Session integrity.** Is the candidate actually taking the test themselves, right now, without external help? Proctoring handles this. It is a solved problem (with privacy trade-offs, but solved).
+
+**Layer 2 — Content integrity.** Is the question the candidate sees genuinely novel to them? No proctoring tool in the world addresses this. If your question leaked to Reddit three weeks ago and 40% of your candidate pool saw it, your test is compromised before anyone opens the browser.
+
+## How content-level anti-cheat works
+
+QOrium's anti-leak engine operates continuously, not at test time:
+
+**Crawl** — we monitor known leak surfaces (Reddit, GeeksforGeeks, LeetCode Discuss, Glassdoor, Telegram prep channels, GitHub gists) for semantic matches against our library. Not keyword matches — semantic similarity against the question's embedding vector. A paraphrased leak is still a leak.
+
+**Score** — each question carries a leak-risk score from 0 to 100. The score factors in exposure count, recency, platform reach, and whether a solution (not just the question stem) appeared.
+
+**Rotate** — when a question crosses the risk threshold, the engine triggers replacement. The replacement must match the original's IRT difficulty parameter within 0.3 logits and cover the same competency node in the role-graph. The hiring manager sees no change in test quality.
+
+**Watermark** — Stack-Vault questions carry per-customer watermarks. If a watermarked question surfaces externally, we trace it to the source customer within hours.
+
+## The math that matters
+
+A 100-question bank with no rotation has a half-life of about 6 weeks in a high-volume hiring market. After 6 weeks, roughly half the questions have appeared somewhere online. After 12 weeks, the bank is functionally public.
+
+Continuous rotation extends the effective half-life to 6 months or more. The leak surface never accumulates because leaked items are pulled before the next candidate sees them.
+
+## What this means for you
+
+If your assessment vendor talks about anti-cheat and only mentions proctoring, they are solving Layer 1 and ignoring Layer 2. Ask them: what happens when my questions leak? If the answer involves a manual content refresh cycle measured in quarters, your hiring signal degrades every week between refreshes.
+
+QOrium's position is simple: proctoring is your vendor's job. Content integrity is ours.

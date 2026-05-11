@@ -96,9 +96,6 @@ function testConfig(): Config {
     sentryDsn: undefined,
     apiKeyPepper: PEPPER,
     redisUrl: undefined,
-    jwtSecret: 'pack_integration_jwt_secret_at_least_thirty_two_chars',
-    cookieSecure: false,
-    recruiterLockoutMinutes: 15,
   };
 }
 

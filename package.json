@@ -10,14 +10,14 @@
   },
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "build:packages": "pnpm --filter @qorium/db --filter @qorium/auth run build",
-    "typecheck": "pnpm run build:packages && pnpm -r --if-present run typecheck",
+    "typecheck": "pnpm -r --if-present run typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm run build:packages && pnpm -r --if-present run test",
+    "test": "pnpm -r --if-present run test",
     "build": "pnpm -r --if-present run build",
+    "dev:marketing": "pnpm --filter @qorium/marketing dev",
     "secrets:scan": "gitleaks detect --source . --no-banner --redact || (echo 'gitleaks not installed — see README' && exit 1)",
     "prepare": "husky"
   },
@@ -37,14 +37,8 @@
       "prettier --write",
       "eslint --fix"
     ],
-    "*.{json,md,yml,yaml}": [
+    "*.{json,md,mdx,yml,yaml,css}": [
       "prettier --write"
-    ]
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "argon2",
-      "esbuild"
     ]
   }
 }

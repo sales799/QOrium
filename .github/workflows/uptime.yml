@@ -1,0 +1,104 @@
+# QOrium uptime monitor — GitHub Actions cron
+#
+# Runs every 5 minutes against qorium.online. Hits 6 critical routes; fails
+# the workflow if any returns non-200 OR exceeds latency threshold. On
+# failure, the workflow run shows red on the repo's home page (and optionally
+# notifies via the failure-webhook below if configured).
+#
+# Why this over UptimeRobot/Pingdom: zero-cost, no third-party account,
+# alerts via the same GitHub mechanism the team already monitors.
+#
+# Owner: CTO Office. Authority: cto/sli-slo.md uptime SLO. Partial pay-down
+# of TD-001 in cto/tech-debt.md (the "no UptimeRobot" gap).
+
+name: Uptime monitor
+
+on:
+  schedule:
+    # Every 5 minutes. GH Actions cron has up to ~5-min jitter so effective
+    # cadence is 5-10 min between checks; acceptable for a 99.5% SLO.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+# Don't queue runs — if a previous run is still going, skip the new one.
+concurrency:
+  group: uptime-monitor
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Site smoke (qorium.online)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hit 6 critical routes
+        id: smoke
+        run: |
+          set -uo pipefail
+          # Per cto/sli-slo.md uptime SLO + deploy-marketing.yml smoke parity.
+          ROUTES=(
+            "/"
+            "/product"
+            "/pricing"
+            "/security"
+            "/changelog"
+            "/press-kit"
+          )
+          FAIL=0
+          REPORT=""
+          for path in "${ROUTES[@]}"; do
+            url="https://qorium.online${path}"
+            # -m 15 = max 15s; -w captures HTTP code + total time
+            result=$(curl -sS -m 15 -o /dev/null -w "%{http_code}|%{time_total}" "$url" || echo "ERR|0")
+            code="${result%%|*}"
+            time="${result##*|}"
+            if [ "$code" != "200" ]; then
+              echo "::error::FAIL ${url} → HTTP ${code}"
+              REPORT="${REPORT}FAIL ${url} → HTTP ${code} (${time}s)\n"
+              FAIL=$((FAIL+1))
+            elif awk "BEGIN { exit !(${time} > 5.0) }"; then
+              # >5s on a CDN-fronted static page = degradation
+              echo "::warning::SLOW ${url} → 200 in ${time}s (>5s threshold)"
+              REPORT="${REPORT}SLOW ${url} → 200 in ${time}s\n"
+            else
+              echo "OK   ${url} → 200 in ${time}s"
+              REPORT="${REPORT}OK   ${url} → 200 in ${time}s\n"
+            fi
+          done
+          echo ""
+          echo "=== Summary ==="
+          printf "%b" "$REPORT"
+          echo "==============="
+          if [ "$FAIL" -gt 0 ]; then
+            echo "::error::${FAIL} of ${#ROUTES[@]} routes failed"
+            exit 1
+          fi
+
+      - name: Verify TLS cert is fresh (>14 days remaining)
+        run: |
+          set -uo pipefail
+          # Re-trigger certbot before this gets close to expiry.
+          # echo | s_client redirects to avoid stdin EOF.
+          expiry=$(echo | openssl s_client -servername qorium.online -connect qorium.online:443 2>/dev/null \
+            | openssl x509 -noout -enddate \
+            | cut -d= -f2)
+          expiry_epoch=$(date -d "${expiry}" +%s)
+          now_epoch=$(date +%s)
+          days_left=$(( (expiry_epoch - now_epoch) / 86400 ))
+          echo "TLS cert expires: ${expiry}"
+          echo "Days remaining:   ${days_left}"
+          if [ "$days_left" -lt 14 ]; then
+            echo "::error::TLS cert expires in ${days_left} days — force certbot renewal per cto/runbooks/incident-response.md §TLS expiry"
+            exit 1
+          fi
+
+      - name: Verify qorium.in 301 redirect
+        run: |
+          set -uo pipefail
+          # Should NOT follow redirects; we want to see the 301 itself.
+          code=$(curl -sS -m 10 -o /dev/null -w "%{http_code}" https://qorium.in)
+          if [ "$code" != "301" ] && [ "$code" != "302" ] && [ "$code" != "308" ]; then
+            echo "::error::qorium.in returned ${code} (expected 301/302/308)"
+            exit 1
+          fi
+          echo "qorium.in redirect → ${code} OK"

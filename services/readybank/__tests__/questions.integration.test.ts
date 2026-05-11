@@ -101,9 +101,6 @@ function testConfig(overrides: Partial<Config> = {}): Config {
     sentryDsn: undefined,
     apiKeyPepper: PEPPER,
     redisUrl: undefined,
-    jwtSecret: 'questions_integration_jwt_secret_at_least_thirty_two_chars',
-    cookieSecure: false,
-    recruiterLockoutMinutes: 15,
     ...overrides,
   };
 }

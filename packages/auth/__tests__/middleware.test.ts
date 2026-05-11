@@ -60,9 +60,7 @@ function makeMockPool(opts: MockPoolOptions = {}) {
         return { rows: [], rowCount: 1 };
       }
       if (sql.includes('audit.events')) {
-        // INSERT_SQL column order (post Sprint 4.4.1):
-        //   $1 actor_type, $2 actor_id, $3 tenant_id, $4 event_type, ...
-        const event_type = String((values ?? [])[3] ?? 'unknown');
+        const event_type = String((values ?? [])[2] ?? 'unknown');
         auditInserts.push({ event_type, values: values ?? [] });
         return { rows: [], rowCount: 1 };
       }

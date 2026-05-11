@@ -12,6 +12,10 @@ export default tseslint.config(
       '**/.next/**',
       '**/coverage/**',
       '**/*.tsbuildinfo',
+      '**/next-env.d.ts',
+      // Marketing app uses Next.js + flat config locally (eslint-config-next).
+      // Lint it via `pnpm --filter @qorium/marketing lint`, not from root.
+      'apps/marketing/**',
       'infra/docker/data/**',
       // Canonical Cowork-authored configs (read-only per handoff §6)
       'infra/B10-ecosystem.config.js',
@@ -40,16 +44,6 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-    },
-  },
-  {
-    // Browser-side static assets shipped with the recruiter portal.
-    files: ['services/readybank/public/**/*.js'],
-    languageOptions: {
-      sourceType: 'script',
-      globals: {
-        ...globals.browser,
-      },
     },
   },
 );

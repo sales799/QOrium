@@ -40,6 +40,3 @@ infra/B10-ecosystem.config.js
 *.docx
 *.xlsx
 
-# Append-only build/run logs — formatting drift is expected as new
-# entries are appended; reformatting would create churn on every PR.
-_QORIUM_BUILD_LOG.md
