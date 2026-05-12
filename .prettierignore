@@ -8,6 +8,11 @@ pnpm-lock.yaml
 *.tsbuildinfo
 infra/docker/data/
 
+# Marketing app has its own Next.js + Prettier config (parallel to the
+# eslint.config.js ignore of apps/marketing/**). Format via
+# `pnpm --filter @qorium/marketing format`, not from root.
+apps/marketing/
+
 # Cowork-authored specs (read-only per handoff §6 coordination protocol).
 # Reformatting would be an edit to Cowork's owned files.
 04-*.md
