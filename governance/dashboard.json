@@ -1,17 +1,56 @@
 {
   "$schema": "./dashboard.schema.json",
-  "version": "1.0.0",
-  "lastRefresh": "2026-05-09T02:50:00+05:30",
-  "lastReconcileRun": 76,
+  "version": "1.0.1",
+  "lastRefresh": "2026-05-12T10:00:00+05:30",
+  "lastReconcileRun": 33,
   "source": {
     "streamB": {
-      "branch": "main",
-      "head": "87b08b5",
-      "lastBuildLogEntry": "2026-05-06"
+      "branch": "claude/autonomous-restart-plan-qwHqM",
+      "head": "2f57f80",
+      "lastBuildLogEntry": "2026-05-12"
     },
     "streamA": {
-      "lastRun": 32,
-      "lastReconciled": "2026-05-07"
+      "lastRun": 33,
+      "lastReconciled": "2026-05-12"
+    }
+  },
+  "liveProductionState": {
+    "verifiedAt": "2026-05-12T10:00:00+05:30",
+    "verifiedVia": ["talpro_pm2_list", "talpro_db_query", "talpro_ssl_status", "talpro_nginx_status", "talpro_pm2_orphan_check", "curl"],
+    "pm2Fleet": {
+      "qoriumServicesOnline": 30,
+      "newestService": "qorium-marketing (started 2026-05-12T04:54:31Z)",
+      "noteOnReadybank": "No process named qorium-readybank exists; product is the API/SaaS platform (qorium-api + qorium-jd-forge + qorium-stack-vault + qorium-admin + qorium-candidate-portal + qorium-docs + qorium-my + ~23 supporting services)"
+    },
+    "publicSurfaces": {
+      "https://qorium.online": "200 OK (qorium-marketing, NEW today)",
+      "https://www.qorium.online": "301 -> https://qorium.online/",
+      "https://qorium.in": "301 -> https://qorium.online/",
+      "https://api.qorium.online/healthz": "200 OK",
+      "https://admin.qorium.online": "307 (auth redirect)",
+      "https://candidate.qorium.online": "200 OK",
+      "https://my.qorium.online": "200 OK",
+      "https://docs.qorium.online": "200 OK"
+    },
+    "database": {
+      "name": "qorium",
+      "size": "15 MB",
+      "schemas": ["app", "audit", "billing", "content", "public", "sso", "webhooks"],
+      "tableCount": 38,
+      "questionsLive": 986,
+      "questionsStatusBreakdown": {"calibrating": 986, "released": 0},
+      "tenantsLive": 1,
+      "apiKeysLive": 1,
+      "migrationsApplied": 14,
+      "lastMigrationAt": "2026-05-04T06:58:18Z",
+      "migrationNumberingNote": "Local files infra/B7-postgres-migrations/0004_recruiter_auth.sql and 0005_recruiter_invitations.sql exist on disk but target tables (app.recruiters, app.sessions, app.candidates) that do NOT exist in this DB. Live DB uses numbers 0004/0005 for calibration_history/judge0_sandbox. See QORIUM-MISSION-CONTROL.md Run #33 for the founder_request flagging this."
+    },
+    "ssl": {
+      "qoriumDomains": ["qorium.online", "www.qorium.online", "qorium.in", "www.qorium.in", "api.qorium.online", "admin.qorium.online", "candidate.qorium.online", "my.qorium.online", "docs.qorium.online"],
+      "shortestExpiryDays": 80
+    },
+    "watchdogs": {
+      "qorium-marketing-apex": "https://qorium.online/ every 5 min"
     }
   },
   "masterMeter": {

@@ -1,0 +1,19 @@
+qorium_skill_cluster,qorium_sub_skill,nsdc_ssc,nsdc_nos_code,nsdc_nos_title,nqf_level,confidence,source_notes
+tech-core,Java (Spring Boot + REST + JDBC),IT-ITeS SSC NASSCOM,SSC/N0501,Develop software application code,5,draft,Mapping inferred from QFile QP "Software Developer" L5 role-pack
+tech-core,Python (Pandas + Flask/FastAPI),IT-ITeS SSC NASSCOM,SSC/N0501,Develop software application code,5,draft,Same QP as Java; sub-skill discriminator is language stack
+tech-core,React (TypeScript + Next.js),IT-ITeS SSC NASSCOM,SSC/N0501,Develop software application code,5,draft,Maps to "Front-end Developer" QP under same NOS
+tech-core,SQL / Data engineering,IT-ITeS SSC NASSCOM,SSC/N0503,Database administration,5,draft,Maps to "Database Administrator" QP
+tech-core,DevOps / SRE,IT-ITeS SSC NASSCOM,SSC/N0901,Cloud computing operations,6,draft,Maps to "Cloud Engineer" QP; verify with NSDC IT-ITeS catalogue v9
+tech-core,AWS (Solutions Architect),IT-ITeS SSC NASSCOM,SSC/N0901,Cloud computing operations,6,draft,Same QP as DevOps; sub-skill discriminator is cloud vendor
+tech-core,AIPE (AI-Pair-Engineering / GenAI-assisted dev),IT-ITeS SSC NASSCOM,TBD,No published NOS as of 2026-05 — flag for NSDC v10 advocacy,5,tbd,NSDC has not published a GenAI-coding NOS; QOrium to propose
+india-stack,SAP-ABAP,IT-ITeS SSC NASSCOM,SSC/N0501,Develop software application code,5,draft,SAP-vendor cert covers technical depth; NOS is generic
+india-stack,Oracle HCM,IT-ITeS SSC NASSCOM,SSC/N0501,Develop software application code,5,draft,Same QP; sub-skill discriminator is product stack
+india-stack,Salesforce CPQ,IT-ITeS SSC NASSCOM,SSC/N0501,Develop software application code,5,draft,Salesforce-vendor cert covers technical depth; NOS is generic
+india-stack,Finacle / Flexcube,BFSI Sector Skill Council,BSC/N0301,Banking technology operations,5,tbd-research-needed,Confirm exact NOS code from BFSI SSC QP catalogue
+india-stack,Embedded Automotive,Automotive Skills Development Council,ASC/N0902,Embedded systems development for automotive,5,tbd-research-needed,ASDC SSC publishes auto-specific NOS; verify exact code
+psychometric-wave-3,Cognitive Ability,IT-ITeS SSC NASSCOM,N/A,No NOS — psychometric assessment is not skills-certified; map to APA/SIOP standards instead,N/A,n/a,Out of NSDC NOS scope; track via APA Div-14 standards
+psychometric-wave-3,Personality SJT,IT-ITeS SSC NASSCOM,N/A,No NOS — psychometric assessment is not skills-certified,N/A,n/a,Same as above
+psychometric-wave-3,Aptitude SJT,IT-ITeS SSC NASSCOM,N/A,No NOS — psychometric assessment is not skills-certified,N/A,n/a,Same as above
+cross-cutting,Workplace ethics / professional conduct,IT-ITeS SSC NASSCOM,SSC/N9001,Manage your work to meet requirements,4,draft,Generic cross-role NOS; relevant to behavioural items
+cross-cutting,Communication / collaboration,IT-ITeS SSC NASSCOM,SSC/N9003,Work effectively in a team,4,draft,Generic cross-role NOS; relevant to teamwork items
+cross-cutting,Cybersecurity awareness,IT-ITeS SSC NASSCOM,SSC/N0701,Cybersecurity operations,5,draft,Verify exact code from NSDC IT-ITeS Cybersecurity QP
