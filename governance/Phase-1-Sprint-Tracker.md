@@ -5,8 +5,15 @@ Done-when criteria. Sprint 1.0 PUBLIC DoD is **6/7 GREEN**; the remaining 7th
 item is a 30-second recruiter-login by CEO once the invitation email goes
 through SES (Sprint 1.7).
 
-Snapshot date: **2026-05-06**.
+Snapshot date: **2026-05-12** (updated for Run #33 dormancy break + apex restored). Prior snapshot **2026-05-06**.
 Mode: **CTO-driven, all-remote, auto-mode, end-to-end**.
+
+## 2026-05-12 — Run #33 delta
+
+- **NEW Surface 7 — Apex marketing site live.** `qorium.online` returns 200 with full security header stack. PM2 `qorium-marketing` online on 127.0.0.1:5110. Watchdog registered. See `QORIUM-MISSION-CONTROL.md` Run #33 section for the full evidence chain.
+- **Sprint 1.6 status confirmed DONE** at `87b08b5` (PR #13), with downstream layers in PR #51 (recruiter invitation pipeline), PR #52 (qorium-mailer Option-B side-deploy), PR #56 (marketing site build) all merged onto branch `claude/autonomous-restart-plan-qwHqM` @ `2f57f80`.
+- **Sprint 1.0 7th gate** remains BLOCKED on first REAL Talpro candidate event (MOVE 3 — CEO + Talpro Delivery Head action).
+- **State divergence flagged.** The pasted "Surfaces 1–5 + qorium-readybank:3050 + 13-tables/~10-Qs" framing does NOT match live production (~30 services, 38 tables, 986 questions, no qorium-readybank). High-urgency `founder_request` filed (Durga Council `c991a6c8`); awaiting CEO ratification on whether (a) the API/SaaS platform is the correct current QOrium product OR (b) a separate recruiter-web app is expected — and if (b), where (VPS path + hostname + DB/schema). Migration numbers `0004`/`0005` collision flagged: local files target recruiter-web tables that don't exist live; live DB has different content under those numbers.
 
 ---
 

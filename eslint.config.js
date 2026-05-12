@@ -19,6 +19,11 @@ export default tseslint.config(
       'infra/docker/data/**',
       // Canonical Cowork-authored configs (read-only per handoff §6)
       'infra/B10-ecosystem.config.js',
+      // Browser-context vanilla JS served as static assets by the readybank
+      // Express server; parsed in the browser, no Node lint contract applies.
+      // If browser-context lint is wanted later, add a per-file globals.browser
+      // block instead of removing this ignore.
+      'services/readybank/public/**',
     ],
   },
   eslint.configs.recommended,
