@@ -60,7 +60,7 @@ function makeMockPool(opts: MockPoolOptions = {}) {
         return { rows: [], rowCount: 1 };
       }
       if (sql.includes('audit.events')) {
-        const event_type = String((values ?? [])[2] ?? 'unknown');
+        const event_type = String((values ?? [])[3] ?? 'unknown');
         auditInserts.push({ event_type, values: values ?? [] });
         return { rows: [], rowCount: 1 };
       }
