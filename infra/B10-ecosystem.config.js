@@ -377,7 +377,8 @@ module.exports = {
      */
     {
       name: 'qorium-judge0-orchestrator',
-      script: './services/judge0-orchestrator/dist/index.js',
+      script: './services/judge0-orchestrator/dist/cli.js',
+      args: '--watch --interval 60',
       instances: 1,
       exec_mode: 'fork',
 
