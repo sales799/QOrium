@@ -432,7 +432,8 @@ module.exports = {
      */
     {
       name: 'qorium-testforge-orchestrator',
-      script: './services/testforge-orchestrator/dist/index.js',
+      script: './services/testforge-orchestrator/dist/cli.js',
+      args: '--watch --interval 60',
       instances: 1,
       exec_mode: 'fork',
 
