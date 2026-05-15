@@ -14,13 +14,17 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.1047.0",
     "@qorium/auth": "workspace:*",
     "@qorium/db": "workspace:*",
+    "@sendgrid/mail": "^8.1.6",
     "@sentry/node": "^8.41.0",
+    "argon2": "^0.44.0",
     "express": "^5.0.1",
     "helmet": "^8.0.0",
     "ioredis": "^5.4.1",
     "js-yaml": "^4.1.0",
+    "jsonwebtoken": "^9.0.3",
     "pino": "^9.5.0",
     "pino-http": "^10.3.0",
     "zod": "^3.23.8"
@@ -28,6 +32,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/js-yaml": "^4.0.9",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/supertest": "^6.0.2",
     "supertest": "^7.0.0",
     "tsx": "^4.19.2",
