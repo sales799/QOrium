@@ -46,7 +46,7 @@ The script is idempotent: re-running it is safe. It will refuse to start if a na
 | ---------------------- | ------------------------------------------------------------------------------- |
 | `deploy.sh`            | Top-level installer (clone, install, build, migrate, env, start, nginx, smoke)  |
 | `migrate-mailer.sh`    | Stand-alone postgres provisioning + migration runner against `qorium_mailer` DB |
-| `ecosystem.config.cjs` | PM2 config for the `qorium-mailer` process (port 5150, fork mode)              |
+| `ecosystem.config.cjs` | PM2 config for the `qorium-mailer` process (port 5150, fork mode)               |
 | `nginx-locations.conf` | nginx `location` blocks to drop into `api.qorium.online` server config          |
 | `.env.example`         | Template for `/opt/qorium-mailer/.env` (CEO fills in SES creds)                 |
 
