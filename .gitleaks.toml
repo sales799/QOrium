@@ -16,6 +16,7 @@ title = "QOrium Gitleaks Config v1.0"
 
 [allowlist]
 description = "QOrium false-positive allowlist"
+regexTarget = "match"
 paths = [
   '''package-lock\.json''',
   '''pnpm-lock\.yaml''',
@@ -55,6 +56,10 @@ regexes = [
   '''qor_(live|test|internal)_[a-z0-9_]*?(a7f3b2c1|9e2d7c4b|b7f3b2c1)[a-z0-9_]*''',
   # Common placeholder patterns
   '''^example.*''',
+  # Non-secret local/template database URLs used by CI and bootstrap docs.
+  '''postgresql://qorium:qorium_test@localhost:5432/qorium_test''',
+  '''postgresql://qorium:\$\{PG_PASSWORD\}@127\.0\.0\.1:5432/qorium''',
+  '''postgresql://qorium:CHANGE_ME@127\.0\.0\.1:5432/qorium''',
 ]
 
 # ============================================================================

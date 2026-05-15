@@ -1,0 +1,5 @@
+# Historical placeholder database URLs. These fingerprints point to CI/template
+# examples, not live credentials; new secret findings remain blocked.
+9eca7ff1b8a9e5ee6373fccc8b261ce917eaaeb0:.github/workflows/ci.yml:database-url:100
+ebc004fd8ae2bf12fa1d688a87a87ac18a588ef6:services/setu/bin/setu-bootstrap.sh:database-url:104
+dfb4d7cc281d88cfaedcb361206a55b35b587d44:infra/deployment/staging.env.template:database-url:14
