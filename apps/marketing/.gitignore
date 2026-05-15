@@ -1,6 +1,7 @@
 .next/
 out/
 .env
+.env.production
 .env.local
 .env.*.local
 *.tsbuildinfo
