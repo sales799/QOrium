@@ -20,7 +20,7 @@ GIT_REPO="${GIT_REPO:-git@github-qorium:sales799/qorium.git}"   # uses SSH host 
 GIT_BRANCH="${GIT_BRANCH:-main}"
 DB_NAME="${DB_NAME:-qorium_mailer}"
 PM2_PROCESS="${PM2_PROCESS:-qorium-mailer}"
-NGINX_SITE="${NGINX_SITE:-/etc/nginx/sites-enabled/api.qorium.online}"
+NGINX_SITE="${NGINX_SITE:-/etc/nginx/sites-enabled/qorium.conf}"
 
 ts() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 log() { echo "[$(ts)] $*"; }
@@ -44,9 +44,9 @@ if ! pm2 list 2>/dev/null | grep -q qorium-api; then
   log "⚠ Warning: qorium-api not seen in pm2 list. Continuing anyway."
 fi
 
-# Confirm port 5102 is free.
-if ss -ltn | awk '{print $4}' | grep -qE ':5102$'; then
-  log "✗ Port 5102 already in use. Refusing to start."
+# Confirm port 5150 is free.
+if ss -ltn | awk '{print $4}' | grep -qE ':5150$'; then
+  log "✗ Port 5150 already in use. Refusing to start."
   exit 1
 fi
 
@@ -110,7 +110,7 @@ if pm2 list 2>/dev/null | grep -q "$PM2_PROCESS"; then
   pm2 restart "$PM2_PROCESS" --update-env
 else
   log "→ Starting $PM2_PROCESS"
-  pm2 start "$INSTALL_DIR/infra/side-deploy/qorium-mailer/ecosystem.cjs"
+  pm2 start "$INSTALL_DIR/infra/side-deploy/qorium-mailer/ecosystem.config.cjs" --only "$PM2_PROCESS"
 fi
 
 # Persist pm2 list across reboots.
@@ -144,7 +144,7 @@ fi
 # ----- 7. Smoke test ---------------------------------------------------------
 log "→ Smoke test"
 sleep 3
-if curl -fsS http://127.0.0.1:5102/healthz >/dev/null 2>&1; then
+if curl -fsS http://127.0.0.1:5150/healthz >/dev/null 2>&1; then
   log "  ✓ qorium-mailer /healthz returned 200"
 else
   log "✗ qorium-mailer /healthz did NOT return 200"

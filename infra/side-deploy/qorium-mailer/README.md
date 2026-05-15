@@ -13,7 +13,7 @@ A second `readybank` instance running alongside the production `qorium-api`, ded
 
 ```
 /opt/qorium             ← existing, untouched, runs sibling branch on port 5101
-/opt/qorium-mailer      ← clone of `main`, runs on port 5102
+/opt/qorium-mailer      ← clone of `main`, runs on port 5150
 └── (this repo)         ← these files live at infra/side-deploy/qorium-mailer/
 ```
 
@@ -25,8 +25,8 @@ postgres:
 
 ```
 nginx api.qorium.online:
-  /v1/auth/invite  → :5102 (qorium-mailer)
-  /v1/auth/accept  → :5102 (qorium-mailer)
+  /v1/auth/invite  → :5150 (qorium-mailer)
+  /v1/auth/accept  → :5150 (qorium-mailer)
   / (everything else)  → :5101 (qorium-api)
 ```
 
@@ -46,7 +46,7 @@ The script is idempotent: re-running it is safe. It will refuse to start if a na
 | ---------------------- | ------------------------------------------------------------------------------- |
 | `deploy.sh`            | Top-level installer (clone, install, build, migrate, env, start, nginx, smoke)  |
 | `migrate-mailer.sh`    | Stand-alone postgres provisioning + migration runner against `qorium_mailer` DB |
-| `ecosystem.cjs`        | PM2 config for the `qorium-mailer` process (port 5102, cluster of 2)            |
+| `ecosystem.config.cjs` | PM2 config for the `qorium-mailer` process (port 5150, fork mode)              |
 | `nginx-locations.conf` | nginx `location` blocks to drop into `api.qorium.online` server config          |
 | `.env.example`         | Template for `/opt/qorium-mailer/.env` (CEO fills in SES creds)                 |
 
