@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Express, RequestHandler } from 'express';
+import type { Express, Request, RequestHandler } from 'express';
 import * as Sentry from '@sentry/node';
 import type { Pool } from '@qorium/db';
 import { apiKeyAuth, createMemoryRateLimiter, createRedisRateLimiter } from '@qorium/auth';
@@ -12,6 +12,12 @@ import { notFound, problemHandler } from './middleware/problem.js';
 import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
+import { authRouter, adminAuthRouter } from './routes/auth.js';
+import { adminRouter } from './routes/admin.js';
+import { auditRouter } from './routes/audit.js';
+import { referencePanelRouter } from './routes/reference-panel.js';
+import { stackVaultRouter } from './routes/stack-vault.js';
+import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
 
 export interface ServerDeps {
@@ -19,6 +25,8 @@ export interface ServerDeps {
   pool?: Pool;
   /** Override for tests; injects a pre-built logger so test output stays quiet. */
   logger?: Logger;
+  /** Optional mailer for invitation routes; production index builds it when DB exists. */
+  mailer?: Mailer;
   /** Override the auth middleware (e.g., open access in tests). */
   authMiddleware?: RequestHandler;
 }
@@ -52,18 +60,40 @@ export function createServer(deps: ServerDeps): ServerHandle {
 
   app.use(securityHeaders());
   app.use(createHttpLogger(logger));
+  app.use(parseCookies());
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
   // Health endpoints are unauthenticated (PM2 / load balancer probes).
   app.use(healthRouter({ config: deps.config, pool: deps.pool }));
+  app.get('/admin', (_req, res) => res.redirect(302, '/admin/dashboard.html'));
+  app.get('/admin/', (_req, res) => res.redirect(302, '/admin/dashboard.html'));
 
   // /v1/* requires API key auth + per-key rate limiting.
   // Auth + repository routes are skipped when no pool is configured (dev /
   // smoke runs without a DB) so /healthz still works.
   if (deps.pool) {
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
-    app.use('/v1', auth, questionsRouter({ pool: deps.pool }), packsRouter({ pool: deps.pool }));
+    app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
+    app.use(adminRouter({ pool: deps.pool, config: deps.config }));
+    app.use(auditRouter({ pool: deps.pool, config: deps.config }));
+    app.use(referencePanelRouter({ pool: deps.pool, config: deps.config }));
+
+    app.use(
+      '/v1',
+      auth,
+      questionsRouter({ pool: deps.pool }),
+      packsRouter({ pool: deps.pool }),
+      stackVaultRouter({ pool: deps.pool }),
+    );
+
+    if (deps.mailer) {
+      app.use(
+        '/v1',
+        auth,
+        adminAuthRouter({ pool: deps.pool, config: deps.config, mailer: deps.mailer }),
+      );
+    }
   }
 
   // 404 + RFC 7807 problem handler must be last.
@@ -101,4 +131,33 @@ function buildAuthMiddleware(config: Config, pool: Pool): RequestHandler {
   }
 
   return apiKeyAuth({ pool, pepper: config.apiKeyPepper, rateLimiter });
+}
+
+function parseCookies(): RequestHandler {
+  return (req, _res, next) => {
+    (req as Request & { cookies?: Record<string, string> }).cookies = parseCookieHeader(
+      req.headers.cookie,
+    );
+    next();
+  };
+}
+
+function parseCookieHeader(header: string | undefined): Record<string, string> {
+  if (!header) return {};
+
+  return header.split(';').reduce<Record<string, string>>((cookies, part) => {
+    const separator = part.indexOf('=');
+    if (separator === -1) return cookies;
+
+    const name = part.slice(0, separator).trim();
+    if (!name) return cookies;
+
+    const rawValue = part.slice(separator + 1).trim();
+    try {
+      cookies[name] = decodeURIComponent(rawValue);
+    } catch {
+      cookies[name] = rawValue;
+    }
+    return cookies;
+  }, {});
 }

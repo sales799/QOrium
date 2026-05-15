@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+
 /**
  * QOrium PM2 Ecosystem Configuration
  * Authored by CTO Office 2026-05-02
@@ -19,6 +21,29 @@
  * Health checks: Managed by talpro_watchdog_add (see comments below)
  */
 
+const ROOT_DIR = '/opt/apps/qorium/readybank-service';
+const SECRETS_FILE = '/opt/apps/qorium/dotenv.production';
+
+function loadEnvFile(path) {
+  if (!fs.existsSync(path)) return {};
+
+  return fs
+    .readFileSync(path, 'utf8')
+    .split(/\r?\n/)
+    .reduce((env, line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return env;
+      const equals = trimmed.indexOf('=');
+      if (equals <= 0) return env;
+      const key = trimmed.slice(0, equals).trim();
+      const value = trimmed.slice(equals + 1).trim().replace(/^['"]|['"]$/g, '');
+      env[key] = value;
+      return env;
+    }, {});
+}
+
+const productionEnv = loadEnvFile(SECRETS_FILE);
+
 module.exports = {
   apps: [
     /**
@@ -37,7 +62,8 @@ module.exports = {
      */
     {
       name: 'qorium-api',
-      script: './dist/api/server.js',
+      cwd: ROOT_DIR,
+      script: './services/readybank/dist/index.js',
       instances: 2,
       exec_mode: 'cluster',
       port: 5101,
@@ -59,17 +85,19 @@ module.exports = {
 
       // Environment: production
       env_production: {
+        ...productionEnv,
         NODE_ENV: 'production',
+        READYBANK_PORT: 5101,
         PORT: 5101,
         SERVICE_NAME: 'qorium-api',
-        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        DATABASE_URL: productionEnv.DATABASE_URL ?? process.env.DATABASE_URL_PROD,
         REDIS_URL: 'redis://localhost:6379',
-        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-        SERPER_API_KEY: process.env.SERPER_API_KEY,
-        CLOUDFLARE_R2_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-        CLOUDFLARE_R2_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-        SENTRY_DSN: process.env.SENTRY_DSN,
+        ANTHROPIC_API_KEY: productionEnv.ANTHROPIC_API_KEY ?? process.env.ANTHROPIC_API_KEY,
+        OPENAI_API_KEY: productionEnv.OPENAI_API_KEY ?? process.env.OPENAI_API_KEY,
+        SERPER_API_KEY: productionEnv.SERPER_API_KEY ?? process.env.SERPER_API_KEY,
+        CLOUDFLARE_R2_ACCESS_KEY_ID: productionEnv.AWS_ACCESS_KEY_ID ?? process.env.AWS_ACCESS_KEY_ID,
+        CLOUDFLARE_R2_SECRET_ACCESS_KEY: productionEnv.AWS_SECRET_ACCESS_KEY ?? process.env.AWS_SECRET_ACCESS_KEY,
+        SENTRY_DSN: productionEnv.SENTRY_DSN ?? process.env.SENTRY_DSN,
         LOG_LEVEL: 'info',
       },
 
