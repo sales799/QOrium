@@ -30,6 +30,14 @@ export default tseslint.config(
     },
   },
   {
+    files: ['services/readybank/public/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
+  {
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
