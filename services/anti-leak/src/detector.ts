@@ -188,11 +188,14 @@ export function classify(
   // weighted blend.
   const similarity = lexical;
 
-  let severity: LeakSeverity = 'low';
-  if (similarity >= thresholds.thresholdAutoRotate) severity = 'critical';
-  else if (similarity >= thresholds.thresholdHighReview) severity = 'high';
-  else if (similarity >= thresholds.thresholdMediumReview) severity = 'medium';
-  else severity = 'low';
+  const severity: LeakSeverity =
+    similarity >= thresholds.thresholdAutoRotate
+      ? 'critical'
+      : similarity >= thresholds.thresholdHighReview
+        ? 'high'
+        : similarity >= thresholds.thresholdMediumReview
+          ? 'medium'
+          : 'low';
 
   return {
     severity,
