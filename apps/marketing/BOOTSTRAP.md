@@ -24,7 +24,7 @@ The qorium repo is currently private. Pick **one** option:
 In a browser: github.com/sales799/qorium → Settings → Danger Zone → Change visibility → Public. Then on the VPS:
 
 ```bash
-curl -sfL https://raw.githubusercontent.com/sales799/qorium/claude/qorium-marketing-site-Z4gdI/infra/marketing-deploy.sh \
+curl -sfL https://raw.githubusercontent.com/sales799/qorium/main/infra/marketing-deploy.sh \
   | bash
 ```
 
@@ -37,11 +37,11 @@ Generate a `repo:read` PAT at github.com/settings/tokens (classic, scope `repo`)
 ```bash
 GH_USER="sales799"
 GH_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"   # paste your PAT
-git clone --depth=1 -b claude/qorium-marketing-site-Z4gdI \
+git clone --depth=1 -b main \
   "https://${GH_USER}:${GH_TOKEN}@github.com/sales799/qorium.git" \
   /opt/apps/qorium-marketing
 cd /opt/apps/qorium-marketing
-bash infra/marketing-deploy.sh
+safe-deploy qorium-marketing
 ```
 
 Either option runs the same script. It will:
@@ -75,7 +75,7 @@ Expected: all 200/301. The site is live.
 ssh -p 2244 root@147.93.103.194
 nano /opt/apps/qorium-marketing/apps/marketing/.env.production
 # fill in: RESEND_API_KEY=…  (or GMAIL_USER + GMAIL_APP_PASSWORD)
-pm2 restart qorium-marketing
+safe-pm2 restart qorium-marketing
 ```
 
 For Calendly, paste the scheduling URL into `apps/marketing/src/content/site.config.ts` and let GitHub Actions redeploy.
@@ -94,7 +94,7 @@ In github.com/sales799/qorium → Settings → Secrets and variables → Actions
 
 For `VPS_SSH_KEY`, easiest path: on your MacBook, `cat ~/.ssh/id_ed25519` (the one you SSH with) and paste. Or generate a fresh keypair on VPS 1, paste private into the secret, append public to `~/.ssh/authorized_keys`.
 
-After that, every push to `main` that touches `apps/marketing/**` triggers `.github/workflows/deploy-marketing.yml`, which SSHes to VPS 1 and re-runs `marketing-deploy.sh`. Idempotent. Includes its own smoke tests.
+After that, every push to `main` that touches `apps/marketing/**` triggers `.github/workflows/deploy-marketing.yml`, which SSHes to VPS 1 and routes the existing checkout through GBS. Idempotent. Includes its own smoke tests.
 
 ## Step 6 — Connect `qorium.in` later (when you're ready)
 

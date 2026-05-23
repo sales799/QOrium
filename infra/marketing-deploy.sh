@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# qorium-marketing — VPS 1 deploy bootstrap.
+# qorium-marketing - VPS 1 deploy bootstrap and GBS-routed redeploy.
 #
 # Run once on VPS 1 (147.93.103.194) as root via SSH from the CEO MacBook:
 #   ssh -p 2244 root@147.93.103.194
-#   curl -sfL https://raw.githubusercontent.com/sales799/qorium/claude/qorium-marketing-site-Z4gdI/infra/marketing-deploy.sh | bash
+#   curl -sfL https://raw.githubusercontent.com/sales799/qorium/main/infra/marketing-deploy.sh | bash
 #
 # If the repo is private, instead:
-#   git clone -b claude/qorium-marketing-site-Z4gdI https://<USER>:<PAT>@github.com/sales799/qorium.git /opt/apps/qorium-marketing
-#   cd /opt/apps/qorium-marketing && bash infra/marketing-deploy.sh
+#   git clone -b main https://<USER>:<PAT>@github.com/sales799/qorium.git /opt/apps/qorium-marketing
+#   cd /opt/apps/qorium-marketing && safe-deploy qorium-marketing
 #
 # Idempotent. Safe to re-run on every deploy. Does NOT touch existing services
 # (n8n, ReadyBank API, Postgres, Redis). Only adds:
@@ -18,8 +18,8 @@
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/sales799/qorium.git}"
-BRANCH="${BRANCH:-claude/qorium-marketing-site-Z4gdI}"
-APP_DIR="/opt/apps/qorium-marketing"
+BRANCH="${BRANCH:-main}"
+APP_DIR="${APP_DIR:-/opt/apps/qorium-marketing}"
 APP_PORT="5110"
 DOMAIN_PRIMARY="qorium.online"
 DOMAIN_WWW="www.qorium.online"
@@ -28,6 +28,11 @@ DOMAIN_REDIRECT_WWW="www.qorium.in"
 CONTACT_EMAIL="hello@qorium.online"
 NODE_MAJOR="22"
 PNPM_VERSION="10.33.0"
+SAFE_DEPLOY_BIN="${SAFE_DEPLOY_BIN:-/usr/local/bin/safe-deploy}"
+
+if [[ "${TALPRO_GBS_RAW_DEPLOY:-0}" != "1" && -d "$APP_DIR/.git" ]]; then
+  exec "$SAFE_DEPLOY_BIN" qorium-marketing "$@"
+fi
 
 log() { printf "\n\033[1;36m▶ %s\033[0m\n" "$*"; }
 ok()  { printf "  \033[1;32m✓\033[0m %s\n" "$*"; }
@@ -54,9 +59,9 @@ ok "node $(node -v) · npm $(npm -v)"
 # ── 3. pnpm + pm2 (npm globals) ────────────────────────────────────────────
 if ! command -v pnpm >/dev/null || [[ "$(pnpm --version 2>/dev/null)" != "$PNPM_VERSION" ]]; then
   log "Installing pnpm $PNPM_VERSION"
-  npm install -g "pnpm@$PNPM_VERSION" >/dev/null
+  command npm install -g "pnpm@$PNPM_VERSION" >/dev/null
 fi
-command -v pm2 >/dev/null || npm install -g pm2 >/dev/null
+command -v pm2 >/dev/null || command npm install -g pm2 >/dev/null
 ok "pnpm $(pnpm --version) · pm2 $(pm2 --version 2>/dev/null | tail -1)"
 
 # ── 4. Clone / pull ────────────────────────────────────────────────────────
@@ -78,11 +83,11 @@ ok "checkout: $(git rev-parse --short HEAD) — $(git log -1 --format=%s)"
 
 # ── 5. Install + build ─────────────────────────────────────────────────────
 log "Installing workspace dependencies"
-pnpm install --frozen-lockfile --prefer-offline 2>&1 | tail -20
+command pnpm install --frozen-lockfile --prefer-offline 2>&1 | tail -20
 ok "deps installed"
 
 log "Building marketing app (Next.js 15)"
-pnpm --filter @qorium/marketing build 2>&1 | tail -25
+command pnpm --filter @qorium/marketing build 2>&1 | tail -25
 [[ -d "$APP_DIR/apps/marketing/.next" ]] || die "build did not produce .next/ — check log above"
 ok "build complete · $(du -sh "$APP_DIR/apps/marketing/.next" | cut -f1)"
 
@@ -129,11 +134,11 @@ LAUNCHER_EOF
 chmod +x "$LAUNCHER"
 
 # If a previous attempt left a broken entry, clean it up.
-pm2 delete qorium-marketing >/dev/null 2>&1 || true
+command pm2 delete qorium-marketing >/dev/null 2>&1 || true
 # Remove any stale ecosystem file from the previous version of this script.
 rm -f "$APP_DIR/infra/qorium-marketing.pm2.cjs"
 
-pm2 start "$LAUNCHER" \
+command pm2 start "$LAUNCHER" \
   --name qorium-marketing \
   --max-memory-restart 600M \
   --log-date-format 'YYYY-MM-DD HH:mm:ss' \
@@ -142,10 +147,10 @@ pm2 start "$LAUNCHER" \
   --output /var/log/qorium-marketing.out.log \
   --error /var/log/qorium-marketing.err.log
 
-pm2 save >/dev/null
-pm2 startup systemd -u root --hp /root >/dev/null 2>&1 || true
+command pm2 save >/dev/null
+command pm2 startup systemd -u root --hp /root >/dev/null 2>&1 || true
 sleep 3
-pm2 describe qorium-marketing | grep -E "status|pid|uptime|memory" | head -5 || true
+command pm2 describe qorium-marketing | grep -E "status|pid|uptime|memory" | head -5 || true
 curl -s -m 5 -o /dev/null -w "  local probe :${APP_PORT} → HTTP %{http_code}\n" "http://127.0.0.1:${APP_PORT}" || warn "local probe failed"
 
 # ── 8. nginx vhost ─────────────────────────────────────────────────────────
@@ -361,7 +366,7 @@ echo "  Live URL:    https://${DOMAIN_PRIMARY}"
 echo "  PM2 process: pm2 logs qorium-marketing"
 echo "  nginx vhost: $NGINX_VHOST"
 echo "  app dir:     $APP_DIR"
-echo "  env:         $ENV_FILE  (edit Resend/Calendly later, then: pm2 restart qorium-marketing)"
+echo "  env:         $ENV_FILE  (edit Resend/Calendly later, then: safe-pm2 restart qorium-marketing)"
 echo ""
 echo "  To redeploy after a git push:"
-echo "    cd $APP_DIR && bash infra/marketing-deploy.sh"
+echo "    cd $APP_DIR && safe-deploy qorium-marketing"

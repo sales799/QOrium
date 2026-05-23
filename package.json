@@ -17,6 +17,9 @@
     "format:check": "prettier --check .",
     "test": "pnpm -r --if-present run test",
     "build": "pnpm -r --if-present run build",
+    "deploy": "/usr/local/bin/safe-deploy qorium-marketing",
+    "deploy:atomic": "/usr/local/bin/safe-deploy qorium-marketing",
+    "deploy:atomic:raw": "TALPRO_GBS_RAW_DEPLOY=1 bash infra/marketing-deploy.sh",
     "dev:marketing": "pnpm --filter @qorium/marketing dev",
     "secrets:scan": "gitleaks detect --source . --no-banner --redact || (echo 'gitleaks not installed — see README' && exit 1)",
     "prepare": "husky"

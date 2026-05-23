@@ -6,7 +6,7 @@
 
 ## When to use this runbook
 
-When the marketing site has been deployed (via `deploy-marketing.yml` or manual `infra/marketing-deploy.sh` execution) and the resulting deploy is broken. Symptoms:
+When the marketing site has been deployed (via `deploy-marketing.yml` or manual `safe-deploy qorium-marketing`) and the resulting deploy is broken. Symptoms:
 
 - Smoke test in the deploy workflow failed (any of 6 routes returns non-200)
 - PM2 process is restarting in a loop (`pm2 logs qorium-marketing` shows repeated crashes)
@@ -54,16 +54,14 @@ Identify the SHA of the previous known-good deploy. Two ways:
 
 ```bash
 git checkout <previous-good-sha>
-pnpm install --frozen-lockfile
-pnpm --filter @qorium/marketing build
-pm2 restart qorium-marketing
+safe-deploy qorium-marketing
 ```
 
 If `pnpm install` fails (e.g., lockfile drift between SHAs), use:
 
 ```bash
 git checkout <previous-good-sha> -- pnpm-lock.yaml
-pnpm install --frozen-lockfile
+safe-deploy qorium-marketing
 ```
 
 ### Step 4 — Verify rollback succeeded
