@@ -18,6 +18,9 @@
     "format:check": "prettier --check .",
     "test": "pnpm run build:packages && pnpm -r --if-present run test",
     "build": "pnpm -r --if-present run build",
+    "deploy": "/usr/local/bin/safe-deploy qorium-web-v2-preview",
+    "deploy:atomic": "/usr/local/bin/safe-deploy qorium-web-v2-preview",
+    "deploy:atomic:raw": "TALPRO_GBS_RAW_DEPLOY=1 bash redeploy-preview.sh",
     "secrets:scan": "gitleaks detect --source . --no-banner --redact || (echo 'gitleaks not installed — see README' && exit 1)",
     "prepare": "husky"
   },
