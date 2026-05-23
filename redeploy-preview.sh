@@ -19,5 +19,5 @@ QORIUM_PREVIEW_BASE_PATH=/qorium-v2 NODE_ENV=production PORT=4310 \
   command pm2 start node_modules/next/dist/bin/next --name qorium-web-v2-preview -- start -H 127.0.0.1 -p 4310
 cd ../..
 sleep 2
-curl -fsS -o /dev/null -w 'preview URL: code=%{http_code} size=%{size_download}\n' https://preview.talprouniverse.com/qorium-v2
+curl -fsS -o /dev/null -w 'preview URL: code=%{http_code} size=%{size_download}\n' https://preview.talprouniverse.com/qorium-v2/
 echo 'Re-deploy complete.'
