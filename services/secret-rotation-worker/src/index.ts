@@ -43,7 +43,8 @@ export async function start() {
 
   await tick();
   const handle = setInterval(() => void tick(), config.tickIntervalMs);
-  handle.unref?.();
+  // Keep the daemon alive under PM2. If this interval is unref'ed, Node exits
+  // after the first tick and PM2 treats the clean exit as a restart loop.
 
   const shutdown = async (signal: string): Promise<void> => {
     logger.info({ signal }, 'shutting down qorium-secret-rotation');
