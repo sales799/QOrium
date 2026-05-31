@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { pathToFileURL } from 'node:url';
+
 const strict = process.argv.includes('--strict');
 const asJson = process.argv.includes('--json');
 
@@ -13,34 +15,61 @@ function value(name) {
   return env[name]?.trim() ?? '';
 }
 
-function record(name, status, detail, required = false) {
-  results.push({ name, status, detail, required });
+function normalizeRecordOptions(options = {}) {
+  if (typeof options === 'boolean') {
+    return { required: options, blocksOnFailure: options };
+  }
+  const required = Boolean(options.required);
+  return {
+    required,
+    blocksOnFailure: options.blocksOnFailure ?? required,
+  };
+}
+
+function record(name, status, detail, options = {}) {
+  const { required, blocksOnFailure } = normalizeRecordOptions(options);
+  results.push({
+    name,
+    status,
+    detail,
+    required,
+    blocking: status === 'FAIL' && Boolean(blocksOnFailure),
+  });
 }
 
 function missing(names, label, required = true) {
   const miss = names.filter((name) => !present(name));
   if (miss.length === 0) {
-    record(label, 'PASS', `${names.length} env var(s) present`, required);
+    record(label, 'PASS', `${names.length} env var(s) present`, { required });
     return false;
   }
-  record(label, strict && required ? 'FAIL' : 'SKIP', `missing: ${miss.join(', ')}`, required);
+  record(label, strict && required ? 'FAIL' : 'SKIP', `missing: ${miss.join(', ')}`, {
+    required,
+  });
   return true;
 }
 
-async function httpCheck(name, url, okCodes = [200], init = {}) {
+async function httpCheck(name, url, okCodes = [200], init = {}, options = {}) {
   try {
     const response = await fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
     const ok = okCodes.includes(response.status);
-    record(name, ok ? 'PASS' : 'FAIL', `${url} -> HTTP ${response.status}`);
+    record(name, ok ? 'PASS' : 'FAIL', `${url} -> HTTP ${response.status}`, options);
   } catch (error) {
-    record(name, 'FAIL', `${url} -> ${error instanceof Error ? error.message : String(error)}`);
+    record(
+      name,
+      'FAIL',
+      `${url} -> ${error instanceof Error ? error.message : String(error)}`,
+      options,
+    );
   }
 }
 
 async function checkDatabase() {
   const databaseUrl = value('DATABASE_URL_PROD') || value('DATABASE_URL');
   if (!databaseUrl) {
-    record('database', strict ? 'FAIL' : 'SKIP', 'missing DATABASE_URL_PROD or DATABASE_URL', true);
+    record('database', strict ? 'FAIL' : 'SKIP', 'missing DATABASE_URL_PROD or DATABASE_URL', {
+      required: true,
+    });
     return;
   }
   try {
@@ -49,15 +78,22 @@ async function checkDatabase() {
     await client.connect();
     const result = await client.query('select 1 as ok');
     await client.end();
-    record('database', result.rows?.[0]?.ok === 1 ? 'PASS' : 'FAIL', 'connectivity probe select 1');
+    record(
+      'database',
+      result.rows?.[0]?.ok === 1 ? 'PASS' : 'FAIL',
+      'connectivity probe select 1',
+      { required: true },
+    );
   } catch (error) {
-    record('database', 'FAIL', error instanceof Error ? error.message : String(error));
+    record('database', 'FAIL', error instanceof Error ? error.message : String(error), {
+      required: true,
+    });
   }
 }
 
 async function checkSerper() {
   if (!present('SERPER_API_KEY')) {
-    record('serper', strict ? 'FAIL' : 'SKIP', 'missing SERPER_API_KEY', true);
+    record('serper', strict ? 'FAIL' : 'SKIP', 'missing SERPER_API_KEY', { required: true });
     return;
   }
   try {
@@ -67,21 +103,22 @@ async function checkSerper() {
       body: JSON.stringify({ q: 'qorium anti leak smoke', num: 1 }),
       signal: AbortSignal.timeout(10_000),
     });
-    record('serper', response.ok ? 'PASS' : 'FAIL', `Serper smoke -> HTTP ${response.status}`);
+    record('serper', response.ok ? 'PASS' : 'FAIL', `Serper smoke -> HTTP ${response.status}`, {
+      required: true,
+    });
   } catch (error) {
-    record('serper', 'FAIL', error instanceof Error ? error.message : String(error));
+    record('serper', 'FAIL', error instanceof Error ? error.message : String(error), {
+      required: true,
+    });
   }
 }
 
 function checkSentry() {
   const dsn = value('SENTRY_DSN') || value('NEXT_PUBLIC_SENTRY_DSN');
   if (!dsn) {
-    record(
-      'sentry',
-      strict ? 'FAIL' : 'SKIP',
-      'missing SENTRY_DSN or NEXT_PUBLIC_SENTRY_DSN',
-      true,
-    );
+    record('sentry', strict ? 'FAIL' : 'SKIP', 'missing SENTRY_DSN or NEXT_PUBLIC_SENTRY_DSN', {
+      required: true,
+    });
     return;
   }
   try {
@@ -92,9 +129,10 @@ function checkSentry() {
       'sentry',
       isSentry ? 'PASS' : 'FAIL',
       isSentry ? 'DSN shape is valid' : 'DSN shape is invalid',
+      { required: true },
     );
   } catch {
-    record('sentry', 'FAIL', 'DSN is not a valid URL');
+    record('sentry', 'FAIL', 'DSN is not a valid URL', { required: true });
   }
 }
 
@@ -109,17 +147,20 @@ async function checkAdminPreview() {
   const adminUrl = value('QORIUM_ADMIN_URL') || 'https://admin.qorium.online/';
   if (!present('QORIUM_ADMIN_PREVIEW_TOKEN')) {
     await httpCheck('admin:public-lock', adminUrl, [401]);
-    record(
-      'admin:preview-token',
-      strict ? 'FAIL' : 'SKIP',
-      'missing QORIUM_ADMIN_PREVIEW_TOKEN',
-      true,
-    );
+    record('admin:preview-token', strict ? 'FAIL' : 'SKIP', 'missing QORIUM_ADMIN_PREVIEW_TOKEN', {
+      required: true,
+    });
     return;
   }
-  await httpCheck('admin:preview-token', adminUrl, [200], {
-    headers: { 'x-qorium-admin-preview': value('QORIUM_ADMIN_PREVIEW_TOKEN') },
-  });
+  await httpCheck(
+    'admin:preview-token',
+    adminUrl,
+    [200],
+    {
+      headers: { 'x-qorium-admin-preview': value('QORIUM_ADMIN_PREVIEW_TOKEN') },
+    },
+    { required: true },
+  );
 }
 
 async function main() {
@@ -149,29 +190,40 @@ async function main() {
   checkSentry();
   checkAts();
 
-  const failCount = results.filter((row) => row.status === 'FAIL').length;
-  const blockingFailCount = results.filter(
-    (row) => row.status === 'FAIL' && (strict || row.required),
-  ).length;
-  const skipCount = results.filter((row) => row.status === 'SKIP').length;
+  const { failCount, blockingFailCount, warningCount, skipCount } = summarizeResults(results);
 
   if (asJson) {
     process.stdout.write(
-      `${JSON.stringify({ strict, failCount, blockingFailCount, skipCount, results }, null, 2)}\n`,
+      `${JSON.stringify(
+        { strict, failCount, blockingFailCount, warningCount, skipCount, results },
+        null,
+        2,
+      )}\n`,
     );
   } else {
     for (const row of results) {
-      process.stdout.write(`${row.status.padEnd(4)} ${row.name.padEnd(26)} ${row.detail}\n`);
+      const displayStatus = row.status === 'FAIL' && !row.blocking ? 'WARN' : row.status;
+      process.stdout.write(`${displayStatus.padEnd(4)} ${row.name.padEnd(26)} ${row.detail}\n`);
     }
     process.stdout.write(
-      `\nSummary: ${failCount} fail, ${blockingFailCount} blocking, ${skipCount} skipped/missing (${strict ? 'strict' : 'non-strict'} mode)\n`,
+      `\nSummary: ${failCount} fail, ${blockingFailCount} blocking, ${warningCount} warning, ${skipCount} skipped/missing (${strict ? 'strict' : 'non-strict'} mode)\n`,
     );
   }
 
   process.exitCode = blockingFailCount > 0 ? 1 : 0;
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.stack : String(error));
-  process.exitCode = 1;
-});
+export function summarizeResults(rows) {
+  const failCount = rows.filter((row) => row.status === 'FAIL').length;
+  const blockingFailCount = rows.filter((row) => row.status === 'FAIL' && row.blocking).length;
+  const warningCount = rows.filter((row) => row.status === 'FAIL' && !row.blocking).length;
+  const skipCount = rows.filter((row) => row.status === 'SKIP').length;
+  return { failCount, blockingFailCount, warningCount, skipCount };
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.stack : String(error));
+    process.exitCode = 1;
+  });
+}

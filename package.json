@@ -26,7 +26,8 @@
     "build:packages": "pnpm --filter @qorium/db --filter @qorium/auth run build",
     "ops:validate-credentials": "node scripts/validate-credentials.mjs",
     "ops:validate-credentials:strict": "node scripts/validate-credentials.mjs --strict",
-    "ops:validate-credentials:json": "node scripts/validate-credentials.mjs --json"
+    "ops:validate-credentials:json": "node scripts/validate-credentials.mjs --json",
+    "ops:validate-credentials:test": "node --test scripts/validate-credentials.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
