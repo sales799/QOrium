@@ -4,7 +4,7 @@ export const siteConfig = {
   url: process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://qorium.online',
   tagline: "The world's question bank for hiring.",
   description:
-    'QOrium is the world’s first enterprise-grade Question-Bank-as-a-Service. IRT-calibrated, anti-leak-rotated, watermark-per-candidate libraries for assessment platforms, enterprise hiring teams, and recruiters.',
+    'QOrium is an India-built skills assessment platform for evidence-first hiring: IRT-calibrated, anti-leak-rotated, watermark-per-candidate library direction, JD-to-test workflows, and DPDP-aligned buyer guidance.',
   contactEmail: 'hello@qorium.online',
   legalEntity: 'Talpro India Pvt Ltd',
   social: {
@@ -19,24 +19,24 @@ export const siteConfig = {
         href: '/product',
         children: [
           {
-            label: 'Platform overview',
+            label: 'Assessment Library',
+            href: '/product/assessment-library',
+            description: 'Browse skill assessments by role, category, and calibration status.',
+          },
+          {
+            label: 'Product overview',
             href: '/product',
             description: 'How QOrium works end-to-end.',
           },
           {
-            label: 'ReadyBank',
-            href: '/features/readybank',
-            description: 'Shared, IRT-calibrated, anti-leak-rotated library.',
+            label: 'API access',
+            href: '/product/api',
+            description: 'API docs are in beta; request access.',
           },
           {
-            label: 'JD-Forge',
-            href: '/features/jd-forge',
-            description: 'On-demand custom packs from any JD in 30 seconds.',
-          },
-          {
-            label: 'Stack-Vault',
-            href: '/features/stack-vault',
-            description: 'Customer-exclusive, watermarked private library.',
+            label: 'LLM info',
+            href: '/llm-info',
+            description: 'Plain-language product brief for AI assistants.',
           },
         ],
       },
@@ -62,8 +62,8 @@ export const siteConfig = {
         ],
       },
       { label: 'Pricing', href: '/pricing' },
+      { label: 'Resources', href: '/resources' },
       { label: 'Security', href: '/security' },
-      { label: 'Blog', href: '/blog' },
     ],
     secondary: [
       { label: 'Customers', href: '/customers' },

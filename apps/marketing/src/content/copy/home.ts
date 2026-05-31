@@ -4,53 +4,54 @@
 
 export const homeCopy = {
   hero: {
-    eyebrow: 'Question-Bank-as-a-Service',
-    // SOURCE: 09-Constitution v2 §1.1 (locked USP — do not paraphrase)
-    headline: "The world's question bank for hiring.",
-    sub: 'QOrium delivers an IRT-calibrated, anti-leak-rotated, watermark-per-candidate library — across general tech, India-stack, and AI-era assessment formats — to platforms, enterprises, and recruiters.',
-    primaryCta: { label: 'Book a demo', href: '/demo' as const },
-    secondaryCta: { label: 'See the platform', href: '/product' as const },
+    eyebrow: 'India-built skills assessments',
+    headline: 'Skills assessments built in India. Trusted because we show our work.',
+    sub: 'AI-assisted, audit-forward, and DPDP-aligned. QOrium helps hiring teams move from resume-first shortlists to structured skills evidence without publishing claims before proof exists.',
+    proofLine:
+      'Roadmap spine: IRT-calibrated, anti-leak-rotated, watermark-per-candidate assessment evidence.',
+    primaryCta: {
+      label: 'See the Assessment Library',
+      href: '/product/assessment-library' as const,
+    },
+    secondaryCta: { label: 'Book a 20-min demo', href: '/demo' as const },
   },
 
   // SOURCE: governance/Investor-Brief-Pre-A-v1 §2 (TAM), §3.4 (530 questions),
   // 07-CTO-Architecture §6 (latency target), 04-Blueprint §3.2 (20+ formats)
   proof: [
-    { label: 'assessment-content TAM', value: 30, prefix: '$', suffix: 'B+' },
-    { label: 'questions validated · M0', value: 530 },
-    { label: 'p95 question retrieval', value: 200, prefix: '<', suffix: 'ms' },
-    { label: 'platform import formats', value: 20, suffix: '+' },
+    { label: 'seed skill pages live', value: 25 },
+    { label: 'compare pages live', value: 5 },
+    { label: 'guide previews live', value: 6 },
+    { label: 'outcome stat slots pending evidence', value: 3 },
   ] as const,
 
   // SOURCE: 05-SKU-Architecture §1 — three-SKU summary
   pillars: {
-    eyebrow: 'Three SKUs, one library',
-    title: 'Buy the shape that fits how you hire.',
+    eyebrow: 'Three wedges',
+    title: 'Defensible hiring evidence, not resume theatre.',
     description:
-      'Same engine. Different exclusivity. Pick the SKU that matches your hiring volume and IP posture.',
+      'QOrium is being built around three public wedges: JD-to-test generation, item-level calibration, and India-first trust language.',
     cards: [
       {
         title: 'ReadyBank',
-        href: '/features/readybank' as const,
-        // SOURCE: 05-SKU §2.1
+        href: '/product/assessment-library' as const,
         description:
-          'Shared, multi-tenant question library. IRT-calibrated, anti-leak-rotated quarterly. Indexed in the role-graph. API + bulk export.',
-        accent: 'For platforms and recruiters',
+          'A public assessment library surface with skill pages, role links, sample questions, and explicit calibration status.',
+        accent: 'For hiring teams starting now',
       },
       {
         title: 'JD-Forge',
         href: '/features/jd-forge' as const,
-        // SOURCE: 05-SKU §3
         description:
-          'Upload a JD. Get a 20-question pack in 30 seconds. Real-time AI generation, optional SME review, fresh per drive.',
-        accent: 'For enterprises with high JD volume',
+          'The wedge: paste a JD, draft a structured assessment, then review before publishing. Public copy stays beta until backend proof lands.',
+        accent: 'For role-specific assessment drafts',
       },
       {
         title: 'Stack-Vault',
         href: '/features/stack-vault' as const,
-        // SOURCE: 05-SKU §4
         description:
-          'Customer-exclusive private library aligned to your tech stack. Watermarked per candidate. Quarterly refresh, contractually exclusive.',
-        accent: 'For GCCs and BFSI majors',
+          'Private-library positioning for regulated teams. Certification and audit badges remain evidence-gated.',
+        accent: 'For enterprise governance',
       },
     ],
   },
@@ -101,9 +102,9 @@ export const homeCopy = {
   // SOURCE: governance/Investor-Brief §3.4 (Customer Zero, Bosch in talks, Wave 1+2)
   trustRail: [
     'Talpro India · Customer Zero',
-    'Bosch GCC · in discovery',
-    'Wave 1 · Tech Core SMEs',
-    'Wave 2 · India Stack SMEs',
+    'DPDP-aligned language',
+    'Outcome stats · pending instrumentation',
+    'Trust badges · evidence-gated',
   ],
 
   faq: {
@@ -111,37 +112,32 @@ export const homeCopy = {
     title: 'What people ask before they buy.',
     items: [
       {
-        q: 'How is QOrium different from HackerRank or Mettl?',
-        // SOURCE: governance/Investor-Brief §2 (positioning)
-        a: "They run assessments. We supply the questions that power them. We don't compete with HackerRank or Mettl — we make their content libraries fresher and harder to leak. We're a content layer, not a platform.",
+        q: 'How is QOrium different from global assessment tools?',
+        a: 'QOrium is positioning around India-first compliance language, job-description-to-assessment workflows, and defensible scoring evidence. We avoid unsupported claims until backend proof exists.',
       },
       {
-        q: 'What does "anti-leak rotation" actually mean?',
-        // SOURCE: 05-SKU §2.3, 07-CTO §7
-        a: 'Continuous monitoring of public sources (Glassdoor, LeetCode, Reddit, GeeksforGeeks). When a question surfaces, an AI generates a semantic variant, an SME validates, the variant releases as v2, and the original retires. ReadyBank rotates 15% of the library quarterly.',
+        q: 'Are the public outcome numbers live?',
+        a: 'No. The homepage keeps outcome slots visible as pending evidence until Phase 5 instrumentation can support them.',
       },
       {
-        q: 'Can I get a Stack-Vault contractually exclusive to my company?',
-        // SOURCE: 05-SKU §4.1
-        a: 'Yes. Stack-Vault is the SKU for that. No question in your Stack-Vault appears in ReadyBank, in any other Stack-Vault, or in any JD-Forge output to another customer. Watermarking enables forensic attribution if anything leaks.',
+        q: 'Can I browse the assessment library?',
+        a: 'Yes. The public assessment library shows seeded skill pages, sample questions, roles, duration, difficulty, and calibration status.',
       },
       {
         q: 'How fast is JD-Forge?',
-        // SOURCE: 05-SKU §3.3
-        a: "Standard tier: 30 seconds, AI-only. Reviewed tier: 4 hours, AI plus human SME. Enterprise tier adds an IP-protection guarantee — your generated pack never enters ReadyBank or any other customer's output.",
+        a: 'JD-Forge is treated as a beta wedge on public pages until the backend milestone proves the timing and quality bar.',
       },
       {
         q: 'Where do you stand on bias and validation?',
-        // SOURCE: governance/Bias-Detection-Methodology v1
-        a: 'Every question gets a self-critique pass against ambiguity, distractor quality, edge cases, bias, and leak risk. SME review is mandatory for ReadyBank and Stack-Vault. The reference panel calibrates difficulty empirically.',
+        a: 'The public trust story is audit-forward: QOrium names validation and bias-audit goals, but does not claim independent audit completion until evidence lands.',
       },
     ],
   },
 
   finalCta: {
-    title: 'Ready to see the engine?',
+    title: 'Ready to replace resume-first screening?',
     description:
-      'Book a 30-minute walk-through. Bring a JD if you want to see JD-Forge generate live.',
+      'Book a 20-minute walkthrough of the assessment library and evidence-gated roadmap.',
     primary: { label: 'Book a demo', href: '/demo' as const },
     secondary: { label: 'See pricing', href: '/pricing' as const },
   },
