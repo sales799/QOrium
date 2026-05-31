@@ -19,7 +19,12 @@
     "build": "pnpm -r --if-present run build",
     "dev:marketing": "pnpm --filter @qorium/marketing dev",
     "secrets:scan": "gitleaks detect --source . --no-banner --redact || (echo 'gitleaks not installed — see README' && exit 1)",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy": "/usr/local/bin/safe-deploy qorium-marketing",
+    "deploy:atomic": "/usr/local/bin/safe-deploy qorium-marketing",
+    "ops:validate-credentials": "node scripts/validate-credentials.mjs",
+    "ops:validate-credentials:strict": "node scripts/validate-credentials.mjs --strict",
+    "ops:validate-credentials:json": "node scripts/validate-credentials.mjs --json"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
