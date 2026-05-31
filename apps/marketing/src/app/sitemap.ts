@@ -1,10 +1,20 @@
 import type { MetadataRoute } from 'next';
 import { siteConfig } from '@/content/site.config';
 import { listBlogPosts } from '@/lib/blog';
+import {
+  comparePages,
+  guides,
+  jobDescriptions,
+  skillLibrary,
+  slugify,
+  solutionPages,
+} from '@/content/phase4';
 
 const STATIC_PATHS = [
   '/',
   '/product',
+  '/product/assessment-library',
+  '/product/api',
   '/features',
   '/features/readybank',
   '/features/jd-forge',
@@ -13,7 +23,13 @@ const STATIC_PATHS = [
   '/solutions/enterprises',
   '/solutions/staffing',
   '/pricing',
+  '/resources',
+  '/research/plagiarism-benchmark',
+  '/resources/guides',
+  '/resources/job-descriptions',
+  '/llm-info',
   '/customers',
+  '/customer/talpro-india',
   '/security',
   '/about',
   '/contact',
@@ -44,5 +60,48 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...blogEntries];
+  const skillEntries = skillLibrary.map((skill) => ({
+    url: `${siteConfig.url}/skill/${slugify(skill.name)}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.75,
+  }));
+
+  const jdEntries = jobDescriptions.map((job) => ({
+    url: `${siteConfig.url}/resources/job-descriptions/${slugify(job.title)}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.72,
+  }));
+
+  const compareEntries = comparePages.map((page) => ({
+    url: `${siteConfig.url}/compare/${page.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  const guideEntries = guides.map((guide) => ({
+    url: `${siteConfig.url}/resources/guides/${guide.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.65,
+  }));
+
+  const solutionEntries = solutionPages.map((page) => ({
+    url: `${siteConfig.url}/solutions/${page.axis}/${page.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  return [
+    ...staticEntries,
+    ...blogEntries,
+    ...skillEntries,
+    ...jdEntries,
+    ...compareEntries,
+    ...guideEntries,
+    ...solutionEntries,
+  ];
 }

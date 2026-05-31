@@ -11,9 +11,10 @@ const COLUMNS = [
     heading: 'Product',
     links: [
       { label: 'Platform overview', href: '/product' },
+      { label: 'Assessment Library', href: '/product/assessment-library' },
+      { label: 'API access', href: '/product/api' },
       { label: 'ReadyBank', href: '/features/readybank' },
       { label: 'JD-Forge', href: '/features/jd-forge' },
-      { label: 'Stack-Vault', href: '/features/stack-vault' },
       { label: 'Pricing', href: '/pricing' },
     ],
   },
@@ -30,6 +31,9 @@ const COLUMNS = [
     heading: 'Resources',
     links: [
       { label: 'Blog', href: '/blog' },
+      { label: 'Resources', href: '/resources' },
+      { label: 'Job descriptions', href: '/resources/job-descriptions' },
+      { label: 'LLM info', href: '/llm-info' },
       { label: 'Security', href: '/security' },
       { label: 'FAQ', href: '/faq' },
     ],

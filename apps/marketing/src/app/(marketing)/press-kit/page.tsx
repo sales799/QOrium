@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Download, Mail, ExternalLink } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
+import { EmailText } from '@/components/site/EmailText';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { SectionHeading } from '@/components/site/SectionHeading';
 import { FadeIn } from '@/components/motion/FadeIn';
@@ -138,9 +139,7 @@ export default function PressKitPage() {
             </p>
             <p className="mt-4 text-lg text-foreground">
               <Mail className="mr-2 inline size-4 align-text-bottom text-secondary" />
-              <a href="mailto:press@qorium.online" className="hover:underline">
-                press@qorium.online
-              </a>
+              <EmailText address="press@qorium.online" />
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Same-day response IST hours; next-day otherwise.
