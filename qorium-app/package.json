@@ -11,7 +11,8 @@
     "scan:secrets": "node scripts/scan-secrets.mjs",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
-    "smoke": "tsx tests/smoke.ts"
+    "smoke": "tsx tests/smoke.ts",
+    "production:gate": "node scripts/production-gates.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
