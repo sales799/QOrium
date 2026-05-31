@@ -15,6 +15,7 @@ const config = {
   auditTenantId: env.QORIUM_AUDIT_TENANT_ID ?? "",
   pm2Processes: splitList(env.QORIUM_PM2_PROCESSES ?? "qorium-web,qorium-api,qorium-sandbox-bridge"),
   databaseUrl: env.DATABASE_URL ?? env.DATABASE_URL_PROD ?? "",
+  databaseRuntimeRole: env.QORIUM_DB_RUNTIME_ROLE ?? "",
   redisUrl: env.REDIS_URL ?? "",
   watchdogCommand: env.QORIUM_WATCHDOG_COMMAND ?? "talpro_watchdog_list",
   rakshakCommand: env.QORIUM_RAKSHAK_COMMAND ?? "talpro_rakshak_score qorium",
@@ -129,6 +130,40 @@ await check("database counts", async () => {
   return counts;
 });
 
+await check("runtime database grants", async () => {
+  if (!config.databaseRuntimeRole) return { skipped: true };
+  assert(config.databaseUrl, "DATABASE_URL is required");
+  assert(
+    /^[A-Za-z_][A-Za-z0-9_]*$/.test(config.databaseRuntimeRole),
+    "QORIUM_DB_RUNTIME_ROLE must be a PostgreSQL role name"
+  );
+  const role = sqlString(config.databaseRuntimeRole);
+  const sql = `
+    with required(name, ok) as (
+      values
+        ('schema app usage', has_schema_privilege(${role}, 'app', 'USAGE')),
+        ('schema content usage', has_schema_privilege(${role}, 'content', 'USAGE')),
+        ('app.api_keys select', has_table_privilege(${role}, 'app.api_keys', 'SELECT')),
+        ('app.api_keys update', has_table_privilege(${role}, 'app.api_keys', 'UPDATE')),
+        ('app.packs select', has_table_privilege(${role}, 'app.packs', 'SELECT')),
+        ('app.packs insert', has_table_privilege(${role}, 'app.packs', 'INSERT')),
+        ('app.packs update', has_table_privilege(${role}, 'app.packs', 'UPDATE')),
+        ('content.questions select', has_table_privilege(${role}, 'content.questions', 'SELECT')),
+        ('content.skills select', has_table_privilege(${role}, 'content.skills', 'SELECT')),
+        ('content.sub_skills select', has_table_privilege(${role}, 'content.sub_skills', 'SELECT'))
+    )
+    select name, ok from required order by name
+  `.replace(/\s+/g, " ").trim();
+  const { stdout } = await execFileAsync("psql", [config.databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
+  const grants = Object.fromEntries(stdout.trim().split("\n").filter(Boolean).map((line) => {
+    const [name, ok] = line.split("|");
+    return [name, ok === "t"];
+  }));
+  const missing = Object.entries(grants).filter(([, ok]) => !ok).map(([name]) => name);
+  assert(missing.length === 0, `missing runtime grants for ${config.databaseRuntimeRole}: ${missing.join(", ")}`);
+  return { role: config.databaseRuntimeRole, grants };
+});
+
 await check("redis ping", async () => {
   assert(config.redisUrl, "REDIS_URL is required");
   const { stdout } = await execFileAsync("redis-cli", ["-u", config.redisUrl, "PING"]);
@@ -216,6 +251,10 @@ function splitList(value) {
 
 function stripSlash(value) {
   return value.replace(/\/+$/, "");
+}
+
+function sqlString(value) {
+  return `'${value.replace(/'/g, "''")}'`;
 }
 
 function ensureSlash(value) {
