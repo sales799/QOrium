@@ -206,6 +206,9 @@ server {
     gzip_min_length 256;
 
     client_max_body_size 5M;
+    limit_req zone=talpro_global burst=30 nodelay;
+    limit_req_status 429;
+    add_header X-RateLimit-Policy "10r/s + 30 burst per IP" always;
 
     location / {
         proxy_pass http://127.0.0.1:${APP_PORT};
