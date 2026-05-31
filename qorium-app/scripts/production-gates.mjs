@@ -38,6 +38,8 @@ const config = {
   expectedHealthGitSha: env.QORIUM_EXPECTED_HEALTH_GIT_SHA ?? "",
   forcedOriginIp: env.QORIUM_FORCED_ORIGIN_IP ?? "",
   forcedOriginExpectedService: env.QORIUM_FORCED_ORIGIN_EXPECTED_SERVICE ?? "",
+  forcedOriginRequireMatch: parseBoolean(env.QORIUM_FORCED_ORIGIN_REQUIRE_MATCH),
+  forcedOriginMatchFields: splitList(env.QORIUM_FORCED_ORIGIN_MATCH_FIELDS ?? "service,git_sha,checks.db"),
   output: resolve(env.QORIUM_PROD_GATE_OUTPUT ?? "artifacts/production-gate-report.json")
 };
 
@@ -46,10 +48,13 @@ const report = {
   target: { apiUrl: config.apiUrl, webUrl: config.webUrl },
   checks: []
 };
+let publicHealthBody = null;
+let forcedOriginHealthBody = null;
 
 await check("api health", async () => {
   const response = await fetch(`${config.apiUrl}${config.healthPath}`);
   const body = await parseJson(response);
+  publicHealthBody = body;
   assert(response.ok, `expected 2xx, got ${response.status}`);
   assert(body.ok === true || body.status === "ok", "health body did not include ok=true or status=ok");
   if (config.healthRequireDbOk) {
@@ -85,6 +90,7 @@ await check("forced origin health", async () => {
     target.toString()
   ]);
   const body = parseJsonText(stdout);
+  forcedOriginHealthBody = body;
   assert(body.ok === true || body.status === "ok", "forced origin health body did not include ok=true or status=ok");
   if (config.forcedOriginExpectedService) {
     assert(
@@ -93,6 +99,30 @@ await check("forced origin health", async () => {
     );
   }
   return { host: target.hostname, ip: config.forcedOriginIp, body };
+});
+
+await check("forced origin parity", async () => {
+  if (!config.forcedOriginIp || !config.forcedOriginRequireMatch) return { skipped: true };
+  assert(publicHealthBody, "api health did not return a JSON body");
+  assert(forcedOriginHealthBody, "forced origin health did not return a JSON body");
+  const mismatches = config.forcedOriginMatchFields
+    .map((field) => ({
+      field,
+      publicValue: getPath(publicHealthBody, field),
+      forcedOriginValue: getPath(forcedOriginHealthBody, field)
+    }))
+    .filter(({ publicValue, forcedOriginValue }) => !sameJsonValue(publicValue, forcedOriginValue));
+  assert(
+    mismatches.length === 0,
+    `public health differs from forced origin: ${mismatches.map(({ field, publicValue, forcedOriginValue }) =>
+      `${field} public=${formatJsonValue(publicValue)} forced=${formatJsonValue(forcedOriginValue)}`
+    ).join("; ")}`
+  );
+  return {
+    fields: config.forcedOriginMatchFields,
+    public: pickFields(publicHealthBody, config.forcedOriginMatchFields),
+    forcedOrigin: pickFields(forcedOriginHealthBody, config.forcedOriginMatchFields)
+  };
 });
 
 await check("rate limit", async () => {
@@ -331,6 +361,22 @@ function ensureSlash(value) {
 
 function rakshakDomainSlug(value) {
   return value.toLowerCase().replace(/^https?:\/\//, "").split("/")[0].replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function getPath(source, path) {
+  return path.split(".").reduce((cursor, key) => cursor?.[key], source);
+}
+
+function pickFields(source, fields) {
+  return Object.fromEntries(fields.map((field) => [field, getPath(source, field) ?? null]));
+}
+
+function sameJsonValue(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function formatJsonValue(value) {
+  return value === undefined ? "missing" : JSON.stringify(value);
 }
 
 function parseBoolean(value) {
