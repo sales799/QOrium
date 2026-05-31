@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "paths": {
+      "@qorium/auth": ["packages/auth/src/index.ts"],
+      "@qorium/db": ["packages/db/src/index.ts"],
+      "@qorium/taxonomy": ["packages/taxonomy/src/index.ts"],
+      "@qorium/ui": ["packages/ui/src/index.tsx"]
+    }
+  }
+}

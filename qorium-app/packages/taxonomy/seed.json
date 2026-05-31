@@ -1,0 +1,1805 @@
+{
+  "version": "2026-05-31.phase1",
+  "nodes": [
+    {
+      "id": "engineering",
+      "parentId": null,
+      "kind": "category",
+      "name": "Engineering",
+      "slug": "engineering",
+      "tags": [
+        "category"
+      ]
+    },
+    {
+      "id": "engineering.java",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "Java",
+      "slug": "java",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.java.fundamentals",
+      "parentId": "engineering.java",
+      "kind": "sub_skill",
+      "name": "Java Fundamentals",
+      "slug": "java-fundamentals",
+      "tags": [
+        "engineering",
+        "java",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.java.advanced-patterns",
+      "parentId": "engineering.java",
+      "kind": "sub_skill",
+      "name": "Java Advanced Patterns",
+      "slug": "java-advanced-patterns",
+      "tags": [
+        "engineering",
+        "java",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.react",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "React",
+      "slug": "react",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.react.fundamentals",
+      "parentId": "engineering.react",
+      "kind": "sub_skill",
+      "name": "React Fundamentals",
+      "slug": "react-fundamentals",
+      "tags": [
+        "engineering",
+        "react",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.react.advanced-patterns",
+      "parentId": "engineering.react",
+      "kind": "sub_skill",
+      "name": "React Advanced Patterns",
+      "slug": "react-advanced-patterns",
+      "tags": [
+        "engineering",
+        "react",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.python",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "Python",
+      "slug": "python",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.python.fundamentals",
+      "parentId": "engineering.python",
+      "kind": "sub_skill",
+      "name": "Python Fundamentals",
+      "slug": "python-fundamentals",
+      "tags": [
+        "engineering",
+        "python",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.python.advanced-patterns",
+      "parentId": "engineering.python",
+      "kind": "sub_skill",
+      "name": "Python Advanced Patterns",
+      "slug": "python-advanced-patterns",
+      "tags": [
+        "engineering",
+        "python",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.sql",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "SQL",
+      "slug": "sql",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.sql.fundamentals",
+      "parentId": "engineering.sql",
+      "kind": "sub_skill",
+      "name": "SQL Fundamentals",
+      "slug": "sql-fundamentals",
+      "tags": [
+        "engineering",
+        "sql",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.sql.advanced-patterns",
+      "parentId": "engineering.sql",
+      "kind": "sub_skill",
+      "name": "SQL Advanced Patterns",
+      "slug": "sql-advanced-patterns",
+      "tags": [
+        "engineering",
+        "sql",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.devops",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "DevOps",
+      "slug": "devops",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.devops.fundamentals",
+      "parentId": "engineering.devops",
+      "kind": "sub_skill",
+      "name": "DevOps Fundamentals",
+      "slug": "devops-fundamentals",
+      "tags": [
+        "engineering",
+        "devops",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.devops.advanced-patterns",
+      "parentId": "engineering.devops",
+      "kind": "sub_skill",
+      "name": "DevOps Advanced Patterns",
+      "slug": "devops-advanced-patterns",
+      "tags": [
+        "engineering",
+        "devops",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.aws",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "AWS",
+      "slug": "aws",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.aws.fundamentals",
+      "parentId": "engineering.aws",
+      "kind": "sub_skill",
+      "name": "AWS Fundamentals",
+      "slug": "aws-fundamentals",
+      "tags": [
+        "engineering",
+        "aws",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.aws.advanced-patterns",
+      "parentId": "engineering.aws",
+      "kind": "sub_skill",
+      "name": "AWS Advanced Patterns",
+      "slug": "aws-advanced-patterns",
+      "tags": [
+        "engineering",
+        "aws",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.ai-engineering",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "AI Engineering",
+      "slug": "ai-engineering",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.ai-engineering.fundamentals",
+      "parentId": "engineering.ai-engineering",
+      "kind": "sub_skill",
+      "name": "AI Engineering Fundamentals",
+      "slug": "ai-engineering-fundamentals",
+      "tags": [
+        "engineering",
+        "ai-engineering",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.ai-engineering.advanced-patterns",
+      "parentId": "engineering.ai-engineering",
+      "kind": "sub_skill",
+      "name": "AI Engineering Advanced Patterns",
+      "slug": "ai-engineering-advanced-patterns",
+      "tags": [
+        "engineering",
+        "ai-engineering",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.data-engineering",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "Data Engineering",
+      "slug": "data-engineering",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.data-engineering.fundamentals",
+      "parentId": "engineering.data-engineering",
+      "kind": "sub_skill",
+      "name": "Data Engineering Fundamentals",
+      "slug": "data-engineering-fundamentals",
+      "tags": [
+        "engineering",
+        "data-engineering",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.data-engineering.advanced-patterns",
+      "parentId": "engineering.data-engineering",
+      "kind": "sub_skill",
+      "name": "Data Engineering Advanced Patterns",
+      "slug": "data-engineering-advanced-patterns",
+      "tags": [
+        "engineering",
+        "data-engineering",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.security",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "Security",
+      "slug": "security",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.security.fundamentals",
+      "parentId": "engineering.security",
+      "kind": "sub_skill",
+      "name": "Security Fundamentals",
+      "slug": "security-fundamentals",
+      "tags": [
+        "engineering",
+        "security",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.security.advanced-patterns",
+      "parentId": "engineering.security",
+      "kind": "sub_skill",
+      "name": "Security Advanced Patterns",
+      "slug": "security-advanced-patterns",
+      "tags": [
+        "engineering",
+        "security",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "engineering.system-design",
+      "parentId": "engineering",
+      "kind": "skill",
+      "name": "System Design",
+      "slug": "system-design",
+      "tags": [
+        "engineering",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "engineering.system-design.fundamentals",
+      "parentId": "engineering.system-design",
+      "kind": "sub_skill",
+      "name": "System Design Fundamentals",
+      "slug": "system-design-fundamentals",
+      "tags": [
+        "engineering",
+        "system-design",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "engineering.system-design.advanced-patterns",
+      "parentId": "engineering.system-design",
+      "kind": "sub_skill",
+      "name": "System Design Advanced Patterns",
+      "slug": "system-design-advanced-patterns",
+      "tags": [
+        "engineering",
+        "system-design",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack",
+      "parentId": null,
+      "kind": "category",
+      "name": "India Enterprise Stack",
+      "slug": "india-stack",
+      "tags": [
+        "category"
+      ]
+    },
+    {
+      "id": "india-stack.sap-abap",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "SAP ABAP",
+      "slug": "sap-abap",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.sap-abap.fundamentals",
+      "parentId": "india-stack.sap-abap",
+      "kind": "sub_skill",
+      "name": "SAP ABAP Fundamentals",
+      "slug": "sap-abap-fundamentals",
+      "tags": [
+        "india-stack",
+        "sap-abap",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.sap-abap.advanced-patterns",
+      "parentId": "india-stack.sap-abap",
+      "kind": "sub_skill",
+      "name": "SAP ABAP Advanced Patterns",
+      "slug": "sap-abap-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "sap-abap",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.oracle-hcm-cloud",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Oracle HCM Cloud",
+      "slug": "oracle-hcm-cloud",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.oracle-hcm-cloud.fundamentals",
+      "parentId": "india-stack.oracle-hcm-cloud",
+      "kind": "sub_skill",
+      "name": "Oracle HCM Cloud Fundamentals",
+      "slug": "oracle-hcm-cloud-fundamentals",
+      "tags": [
+        "india-stack",
+        "oracle-hcm-cloud",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.oracle-hcm-cloud.advanced-patterns",
+      "parentId": "india-stack.oracle-hcm-cloud",
+      "kind": "sub_skill",
+      "name": "Oracle HCM Cloud Advanced Patterns",
+      "slug": "oracle-hcm-cloud-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "oracle-hcm-cloud",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.salesforce-cpq",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Salesforce CPQ",
+      "slug": "salesforce-cpq",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.salesforce-cpq.fundamentals",
+      "parentId": "india-stack.salesforce-cpq",
+      "kind": "sub_skill",
+      "name": "Salesforce CPQ Fundamentals",
+      "slug": "salesforce-cpq-fundamentals",
+      "tags": [
+        "india-stack",
+        "salesforce-cpq",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.salesforce-cpq.advanced-patterns",
+      "parentId": "india-stack.salesforce-cpq",
+      "kind": "sub_skill",
+      "name": "Salesforce CPQ Advanced Patterns",
+      "slug": "salesforce-cpq-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "salesforce-cpq",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.finacle",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Finacle",
+      "slug": "finacle",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.finacle.fundamentals",
+      "parentId": "india-stack.finacle",
+      "kind": "sub_skill",
+      "name": "Finacle Fundamentals",
+      "slug": "finacle-fundamentals",
+      "tags": [
+        "india-stack",
+        "finacle",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.finacle.advanced-patterns",
+      "parentId": "india-stack.finacle",
+      "kind": "sub_skill",
+      "name": "Finacle Advanced Patterns",
+      "slug": "finacle-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "finacle",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.flexcube",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Flexcube",
+      "slug": "flexcube",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.flexcube.fundamentals",
+      "parentId": "india-stack.flexcube",
+      "kind": "sub_skill",
+      "name": "Flexcube Fundamentals",
+      "slug": "flexcube-fundamentals",
+      "tags": [
+        "india-stack",
+        "flexcube",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.flexcube.advanced-patterns",
+      "parentId": "india-stack.flexcube",
+      "kind": "sub_skill",
+      "name": "Flexcube Advanced Patterns",
+      "slug": "flexcube-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "flexcube",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.embedded-automotive",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Embedded Automotive",
+      "slug": "embedded-automotive",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.embedded-automotive.fundamentals",
+      "parentId": "india-stack.embedded-automotive",
+      "kind": "sub_skill",
+      "name": "Embedded Automotive Fundamentals",
+      "slug": "embedded-automotive-fundamentals",
+      "tags": [
+        "india-stack",
+        "embedded-automotive",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.embedded-automotive.advanced-patterns",
+      "parentId": "india-stack.embedded-automotive",
+      "kind": "sub_skill",
+      "name": "Embedded Automotive Advanced Patterns",
+      "slug": "embedded-automotive-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "embedded-automotive",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.apex",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Apex",
+      "slug": "apex",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.apex.fundamentals",
+      "parentId": "india-stack.apex",
+      "kind": "sub_skill",
+      "name": "Apex Fundamentals",
+      "slug": "apex-fundamentals",
+      "tags": [
+        "india-stack",
+        "apex",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.apex.advanced-patterns",
+      "parentId": "india-stack.apex",
+      "kind": "sub_skill",
+      "name": "Apex Advanced Patterns",
+      "slug": "apex-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "apex",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.servicenow",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "ServiceNow",
+      "slug": "servicenow",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.servicenow.fundamentals",
+      "parentId": "india-stack.servicenow",
+      "kind": "sub_skill",
+      "name": "ServiceNow Fundamentals",
+      "slug": "servicenow-fundamentals",
+      "tags": [
+        "india-stack",
+        "servicenow",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.servicenow.advanced-patterns",
+      "parentId": "india-stack.servicenow",
+      "kind": "sub_skill",
+      "name": "ServiceNow Advanced Patterns",
+      "slug": "servicenow-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "servicenow",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.guidewire",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Guidewire",
+      "slug": "guidewire",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.guidewire.fundamentals",
+      "parentId": "india-stack.guidewire",
+      "kind": "sub_skill",
+      "name": "Guidewire Fundamentals",
+      "slug": "guidewire-fundamentals",
+      "tags": [
+        "india-stack",
+        "guidewire",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.guidewire.advanced-patterns",
+      "parentId": "india-stack.guidewire",
+      "kind": "sub_skill",
+      "name": "Guidewire Advanced Patterns",
+      "slug": "guidewire-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "guidewire",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "india-stack.temenos",
+      "parentId": "india-stack",
+      "kind": "skill",
+      "name": "Temenos",
+      "slug": "temenos",
+      "tags": [
+        "india-stack",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "india-stack.temenos.fundamentals",
+      "parentId": "india-stack.temenos",
+      "kind": "sub_skill",
+      "name": "Temenos Fundamentals",
+      "slug": "temenos-fundamentals",
+      "tags": [
+        "india-stack",
+        "temenos",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "india-stack.temenos.advanced-patterns",
+      "parentId": "india-stack.temenos",
+      "kind": "sub_skill",
+      "name": "Temenos Advanced Patterns",
+      "slug": "temenos-advanced-patterns",
+      "tags": [
+        "india-stack",
+        "temenos",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product",
+      "parentId": null,
+      "kind": "category",
+      "name": "Product & Design",
+      "slug": "product",
+      "tags": [
+        "category"
+      ]
+    },
+    {
+      "id": "product.product-strategy",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Product Strategy",
+      "slug": "product-strategy",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.product-strategy.fundamentals",
+      "parentId": "product.product-strategy",
+      "kind": "sub_skill",
+      "name": "Product Strategy Fundamentals",
+      "slug": "product-strategy-fundamentals",
+      "tags": [
+        "product",
+        "product-strategy",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.product-strategy.advanced-patterns",
+      "parentId": "product.product-strategy",
+      "kind": "sub_skill",
+      "name": "Product Strategy Advanced Patterns",
+      "slug": "product-strategy-advanced-patterns",
+      "tags": [
+        "product",
+        "product-strategy",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.ux-research",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "UX Research",
+      "slug": "ux-research",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.ux-research.fundamentals",
+      "parentId": "product.ux-research",
+      "kind": "sub_skill",
+      "name": "UX Research Fundamentals",
+      "slug": "ux-research-fundamentals",
+      "tags": [
+        "product",
+        "ux-research",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.ux-research.advanced-patterns",
+      "parentId": "product.ux-research",
+      "kind": "sub_skill",
+      "name": "UX Research Advanced Patterns",
+      "slug": "ux-research-advanced-patterns",
+      "tags": [
+        "product",
+        "ux-research",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.analytics",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Analytics",
+      "slug": "analytics",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.analytics.fundamentals",
+      "parentId": "product.analytics",
+      "kind": "sub_skill",
+      "name": "Analytics Fundamentals",
+      "slug": "analytics-fundamentals",
+      "tags": [
+        "product",
+        "analytics",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.analytics.advanced-patterns",
+      "parentId": "product.analytics",
+      "kind": "sub_skill",
+      "name": "Analytics Advanced Patterns",
+      "slug": "analytics-advanced-patterns",
+      "tags": [
+        "product",
+        "analytics",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.experimentation",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Experimentation",
+      "slug": "experimentation",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.experimentation.fundamentals",
+      "parentId": "product.experimentation",
+      "kind": "sub_skill",
+      "name": "Experimentation Fundamentals",
+      "slug": "experimentation-fundamentals",
+      "tags": [
+        "product",
+        "experimentation",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.experimentation.advanced-patterns",
+      "parentId": "product.experimentation",
+      "kind": "sub_skill",
+      "name": "Experimentation Advanced Patterns",
+      "slug": "experimentation-advanced-patterns",
+      "tags": [
+        "product",
+        "experimentation",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.design-systems",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Design Systems",
+      "slug": "design-systems",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.design-systems.fundamentals",
+      "parentId": "product.design-systems",
+      "kind": "sub_skill",
+      "name": "Design Systems Fundamentals",
+      "slug": "design-systems-fundamentals",
+      "tags": [
+        "product",
+        "design-systems",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.design-systems.advanced-patterns",
+      "parentId": "product.design-systems",
+      "kind": "sub_skill",
+      "name": "Design Systems Advanced Patterns",
+      "slug": "design-systems-advanced-patterns",
+      "tags": [
+        "product",
+        "design-systems",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.technical-writing",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Technical Writing",
+      "slug": "technical-writing",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.technical-writing.fundamentals",
+      "parentId": "product.technical-writing",
+      "kind": "sub_skill",
+      "name": "Technical Writing Fundamentals",
+      "slug": "technical-writing-fundamentals",
+      "tags": [
+        "product",
+        "technical-writing",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.technical-writing.advanced-patterns",
+      "parentId": "product.technical-writing",
+      "kind": "sub_skill",
+      "name": "Technical Writing Advanced Patterns",
+      "slug": "technical-writing-advanced-patterns",
+      "tags": [
+        "product",
+        "technical-writing",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.api-product",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "API Product",
+      "slug": "api-product",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.api-product.fundamentals",
+      "parentId": "product.api-product",
+      "kind": "sub_skill",
+      "name": "API Product Fundamentals",
+      "slug": "api-product-fundamentals",
+      "tags": [
+        "product",
+        "api-product",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.api-product.advanced-patterns",
+      "parentId": "product.api-product",
+      "kind": "sub_skill",
+      "name": "API Product Advanced Patterns",
+      "slug": "api-product-advanced-patterns",
+      "tags": [
+        "product",
+        "api-product",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.growth",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Growth",
+      "slug": "growth",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.growth.fundamentals",
+      "parentId": "product.growth",
+      "kind": "sub_skill",
+      "name": "Growth Fundamentals",
+      "slug": "growth-fundamentals",
+      "tags": [
+        "product",
+        "growth",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.growth.advanced-patterns",
+      "parentId": "product.growth",
+      "kind": "sub_skill",
+      "name": "Growth Advanced Patterns",
+      "slug": "growth-advanced-patterns",
+      "tags": [
+        "product",
+        "growth",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.pricing",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Pricing",
+      "slug": "pricing",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.pricing.fundamentals",
+      "parentId": "product.pricing",
+      "kind": "sub_skill",
+      "name": "Pricing Fundamentals",
+      "slug": "pricing-fundamentals",
+      "tags": [
+        "product",
+        "pricing",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.pricing.advanced-patterns",
+      "parentId": "product.pricing",
+      "kind": "sub_skill",
+      "name": "Pricing Advanced Patterns",
+      "slug": "pricing-advanced-patterns",
+      "tags": [
+        "product",
+        "pricing",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "product.roadmapping",
+      "parentId": "product",
+      "kind": "skill",
+      "name": "Roadmapping",
+      "slug": "roadmapping",
+      "tags": [
+        "product",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "product.roadmapping.fundamentals",
+      "parentId": "product.roadmapping",
+      "kind": "sub_skill",
+      "name": "Roadmapping Fundamentals",
+      "slug": "roadmapping-fundamentals",
+      "tags": [
+        "product",
+        "roadmapping",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "product.roadmapping.advanced-patterns",
+      "parentId": "product.roadmapping",
+      "kind": "sub_skill",
+      "name": "Roadmapping Advanced Patterns",
+      "slug": "roadmapping-advanced-patterns",
+      "tags": [
+        "product",
+        "roadmapping",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business",
+      "parentId": null,
+      "kind": "category",
+      "name": "Business Operations",
+      "slug": "business",
+      "tags": [
+        "category"
+      ]
+    },
+    {
+      "id": "business.sales",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Sales",
+      "slug": "sales",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.sales.fundamentals",
+      "parentId": "business.sales",
+      "kind": "sub_skill",
+      "name": "Sales Fundamentals",
+      "slug": "sales-fundamentals",
+      "tags": [
+        "business",
+        "sales",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.sales.advanced-patterns",
+      "parentId": "business.sales",
+      "kind": "sub_skill",
+      "name": "Sales Advanced Patterns",
+      "slug": "sales-advanced-patterns",
+      "tags": [
+        "business",
+        "sales",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.customer-success",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Customer Success",
+      "slug": "customer-success",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.customer-success.fundamentals",
+      "parentId": "business.customer-success",
+      "kind": "sub_skill",
+      "name": "Customer Success Fundamentals",
+      "slug": "customer-success-fundamentals",
+      "tags": [
+        "business",
+        "customer-success",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.customer-success.advanced-patterns",
+      "parentId": "business.customer-success",
+      "kind": "sub_skill",
+      "name": "Customer Success Advanced Patterns",
+      "slug": "customer-success-advanced-patterns",
+      "tags": [
+        "business",
+        "customer-success",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.recruiting",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Recruiting",
+      "slug": "recruiting",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.recruiting.fundamentals",
+      "parentId": "business.recruiting",
+      "kind": "sub_skill",
+      "name": "Recruiting Fundamentals",
+      "slug": "recruiting-fundamentals",
+      "tags": [
+        "business",
+        "recruiting",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.recruiting.advanced-patterns",
+      "parentId": "business.recruiting",
+      "kind": "sub_skill",
+      "name": "Recruiting Advanced Patterns",
+      "slug": "recruiting-advanced-patterns",
+      "tags": [
+        "business",
+        "recruiting",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.finance",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Finance",
+      "slug": "finance",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.finance.fundamentals",
+      "parentId": "business.finance",
+      "kind": "sub_skill",
+      "name": "Finance Fundamentals",
+      "slug": "finance-fundamentals",
+      "tags": [
+        "business",
+        "finance",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.finance.advanced-patterns",
+      "parentId": "business.finance",
+      "kind": "sub_skill",
+      "name": "Finance Advanced Patterns",
+      "slug": "finance-advanced-patterns",
+      "tags": [
+        "business",
+        "finance",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.legal-ops",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Legal Ops",
+      "slug": "legal-ops",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.legal-ops.fundamentals",
+      "parentId": "business.legal-ops",
+      "kind": "sub_skill",
+      "name": "Legal Ops Fundamentals",
+      "slug": "legal-ops-fundamentals",
+      "tags": [
+        "business",
+        "legal-ops",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.legal-ops.advanced-patterns",
+      "parentId": "business.legal-ops",
+      "kind": "sub_skill",
+      "name": "Legal Ops Advanced Patterns",
+      "slug": "legal-ops-advanced-patterns",
+      "tags": [
+        "business",
+        "legal-ops",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.procurement",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Procurement",
+      "slug": "procurement",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.procurement.fundamentals",
+      "parentId": "business.procurement",
+      "kind": "sub_skill",
+      "name": "Procurement Fundamentals",
+      "slug": "procurement-fundamentals",
+      "tags": [
+        "business",
+        "procurement",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.procurement.advanced-patterns",
+      "parentId": "business.procurement",
+      "kind": "sub_skill",
+      "name": "Procurement Advanced Patterns",
+      "slug": "procurement-advanced-patterns",
+      "tags": [
+        "business",
+        "procurement",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.program-management",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Program Management",
+      "slug": "program-management",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.program-management.fundamentals",
+      "parentId": "business.program-management",
+      "kind": "sub_skill",
+      "name": "Program Management Fundamentals",
+      "slug": "program-management-fundamentals",
+      "tags": [
+        "business",
+        "program-management",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.program-management.advanced-patterns",
+      "parentId": "business.program-management",
+      "kind": "sub_skill",
+      "name": "Program Management Advanced Patterns",
+      "slug": "program-management-advanced-patterns",
+      "tags": [
+        "business",
+        "program-management",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.operations",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Operations",
+      "slug": "operations",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.operations.fundamentals",
+      "parentId": "business.operations",
+      "kind": "sub_skill",
+      "name": "Operations Fundamentals",
+      "slug": "operations-fundamentals",
+      "tags": [
+        "business",
+        "operations",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.operations.advanced-patterns",
+      "parentId": "business.operations",
+      "kind": "sub_skill",
+      "name": "Operations Advanced Patterns",
+      "slug": "operations-advanced-patterns",
+      "tags": [
+        "business",
+        "operations",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.support",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "Support",
+      "slug": "support",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.support.fundamentals",
+      "parentId": "business.support",
+      "kind": "sub_skill",
+      "name": "Support Fundamentals",
+      "slug": "support-fundamentals",
+      "tags": [
+        "business",
+        "support",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.support.advanced-patterns",
+      "parentId": "business.support",
+      "kind": "sub_skill",
+      "name": "Support Advanced Patterns",
+      "slug": "support-advanced-patterns",
+      "tags": [
+        "business",
+        "support",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "business.people-ops",
+      "parentId": "business",
+      "kind": "skill",
+      "name": "People Ops",
+      "slug": "people-ops",
+      "tags": [
+        "business",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "business.people-ops.fundamentals",
+      "parentId": "business.people-ops",
+      "kind": "sub_skill",
+      "name": "People Ops Fundamentals",
+      "slug": "people-ops-fundamentals",
+      "tags": [
+        "business",
+        "people-ops",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "business.people-ops.advanced-patterns",
+      "parentId": "business.people-ops",
+      "kind": "sub_skill",
+      "name": "People Ops Advanced Patterns",
+      "slug": "people-ops-advanced-patterns",
+      "tags": [
+        "business",
+        "people-ops",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era",
+      "parentId": null,
+      "kind": "category",
+      "name": "AI Era Skills",
+      "slug": "ai-era",
+      "tags": [
+        "category"
+      ]
+    },
+    {
+      "id": "ai-era.prompt-engineering",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "Prompt Engineering",
+      "slug": "prompt-engineering",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.prompt-engineering.fundamentals",
+      "parentId": "ai-era.prompt-engineering",
+      "kind": "sub_skill",
+      "name": "Prompt Engineering Fundamentals",
+      "slug": "prompt-engineering-fundamentals",
+      "tags": [
+        "ai-era",
+        "prompt-engineering",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.prompt-engineering.advanced-patterns",
+      "parentId": "ai-era.prompt-engineering",
+      "kind": "sub_skill",
+      "name": "Prompt Engineering Advanced Patterns",
+      "slug": "prompt-engineering-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "prompt-engineering",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.ai-code-review",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "AI Code Review",
+      "slug": "ai-code-review",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.ai-code-review.fundamentals",
+      "parentId": "ai-era.ai-code-review",
+      "kind": "sub_skill",
+      "name": "AI Code Review Fundamentals",
+      "slug": "ai-code-review-fundamentals",
+      "tags": [
+        "ai-era",
+        "ai-code-review",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.ai-code-review.advanced-patterns",
+      "parentId": "ai-era.ai-code-review",
+      "kind": "sub_skill",
+      "name": "AI Code Review Advanced Patterns",
+      "slug": "ai-code-review-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "ai-code-review",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.agent-workflow-design",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "Agent Workflow Design",
+      "slug": "agent-workflow-design",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.agent-workflow-design.fundamentals",
+      "parentId": "ai-era.agent-workflow-design",
+      "kind": "sub_skill",
+      "name": "Agent Workflow Design Fundamentals",
+      "slug": "agent-workflow-design-fundamentals",
+      "tags": [
+        "ai-era",
+        "agent-workflow-design",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.agent-workflow-design.advanced-patterns",
+      "parentId": "ai-era.agent-workflow-design",
+      "kind": "sub_skill",
+      "name": "Agent Workflow Design Advanced Patterns",
+      "slug": "agent-workflow-design-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "agent-workflow-design",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.rag-evaluation",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "RAG Evaluation",
+      "slug": "rag-evaluation",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.rag-evaluation.fundamentals",
+      "parentId": "ai-era.rag-evaluation",
+      "kind": "sub_skill",
+      "name": "RAG Evaluation Fundamentals",
+      "slug": "rag-evaluation-fundamentals",
+      "tags": [
+        "ai-era",
+        "rag-evaluation",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.rag-evaluation.advanced-patterns",
+      "parentId": "ai-era.rag-evaluation",
+      "kind": "sub_skill",
+      "name": "RAG Evaluation Advanced Patterns",
+      "slug": "rag-evaluation-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "rag-evaluation",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.model-risk",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "Model Risk",
+      "slug": "model-risk",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.model-risk.fundamentals",
+      "parentId": "ai-era.model-risk",
+      "kind": "sub_skill",
+      "name": "Model Risk Fundamentals",
+      "slug": "model-risk-fundamentals",
+      "tags": [
+        "ai-era",
+        "model-risk",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.model-risk.advanced-patterns",
+      "parentId": "ai-era.model-risk",
+      "kind": "sub_skill",
+      "name": "Model Risk Advanced Patterns",
+      "slug": "model-risk-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "model-risk",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.ai-safety",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "AI Safety",
+      "slug": "ai-safety",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.ai-safety.fundamentals",
+      "parentId": "ai-era.ai-safety",
+      "kind": "sub_skill",
+      "name": "AI Safety Fundamentals",
+      "slug": "ai-safety-fundamentals",
+      "tags": [
+        "ai-era",
+        "ai-safety",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.ai-safety.advanced-patterns",
+      "parentId": "ai-era.ai-safety",
+      "kind": "sub_skill",
+      "name": "AI Safety Advanced Patterns",
+      "slug": "ai-safety-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "ai-safety",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.tool-use-judgement",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "Tool Use Judgement",
+      "slug": "tool-use-judgement",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.tool-use-judgement.fundamentals",
+      "parentId": "ai-era.tool-use-judgement",
+      "kind": "sub_skill",
+      "name": "Tool Use Judgement Fundamentals",
+      "slug": "tool-use-judgement-fundamentals",
+      "tags": [
+        "ai-era",
+        "tool-use-judgement",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.tool-use-judgement.advanced-patterns",
+      "parentId": "ai-era.tool-use-judgement",
+      "kind": "sub_skill",
+      "name": "Tool Use Judgement Advanced Patterns",
+      "slug": "tool-use-judgement-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "tool-use-judgement",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.ai-pair-coding",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "AI Pair Coding",
+      "slug": "ai-pair-coding",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.ai-pair-coding.fundamentals",
+      "parentId": "ai-era.ai-pair-coding",
+      "kind": "sub_skill",
+      "name": "AI Pair Coding Fundamentals",
+      "slug": "ai-pair-coding-fundamentals",
+      "tags": [
+        "ai-era",
+        "ai-pair-coding",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.ai-pair-coding.advanced-patterns",
+      "parentId": "ai-era.ai-pair-coding",
+      "kind": "sub_skill",
+      "name": "AI Pair Coding Advanced Patterns",
+      "slug": "ai-pair-coding-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "ai-pair-coding",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.data-labeling",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "Data Labeling",
+      "slug": "data-labeling",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.data-labeling.fundamentals",
+      "parentId": "ai-era.data-labeling",
+      "kind": "sub_skill",
+      "name": "Data Labeling Fundamentals",
+      "slug": "data-labeling-fundamentals",
+      "tags": [
+        "ai-era",
+        "data-labeling",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.data-labeling.advanced-patterns",
+      "parentId": "ai-era.data-labeling",
+      "kind": "sub_skill",
+      "name": "Data Labeling Advanced Patterns",
+      "slug": "data-labeling-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "data-labeling",
+        "advanced-patterns"
+      ]
+    },
+    {
+      "id": "ai-era.eval-design",
+      "parentId": "ai-era",
+      "kind": "skill",
+      "name": "Eval Design",
+      "slug": "eval-design",
+      "tags": [
+        "ai-era",
+        "phase-1"
+      ]
+    },
+    {
+      "id": "ai-era.eval-design.fundamentals",
+      "parentId": "ai-era.eval-design",
+      "kind": "sub_skill",
+      "name": "Eval Design Fundamentals",
+      "slug": "eval-design-fundamentals",
+      "tags": [
+        "ai-era",
+        "eval-design",
+        "fundamentals"
+      ]
+    },
+    {
+      "id": "ai-era.eval-design.advanced-patterns",
+      "parentId": "ai-era.eval-design",
+      "kind": "sub_skill",
+      "name": "Eval Design Advanced Patterns",
+      "slug": "eval-design-advanced-patterns",
+      "tags": [
+        "ai-era",
+        "eval-design",
+        "advanced-patterns"
+      ]
+    }
+  ]
+}
