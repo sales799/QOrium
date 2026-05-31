@@ -1,15 +1,32 @@
 import cors from "@fastify/cors";
-import Fastify, { type FastifyReply } from "fastify";
-import { signAssessmentLink, verifyAssessmentToken } from "@qorium/auth";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
+import {
+  clearRecruiterCookie,
+  readCookie,
+  recruiterCookie,
+  signAssessmentLink,
+  signRecruiterToken,
+  verifyAssessmentToken,
+  verifyRecruiterToken,
+  type SignedRecruiterPayload
+} from "@qorium/auth";
 import { gradeAnswer } from "@qorium/grader-worker";
 import { z } from "zod";
 import { createReasoningTraceStore } from "./reasoning-trace-store.js";
 import { createRepository, type Assessment } from "./store.js";
 
+const RECRUITER_TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
+const RECRUITER_TOKEN_TTL_SECONDS = RECRUITER_TOKEN_TTL_MS / 1000;
+
 const createAssessmentSchema = z.object({
   title: z.string().min(3),
   candidateEmail: z.string().email(),
   skillIds: z.array(z.string()).min(1).max(25)
+});
+
+const recruiterLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1)
 });
 
 const submitSchema = z.object({
@@ -47,6 +64,31 @@ export function buildServer() {
 
   app.get("/health", async () => ({ ok: true, service: "qorium-api", version: "phase1" }));
 
+  app.post("/api/v1/recruiter/login", async (request, reply) => {
+    const input = recruiterLoginSchema.parse(request.body);
+    if (!validRecruiterCredentials(input.email, input.password)) {
+      return reply.code(401).send({ error: "Invalid recruiter credentials" });
+    }
+    const recruiter = recruiterIdentity(input.email);
+    const token = signRecruiterToken({
+      ...recruiter,
+      exp: Date.now() + RECRUITER_TOKEN_TTL_MS
+    });
+    reply.header("Set-Cookie", recruiterCookie(token, RECRUITER_TOKEN_TTL_SECONDS));
+    return { recruiter, expiresAt: new Date(Date.now() + RECRUITER_TOKEN_TTL_MS).toISOString() };
+  });
+
+  app.get("/api/v1/recruiter/whoami", async (request, reply) => {
+    const recruiter = authenticateRecruiter(request, reply);
+    if (!recruiter) return reply;
+    return { recruiter: publicRecruiter(recruiter), expiresAt: new Date(recruiter.exp).toISOString() };
+  });
+
+  app.post("/api/v1/recruiter/logout", async (_request, reply) => {
+    reply.header("Set-Cookie", clearRecruiterCookie());
+    return { ok: true };
+  });
+
   app.get("/api/v1/skills", async (request) => {
     const query = request.query as { stats?: string; limit?: string; cursor?: string };
     if (query.stats === "true") return repository.getSkillStats();
@@ -65,6 +107,8 @@ export function buildServer() {
   });
 
   app.post("/api/v1/assessments", async (request, reply) => {
+    const recruiter = authenticateRecruiter(request, reply);
+    if (!recruiter) return reply;
     const input = createAssessmentSchema.parse(request.body);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const assessment = await repository.createAssessment({
@@ -75,11 +119,13 @@ export function buildServer() {
       expiresAt
     });
     const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
-    await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: "demo-recruiter" });
+    await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: recruiter.recruiterId });
     return reply.code(201).send({ assessment, shareUrl: `/candidate/${token}`, token });
   });
 
   app.post("/api/v1/assessments/clone", async (request, reply) => {
+    const recruiter = authenticateRecruiter(request, reply);
+    if (!recruiter) return reply;
     const input = z.object({ skillId: z.string(), candidateEmail: z.string().email().default("candidate@example.com") }).parse(request.body);
     const skill = await repository.getSkill(input.skillId);
     if (!skill) return reply.code(404).send({ error: "Skill not found" });
@@ -93,7 +139,7 @@ export function buildServer() {
     });
     if (!assessment) return reply.code(404).send({ error: "Skill not found" });
     const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
-    await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: "demo-recruiter" });
+    await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: recruiter.recruiterId });
     return reply.code(201).send({ assessment, shareUrl: `/candidate/${token}`, token });
   });
 
@@ -186,6 +232,55 @@ export function buildServer() {
   app.get("/api/v1/audit-log/sample", async () => ({ data: await repository.getAuditSample(10) }));
 
   return app;
+}
+
+function authenticateRecruiter(request: FastifyRequest, reply: FastifyReply) {
+  const token = bearerToken(request.headers.authorization) ?? readCookie(request.headers.cookie, "qor_rec");
+  if (!token) {
+    reply.code(401).send({ error: "Recruiter auth required" });
+    return null;
+  }
+  try {
+    return verifyRecruiterToken(token);
+  } catch (error) {
+    reply.code(401).send({ error: error instanceof Error ? error.message : "Invalid recruiter token" });
+    return null;
+  }
+}
+
+function validRecruiterCredentials(email: string, password: string) {
+  return email.toLowerCase() === recruiterEmail().toLowerCase() && password === recruiterPassword();
+}
+
+function recruiterIdentity(email: string) {
+  return {
+    recruiterId: `recruiter:${email.toLowerCase()}`,
+    email: email.toLowerCase(),
+    orgId: process.env.QORIUM_RECRUITER_ORG_ID ?? "demo-org",
+    scopes: ["assessment:write", "assessment:read"]
+  };
+}
+
+function publicRecruiter(recruiter: SignedRecruiterPayload) {
+  return {
+    recruiterId: recruiter.recruiterId,
+    email: recruiter.email,
+    orgId: recruiter.orgId,
+    scopes: recruiter.scopes
+  };
+}
+
+function recruiterEmail() {
+  return process.env.QORIUM_RECRUITER_EMAIL ?? "recruiter@example.com";
+}
+
+function recruiterPassword() {
+  return process.env.QORIUM_RECRUITER_PASSWORD ?? "dev-recruiter-password";
+}
+
+function bearerToken(value: string | undefined) {
+  const match = value?.match(/^Bearer\s+(.+)$/i);
+  return match?.[1];
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
