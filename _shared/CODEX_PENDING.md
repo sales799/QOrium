@@ -45,7 +45,10 @@ Source of truth for Codex execution order in this workspace.
   - Live parity proof: current public health is `service=qorium-readybank`, `git_sha=unknown`, `checks.db=not-configured`; current forced VPS-origin health is `service=qorium-readybank`, `git_sha=3528232`, `checks.db=ok`; direct PM2 health on `127.0.0.1:5101` matches the forced origin.
   - Live access-log proof: public probe `qg05-public-1780213218-30750` appeared 0 times in `/var/log/nginx/qorium-api.access.log`, while forced-origin probe `qg05-forced-1780213218-6205` appeared once; this confirms the remaining public-origin blocker is upstream of VPS Nginx.
   - Shipped Cloudflare cutover runbook: repo now carries `qorium-app/infra/cloudflare/api-origin-cutover.md` with the dashboard/API target, post-cutover parity checks, access-log nonce proof, and rollback path.
-  - Remaining blockers: public Cloudflare origin/tunnel still requires dashboard/API-token cutover to this VPS; the created Rakshak run still needs Phase 0 plus 17 audit reports saved and consolidated before a real Rakshak score can be generated.
+  - Live Cloudflare cutover: dashboard DNS for `api.qorium.online` is now an `A` record pointing at `147.93.103.194`, still proxied with TTL `Auto`; the root `qorium.online` A record was left unchanged at `187.127.155.150`.
+  - Live post-cutover parity proof: public `https://api.qorium.online/healthz` and forced VPS-origin `curl --resolve api.qorium.online:443:147.93.103.194 https://api.qorium.online/healthz` now both return `service=qorium-readybank`, `git_sha=3528232`, `checks.db=ok`.
+  - Live post-cutover access-log proof: public probe `qg05-public-cutover-1780214413-12934` appeared once in `/var/log/nginx/qorium-api.access.log`; forced-origin probe `qg05-forced-cutover-1780214413-5806` also appeared once.
+  - Remaining blockers: the created Rakshak run still needs Phase 0 plus 17 audit reports saved and consolidated before a real Rakshak score can be generated.
   - Required proof: PM2 list, DB counts, audit samples, security headers, rate limit, watchdog run, Rakshak score.
 
 ## P2 — Phase 1 Product Hardening
