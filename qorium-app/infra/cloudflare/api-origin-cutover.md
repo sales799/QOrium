@@ -1,15 +1,23 @@
 # api.qorium.online Cloudflare Origin Cutover
 
-Status: QG-05 blocker
+Status: Cutover applied 2026-05-31
 
 ## Current Evidence
 
 - VPS direct ReadyBank health: `http://127.0.0.1:5101/healthz` returns `service=qorium-readybank`, `git_sha=3528232`, `checks.db=ok`.
 - Forced VPS-origin health: `curl --resolve api.qorium.online:443:147.93.103.194 https://api.qorium.online/healthz` returns the same DB-backed ReadyBank health.
-- Public Cloudflare-routed health: `https://api.qorium.online/healthz` returns `service=qorium-readybank`, `git_sha=unknown`, `checks.db=not-configured`.
-- Public nonce probe `qg05-public-1780213218-30750` appeared 0 times in `/var/log/nginx/qorium-api.access.log`.
-- Forced-origin nonce probe `qg05-forced-1780213218-6205` appeared once in `/var/log/nginx/qorium-api.access.log`.
+- Public Cloudflare-routed health: `https://api.qorium.online/healthz` now returns `service=qorium-readybank`, `git_sha=3528232`, `checks.db=ok`.
+- Public nonce probe `qg05-public-cutover-1780214413-12934` appeared once in `/var/log/nginx/qorium-api.access.log`.
+- Forced-origin nonce probe `qg05-forced-cutover-1780214413-5806` appeared once in `/var/log/nginx/qorium-api.access.log`.
+- Cloudflare DNS dashboard shows `api.qorium.online` as a proxied `A` record to `147.93.103.194` with TTL `Auto`; the root `qorium.online` A record remains on `187.127.155.150`.
 - VPS `cloudflared.service` is token-managed (`cloudflared tunnel run --token ...`) and has no local ingress YAML to edit.
+
+## Applied Change
+
+- Changed only the `api.qorium.online` DNS row from `A 187.127.155.150` to `A 147.93.103.194`.
+- Preserved proxy status as `Proxied`.
+- Preserved TTL as `Auto`.
+- Left root `qorium.online` and all other DNS records untouched.
 
 ## Desired End State
 
