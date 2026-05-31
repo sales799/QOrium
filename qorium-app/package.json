@@ -4,7 +4,7 @@
   "packageManager": "pnpm@10.30.1",
   "scripts": {
     "build": "turbo run build",
-    "ci": "pnpm seed && pnpm scan:secrets && pnpm typecheck && pnpm build && pnpm smoke",
+    "ci": "pnpm seed && pnpm scan:secrets && pnpm typecheck && pnpm build && pnpm smoke && pnpm e2e",
     "dev": "turbo run dev --parallel",
     "test": "vitest run",
     "seed": "node scripts/generate-seeds.mjs",
@@ -12,9 +12,11 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "smoke": "tsx tests/smoke.ts",
+    "e2e": "playwright test",
     "production:gate": "node scripts/production-gates.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",

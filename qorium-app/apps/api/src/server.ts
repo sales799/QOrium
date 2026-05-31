@@ -38,7 +38,7 @@ export function buildServer() {
   const app = Fastify({ logger: true });
   const repository = createRepository();
   const reasoningTraces = createReasoningTraceStore();
-  void app.register(cors, { origin: true });
+  void app.register(cors, { origin: true, credentials: true });
   app.addHook("onClose", async () => {
     await repository.close();
   });
@@ -74,7 +74,7 @@ export function buildServer() {
       ...recruiter,
       exp: Date.now() + RECRUITER_TOKEN_TTL_MS
     });
-    reply.header("Set-Cookie", recruiterCookie(token, RECRUITER_TOKEN_TTL_SECONDS));
+    reply.header("Set-Cookie", recruiterCookie(token, RECRUITER_TOKEN_TTL_SECONDS, recruiterCookieSecure()));
     return { recruiter, expiresAt: new Date(Date.now() + RECRUITER_TOKEN_TTL_MS).toISOString() };
   });
 
@@ -85,7 +85,7 @@ export function buildServer() {
   });
 
   app.post("/api/v1/recruiter/logout", async (_request, reply) => {
-    reply.header("Set-Cookie", clearRecruiterCookie());
+    reply.header("Set-Cookie", clearRecruiterCookie(recruiterCookieSecure()));
     return { ok: true };
   });
 
@@ -281,6 +281,10 @@ function recruiterPassword() {
 function bearerToken(value: string | undefined) {
   const match = value?.match(/^Bearer\s+(.+)$/i);
   return match?.[1];
+}
+
+function recruiterCookieSecure() {
+  return process.env.QORIUM_RECRUITER_COOKIE_SECURE !== "false";
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

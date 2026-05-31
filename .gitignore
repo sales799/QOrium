@@ -20,6 +20,8 @@ qorium-app/**/*.tsbuildinfo
 qorium-app/.dev-*.log
 qorium-app/.dev-*.pid
 qorium-app/artifacts/
+qorium-app/apps/api/artifacts/
+qorium-app/test-results/
 
 # Environment files
 .env

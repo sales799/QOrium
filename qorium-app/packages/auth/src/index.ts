@@ -32,19 +32,25 @@ export function verifyRecruiterToken(token: string, secret = getRecruiterJwtSecr
   return payload;
 }
 
-export function recruiterCookie(token: string, maxAgeSeconds: number) {
+export function recruiterCookie(token: string, maxAgeSeconds: number, secure = true) {
   return [
     `qor_rec=${token}`,
     "Path=/",
     "HttpOnly",
     "SameSite=Lax",
-    "Secure",
+    secure ? "Secure" : "",
     `Max-Age=${maxAgeSeconds}`
-  ].join("; ");
+  ].filter(Boolean).join("; ");
 }
 
-export function clearRecruiterCookie() {
-  return "qor_rec=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0";
+export function clearRecruiterCookie(secure = true) {
+  return [
+    "qor_rec=; Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    secure ? "Secure" : "",
+    "Max-Age=0"
+  ].filter(Boolean).join("; ");
 }
 
 export function readCookie(source: string | undefined, name: string) {
