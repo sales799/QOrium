@@ -21,12 +21,13 @@ Source of truth for Codex execution order in this workspace.
   - Local proof: `git log --oneline -3` resolves `5c2795a specs: push binding docs from Cowork Mac`.
   - Required before merge: fetch or repair refs so status, diff, commit, push, and PR automation can operate safely.
 
-- [ ] QG-04: Wire hosted CI auto-merge policy.
-  - Depends on: QG-03 and GitHub branch protection/merge policy.
-  - Required proof: open PR, CI green, auto-merge enabled or merged by bot.
+- [x] QG-04: Wire hosted CI auto-merge policy.
+  - Shipped: PR #64 against `specs`; hosted `QOrium App CI` run `26705275600` passed.
+  - Merge proof: repository auto-merge is disabled, so the verified green PR was squash-merged by bot as `aa81d03`.
 
 - [ ] QG-05: Production deploy gates.
   - Depends on: VPS/PM2 credentials, Postgres/Redis target, Cloudflare tunnel/subdomain, watchdog/Rakshak/Manthan tooling.
+  - In progress: Phase 1 PM2 ecosystem config and executable production gate runner.
   - Required proof: PM2 list, DB counts, audit samples, security headers, rate limit, watchdog run, Rakshak score.
 
 ## P2 — Phase 1 Product Hardening
