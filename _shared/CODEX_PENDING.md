@@ -28,6 +28,8 @@ Source of truth for Codex execution order in this workspace.
 - [ ] QG-05: Production deploy gates.
   - Depends on: VPS/PM2 credentials, Postgres/Redis target, Cloudflare tunnel/subdomain, watchdog/Rakshak/Manthan tooling.
   - In progress: Phase 1 PM2 ecosystem config and executable production gate runner.
+  - Live evidence captured: VPS PM2 has QOrium services online; `https://api.qorium.online/healthz` is 200 with security headers; Redis returns `PONG`; DB has `content.questions=986` and `audit.events=3`.
+  - Remaining blockers: production health path is `/healthz`, public `/healthz` does not rate-limit under burst, `content.skills`/`content.responses` are 0, and no QOrium Rakshak run was found under `/opt/apps/rakshak-runs`.
   - Required proof: PM2 list, DB counts, audit samples, security headers, rate limit, watchdog run, Rakshak score.
 
 ## P2 — Phase 1 Product Hardening
