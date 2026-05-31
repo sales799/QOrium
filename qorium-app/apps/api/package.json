@@ -8,7 +8,9 @@
     "@qorium/db": "workspace:*",
     "@qorium/grader-worker": "workspace:*",
     "@qorium/taxonomy": "workspace:*",
+    "drizzle-orm": "^0.45.1",
     "fastify": "^5.6.2",
+    "postgres": "^3.4.7",
     "zod": "^4.1.13"
   },
   "scripts": {
