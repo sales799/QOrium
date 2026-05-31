@@ -7,6 +7,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
       "Content-Type": "application/json",
       ...init?.headers
     },
+    credentials: "include",
     cache: "no-store"
   });
   if (!res.ok) {
