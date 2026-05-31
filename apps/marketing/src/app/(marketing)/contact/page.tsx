@@ -4,6 +4,7 @@ import { Mail, MapPin, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { ContactForm } from '@/components/site/ContactForm';
+import { EmailText } from '@/components/site/EmailText';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Spotlight } from '@/components/aceternity/Spotlight';
 import { siteConfig } from '@/content/site.config';
@@ -40,12 +41,10 @@ export default function ContactPage() {
               <div className="space-y-2">
                 <Mail className="size-5 text-signal-500" />
                 <p className="text-sm font-medium text-foreground">Email</p>
-                <a
-                  href={`mailto:${siteConfig.contactEmail}`}
-                  className="font-mono text-sm text-muted-foreground hover:text-signal-300"
-                >
-                  {siteConfig.contactEmail}
-                </a>
+                <EmailText
+                  address={siteConfig.contactEmail}
+                  className="font-mono text-sm text-muted-foreground"
+                />
               </div>
               <div className="space-y-2">
                 <MapPin className="size-5 text-signal-500" />

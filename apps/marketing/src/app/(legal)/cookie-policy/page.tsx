@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { EmailText } from '@/components/site/EmailText';
 import { LegalShell, LegalSection } from '@/components/site/LegalShell';
 import { siteConfig } from '@/content/site.config';
 
@@ -61,8 +62,8 @@ export default function CookiePolicyPage() {
       </LegalSection>
       <LegalSection title="6. Contact">
         <p>
-          Questions about our cookie practices? Contact us at {siteConfig.contactEmail}. For broader
-          privacy queries, see our{' '}
+          Questions about our cookie practices? Contact us at{' '}
+          <EmailText address={siteConfig.contactEmail} />. For broader privacy queries, see our{' '}
           <a href="/privacy" className="text-signal-300 hover:underline">
             Privacy Policy
           </a>

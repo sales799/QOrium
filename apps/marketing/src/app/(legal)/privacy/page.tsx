@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { EmailText } from '@/components/site/EmailText';
 import { LegalShell, LegalSection } from '@/components/site/LegalShell';
 import { siteConfig } from '@/content/site.config';
 
@@ -14,7 +15,7 @@ export default function PrivacyPage() {
       <LegalSection title="1. Who we are">
         <p>
           {siteConfig.name} is operated by {siteConfig.legalEntity}, with registered office in
-          Bengaluru, India. We can be reached at {siteConfig.contactEmail}.
+          Bengaluru, India. We can be reached at <EmailText address={siteConfig.contactEmail} />.
         </p>
       </LegalSection>
       <LegalSection title="2. What we collect">
@@ -46,7 +47,8 @@ export default function PrivacyPage() {
         <p>
           Under DPDPA (India), GDPR (EU), and other applicable privacy laws, you have the right to
           access, correct, delete, or port your personal data. Contact us at{' '}
-          {siteConfig.contactEmail} to exercise these rights. We respond within 30 days.
+          <EmailText address={siteConfig.contactEmail} /> to exercise these rights. We respond
+          within 30 days.
         </p>
       </LegalSection>
       <LegalSection title="6. Retention">
@@ -68,8 +70,8 @@ export default function PrivacyPage() {
       </LegalSection>
       <LegalSection title="8. Contact">
         <p>
-          Privacy queries: {siteConfig.contactEmail}. Grievance officer details and DPO contact will
-          be published prior to public launch.
+          Privacy queries: <EmailText address={siteConfig.contactEmail} />. Grievance officer
+          details and DPO contact will be published prior to public launch.
         </p>
       </LegalSection>
     </LegalShell>
