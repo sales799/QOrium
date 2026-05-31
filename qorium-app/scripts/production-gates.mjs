@@ -36,6 +36,8 @@ const config = {
   healthRequireDbOk: parseBoolean(env.QORIUM_HEALTH_REQUIRE_DB_OK),
   expectedHealthService: env.QORIUM_EXPECTED_HEALTH_SERVICE ?? "",
   expectedHealthGitSha: env.QORIUM_EXPECTED_HEALTH_GIT_SHA ?? "",
+  forcedOriginIp: env.QORIUM_FORCED_ORIGIN_IP ?? "",
+  forcedOriginExpectedService: env.QORIUM_FORCED_ORIGIN_EXPECTED_SERVICE ?? "",
   output: resolve(env.QORIUM_PROD_GATE_OUTPUT ?? "artifacts/production-gate-report.json")
 };
 
@@ -70,6 +72,27 @@ await check("security headers", async () => {
   assert(headers["x-content-type-options"] === "nosniff", "missing X-Content-Type-Options nosniff");
   assert(Boolean(headers["referrer-policy"]), "missing Referrer-Policy");
   return { status: response.status, headers };
+});
+
+await check("forced origin health", async () => {
+  if (!config.forcedOriginIp) return { skipped: true };
+  const target = new URL(`${config.apiUrl}${config.healthPath}`);
+  assert(target.protocol === "https:", "forced origin health requires an https API URL");
+  const { stdout } = await execFileAsync("curl", [
+    "-ksS",
+    "--resolve",
+    `${target.hostname}:443:${config.forcedOriginIp}`,
+    target.toString()
+  ]);
+  const body = parseJsonText(stdout);
+  assert(body.ok === true || body.status === "ok", "forced origin health body did not include ok=true or status=ok");
+  if (config.forcedOriginExpectedService) {
+    assert(
+      body.service === config.forcedOriginExpectedService,
+      `expected forced origin service ${config.forcedOriginExpectedService}, got ${body.service ?? "missing"}`
+    );
+  }
+  return { host: target.hostname, ip: config.forcedOriginIp, body };
 });
 
 await check("rate limit", async () => {
@@ -255,6 +278,10 @@ function assert(condition, message) {
 
 async function parseJson(response) {
   const text = await response.text();
+  return parseJsonText(text);
+}
+
+function parseJsonText(text) {
   try {
     return JSON.parse(text);
   } catch {
