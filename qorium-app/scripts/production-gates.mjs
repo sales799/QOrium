@@ -40,6 +40,10 @@ const config = {
   forcedOriginExpectedService: env.QORIUM_FORCED_ORIGIN_EXPECTED_SERVICE ?? "",
   forcedOriginRequireMatch: parseBoolean(env.QORIUM_FORCED_ORIGIN_REQUIRE_MATCH),
   forcedOriginMatchFields: splitList(env.QORIUM_FORCED_ORIGIN_MATCH_FIELDS ?? "service,git_sha,checks.db"),
+  publicOriginAccessLog: env.QORIUM_PUBLIC_ORIGIN_ACCESS_LOG ?? "",
+  publicOriginLogLines: Number(env.QORIUM_PUBLIC_ORIGIN_LOG_LINES ?? 200),
+  publicOriginLogSettleMs: Number(env.QORIUM_PUBLIC_ORIGIN_LOG_SETTLE_MS ?? 500),
+  publicOriginProbeParam: env.QORIUM_PUBLIC_ORIGIN_PROBE_PARAM ?? "qg05_probe",
   output: resolve(env.QORIUM_PROD_GATE_OUTPUT ?? "artifacts/production-gate-report.json")
 };
 
@@ -122,6 +126,29 @@ await check("forced origin parity", async () => {
     fields: config.forcedOriginMatchFields,
     public: pickFields(publicHealthBody, config.forcedOriginMatchFields),
     forcedOrigin: pickFields(forcedOriginHealthBody, config.forcedOriginMatchFields)
+  };
+});
+
+await check("public origin access log", async () => {
+  if (!config.publicOriginAccessLog) return { skipped: true };
+  const probeId = `qg05-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const probeUrl = withQuery(`${config.apiUrl}${config.healthPath}`, config.publicOriginProbeParam, probeId);
+  const response = await fetch(probeUrl);
+  await sleep(config.publicOriginLogSettleMs);
+  const { stdout } = await execFileAsync("tail", [
+    "-n",
+    String(config.publicOriginLogLines),
+    config.publicOriginAccessLog
+  ], { maxBuffer: 1024 * 1024 });
+  assert(
+    stdout.includes(probeId),
+    `public probe ${probeId} was not observed in ${config.publicOriginAccessLog}`
+  );
+  return {
+    status: response.status,
+    probeParam: config.publicOriginProbeParam,
+    accessLog: config.publicOriginAccessLog,
+    logLines: config.publicOriginLogLines
   };
 });
 
@@ -369,6 +396,16 @@ function getPath(source, path) {
 
 function pickFields(source, fields) {
   return Object.fromEntries(fields.map((field) => [field, getPath(source, field) ?? null]));
+}
+
+function withQuery(url, name, value) {
+  const parsed = new URL(url);
+  parsed.searchParams.set(name, value);
+  return parsed.toString();
+}
+
+function sleep(ms) {
+  return new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 }
 
 function sameJsonValue(left, right) {
