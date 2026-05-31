@@ -18,6 +18,16 @@ export default function ResourcesPage() {
         description="Guides, templates, and role pages built for Indian hiring teams evaluating assessment vendors and improving shortlist quality."
         cta={{ label: 'Browse job descriptions', href: '/resources/job-descriptions' }}
       />
+      <SectionBand title="Research and benchmarks">
+        <CardGrid columns="md:grid-cols-2">
+          <SurfaceCard
+            title="AI Plagiarism Benchmark Protocol"
+            href="/research/plagiarism-benchmark"
+          >
+            Public benchmark method and evidence status for QOrium anti-plagiarism claims.
+          </SurfaceCard>
+        </CardGrid>
+      </SectionBand>
       <SectionBand title="Guides">
         <CardGrid>
           {guides.map((guide) => (

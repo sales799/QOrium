@@ -24,6 +24,7 @@ const STATIC_PATHS = [
   '/solutions/staffing',
   '/pricing',
   '/resources',
+  '/research/plagiarism-benchmark',
   '/resources/guides',
   '/resources/job-descriptions',
   '/llm-info',
