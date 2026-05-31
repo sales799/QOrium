@@ -21,6 +21,14 @@ const config = {
   minRakshakScore: Number(env.QORIUM_MIN_RAKSHAK_SCORE ?? 92),
   rateLimitBurst: Number(env.QORIUM_RATE_LIMIT_BURST ?? 30),
   rateLimitPath: ensureSlash(env.QORIUM_RATE_LIMIT_PATH ?? env.QORIUM_HEALTH_PATH ?? "/health"),
+  rateLimitMethod: env.QORIUM_RATE_LIMIT_METHOD ?? "GET",
+  rateLimitBearerCommand: env.QORIUM_RATE_LIMIT_BEARER_COMMAND ?? "",
+  rateLimitHeaderName: env.QORIUM_RATE_LIMIT_HEADER_NAME ?? "",
+  rateLimitHeaderValue: env.QORIUM_RATE_LIMIT_HEADER_VALUE ?? "",
+  rateLimitHeaderValueCommand: env.QORIUM_RATE_LIMIT_HEADER_VALUE_COMMAND ?? "",
+  healthRequireDbOk: parseBoolean(env.QORIUM_HEALTH_REQUIRE_DB_OK),
+  expectedHealthService: env.QORIUM_EXPECTED_HEALTH_SERVICE ?? "",
+  expectedHealthGitSha: env.QORIUM_EXPECTED_HEALTH_GIT_SHA ?? "",
   output: resolve(env.QORIUM_PROD_GATE_OUTPUT ?? "artifacts/production-gate-report.json")
 };
 
@@ -32,15 +40,25 @@ const report = {
 
 await check("api health", async () => {
   const response = await fetch(`${config.apiUrl}${config.healthPath}`);
-  const body = await response.json();
+  const body = await parseJson(response);
   assert(response.ok, `expected 2xx, got ${response.status}`);
   assert(body.ok === true || body.status === "ok", "health body did not include ok=true or status=ok");
+  if (config.healthRequireDbOk) {
+    assert(body.checks?.db === "ok", `expected health checks.db=ok, got ${body.checks?.db ?? "missing"}`);
+  }
+  if (config.expectedHealthService) {
+    assert(body.service === config.expectedHealthService, `expected service ${config.expectedHealthService}, got ${body.service ?? "missing"}`);
+  }
+  if (config.expectedHealthGitSha) {
+    assert(body.git_sha === config.expectedHealthGitSha, `expected git_sha ${config.expectedHealthGitSha}, got ${body.git_sha ?? "missing"}`);
+  }
   return { status: response.status, body };
 });
 
 await check("security headers", async () => {
   const response = await fetch(`${config.apiUrl}${config.healthPath}`, { method: "HEAD" });
   const headers = Object.fromEntries(response.headers.entries());
+  assert(response.ok, `expected 2xx, got ${response.status}`);
   assert(headers["x-frame-options"] === "DENY", "missing X-Frame-Options DENY");
   assert(headers["x-content-type-options"] === "nosniff", "missing X-Content-Type-Options nosniff");
   assert(Boolean(headers["referrer-policy"]), "missing Referrer-Policy");
@@ -48,16 +66,20 @@ await check("security headers", async () => {
 });
 
 await check("rate limit", async () => {
-  const responses = await Promise.all(Array.from({ length: config.rateLimitBurst }, () => fetch(`${config.apiUrl}${config.rateLimitPath}`)));
+  const headers = await rateLimitHeaders();
+  const responses = await Promise.all(Array.from({ length: config.rateLimitBurst }, () =>
+    fetch(`${config.apiUrl}${config.rateLimitPath}`, { method: config.rateLimitMethod, headers })
+  ));
   const statuses = responses.map((response) => response.status);
+  assert(!statuses.some((status) => status >= 500), `received 5xx before rate limiting: ${statuses.join(",")}`);
   assert(statuses.some((status) => status === 429), `expected at least one 429 across ${config.rateLimitBurst} requests`);
-  return { statuses, burst: config.rateLimitBurst };
+  return { statuses, burst: config.rateLimitBurst, path: config.rateLimitPath, method: config.rateLimitMethod, authenticated: Object.keys(headers).length > 0 };
 });
 
 await check("audit sample", async () => {
   const headers = config.auditTenantId ? { "x-tenant-id": config.auditTenantId } : undefined;
   const response = await fetch(`${config.apiUrl}${config.auditPath}`, { headers });
-  const body = await response.json();
+  const body = await parseJson(response);
   assert(response.ok, `expected 2xx, got ${response.status}`);
   const rows = Array.isArray(body.data) ? body.data : Array.isArray(body.events) ? body.events : [];
   assert(Array.isArray(rows), "audit sample response did not include data[] or events[]");
@@ -155,6 +177,39 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+async function parseJson(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`expected JSON response, got ${text.slice(0, 200)}`);
+  }
+}
+
+async function rateLimitHeaders() {
+  const headers = {};
+  if (config.rateLimitBearerCommand) {
+    const token = await commandOutput(config.rateLimitBearerCommand, "QORIUM_RATE_LIMIT_BEARER_COMMAND");
+    assert(token, "QORIUM_RATE_LIMIT_BEARER_COMMAND returned an empty token");
+    headers.authorization = `Bearer ${token}`;
+  }
+
+  if (config.rateLimitHeaderName) {
+    const value = config.rateLimitHeaderValueCommand
+      ? await commandOutput(config.rateLimitHeaderValueCommand, "QORIUM_RATE_LIMIT_HEADER_VALUE_COMMAND")
+      : config.rateLimitHeaderValue;
+    assert(value, "rate-limit header value is empty");
+    headers[config.rateLimitHeaderName] = value;
+  }
+
+  return headers;
+}
+
+async function commandOutput(command, label) {
+  const { stdout } = await execFileAsync("sh", ["-lc", command], { maxBuffer: 1024 * 1024 });
+  return stdout.trim();
+}
+
 function splitList(value) {
   return value.split(",").map((item) => item.trim()).filter(Boolean);
 }
@@ -165,4 +220,8 @@ function stripSlash(value) {
 
 function ensureSlash(value) {
   return value.startsWith("/") ? value : `/${value}`;
+}
+
+function parseBoolean(value) {
+  return ["1", "true", "yes", "on"].includes(String(value ?? "").toLowerCase());
 }

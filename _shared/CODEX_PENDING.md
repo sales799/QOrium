@@ -29,7 +29,9 @@ Source of truth for Codex execution order in this workspace.
   - Depends on: VPS/PM2 credentials, Postgres/Redis target, Cloudflare tunnel/subdomain, watchdog/Rakshak/Manthan tooling.
   - In progress: Phase 1 PM2 ecosystem config and executable production gate runner.
   - Live evidence captured: VPS PM2 has QOrium services online; `https://api.qorium.online/healthz` is 200 with security headers; Redis returns `PONG`; DB has `content.questions=986` and `audit.events=3`.
-  - Remaining blockers: production health path is `/healthz`, public `/healthz` does not rate-limit under burst, `content.skills`/`content.responses` are 0, and no QOrium Rakshak run was found under `/opt/apps/rakshak-runs`.
+  - Shipped gate hardening: production gate now defaults to `/healthz`, can require `checks.db=ok`, can pin expected health `service`/`git_sha`, and can exercise authenticated rate-limit probes via shell-resolved bearer/header commands without committing secrets.
+  - Live remediation attempted: VPS Nginx QOrium upstreams were moved from stale tailnet IPs to `127.0.0.1` and Nginx reloaded cleanly; forced-origin `/healthz` reaches the VPS, but normal Cloudflare traffic still resolves through a remote origin/tunnel and returns `checks.db=not-configured`.
+  - Remaining blockers: public Cloudflare origin/tunnel is not routing normal `api.qorium.online` traffic to this VPS; authenticated rate-limit probe currently hits a production DB ACL error (`permission denied for schema app`) before it can prove 429 behavior; `content.skills`/`content.responses` are 0; and no QOrium Rakshak run was found under `/opt/apps/rakshak-runs`.
   - Required proof: PM2 list, DB counts, audit samples, security headers, rate limit, watchdog run, Rakshak score.
 
 ## P2 — Phase 1 Product Hardening
