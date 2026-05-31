@@ -22,9 +22,16 @@ export const assessments = pgTable("assessment", {
   id: uuid("id").defaultRandom().primaryKey(),
   orgId: text("org_id").notNull().default("demo-org"),
   title: text("title").notNull(),
+  candidateEmail: text("candidate_email").notNull().default("candidate@example.com"),
   status: text("status").notNull().default("draft"),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const assessmentQuestions = pgTable("assessment_question", {
+  assessmentId: uuid("assessment_id").notNull().references(() => assessments.id),
+  questionId: text("question_id").notNull().references(() => questions.id),
+  position: integer("position").notNull()
 });
 
 export const sections = pgTable("section", {
