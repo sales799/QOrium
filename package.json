@@ -44,5 +44,14 @@
     "*.{json,md,mdx,yml,yaml,css}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "brace-expansion": "^5.0.6",
+      "esbuild": "^0.25.0",
+      "postcss": "^8.5.10",
+      "qs": "^6.15.2",
+      "vite": "^6.4.2"
+    }
   }
 }
