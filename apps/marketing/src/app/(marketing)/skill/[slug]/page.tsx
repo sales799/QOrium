@@ -11,7 +11,7 @@ import {
   SurfaceCard,
 } from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, FAQPageJsonLd, ProductJsonLd } from '@/components/seo/JsonLd';
-import { getSkill, phase4Faqs, skillLibrary, slugify } from '@/content/phase4';
+import { getSkill, jobDescriptions, phase4Faqs, skillLibrary, slugify } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -48,6 +48,7 @@ export default async function SkillPage({ params }: Props) {
     { question: 'Is the assessment fully calibrated?', answer: skill.calibration },
     ...phase4Faqs.slice(0, 1),
   ];
+  const publishedJobSlugs = new Set(jobDescriptions.map((job) => slugify(job.title)));
   return (
     <>
       <BreadcrumbJsonLd
@@ -85,15 +86,19 @@ export default async function SkillPage({ params }: Props) {
         </SectionBand>
         <SectionBand title="Roles that use this skill">
           <CardGrid columns="md:grid-cols-2">
-            {skill.roles.map((role) => (
-              <SurfaceCard
-                key={role}
-                title={role}
-                href={`/resources/job-descriptions/${slugify(role)}`}
-              >
-                View the role template and cross-linked skills checklist.
-              </SurfaceCard>
-            ))}
+            {skill.roles.map((role) => {
+              const roleSlug = slugify(role);
+              const roleHref = publishedJobSlugs.has(roleSlug)
+                ? `/resources/job-descriptions/${roleSlug}`
+                : undefined;
+              return (
+                <SurfaceCard key={role} title={role} href={roleHref}>
+                  {roleHref
+                    ? 'View the role template and cross-linked skills checklist.'
+                    : 'Queued role template; request a role-specific pack during the demo.'}
+                </SurfaceCard>
+              );
+            })}
           </CardGrid>
           <Link
             href="/product/assessment-library"

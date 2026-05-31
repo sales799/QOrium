@@ -10,7 +10,7 @@ import {
   SurfaceCard,
 } from '@/components/phase4/MarketingSurface';
 import { ArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
-import { getJob, jobDescriptions, phase4Faqs, slugify } from '@/content/phase4';
+import { getJob, jobDescriptions, phase4Faqs, skillLibrary, slugify } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -39,6 +39,7 @@ export default async function JobDescriptionPage({ params }: Props) {
     'Document work clearly so reviewers can evaluate evidence, not impressions.',
     'Collaborate with hiring managers and adjacent teams on measurable deliverables.',
   ];
+  const publishedSkillSlugs = new Set(skillLibrary.map((skill) => slugify(skill.name)));
   return (
     <>
       <BreadcrumbJsonLd
@@ -69,11 +70,19 @@ export default async function JobDescriptionPage({ params }: Props) {
         </SectionBand>
         <SectionBand title="Skills checklist">
           <CardGrid columns="md:grid-cols-3">
-            {job.skills.map((skill) => (
-              <SurfaceCard key={skill} title={skill} href={`/skill/${slugify(skill)}`}>
-                Open the related assessment page or request a role-specific pack.
-              </SurfaceCard>
-            ))}
+            {job.skills.map((skill) => {
+              const skillSlug = slugify(skill);
+              const skillHref = publishedSkillSlugs.has(skillSlug)
+                ? `/skill/${skillSlug}`
+                : undefined;
+              return (
+                <SurfaceCard key={skill} title={skill} href={skillHref}>
+                  {skillHref
+                    ? 'Open the related assessment page or request a role-specific pack.'
+                    : 'Queued in the taxonomy expansion backlog; request this skill during setup.'}
+                </SurfaceCard>
+              );
+            })}
           </CardGrid>
           <Link
             href="/resources/job-descriptions"

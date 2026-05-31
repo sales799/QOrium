@@ -35,17 +35,34 @@ export function PageHero({
             </Link>
           ) : null}
         </div>
-        <div className="grid content-end gap-3 rounded-lg border border-border bg-card p-5">
-          {[
-            'DPDP-aligned language',
-            'No unsupported public metrics',
-            'Schema and sitemap ready',
-          ].map((item) => (
-            <div key={item} className="flex items-center gap-3 text-sm">
-              <ShieldCheck className="size-4 text-secondary" />
-              <span>{item}</span>
-            </div>
-          ))}
+        <div className="flex flex-col justify-between gap-8 rounded-lg border border-border bg-card p-5 md:min-h-80">
+          <div>
+            <p className="font-mono text-xs uppercase text-muted-foreground">Proof posture</p>
+            <dl className="mt-5 grid gap-4">
+              {[
+                ['Claims', 'Evidence-gated'],
+                ['Search', 'Schema-ready'],
+                ['Compliance', 'DPDP-aligned'],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between gap-4 text-sm">
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd className="font-medium">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="grid gap-3">
+            {[
+              'DPDP-aligned language',
+              'No unsupported public metrics',
+              'Schema and sitemap ready',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3 text-sm">
+                <ShieldCheck className="size-4 text-secondary" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </MaxWidth>
     </section>
@@ -69,7 +86,7 @@ export function SurfaceCard({
 }: {
   title: string;
   children: React.ReactNode;
-  href?: string;
+  href?: string | undefined;
 }) {
   const body = (
     <div className="h-full rounded-lg border border-border bg-card p-5 transition-colors hover:border-secondary/60">
