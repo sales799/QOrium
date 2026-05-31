@@ -13,6 +13,7 @@ const config = {
   healthPath: ensureSlash(env.QORIUM_HEALTH_PATH ?? "/health"),
   auditPath: ensureSlash(env.QORIUM_AUDIT_SAMPLE_PATH ?? "/api/v1/audit-log/sample"),
   auditTenantId: env.QORIUM_AUDIT_TENANT_ID ?? "",
+  minAuditSampleRows: Number(env.QORIUM_MIN_AUDIT_SAMPLE_ROWS ?? 1),
   pm2Processes: splitList(env.QORIUM_PM2_PROCESSES ?? "qorium-web,qorium-api,qorium-sandbox-bridge"),
   databaseUrl: env.DATABASE_URL ?? env.DATABASE_URL_PROD ?? "",
   databaseRuntimeRole: env.QORIUM_DB_RUNTIME_ROLE ?? "",
@@ -44,6 +45,14 @@ const config = {
   publicOriginLogLines: Number(env.QORIUM_PUBLIC_ORIGIN_LOG_LINES ?? 200),
   publicOriginLogSettleMs: Number(env.QORIUM_PUBLIC_ORIGIN_LOG_SETTLE_MS ?? 500),
   publicOriginProbeParam: env.QORIUM_PUBLIC_ORIGIN_PROBE_PARAM ?? "qg05_probe",
+  securityTxtUrl: env.QORIUM_SECURITY_TXT_URL ?? "",
+  soakEvidencePath: env.QORIUM_SOAK_EVIDENCE_PATH ?? "",
+  minSoakHours: Number(env.QORIUM_MIN_SOAK_HOURS ?? 2),
+  chaosDrillEvidencePath: env.QORIUM_CHAOS_DRILL_EVIDENCE_PATH ?? "",
+  dkimDomain: env.QORIUM_DKIM_DOMAIN ?? "",
+  dkimSelector: env.QORIUM_DKIM_SELECTOR ?? "",
+  requireErrorTracking: parseBoolean(env.QORIUM_REQUIRE_ERROR_TRACKING),
+  errorTrackingDsn: env.QORIUM_ERROR_TRACKING_DSN ?? env.SENTRY_DSN ?? "",
   output: resolve(env.QORIUM_PROD_GATE_OUTPUT ?? "artifacts/production-gate-report.json")
 };
 
@@ -81,6 +90,23 @@ await check("security headers", async () => {
   assert(headers["x-content-type-options"] === "nosniff", "missing X-Content-Type-Options nosniff");
   assert(Boolean(headers["referrer-policy"]), "missing Referrer-Policy");
   return { status: response.status, headers };
+});
+
+await check("security.txt", async () => {
+  const url = config.securityTxtUrl || `${config.webUrl}/.well-known/security.txt`;
+  const response = await fetch(url);
+  const text = await response.text();
+  assert(response.ok, `expected 2xx, got ${response.status}`);
+  assert(
+    response.headers.get("content-type")?.toLowerCase().includes("text/plain"),
+    "security.txt must be served as text/plain"
+  );
+  const contact = securityTxtField(text, "Contact");
+  const expires = securityTxtField(text, "Expires");
+  assert(contact, "security.txt missing Contact");
+  assert(expires, "security.txt missing Expires");
+  assert(new Date(expires).getTime() > Date.now(), `security.txt Expires is not in the future: ${expires}`);
+  return { url, contact, expires };
 });
 
 await check("forced origin health", async () => {
@@ -158,9 +184,24 @@ await check("rate limit", async () => {
     fetch(`${config.apiUrl}${config.rateLimitPath}`, { method: config.rateLimitMethod, headers })
   ));
   const statuses = responses.map((response) => response.status);
+  const firstHeaders = Object.fromEntries(responses[0]?.headers.entries() ?? []);
+  const limitedHeaders = Object.fromEntries(responses.find((response) => response.status === 429)?.headers.entries() ?? []);
   assert(!statuses.some((status) => status >= 500), `received 5xx before rate limiting: ${statuses.join(",")}`);
   assert(statuses.some((status) => status === 429), `expected at least one 429 across ${config.rateLimitBurst} requests`);
-  return { statuses, burst: config.rateLimitBurst, path: config.rateLimitPath, method: config.rateLimitMethod, authenticated: Object.keys(headers).length > 0 };
+  assertRateLimitVisibility(firstHeaders, "first response");
+  assertRateLimitVisibility(limitedHeaders, "429 response");
+  assert(Boolean(limitedHeaders["retry-after"]), "429 response missing Retry-After");
+  return {
+    statuses,
+    burst: config.rateLimitBurst,
+    path: config.rateLimitPath,
+    method: config.rateLimitMethod,
+    authenticated: Object.keys(headers).length > 0,
+    headers: {
+      first: pickHeaderEvidence(firstHeaders, ["x-ratelimit-limit", "x-ratelimit-remaining"]),
+      limited: pickHeaderEvidence(limitedHeaders, ["x-ratelimit-limit", "x-ratelimit-remaining", "retry-after"])
+    }
+  };
 });
 
 await check("audit sample", async () => {
@@ -170,7 +211,46 @@ await check("audit sample", async () => {
   assert(response.ok, `expected 2xx, got ${response.status}`);
   const rows = Array.isArray(body.data) ? body.data : Array.isArray(body.events) ? body.events : [];
   assert(Array.isArray(rows), "audit sample response did not include data[] or events[]");
+  assert(rows.length >= config.minAuditSampleRows, `expected at least ${config.minAuditSampleRows} audit rows, got ${rows.length}`);
   return { status: response.status, sampleCount: rows.length, total: body.total ?? null };
+});
+
+await check("off-peak soak evidence", async () => {
+  if (!config.soakEvidencePath) return { skipped: true };
+  const text = await readFile(config.soakEvidencePath, "utf8");
+  assert(
+    textIncludesAny(text, [`${config.minSoakHours}h`, `${config.minSoakHours} h`, `${config.minSoakHours}-hour`]),
+    `soak evidence must mention at least ${config.minSoakHours}h`
+  );
+  assert(/completed|passed|score|verdict/i.test(text), "soak evidence must include completion/verdict language");
+  return { path: config.soakEvidencePath, minSoakHours: config.minSoakHours };
+});
+
+await check("chaos drill evidence", async () => {
+  if (!config.chaosDrillEvidencePath) return { skipped: true };
+  const text = await readFile(config.chaosDrillEvidencePath, "utf8");
+  assert(/rollback/i.test(text), "chaos evidence must include rollback");
+  assert(/blast radius|bounded|scope/i.test(text), "chaos evidence must include blast-radius or scope");
+  assert(/pass|passed|completed|abort/i.test(text), "chaos evidence must include a final outcome");
+  return { path: config.chaosDrillEvidencePath };
+});
+
+await check("dkim selector", async () => {
+  if (!config.dkimDomain || !config.dkimSelector) return { skipped: true };
+  const record = `${config.dkimSelector}._domainkey.${config.dkimDomain}`;
+  const { stdout } = await execFileAsync("sh", ["-lc", `dig +short TXT ${shellQuote(record)} || true`], { maxBuffer: 1024 * 1024 });
+  assert(stdout.includes("v=DKIM1") || stdout.includes("p="), `no DKIM TXT record found for ${record}`);
+  return { record, txt: stdout.trim().slice(0, 1000) };
+});
+
+await check("error tracking", async () => {
+  if (!config.requireErrorTracking) return { skipped: true };
+  assert(config.errorTrackingDsn, "QORIUM_ERROR_TRACKING_DSN or SENTRY_DSN is required");
+  const dsn = new URL(config.errorTrackingDsn);
+  assert(["http:", "https:"].includes(dsn.protocol), "error tracking DSN must be http(s)");
+  assert(Boolean(dsn.hostname), "error tracking DSN missing hostname");
+  assert(dsn.pathname.length > 1, "error tracking DSN missing project path");
+  return { providerHost: dsn.hostname, projectPath: dsn.pathname };
 });
 
 await check("pm2 processes", async () => {
@@ -354,6 +434,19 @@ function parseJsonText(text) {
   }
 }
 
+function securityTxtField(text, field) {
+  return text.match(new RegExp(`^${field}:\\s*(.+)$`, "im"))?.[1]?.trim() ?? "";
+}
+
+function assertRateLimitVisibility(headers, label) {
+  assert(headers["x-ratelimit-limit"], `${label} missing X-RateLimit-Limit`);
+  assert(headers["x-ratelimit-remaining"], `${label} missing X-RateLimit-Remaining`);
+}
+
+function pickHeaderEvidence(headers, names) {
+  return Object.fromEntries(names.map((name) => [name, headers[name] ?? null]));
+}
+
 async function rateLimitHeaders() {
   const headers = {};
   if (config.rateLimitBearerCommand) {
@@ -388,6 +481,10 @@ function stripSlash(value) {
 
 function sqlString(value) {
   return `'${value.replace(/'/g, "''")}'`;
+}
+
+function shellQuote(value) {
+  return `'${value.replace(/'/g, "'\\''")}'`;
 }
 
 function ensureSlash(value) {
@@ -438,4 +535,9 @@ function formatJsonValue(value) {
 
 function parseBoolean(value) {
   return ["1", "true", "yes", "on"].includes(String(value ?? "").toLowerCase());
+}
+
+function textIncludesAny(text, needles) {
+  const lower = text.toLowerCase();
+  return needles.some((needle) => lower.includes(needle.toLowerCase()));
 }

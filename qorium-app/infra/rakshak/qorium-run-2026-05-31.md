@@ -64,3 +64,7 @@ The run is a `CONDITIONAL-GO`, not a blank-cheque GO. Track these outside P1:
 off-peak 2h soak, public edge/app rate-limit detection, `security.txt`,
 authenticated audit API customer smoke, scheduled chaos drill, DKIM selector
 verification, and error-tracking instrumentation.
+
+The repeatable gate mapping lives in
+`infra/rakshak/qg05-conditional-followup-gates.md`. Use it to turn the
+conditional checklist into hard release checks on the VPS.
