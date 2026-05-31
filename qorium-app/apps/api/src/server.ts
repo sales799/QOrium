@@ -3,6 +3,7 @@ import Fastify, { type FastifyReply } from "fastify";
 import { signAssessmentLink, verifyAssessmentToken } from "@qorium/auth";
 import { gradeAnswer } from "@qorium/grader-worker";
 import { z } from "zod";
+import { createReasoningTraceStore } from "./reasoning-trace-store.js";
 import { createRepository, type Assessment } from "./store.js";
 
 const createAssessmentSchema = z.object({
@@ -19,6 +20,7 @@ const submitSchema = z.object({
 export function buildServer() {
   const app = Fastify({ logger: true });
   const repository = createRepository();
+  const reasoningTraces = createReasoningTraceStore();
   void app.register(cors, { origin: true });
   app.addHook("onClose", async () => {
     await repository.close();
@@ -141,8 +143,22 @@ export function buildServer() {
       const question = assessment.questions.find((item) => item.id === answer.questionId);
       if (!question) continue;
       const result = await gradeAnswer({ question, response: answer.response });
-      graded.push({ ...answer, grade: result.score, confidence: result.confidence, reasoning: result.reasoning });
-      await repository.audit("answer.graded", { questionId: question.id, score: result.score, confidence: result.confidence }, { assessmentId: assessment.id, questionId: question.id }, { type: "worker", id: "grade-answer" });
+      const reasoningTraceRef = await reasoningTraces.write({
+        assessmentId: assessment.id,
+        questionId: question.id,
+        score: result.score,
+        confidence: result.confidence,
+        reasoning: result.reasoning,
+        grader: "m4",
+        createdAt: new Date().toISOString()
+      });
+      graded.push({ ...answer, grade: result.score, confidence: result.confidence, reasoning: result.reasoning, reasoningTraceRef });
+      await repository.audit(
+        "answer.graded",
+        { questionId: question.id, score: result.score, confidence: result.confidence, reasoningTraceRef },
+        { assessmentId: assessment.id, questionId: question.id },
+        { type: "worker", id: "grade-answer" }
+      );
     }
 
     const attempt = await repository.createAttempt({
@@ -158,8 +174,13 @@ export function buildServer() {
     const { id } = request.params as { id: string };
     const attempt = await repository.getAttempt(id);
     if (!attempt) return reply.code(404).send({ error: "Attempt not found" });
-    const average = attempt.answers.reduce((sum, answer) => sum + (answer.grade ?? 0), 0) / Math.max(attempt.answers.length, 1);
-    return { attempt, result: { score: Number(average.toFixed(2)), confidenceBand: average >= 0.75 ? "high" : average >= 0.45 ? "medium" : "low" } };
+    const answers = await Promise.all(attempt.answers.map(async (answer) => ({
+      ...answer,
+      reasoning: answer.reasoning ?? (answer.reasoningTraceRef ? await reasoningTraces.readReasoning(answer.reasoningTraceRef) ?? undefined : undefined)
+    })));
+    const hydratedAttempt = { ...attempt, answers };
+    const average = hydratedAttempt.answers.reduce((sum, answer) => sum + (answer.grade ?? 0), 0) / Math.max(hydratedAttempt.answers.length, 1);
+    return { attempt: hydratedAttempt, result: { score: Number(average.toFixed(2)), confidenceBand: average >= 0.75 ? "high" : average >= 0.45 ? "medium" : "low" } };
   });
 
   app.get("/api/v1/audit-log/sample", async () => ({ data: await repository.getAuditSample(10) }));

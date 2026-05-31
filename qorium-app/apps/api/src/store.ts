@@ -28,7 +28,7 @@ export interface Attempt {
   id: string;
   assessmentId: string;
   candidateEmail: string;
-  answers: Array<{ questionId: string; response: unknown; grade?: number; confidence?: number; reasoning?: string }>;
+  answers: Array<{ questionId: string; response: unknown; grade?: number; confidence?: number; reasoning?: string; reasoningTraceRef?: string }>;
   submittedAt: string;
 }
 
@@ -315,7 +315,7 @@ class PostgresRepository implements QoriumRepository {
         response: answer.response,
         grade: answer.grade,
         confidence: answer.confidence,
-        reasoningTraceRef: answer.reasoning
+        reasoningTraceRef: answer.reasoningTraceRef ?? answer.reasoning
       })));
     }
     return {
@@ -340,7 +340,7 @@ class PostgresRepository implements QoriumRepository {
         response: answer.response,
         grade: answer.grade ?? undefined,
         confidence: answer.confidence ?? undefined,
-        reasoning: answer.reasoningTraceRef ?? undefined
+        reasoningTraceRef: answer.reasoningTraceRef ?? undefined
       })),
       submittedAt: attempt.submittedAt?.toISOString() ?? new Date().toISOString()
     };
