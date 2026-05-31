@@ -25,9 +25,9 @@ Source of truth for Codex execution order in this workspace.
   - Shipped: PR #64 against `specs`; hosted `QOrium App CI` run `26705275600` passed.
   - Merge proof: repository auto-merge is disabled, so the verified green PR was squash-merged by bot as `aa81d03`.
 
-- [ ] QG-05: Production deploy gates.
+- [x] QG-05: Production deploy gates.
   - Depends on: VPS/PM2 credentials, Postgres/Redis target, Cloudflare tunnel/subdomain, watchdog/Rakshak/Manthan tooling.
-  - In progress: Phase 1 PM2 ecosystem config and executable production gate runner.
+  - Shipped: Phase 1 PM2 ecosystem config, executable production gate runner, live Cloudflare origin cutover, and completed Rakshak score evidence.
   - Live evidence captured: VPS PM2 has QOrium services online; `https://api.qorium.online/healthz` is 200 with security headers; Redis returns `PONG`; DB has `content.questions=986` and `audit.events=3`.
   - Shipped gate hardening: production gate now defaults to `/healthz`, can require `checks.db=ok`, can pin expected health `service`/`git_sha`, and can exercise authenticated rate-limit probes via shell-resolved bearer/header commands without committing secrets.
   - Shipped runtime DB grant repair: applied repeatable `qorium_app` grants for `app.api_keys`, `app.packs`, and read-only `content.questions`/`content.skills`/`content.sub_skills`; production gate now verifies these grants when `QORIUM_DB_RUNTIME_ROLE=qorium_app`.
@@ -36,7 +36,8 @@ Source of truth for Codex execution order in this workspace.
   - Live content proof: production DB now has `content.skills=511`, `content.sub_skills=881`, `released linked readybank questions=986`, and `content.responses=1`; authenticated `/v1/questions/search?limit=3` and `/v1/questions/search?skill=ai-prompt-engineer-senior&limit=3` both return 3 released linked questions.
   - Shipped Rakshak evidence gate: production gate can now require a QOrium Rakshak run under `/opt/apps/rakshak-runs` before parsing the minimum score.
   - Live Rakshak allow-list remediation: added `qorium.online` and `qorium.in` to Talpro MCP Rakshak's owned-domain suffix list, rebuilt `dist`, restarted `talpro-mcp`, and verified `talpro_rakshak(domain=qorium.online, soakHours=2)` now creates a run instead of refusing.
-  - Live Rakshak run proof: `rakshak-qorium_online-mptgu36b-413f` exists under `/opt/apps/rakshak-runs`; `run.json` shows `status=executing`, `saved=[]`, `score=null`, so the 17-audit playbook still needs execution before QG-05 can claim a Rakshak score.
+  - Initial Rakshak run proof: `rakshak-qorium_online-mptgu36b-413f` was created under `/opt/apps/rakshak-runs` after the allow-list remediation.
+  - Shipped Rakshak score gate: production gate now reads the latest completed Rakshak `run.json` score directly from `QORIUM_RAKSHAK_RUNS_DIR`/`QORIUM_RAKSHAK_DOMAIN`, with `QORIUM_RAKSHAK_COMMAND` kept only as an optional fallback.
   - Shipped forced-origin gate: production gate can now call `curl --resolve api.qorium.online:443:147.93.103.194` and assert the VPS origin health service separately from the normal Cloudflare-routed public health check.
   - Shipped forced-origin parity gate: production gate can now require public Cloudflare-routed health and forced VPS-origin health to match on `service`, `git_sha`, and `checks.db`, turning origin/tunnel drift into a hard QG-05 failure with field-level evidence.
   - Shipped public-origin access-log gate: production gate can now send a nonce query to the public health URL and require that exact nonce in the VPS Nginx access log, proving public traffic actually reaches the expected origin host.
@@ -48,11 +49,16 @@ Source of truth for Codex execution order in this workspace.
   - Live Cloudflare cutover: dashboard DNS for `api.qorium.online` is now an `A` record pointing at `147.93.103.194`, still proxied with TTL `Auto`; the root `qorium.online` A record was left unchanged at `187.127.155.150`.
   - Live post-cutover parity proof: public `https://api.qorium.online/healthz` and forced VPS-origin `curl --resolve api.qorium.online:443:147.93.103.194 https://api.qorium.online/healthz` now both return `service=qorium-readybank`, `git_sha=3528232`, `checks.db=ok`.
   - Live post-cutover access-log proof: public probe `qg05-public-cutover-1780214413-12934` appeared once in `/var/log/nginx/qorium-api.access.log`; forced-origin probe `qg05-forced-cutover-1780214413-5806` also appeared once.
-  - Remaining blockers: the created Rakshak run still needs Phase 0 plus 17 audit reports saved and consolidated before a real Rakshak score can be generated.
-  - Required proof: PM2 list, DB counts, audit samples, security headers, rate limit, watchdog run, Rakshak score.
+  - Live Phase 0 proof: Talpro smoke tests passed `29/29` plus PRAMAAN `6/6`; VPS settled at `91.7%` idle CPU and `9808.9 MiB` available memory after stopping a stale recursive discovery grep; DB backups exist from `2026-05-31 02:05`.
+  - Live audit sample proof: `audit.events` contains 3 rows, latest event ids include `ad42a8e4-1fa8-47fe-9316-6800868ee342`, `89ce8149-6add-429d-b68f-250b137f5c9e`, and `5b306b55-3c5c-4078-9abf-c6e6cded4e3a`.
+  - Live watchdog proof: `talpro_watchdog_list` shows the managed scheduler in `/etc/cron.d/talpro-watchdogs`; PM2 also has `qorium-uptime-monitor` online.
+  - Live safe load proof: `autocannon -c 10 -d 5 https://api.qorium.online/healthz` returned `requests_avg=359.6`, `latency_avg_ms=25.03`, `latency_p99_ms=264`, `errors=0`, `timeouts=0`, `non2xx=0`.
+  - Live Rakshak score proof: run `rakshak-qorium_online-mptgu36b-413f` is `completed`, `saved=17/17`, `verdict=CONDITIONAL-GO`, `score=92`; reports are saved under `/opt/apps/rakshak-runs/rakshak-qorium_online-mptgu36b-413f/{ceo.md,cto.md,reports/}`.
+  - P2 follow-up from conditional Rakshak items: off-peak 2h soak, public edge/app rate-limit detection, `security.txt`, authenticated audit API customer smoke, scheduled chaos drill, DKIM selector verification, and error-tracking instrumentation.
 
 ## P2 — Phase 1 Product Hardening
 
+- [ ] Close QG-05 conditional Rakshak follow-ups: full 2h soak, public rate-limit visibility, `security.txt`, audit API customer smoke, chaos drill, DKIM, and error tracking.
 - [ ] Replace in-memory API store with Drizzle/Postgres repository implementation.
 - [ ] Add persistent reasoning-trace object storage for M4 grader.
 - [ ] Add recruiter authentication instead of demo recruiter identity.
