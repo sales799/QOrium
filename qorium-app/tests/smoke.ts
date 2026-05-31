@@ -19,9 +19,36 @@ const cards = await api.inject({ method: "GET", url: "/api/v1/library/cards" });
 assertEqual(cards.statusCode, 200, "library cards");
 if ((JSON.parse(cards.body) as unknown[]).length !== 25) throw new Error("Expected 25 library cards");
 
+const unauthenticatedAssessment = await api.inject({
+  method: "POST",
+  url: "/api/v1/assessments",
+  payload: {
+    title: "Unauthenticated smoke assessment",
+    candidateEmail: "candidate@example.com",
+    skillIds: ["engineering.java"]
+  }
+});
+assertEqual(unauthenticatedAssessment.statusCode, 401, "unauthenticated assessment create");
+
+const login = await api.inject({
+  method: "POST",
+  url: "/api/v1/recruiter/login",
+  payload: {
+    email: "recruiter@example.com",
+    password: "dev-recruiter-password"
+  }
+});
+assertEqual(login.statusCode, 200, "recruiter login");
+const cookie = login.headers["set-cookie"];
+if (!String(cookie).includes("qor_rec=") || !String(cookie).includes("HttpOnly")) throw new Error("Recruiter login did not set an HttpOnly cookie");
+
+const whoami = await api.inject({ method: "GET", url: "/api/v1/recruiter/whoami", headers: { cookie: String(cookie) } });
+assertEqual(whoami.statusCode, 200, "recruiter whoami");
+
 const assessment = await api.inject({
   method: "POST",
   url: "/api/v1/assessments",
+  headers: { cookie: String(cookie) },
   payload: {
     title: "Smoke assessment",
     candidateEmail: "candidate@example.com",
