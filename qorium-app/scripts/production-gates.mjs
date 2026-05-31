@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFile } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
 
@@ -23,6 +23,8 @@ const config = {
   redisUrl: env.REDIS_URL ?? "",
   watchdogCommand: env.QORIUM_WATCHDOG_COMMAND ?? "talpro_watchdog_list",
   rakshakCommand: env.QORIUM_RAKSHAK_COMMAND ?? "talpro_rakshak_score qorium",
+  rakshakRunsDir: env.QORIUM_RAKSHAK_RUNS_DIR ?? "",
+  rakshakDomain: env.QORIUM_RAKSHAK_DOMAIN ?? "",
   minRakshakScore: Number(env.QORIUM_MIN_RAKSHAK_SCORE ?? 92),
   rateLimitBurst: Number(env.QORIUM_RATE_LIMIT_BURST ?? 30),
   rateLimitPath: ensureSlash(env.QORIUM_RATE_LIMIT_PATH ?? env.QORIUM_HEALTH_PATH ?? "/health"),
@@ -203,6 +205,21 @@ await check("watchdog", async () => {
   return { command: config.watchdogCommand, output: stdout.trim().slice(0, 4000) };
 });
 
+await check("rakshak run evidence", async () => {
+  if (!config.rakshakRunsDir || !config.rakshakDomain) return { skipped: true };
+  const slug = rakshakDomainSlug(config.rakshakDomain);
+  const entries = await readdir(config.rakshakRunsDir, { withFileTypes: true });
+  const matches = entries
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith(`rakshak-${slug}-`))
+    .map((entry) => entry.name)
+    .sort();
+  assert(matches.length > 0, `no Rakshak run found for ${config.rakshakDomain} in ${config.rakshakRunsDir}`);
+  const latest = matches.at(-1);
+  const runPath = `${config.rakshakRunsDir}/${latest}`;
+  await access(`${runPath}/run.json`);
+  return { domain: config.rakshakDomain, runPath };
+});
+
 await check("rakshak score", async () => {
   const { stdout } = await execFileAsync("sh", ["-lc", config.rakshakCommand], { maxBuffer: 1024 * 1024 * 2 });
   const score = Number(stdout.match(/\d+(\.\d+)?/)?.[0]);
@@ -283,6 +300,10 @@ function sqlString(value) {
 
 function ensureSlash(value) {
   return value.startsWith("/") ? value : `/${value}`;
+}
+
+function rakshakDomainSlug(value) {
+  return value.toLowerCase().replace(/^https?:\/\//, "").split("/")[0].replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
 
 function parseBoolean(value) {

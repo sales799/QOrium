@@ -34,8 +34,10 @@ Source of truth for Codex execution order in this workspace.
   - Live rate-limit proof: created a non-printed QG-05 proof key on the VPS, stored at `/opt/apps/qorium/bin/QG05-RATE-LIMIT-KEY.txt`, and verified a 35-request authenticated burst against `127.0.0.1:5101/v1/questions/search?limit=1` returned 20×`200` then 15×`429`.
   - Shipped content readiness backfill: derived `content.skills`/`content.sub_skills` from ReadyBank question metadata, linked all 986 questions, promoted the seeded ReadyBank batch to `released`, inserted one idempotent QG-05 smoke response, and made the production gate assert minimum taxonomy/released-question/response counts.
   - Live content proof: production DB now has `content.skills=511`, `content.sub_skills=881`, `released linked readybank questions=986`, and `content.responses=1`; authenticated `/v1/questions/search?limit=3` and `/v1/questions/search?skill=ai-prompt-engineer-senior&limit=3` both return 3 released linked questions.
+  - Shipped Rakshak evidence gate: production gate can now require a QOrium Rakshak run under `/opt/apps/rakshak-runs` before parsing the minimum score.
+  - Live Rakshak blocker: Talpro MCP is reachable on the VPS and exposes `talpro_rakshak`, but `talpro_rakshak(domain=qorium.online)` refuses because `qorium.online` is not in the Talpro-owned domain allow-list; no `rakshak-qorium_online-*` run exists yet.
   - Live remediation attempted: VPS Nginx QOrium upstreams were moved from stale tailnet IPs to `127.0.0.1` and Nginx reloaded cleanly; forced-origin `/healthz` reaches the VPS, but normal Cloudflare traffic still resolves through a remote origin/tunnel and returns `checks.db=not-configured`.
-  - Remaining blockers: public Cloudflare origin/tunnel is not routing normal `api.qorium.online` traffic to this VPS, and no QOrium Rakshak run was found under `/opt/apps/rakshak-runs`.
+  - Remaining blockers: public Cloudflare origin/tunnel is not routing normal `api.qorium.online` traffic to this VPS; QOrium must be added to the Talpro Rakshak allow-list before a real Rakshak score can be generated.
   - Required proof: PM2 list, DB counts, audit samples, security headers, rate limit, watchdog run, Rakshak score.
 
 ## P2 — Phase 1 Product Hardening
