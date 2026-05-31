@@ -1,0 +1,16 @@
+{
+  "name": "@qorium/sandbox-bridge",
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "fastify": "^5.6.2",
+    "zod": "^4.1.13"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/server.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  }
+}

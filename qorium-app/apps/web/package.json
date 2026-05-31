@@ -1,0 +1,24 @@
+{
+  "name": "@qorium/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@qorium/ui": "workspace:*",
+    "lucide-react": "^0.561.0",
+    "next": "16.2.6",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "tailwindcss": "^4.1.17"
+  },
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev -p 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "next lint || true"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "qorium-app",
+  "private": true,
+  "packageManager": "pnpm@10.30.1",
+  "scripts": {
+    "build": "turbo run build",
+    "ci": "pnpm seed && pnpm scan:secrets && pnpm typecheck && pnpm build && pnpm smoke",
+    "dev": "turbo run dev --parallel",
+    "test": "vitest run",
+    "seed": "node scripts/generate-seeds.mjs",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "smoke": "tsx tests/smoke.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "tsx": "^4.21.0",
+    "turbo": "^2.6.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}

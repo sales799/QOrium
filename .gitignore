@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+qorium-app/**/node_modules/
+
+# Build output
+.next/
+qorium-app/**/.next/
+dist/
+coverage/
+
+# Turborepo and TypeScript caches
+.turbo/
+qorium-app/**/.turbo/
+*.tsbuildinfo
+qorium-app/**/*.tsbuildinfo
+
+# Local runtime logs and pids
+*.log
+*.pid
+qorium-app/.dev-*.log
+qorium-app/.dev-*.pid
+
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+!qorium-app/.env.example
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,53 @@
+name: QOrium App CI
+
+on:
+  pull_request:
+    paths:
+      - "qorium-app/**"
+      - ".github/workflows/qorium-app-ci.yml"
+  push:
+    branches:
+      - main
+      - specs
+    paths:
+      - "qorium-app/**"
+      - ".github/workflows/qorium-app-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gates:
+    name: Typecheck, build, smoke, and secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: qorium-app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: qorium-app/pnpm-lock.yaml
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run blueprint quality gates
+        run: pnpm run ci
