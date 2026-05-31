@@ -48,6 +48,9 @@ const submitted = JSON.parse(submit.body) as { attempt: { id: string } };
 
 const result = await api.inject({ method: "GET", url: `/api/v1/attempts/${submitted.attempt.id}/result` });
 assertEqual(result.statusCode, 200, "attempt result");
+const resultBody = JSON.parse(result.body) as { attempt: { answers: Array<{ reasoning?: string; reasoningTraceRef?: string }> } };
+if (!resultBody.attempt.answers.every((answer) => answer.reasoningTraceRef)) throw new Error("Expected persisted reasoning trace refs");
+if (!resultBody.attempt.answers.every((answer) => answer.reasoning)) throw new Error("Expected hydrated reasoning text");
 
 const audit = await api.inject({ method: "GET", url: "/api/v1/audit-log/sample" });
 assertEqual(audit.statusCode, 200, "audit sample");
