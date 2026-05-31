@@ -16,6 +16,10 @@ const config = {
   pm2Processes: splitList(env.QORIUM_PM2_PROCESSES ?? "qorium-web,qorium-api,qorium-sandbox-bridge"),
   databaseUrl: env.DATABASE_URL ?? env.DATABASE_URL_PROD ?? "",
   databaseRuntimeRole: env.QORIUM_DB_RUNTIME_ROLE ?? "",
+  minContentSkills: Number(env.QORIUM_MIN_CONTENT_SKILLS ?? 1),
+  minContentSubSkills: Number(env.QORIUM_MIN_CONTENT_SUB_SKILLS ?? 1),
+  minReleasedQuestions: Number(env.QORIUM_MIN_RELEASED_QUESTIONS ?? 1),
+  minContentResponses: Number(env.QORIUM_MIN_CONTENT_RESPONSES ?? 1),
   redisUrl: env.REDIS_URL ?? "",
   watchdogCommand: env.QORIUM_WATCHDOG_COMMAND ?? "talpro_watchdog_list",
   rakshakCommand: env.QORIUM_RAKSHAK_COMMAND ?? "talpro_rakshak_score qorium",
@@ -119,6 +123,19 @@ await check("database counts", async () => {
     union all
     select name, coalesce((select reltuples::bigint from pg_class where oid = to_regclass(name)), 0)
       from relations
+    union all
+    select 'content.skills_exact', count(*) from content.skills
+    union all
+    select 'content.sub_skills_exact', count(*) from content.sub_skills
+    union all
+    select 'content.responses_exact', count(*) from content.responses
+    union all
+    select 'content.questions_released_readybank_exact', count(*)
+      from content.questions
+      where sku = 'readybank'
+        and status = 'released'
+        and skill_id is not null
+        and sub_skill_id is not null
   `.replace(/\s+/g, " ").trim();
   const { stdout } = await execFileAsync("psql", [config.databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
   const counts = Object.fromEntries(stdout.trim().split("\n").filter(Boolean).map((line) => {
@@ -127,6 +144,13 @@ await check("database counts", async () => {
   }));
   assert(counts.schema_tables >= 8, `expected at least 8 public tables, got ${counts.schema_tables ?? 0}`);
   assert((counts["public.question"] ?? 0) + (counts["content.questions"] ?? 0) > 0, "expected seeded questions in production DB");
+  assert(counts["content.skills_exact"] >= config.minContentSkills, `expected at least ${config.minContentSkills} content skills`);
+  assert(counts["content.sub_skills_exact"] >= config.minContentSubSkills, `expected at least ${config.minContentSubSkills} content sub-skills`);
+  assert(
+    counts["content.questions_released_readybank_exact"] >= config.minReleasedQuestions,
+    `expected at least ${config.minReleasedQuestions} released linked ReadyBank questions`
+  );
+  assert(counts["content.responses_exact"] >= config.minContentResponses, `expected at least ${config.minContentResponses} content responses`);
   return counts;
 });
 
