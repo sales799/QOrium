@@ -156,6 +156,7 @@ curl -s -m 5 -o /dev/null -w "  local probe :${APP_PORT} → HTTP %{http_code}\n
 # ── 8. nginx vhost ─────────────────────────────────────────────────────────
 log "Configuring nginx vhost for ${DOMAIN_PRIMARY}"
 NGINX_VHOST="/etc/nginx/sites-available/qorium-marketing.conf"
+mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
 cat > "$NGINX_VHOST" <<NGINX
 # Managed by infra/marketing-deploy.sh — re-runs overwrite this file.
 
