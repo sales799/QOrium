@@ -77,7 +77,7 @@ export const homeV2 = {
     description:
       'QOrium packages India-built assessment content, JD-specific authoring, and private stack libraries inside an evidence-first trust shell.',
     primaryCta: { label: 'Book a 20-min walkthrough', href: '/demo' },
-    secondaryCta: { label: 'Explore the library', href: '/product/assessment-library' },
+    secondaryCta: { label: 'Explore the library', href: '/library' },
   },
   ledgerRows: [
     ['Claim', 'Evidence status', 'Public behavior'],

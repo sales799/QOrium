@@ -100,154 +100,154 @@ const skillRules: SkillRule[] = [
     name: 'Java 21 concurrency',
     roleFamily: 'Software engineering',
     stackFamily: 'Java',
-    libraryHref: '/skill/java',
+    libraryHref: '/library/java',
     patterns: [/\bjava\b/i, /\bvirtual threads?\b/i, /\bjvm\b/i],
   },
   {
     name: 'Spring Boot services',
     roleFamily: 'Software engineering',
     stackFamily: 'Java',
-    libraryHref: '/skill/java',
+    libraryHref: '/library/java',
     patterns: [/\bspring\s*boot\b/i, /\bspring framework\b/i],
   },
   {
     name: 'JPA and Hibernate',
     roleFamily: 'Software engineering',
     stackFamily: 'Java',
-    libraryHref: '/skill/java',
+    libraryHref: '/library/java',
     patterns: [/\bjpa\b/i, /\bhibernate\b/i, /\borg mapping\b/i],
   },
   {
     name: 'SQL data modeling',
     roleFamily: 'Data',
     stackFamily: 'SQL',
-    libraryHref: '/skill/sql',
+    libraryHref: '/library/sql',
     patterns: [/\bsql\b/i, /\bpostgres(ql)?\b/i, /\bquery plans?\b/i],
   },
   {
     name: 'Microservices resilience',
     roleFamily: 'Software engineering',
     stackFamily: 'Architecture',
-    libraryHref: '/skill/java',
+    libraryHref: '/library/java',
     patterns: [/\bmicroservices?\b/i, /\bcircuit breaker\b/i, /\bdistributed systems?\b/i],
   },
   {
     name: 'React component architecture',
     roleFamily: 'Frontend engineering',
     stackFamily: 'React',
-    libraryHref: '/skill/reactjs',
+    libraryHref: '/library/react',
     patterns: [/\breact\b/i, /\bcomponent architecture\b/i],
   },
   {
     name: 'TypeScript application design',
     roleFamily: 'Frontend engineering',
     stackFamily: 'TypeScript',
-    libraryHref: '/skill/javascript',
+    libraryHref: '/library/javascript',
     patterns: [/\btypescript\b/i, /\btype-safe\b/i, /\bdiscriminated union\b/i],
   },
   {
     name: 'Next.js App Router',
     roleFamily: 'Frontend engineering',
     stackFamily: 'Next.js',
-    libraryHref: '/skill/reactjs',
+    libraryHref: '/library/react',
     patterns: [/\bnext\.?js\b/i, /\bapp router\b/i, /\bserver actions?\b/i],
   },
   {
     name: 'Client performance debugging',
     roleFamily: 'Frontend engineering',
     stackFamily: 'React',
-    libraryHref: '/skill/reactjs',
+    libraryHref: '/library/react',
     patterns: [/\bperformance\b/i, /\bprofiler\b/i, /\bmemo\b/i],
   },
   {
     name: 'Kubernetes operations',
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Cloud native',
-    libraryHref: '/skill/devops',
+    libraryHref: '/library/devops-sre',
     patterns: [/\bkubernetes\b/i, /\bk8s\b/i, /\bstatefulset\b/i, /\bhpa\b/i],
   },
   {
     name: 'Terraform infrastructure',
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Infrastructure as code',
-    libraryHref: '/skill/aws',
+    libraryHref: '/library/aws',
     patterns: [/\bterraform\b/i, /\binfrastructure as code\b/i],
   },
   {
     name: 'Observability and incident response',
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Reliability',
-    libraryHref: '/skill/devops',
+    libraryHref: '/library/devops-sre',
     patterns: [/\bobservability\b/i, /\bslo\b/i, /\bincident\b/i, /\bprometheus\b/i],
   },
   {
     name: 'AWS production systems',
     roleFamily: 'Cloud engineering',
     stackFamily: 'AWS',
-    libraryHref: '/skill/aws',
+    libraryHref: '/library/aws',
     patterns: [/\baws\b/i, /\blambda\b/i, /\bs3\b/i, /\becs\b/i, /\beks\b/i],
   },
   {
     name: 'Salesforce Apex',
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/salesforce',
     patterns: [/\bapex\b/i, /\bgovernor limits?\b/i],
   },
   {
     name: 'Salesforce LWC',
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/salesforce',
     patterns: [/\blwc\b/i, /\blightning web components?\b/i],
   },
   {
     name: 'SOQL data access',
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/salesforce',
     patterns: [/\bsoql\b/i, /\bselectivity\b/i],
   },
   {
     name: 'Embedded C and RTOS',
     roleFamily: 'Embedded engineering',
     stackFamily: 'Automotive',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/embedded-c',
     patterns: [/\bembedded c\b/i, /\brtos\b/i, /\bisr\b/i, /\bwatchdog\b/i],
   },
   {
     name: 'AUTOSAR architecture',
     roleFamily: 'Embedded engineering',
     stackFamily: 'Automotive',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/embedded-c',
     patterns: [/\bautosar\b/i, /\bswc\b/i, /\bsome\/ip\b/i],
   },
   {
     name: 'MISRA C compliance',
     roleFamily: 'Embedded engineering',
     stackFamily: 'Automotive',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/embedded-c',
     patterns: [/\bmisra\b/i, /\bfunctional safety\b/i],
   },
   {
     name: 'SAP ABAP',
     roleFamily: 'Enterprise apps',
     stackFamily: 'SAP',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/sap-abap',
     patterns: [/\babap\b/i, /\bopen sql\b/i, /\balv\b/i],
   },
   {
     name: 'SAP CDS and RAP',
     roleFamily: 'Enterprise apps',
     stackFamily: 'SAP',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/sap-abap',
     patterns: [/\bcds\b/i, /\brap\b/i, /\bamdp\b/i],
   },
   {
     name: 'SAP integration diagnostics',
     roleFamily: 'Enterprise apps',
     stackFamily: 'SAP',
-    libraryHref: '/product/assessment-library',
+    libraryHref: '/library/sap-abap',
     patterns: [/\bidoc\b/i, /\bbapi\b/i, /\brfc\b/i, /\bfiori\b/i],
   },
 ];
@@ -680,9 +680,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'JVM memory, Spring Boot, Hibernate, microservices, concurrency, and architecture signals.',
-    libraryHref: '/skill/java',
-    roleHref: '/resources/job-descriptions/java-developer',
-    stackHref: '/skill/java',
+    libraryHref: '/library/java',
+    roleHref: '/solutions/role/java-developer',
+    stackHref: '/solutions/stack/java',
     previewItems: [
       item(
         'QOR-JAVA-001',
@@ -735,9 +735,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'React reconciliation, hooks, TypeScript props, App Router, performance, and UI architecture.',
-    libraryHref: '/skill/reactjs',
-    roleHref: '/resources/job-descriptions/react-developer',
-    stackHref: '/skill/reactjs',
+    libraryHref: '/library/react',
+    roleHref: '/solutions/role/react-developer',
+    stackHref: '/solutions/stack/react',
     previewItems: [
       item(
         'QOR-REACT-001',
@@ -784,9 +784,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Kubernetes, Terraform, CI/CD, observability, remediation scripts, and reliability judgment.',
-    libraryHref: '/skill/devops',
-    roleHref: '/resources/job-descriptions/devops-engineer',
-    stackHref: '/skill/devops',
+    libraryHref: '/library/devops-sre',
+    roleHref: '/solutions/role/devops-engineer',
+    stackHref: '/solutions/stack/cloud-native',
     previewItems: [
       item(
         'QOR-DEVOPS-001',
@@ -827,9 +827,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Apex, SOQL, LWC, Platform Events, Service Cloud, and bulk-safe enterprise implementation.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/enterprises-gcc',
-    stackHref: '/product/assessment-library',
+    libraryHref: '/library/salesforce',
+    roleHref: '/solutions/role/salesforce-developer',
+    stackHref: '/solutions/stack/salesforce',
     previewItems: [
       item(
         'QOR-SF-001',
@@ -869,9 +869,9 @@ export const samplePacks: SamplePack[] = [
     itemCount: 20,
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary: 'EC2, S3, Lambda, VPC, IAM, DynamoDB, CloudWatch, cost, and multi-region design.',
-    libraryHref: '/skill/aws',
-    roleHref: '/resources/job-descriptions/cloud-engineer',
-    stackHref: '/skill/aws',
+    libraryHref: '/library/aws',
+    roleHref: '/solutions/role/cloud-engineer',
+    stackHref: '/solutions/stack/aws',
     previewItems: [
       item('QOR-AWS-001', 'EC2 Instance Family Selection', 'MCQ', 'Easy', 'Compute choice'),
       item(
@@ -912,9 +912,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Descriptors, async, Pydantic, FastAPI, Pandas/Polars, typing, Django, and streaming code.',
-    libraryHref: '/skill/python',
-    roleHref: '/resources/job-descriptions/python-developer',
-    stackHref: '/skill/python',
+    libraryHref: '/library/python',
+    roleHref: '/solutions/role/python-developer',
+    stackHref: '/solutions/stack/python',
     previewItems: [
       item(
         'QOR-PY-001',
@@ -943,9 +943,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Aggregation, nulls, windows, indexes, isolation, recursive CTEs, and warehouse design.',
-    libraryHref: '/skill/sql',
-    roleHref: '/resources/job-descriptions/data-analyst',
-    stackHref: '/skill/sql',
+    libraryHref: '/library/sql',
+    roleHref: '/solutions/role/data-engineer',
+    stackHref: '/solutions/stack/sql',
     previewItems: [
       item('QOR-SQL-001', 'SQL Aggregation and GROUP BY Semantics', 'MCQ', 'Easy', 'SQL basics'),
       item('QOR-SQL-003', 'Window Function Frame Clauses', 'MCQ', 'Medium', 'Analytical SQL'),
@@ -974,9 +974,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Prompt roles, few-shot trade-offs, ReAct, function calling, LLM-as-judge, safety, and cost.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/by-use-case/technical-screening',
-    stackHref: '/product/assessment-library',
+    libraryHref: '/library/ai-prompt-engineering',
+    roleHref: '/solutions/role/ai-engineer',
+    stackHref: '/solutions/stack/ai-era',
     previewItems: [
       item(
         'QOR-AIPE-001',
@@ -1011,9 +1011,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'AUTOSAR, MISRA-C, ASPICE, RTOS, watchdogs, automotive protocols, and functional safety.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/enterprises-gcc',
-    stackHref: '/solutions/enterprises-gcc',
+    libraryHref: '/library/embedded-c',
+    roleHref: '/solutions/role/embedded-engineer',
+    stackHref: '/solutions/stack/embedded-automotive',
     previewItems: [
       item('QOR-EMB-001', 'AUTOSAR Architecture Fundamentals', 'MCQ', 'Easy', 'AUTOSAR'),
       item('QOR-EMB-005', 'MISRA-C Rule 8.1 Variable Scope', 'MCQ', 'Easy', 'MISRA-C'),
@@ -1035,9 +1035,9 @@ export const samplePacks: SamplePack[] = [
     itemCount: 20,
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary: 'ABAP OO, CDS, ALV, RFC/BAPI, IDoc, AMDP, RAP, Fiori, and cloud ABAP authorization.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/enterprises-gcc',
-    stackHref: '/solutions/enterprises-gcc',
+    libraryHref: '/library/sap-abap',
+    roleHref: '/solutions/role/sap-abap-consultant',
+    stackHref: '/solutions/stack/sap',
     previewItems: [
       item(
         'QOR-SAP-001',
@@ -1078,9 +1078,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Worker models, India payroll, HDL, Fast Formula, REST APIs, recruiting, and HR integrations.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/enterprises-gcc',
-    stackHref: '/solutions/enterprises-gcc',
+    libraryHref: '/library/oracle-hcm-cloud',
+    roleHref: '/solutions/role/oracle-hcm-consultant',
+    stackHref: '/solutions/stack/oracle',
     previewItems: [
       item('QOR-HCM-001', 'Person vs Worker Object Model', 'MCQ', 'Easy', 'HCM object model'),
       item(
@@ -1115,9 +1115,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'CIF, interest accrual, Flexcube workflows, RBI reporting, FSL, SQL, SWIFT, and migration design.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/enterprises-gcc',
-    stackHref: '/solutions/enterprises-gcc',
+    libraryHref: '/library/finacle-flexcube',
+    roleHref: '/solutions/role/core-banking-consultant',
+    stackHref: '/solutions/stack/bfsi',
     previewItems: [
       item('QOR-BFSI-001', 'Finacle Account Opening CIF Structure', 'MCQ', 'Easy', 'Core banking'),
       item('QOR-BFSI-003', 'Flexcube STDCIF Customer Flow', 'MCQ', 'Medium', 'Flexcube'),
@@ -1158,9 +1158,9 @@ export const samplePacks: SamplePack[] = [
     calibrationBadge: 'Authored; SME validation and IRT calibration pending pilot traffic',
     summary:
       'Bundles, product rules, price rules, QCP, approvals, renewals, CLM, migration, and ERP integration.',
-    libraryHref: '/product/assessment-library',
-    roleHref: '/solutions/enterprises-gcc',
-    stackHref: '/product/assessment-library',
+    libraryHref: '/library/salesforce-cpq',
+    roleHref: '/solutions/role/salesforce-cpq-consultant',
+    stackHref: '/solutions/stack/salesforce',
     previewItems: [
       item(
         'QOR-CPQ-001',

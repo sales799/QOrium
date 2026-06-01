@@ -8,6 +8,7 @@ import {
   runJdForgeDemo,
   sampleJds,
 } from '../interactive-proof';
+import { getLibrarySkill, getRolePage, getStackPage } from '../seo-graph';
 
 describe('interactive proof fixtures', () => {
   it('ships the six default JD-Forge sample JDs from the spec', () => {
@@ -28,7 +29,7 @@ describe('interactive proof fixtures', () => {
     expect(demo.skills.length).toBeGreaterThanOrEqual(5);
     expect(demo.assessment.itemCount).toBe(20);
     expect(demo.lowConfidenceReason).toBeUndefined();
-    expect(demo.skills.every((skill) => skill.libraryHref.startsWith('/skill/'))).toBe(true);
+    expect(demo.skills.every((skill) => skill.libraryHref.startsWith('/library/'))).toBe(true);
   });
 
   it('uses an honest low-confidence state instead of padding weak extractions', () => {
@@ -67,9 +68,16 @@ describe('interactive proof fixtures', () => {
 
   it('links every public sample-pack CTA to shipped Phase 3/4 pages', () => {
     for (const pack of listSamplePacks()) {
-      expect(pack.libraryHref).toMatch(/^\/(skill|product)\//);
-      expect(pack.roleHref).toMatch(/^\/(resources\/job-descriptions|solutions)\//);
-      expect(pack.stackHref).toMatch(/^\/(skill|product|solutions)\//);
+      const librarySlug = pack.libraryHref.replace('/library/', '');
+      const roleSlug = pack.roleHref.replace('/solutions/role/', '');
+      const stackSlug = pack.stackHref.replace('/solutions/stack/', '');
+
+      expect(pack.libraryHref).toMatch(/^\/library\//);
+      expect(pack.roleHref).toMatch(/^\/solutions\/role\//);
+      expect(pack.stackHref).toMatch(/^\/solutions\/stack\//);
+      expect(getLibrarySkill(librarySlug)).toBeDefined();
+      expect(getRolePage(roleSlug)).toBeDefined();
+      expect(getStackPage(stackSlug)).toBeDefined();
     }
   });
 });

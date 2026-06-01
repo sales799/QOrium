@@ -11,7 +11,7 @@ export const homeCopy = {
       'Roadmap spine: IRT-calibrated, anti-leak-rotated, watermark-per-candidate assessment evidence.',
     primaryCta: {
       label: 'See the Assessment Library',
-      href: '/product/assessment-library' as const,
+      href: '/library' as const,
     },
     secondaryCta: { label: 'Book a 20-min demo', href: '/demo' as const },
   },
@@ -34,7 +34,7 @@ export const homeCopy = {
     cards: [
       {
         title: 'ReadyBank',
-        href: '/product/assessment-library' as const,
+        href: '/library' as const,
         description:
           'A public assessment library surface with skill pages, role links, sample questions, and explicit calibration status.',
         accent: 'For hiring teams starting now',
