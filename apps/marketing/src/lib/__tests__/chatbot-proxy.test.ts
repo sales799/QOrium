@@ -8,7 +8,7 @@ afterEach(() => {
 describe('chatbot proxy helpers', () => {
   it('normalizes the chatbot service base URL', () => {
     expect(chatbotServiceUrl('http://localhost:5105/')).toBe('http://localhost:5105');
-    expect(chatbotServiceUrl(undefined)).toBe('http://localhost:5105');
+    expect(chatbotServiceUrl(undefined)).toBe('http://127.0.0.1:5122');
   });
 
   it('creates deterministic HMAC signatures for lead capture', async () => {

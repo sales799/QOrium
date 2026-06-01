@@ -11,7 +11,7 @@ const fs = require('node:fs');
  *   - 4 services in CLUSTER mode (stateless, rolling restart)
  *   - 2 services in FORK mode (chatbot + long-running crawler)
  *
- * Port allocation: 5101–5105 (from B1 VPS Capacity Plan)
+ * Port allocation: 5101–5105 plus 5122 for the buyer-facing chatbot.
  * See _shared/PORT_REGISTRY.md before pm2 start
  *
  * Activation: pm2 start ecosystem.config.js --env production
@@ -279,12 +279,12 @@ module.exports = {
      * Purpose: Buyer-facing cited RAG chat, demo qualification, and human
      * escalation for qorium.online.
      * Mode: Fork (single instance; session persistence lives in Postgres)
-     * Port: 5105 (server-side proxy from qorium-marketing /api/chatbot/*)
+     * Port: 5122 (server-side proxy from qorium-marketing /api/chatbot/*)
      *
      * Watchdog health check:
      *   talpro_watchdog_add \
      *     --app "qorium-chatbot" \
-     *     --health_url "http://localhost:5105/v1/chatbot/health" \
+     *     --health_url "http://localhost:5122/v1/chatbot/health" \
      *     --interval_min 5
      */
     {
@@ -293,7 +293,7 @@ module.exports = {
       script: './services/chatbot/dist/index.js',
       instances: 1,
       exec_mode: 'fork',
-      port: 5105,
+      port: 5122,
 
       max_memory_restart: '512M',
       exp_backoff_restart_delay: 500,
@@ -302,16 +302,16 @@ module.exports = {
 
       env: {
         NODE_ENV: 'staging',
-        CHATBOT_PORT: 5105,
-        PORT: 5105,
+        CHATBOT_PORT: 5122,
+        PORT: 5122,
         SERVICE_NAME: 'qorium-chatbot',
       },
 
       env_production: {
         ...productionEnv,
         NODE_ENV: 'production',
-        CHATBOT_PORT: 5105,
-        PORT: 5105,
+        CHATBOT_PORT: 5122,
+        PORT: 5122,
         SERVICE_NAME: 'qorium-chatbot',
         DATABASE_URL: productionEnv.DATABASE_URL ?? process.env.DATABASE_URL_PROD,
         QORIUM_PUBLIC_BASE_URL: 'https://qorium.online',
@@ -443,7 +443,8 @@ module.exports = {
  *    5102: qorium-jd-forge
  *    5103: qorium-stack-vault
  *    5104: qorium-admin
- *    5105: qorium-chatbot (server-side proxy only)
+ *    5105: qorium-ats-bridge
+ *    5122: qorium-chatbot (server-side proxy only)
  *    qorium-leak-crawler: internal worker, no port
  *
  * 2. Start all processes (production):
@@ -502,7 +503,7 @@ module.exports = {
  *
  *   talpro_watchdog_add \
  *     --app "qorium-chatbot" \
- *     --health_url "http://localhost:5105/v1/chatbot/health" \
+ *     --health_url "http://localhost:5122/v1/chatbot/health" \
  *     --interval_min 5
  *
  * Note: qorium-leak-crawler is intentionally NOT watched (controlled via cron).

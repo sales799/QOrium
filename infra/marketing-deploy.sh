@@ -12,7 +12,7 @@
 # Idempotent. Safe to re-run on every deploy. Does NOT touch existing services
 # (n8n, ReadyBank API, Postgres, Redis). Only adds:
 #   - PM2 process: qorium-marketing on port 5110
-#   - PM2 process: qorium-chatbot on port 5105
+#   - PM2 process: qorium-chatbot on port 5122
 #   - nginx vhost: qorium.online (apex + www)
 #   - Let's Encrypt cert for qorium.online + www.qorium.online
 
@@ -22,7 +22,7 @@ REPO_URL="${REPO_URL:-https://github.com/sales799/qorium.git}"
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/opt/apps/qorium-marketing}"
 APP_PORT="5110"
-CHATBOT_PORT="5105"
+CHATBOT_PORT="5122"
 DOMAIN_PRIMARY="qorium.online"
 DOMAIN_WWW="www.qorium.online"
 DOMAIN_REDIRECT="qorium.in"
@@ -113,7 +113,7 @@ HOSTNAME=127.0.0.1
 # RESEND_API_KEY=
 # CONTACT_TO_EMAIL=${CONTACT_EMAIL}
 # CONTACT_FROM_EMAIL=noreply@${DOMAIN_PRIMARY}
-# CHATBOT_SERVICE_URL=http://127.0.0.1:5105
+# CHATBOT_SERVICE_URL=http://127.0.0.1:5122
 # CHATBOT_LEAD_HMAC_SECRET=
 # DATABASE_URL=
 # GMAIL_USER=

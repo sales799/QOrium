@@ -3,7 +3,7 @@ import { createHmac } from 'node:crypto';
 type JsonObject = Record<string, unknown>;
 
 export function chatbotServiceUrl(raw: string | undefined = process.env.CHATBOT_SERVICE_URL) {
-  return (raw ?? 'http://localhost:5105').replace(/\/+$/, '');
+  return (raw ?? 'http://127.0.0.1:5122').replace(/\/+$/, '');
 }
 
 export function signLeadPayload(payload: JsonObject, secret: string): string {
