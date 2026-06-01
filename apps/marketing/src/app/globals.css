@@ -25,12 +25,19 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Brand accents (signal cyan family) — kept compatible with v1 utilities */
-  --color-signal-100: oklch(0.96 0.05 220);
-  --color-signal-300: oklch(0.85 0.12 220);
-  --color-signal-500: oklch(0.68 0.169 237.32);
-  --color-signal-600: oklch(0.6 0.18 237.32);
-  --color-signal-700: oklch(0.5 0.17 237.32);
+  /* Brand accents: trust cyan, proof green, India amber */
+  --color-signal-100: oklch(0.96 0.04 188);
+  --color-signal-300: oklch(0.84 0.11 188);
+  --color-signal-500: oklch(0.67 0.16 188);
+  --color-signal-600: oklch(0.56 0.15 188);
+  --color-signal-700: oklch(0.46 0.13 188);
+  --color-product-100: oklch(0.96 0.06 145);
+  --color-product-500: oklch(0.67 0.17 145);
+  --color-india-100: oklch(0.95 0.07 82);
+  --color-india-500: oklch(0.76 0.16 72);
+  --color-india-700: oklch(0.55 0.13 58);
+  --color-shell-muted: var(--shell-muted);
+  --color-shell-border: var(--shell-border);
 
   /* Semantic */
   --color-positive: oklch(0.62 0.17 145);
@@ -54,7 +61,7 @@
   --color-surface-1: var(--card);
   --color-surface-2: var(--accent);
   --color-border-subtle: var(--border);
-  --font-serif: var(--font-geist-sans);
+  --font-serif: var(--font-qorium-sans);
 
   /* Radii */
   --radius-sm: calc(var(--radius) - 4px);
@@ -75,14 +82,14 @@
   --animate-border-beam: border-beam calc(var(--duration) * 1s) infinite linear;
 
   /* Type */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-qorium-sans);
+  --font-mono: var(--font-qorium-mono);
   --text-display-1: clamp(3rem, 5vw + 1rem, 5.5rem);
   --text-display-1--line-height: 1.04;
-  --text-display-1--letter-spacing: -0.025em;
+  --text-display-1--letter-spacing: 0;
   --text-display-2: clamp(2.25rem, 3vw + 1rem, 3.75rem);
   --text-display-2--line-height: 1.06;
-  --text-display-2--letter-spacing: -0.02em;
+  --text-display-2--letter-spacing: 0;
 
   /* Easing */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -91,52 +98,67 @@
   --breakpoint-2xl: 1440px;
 }
 
-/* LIGHT theme — default. Anchored on agent template + electric-blue secondary. */
+/* LIGHT theme — default. A+B+C synthesis: bright product surface over trust tokens. */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(98.46% 0.002 247.84);
-  --foreground: oklch(0.145 0 0);
+  --radius: 0.5rem;
+  --background: oklch(0.985 0.006 190);
+  --foreground: oklch(0.16 0.025 214);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.16 0.025 214);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  /* Vivid electric blue — taken from MagicUI agent template */
-  --secondary: oklch(54.65% 0.246 262.87);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.16 0.025 214);
+  --primary: oklch(0.22 0.04 214);
+  --primary-foreground: oklch(0.985 0.006 190);
+  --secondary: oklch(0.66 0.16 188);
+  --secondary-foreground: oklch(0.12 0.027 214);
+  --muted: oklch(0.94 0.013 190);
+  --muted-foreground: oklch(0.46 0.028 214);
+  --accent: oklch(0.93 0.036 145);
+  --accent-foreground: oklch(0.2 0.04 145);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --destructive-foreground: oklch(0.985 0.006 190);
+  --border: oklch(0.82 0.025 214 / 68%);
+  --input: oklch(0.82 0.025 214 / 68%);
+  --ring: oklch(0.66 0.16 188);
+  --shell-bg: oklch(0.17 0.027 214);
+  --shell-panel: oklch(0.205 0.03 214);
+  --shell-border: oklch(0.92 0.02 188 / 14%);
+  --shell-muted: oklch(0.78 0.035 205);
+  --product-bg: oklch(0.985 0.02 145);
+  --product-panel: oklch(1 0 0);
+  --india-accent: oklch(0.76 0.16 72);
+  --ledger-line: oklch(0.72 0.1 188 / 18%);
 }
 
 /* DARK theme — opt-in via `class="dark"` on html */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.65 0.21 262.87);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.14 0.027 214);
+  --foreground: oklch(0.965 0.012 190);
+  --card: oklch(0.19 0.03 214);
+  --card-foreground: oklch(0.965 0.012 190);
+  --popover: oklch(0.19 0.03 214);
+  --popover-foreground: oklch(0.965 0.012 190);
+  --primary: oklch(0.965 0.012 190);
+  --primary-foreground: oklch(0.15 0.027 214);
+  --secondary: oklch(0.72 0.14 188);
+  --secondary-foreground: oklch(0.13 0.027 214);
+  --muted: oklch(0.25 0.026 214);
+  --muted-foreground: oklch(0.76 0.032 205);
+  --accent: oklch(0.3 0.04 145);
+  --accent-foreground: oklch(0.94 0.025 145);
   --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive-foreground: oklch(0.965 0.012 190);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.72 0.14 188);
+  --shell-bg: oklch(0.13 0.027 214);
+  --shell-panel: oklch(0.18 0.03 214);
+  --shell-border: oklch(0.9 0.02 188 / 14%);
+  --shell-muted: oklch(0.76 0.032 205);
+  --product-bg: oklch(0.18 0.035 145);
+  --product-panel: oklch(0.22 0.04 145);
+  --india-accent: oklch(0.8 0.15 72);
+  --ledger-line: oklch(0.72 0.1 188 / 16%);
 }
 
 @layer base {
@@ -151,7 +173,7 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-sans), ui-sans-serif, sans-serif;
     font-feature-settings:
       'rlig' 1,
       'calt' 1,
@@ -193,6 +215,24 @@
       linear-gradient(to right, var(--border) 1px, transparent 1px),
       linear-gradient(to bottom, var(--border) 1px, transparent 1px);
     background-size: 56px 56px;
+  }
+  .surface-shell {
+    background: linear-gradient(135deg, oklch(1 0 0 / 6%), transparent 38%), var(--shell-bg);
+    color: oklch(0.965 0.012 190);
+  }
+  .surface-product {
+    background:
+      linear-gradient(135deg, oklch(0.94 0.05 145 / 72%), transparent 42%), var(--product-bg);
+  }
+  .surface-india {
+    background:
+      linear-gradient(135deg, oklch(0.92 0.08 82 / 72%), transparent 44%), var(--background);
+  }
+  .evidence-ledger {
+    background-image:
+      linear-gradient(to right, var(--ledger-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ledger-line) 1px, transparent 1px);
+    background-size: 48px 48px;
   }
   .animate-marquee {
     animation: marquee var(--duration, 40s) linear infinite;

@@ -34,6 +34,7 @@ const STATIC_PATHS = [
   '/about',
   '/contact',
   '/demo',
+  '/signin',
   '/blog',
   '/changelog',
   '/press-kit',

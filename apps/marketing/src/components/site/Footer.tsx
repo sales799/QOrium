@@ -1,84 +1,37 @@
 import Link from 'next/link';
-import { Github, Linkedin } from 'lucide-react';
+import { Github, Linkedin, ShieldCheck } from 'lucide-react';
 
+import { footerSitemap, visibleLinks } from '@/content/marketing-ia';
+import { siteConfig } from '@/content/site.config';
 import { Logo } from './Logo';
 import { MaxWidth } from './MaxWidth';
-import { siteConfig } from '@/content/site.config';
 import { NewsletterSignup } from './NewsletterSignup';
 
-const COLUMNS = [
-  {
-    heading: 'Product',
-    links: [
-      { label: 'Platform overview', href: '/product' },
-      { label: 'Assessment Library', href: '/product/assessment-library' },
-      { label: 'API access', href: '/product/api' },
-      { label: 'ReadyBank', href: '/features/readybank' },
-      { label: 'JD-Forge', href: '/features/jd-forge' },
-      { label: 'Pricing', href: '/pricing' },
-    ],
-  },
-  {
-    heading: 'Solutions',
-    links: [
-      { label: 'For platforms', href: '/solutions/platforms' },
-      { label: 'For enterprises', href: '/solutions/enterprises' },
-      { label: 'For staffing firms', href: '/solutions/staffing' },
-      { label: 'Customers', href: '/customers' },
-    ],
-  },
-  {
-    heading: 'Resources',
-    links: [
-      { label: 'Blog', href: '/blog' },
-      { label: 'Resources', href: '/resources' },
-      { label: 'Job descriptions', href: '/resources/job-descriptions' },
-      { label: 'LLM info', href: '/llm-info' },
-      { label: 'Security', href: '/security' },
-      { label: 'FAQ', href: '/faq' },
-    ],
-  },
-  {
-    heading: 'Company',
-    links: [
-      { label: 'About', href: '/about' },
-      { label: 'Contact', href: '/contact' },
-      { label: 'Book a demo', href: '/demo' },
-    ],
-  },
-  {
-    heading: 'Legal',
-    links: [
-      { label: 'Privacy', href: '/privacy' },
-      { label: 'Terms', href: '/terms' },
-      { label: 'DPA', href: '/dpa' },
-      { label: 'Cookies', href: '/cookie-policy' },
-    ],
-  },
-];
-
-const BUILT_ON = ['PostgreSQL 16', 'Redis 7', 'Judge0', 'Anthropic', 'Cloudflare R2'];
+const BUILT_ON = ['PostgreSQL 16', 'Redis 7', 'Next.js 15', 'Cloudflare', 'PM2'];
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/60 bg-card">
-      <MaxWidth as="div" className="py-16">
-        <div className="grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <Logo />
-            <p className="mt-4 max-w-sm text-sm text-muted-foreground">{siteConfig.description}</p>
-            <p className="mt-6 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              Built on
+    <footer className="surface-shell border-t border-white/10">
+      <MaxWidth as="div" className="py-14">
+        <div className="grid gap-10 lg:grid-cols-[20rem_1fr]">
+          <div>
+            <Logo className="text-white" />
+            <p className="mt-4 max-w-sm text-sm leading-6 text-shell-muted">
+              {siteConfig.description}
             </p>
-            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-muted-foreground">
-              {BUILT_ON.map((b) => (
-                <li key={b} className="rounded-pill border border-border px-2 py-0.5">
-                  {b}
-                </li>
-              ))}
-            </ul>
+
+            <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.04] p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                <ShieldCheck className="size-4 text-signal-300" />
+                Evidence-gated by default
+              </div>
+              <p className="mt-2 text-xs leading-5 text-shell-muted">
+                Proof modules stay hidden until the underlying flag and evidence are present.
+              </p>
+            </div>
+
             <div className="mt-6">
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="font-mono text-xs font-semibold uppercase text-shell-muted">
                 Stay in the loop
               </p>
               <div className="mt-2 max-w-sm">
@@ -87,37 +40,56 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:col-span-8 lg:grid-cols-5">
-            {COLUMNS.map((col) => (
-              <div key={col.heading}>
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {col.heading}
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {col.links.map((l) => (
-                    <li key={l.href}>
-                      <Link
-                        href={l.href}
-                        className="text-sm text-foreground/80 transition-colors hover:text-secondary"
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {footerSitemap.map((column) => {
+              const links = visibleLinks(column.links);
+
+              if (links.length === 0) {
+                return null;
+              }
+
+              return (
+                <div key={column.heading}>
+                  <p className="font-mono text-xs font-semibold uppercase text-shell-muted">
+                    {column.heading}
+                  </p>
+                  <ul className="mt-3 space-y-2.5">
+                    {links.map((link) => (
+                      <li key={`${column.heading}-${link.href}`}>
+                        <Link
+                          href={link.href}
+                          className="text-sm leading-5 text-white/80 transition-colors hover:text-signal-300"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-border/60 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-wrap gap-2 border-t border-white/10 pt-6">
+          {BUILT_ON.map((item) => (
+            <span
+              key={item}
+              className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-xs text-shell-muted"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-shell-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {siteConfig.legalEntity}. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a
               href={siteConfig.social.linkedin}
-              className="hover:text-foreground"
+              className="text-shell-muted transition-colors hover:text-white"
               aria-label="LinkedIn"
               rel="noopener"
               target="_blank"
@@ -126,7 +98,7 @@ export function Footer() {
             </a>
             <a
               href={siteConfig.social.github}
-              className="hover:text-foreground"
+              className="text-shell-muted transition-colors hover:text-white"
               aria-label="GitHub"
               rel="noopener"
               target="_blank"

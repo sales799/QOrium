@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { cn } from '@/lib/cn';
 
-// PLACEHOLDER LOGO — composite mark inspired by the role-graph + library
-// taxonomy: a circular boundary (the bank), a node-and-edge motif (the
-// graph), and a centered accent (the calibrated answer). currentColor
-// drives the wordmark + outer ring so theme switching is automatic; the
-// secondary token drives the accent so brand color owns the focal point.
-// Final brand asset replaces this without API changes.
+// Inline product mark: role-graph boundary, connected nodes, and a calibrated
+// answer point. It stays token-driven so the brand asset can be swapped without
+// changing consumers.
 interface LogoProps {
   className?: string;
   variant?: 'wordmark' | 'mark';
@@ -48,7 +45,7 @@ export function Logo({ className, variant = 'wordmark' }: LogoProps) {
         <path d="M19.5 19.5 L25 25" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
       </svg>
       {variant === 'wordmark' ? (
-        <span className="font-sans text-lg font-semibold tracking-tight">Qorium</span>
+        <span className="font-sans text-lg font-semibold">Qorium</span>
       ) : null}
     </span>
   );

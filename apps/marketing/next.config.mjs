@@ -46,6 +46,53 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/platform', destination: '/product', permanent: false },
+      { source: '/platform/readybank', destination: '/features/readybank', permanent: false },
+      { source: '/platform/jd-forge', destination: '/features/jd-forge', permanent: false },
+      { source: '/platform/stack-vault', destination: '/features/stack-vault', permanent: false },
+      {
+        source: '/solutions/assessment-platforms',
+        destination: '/solutions/platforms',
+        permanent: false,
+      },
+      {
+        source: '/solutions/enterprises-gcc',
+        destination: '/solutions/enterprises',
+        permanent: false,
+      },
+      { source: '/solutions/staffing-firms', destination: '/solutions/staffing', permanent: false },
+      {
+        source: '/solutions/role/:slug',
+        destination: '/solutions/by-use-case/:slug',
+        permanent: false,
+      },
+      {
+        source: '/solutions/stack/:slug',
+        destination: '/solutions/by-industry/:slug',
+        permanent: false,
+      },
+      { source: '/method', destination: '/product', permanent: false },
+      { source: '/science', destination: '/blog/irt-calibration-explained', permanent: false },
+      { source: '/anti-leak', destination: '/blog/leak-problem', permanent: false },
+      { source: '/authoring', destination: '/features', permanent: false },
+      { source: '/trust', destination: '/security', permanent: false },
+      { source: '/compliance-dpdp', destination: '/dpa', permanent: false },
+      { source: '/responsible-ai', destination: '/llm-info', permanent: false },
+      { source: '/vs/:slug', destination: '/compare/:slug', permanent: false },
+      { source: '/library/:slug', destination: '/skill/:slug', permanent: false },
+      { source: '/resources/docs', destination: '/product/api', permanent: false },
+      { source: '/docs', destination: '/product/api', permanent: false },
+      { source: '/glossary', destination: '/resources', permanent: false },
+      {
+        source: '/benchmarks',
+        destination: '/research/plagiarism-benchmark',
+        permanent: false,
+      },
+      { source: '/pricing/:sku', destination: '/pricing', permanent: false },
+    ];
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

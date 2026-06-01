@@ -1,20 +1,21 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Bricolage_Grotesque, IBM_Plex_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { siteConfig } from '@/content/site.config';
 import './globals.css';
 
-const geistSans = Geist({
+const qoriumSans = Bricolage_Grotesque({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-qorium-sans',
   display: 'swap',
 });
 
-const geistMono = Geist_Mono({
+const qoriumMono = IBM_Plex_Mono({
   subsets: ['latin'],
-  variable: '--font-geist-mono',
+  variable: '--font-qorium-mono',
+  weight: ['400', '500', '600'],
   display: 'swap',
 });
 
@@ -86,7 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${qoriumSans.variable} ${qoriumMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
