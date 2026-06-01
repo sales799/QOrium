@@ -12,6 +12,10 @@ import {
 
 const STATIC_PATHS = [
   '/',
+  '/platform',
+  '/platform/readybank',
+  '/platform/jd-forge',
+  '/platform/stack-vault',
   '/product',
   '/product/assessment-library',
   '/product/api',
@@ -19,6 +23,9 @@ const STATIC_PATHS = [
   '/features/readybank',
   '/features/jd-forge',
   '/features/stack-vault',
+  '/solutions/assessment-platforms',
+  '/solutions/enterprises-gcc',
+  '/solutions/staffing-firms',
   '/solutions/platforms',
   '/solutions/enterprises',
   '/solutions/staffing',

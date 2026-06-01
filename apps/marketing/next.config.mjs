@@ -48,21 +48,6 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: '/platform', destination: '/product', permanent: false },
-      { source: '/platform/readybank', destination: '/features/readybank', permanent: false },
-      { source: '/platform/jd-forge', destination: '/features/jd-forge', permanent: false },
-      { source: '/platform/stack-vault', destination: '/features/stack-vault', permanent: false },
-      {
-        source: '/solutions/assessment-platforms',
-        destination: '/solutions/platforms',
-        permanent: false,
-      },
-      {
-        source: '/solutions/enterprises-gcc',
-        destination: '/solutions/enterprises',
-        permanent: false,
-      },
-      { source: '/solutions/staffing-firms', destination: '/solutions/staffing', permanent: false },
       {
         source: '/solutions/role/:slug',
         destination: '/solutions/by-use-case/:slug',
