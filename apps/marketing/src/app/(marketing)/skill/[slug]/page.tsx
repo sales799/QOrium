@@ -54,7 +54,7 @@ export default async function SkillPage({ params }: Props) {
       <BreadcrumbJsonLd
         items={[
           { name: 'Home', path: '/' },
-          { name: 'Assessment Library', path: '/product/assessment-library' },
+          { name: 'Assessment Library', path: '/library' },
           { name: skill.name, path: `/skill/${slug}` },
         ]}
       />
@@ -100,10 +100,7 @@ export default async function SkillPage({ params }: Props) {
               );
             })}
           </CardGrid>
-          <Link
-            href="/product/assessment-library"
-            className="mt-8 inline-block text-sm font-medium text-secondary"
-          >
+          <Link href="/library" className="mt-8 inline-block text-sm font-medium text-secondary">
             Back to assessment library
           </Link>
         </SectionBand>

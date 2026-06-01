@@ -163,7 +163,7 @@ export const megaMenuPanels: MegaMenuPanel[] = [
       title: 'The Assessment Library',
       description:
         'Browse seeded skill pages with transparent calibration status and role mapping.',
-      href: '/product/assessment-library',
+      href: '/library',
       cta: 'Explore library',
       icon: 'book',
     },
@@ -498,7 +498,7 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'ReadyBank', href: '/platform/readybank' },
       { label: 'JD-Forge', href: '/platform/jd-forge' },
       { label: 'Stack-Vault', href: '/platform/stack-vault' },
-      { label: 'Assessment Library', href: '/product/assessment-library' },
+      { label: 'Assessment Library', href: '/library' },
       { label: 'API Documentation', href: '/resources/docs' },
     ],
   },

@@ -10,10 +10,20 @@ import {
   SurfaceCard,
 } from '@/components/phase4/MarketingSurface';
 import { ArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
-import { getJob, jobDescriptions, phase4Faqs, skillLibrary, slugify } from '@/content/phase4';
+import { getJob, jobDescriptions, phase4Faqs, slugify } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
 
 type Props = { params: Promise<{ slug: string }> };
+
+const legacySkillToLibrarySlug: Record<string, string> = {
+  aws: 'aws',
+  devops: 'devops-sre',
+  java: 'java',
+  javascript: 'javascript',
+  python: 'python',
+  reactjs: 'react',
+  sql: 'sql',
+};
 
 export function generateStaticParams() {
   return jobDescriptions.map((job) => ({ slug: slugify(job.title) }));
@@ -39,7 +49,6 @@ export default async function JobDescriptionPage({ params }: Props) {
     'Document work clearly so reviewers can evaluate evidence, not impressions.',
     'Collaborate with hiring managers and adjacent teams on measurable deliverables.',
   ];
-  const publishedSkillSlugs = new Set(skillLibrary.map((skill) => slugify(skill.name)));
   return (
     <>
       <BreadcrumbJsonLd
@@ -72,9 +81,8 @@ export default async function JobDescriptionPage({ params }: Props) {
           <CardGrid columns="md:grid-cols-3">
             {job.skills.map((skill) => {
               const skillSlug = slugify(skill);
-              const skillHref = publishedSkillSlugs.has(skillSlug)
-                ? `/skill/${skillSlug}`
-                : undefined;
+              const librarySlug = legacySkillToLibrarySlug[skillSlug];
+              const skillHref = librarySlug ? `/library/${librarySlug}` : undefined;
               return (
                 <SurfaceCard key={skill} title={skill} href={skillHref}>
                   {skillHref

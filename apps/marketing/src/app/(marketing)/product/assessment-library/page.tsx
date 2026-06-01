@@ -13,6 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/product/assessment-library' },
 };
 
+const legacySkillToLibrarySlug: Record<string, string> = {
+  aws: 'aws',
+  devops: 'devops-sre',
+  java: 'java',
+  javascript: 'javascript',
+  python: 'python',
+  reactjs: 'react',
+  sql: 'sql',
+};
+
 export default function AssessmentLibraryPage() {
   const categories = [...new Set(skillLibrary.map((skill) => skill.category))];
   return (
@@ -58,7 +68,11 @@ export default function AssessmentLibraryPage() {
               <SurfaceCard
                 key={skill.name}
                 title={`${skill.name} assessment`}
-                href={`/skill/${slugify(skill.name)}`}
+                href={
+                  legacySkillToLibrarySlug[slugify(skill.name)]
+                    ? `/library/${legacySkillToLibrarySlug[slugify(skill.name)]}`
+                    : '/library'
+                }
               >
                 <p>
                   {skill.category} · {skill.difficulty} · {skill.duration}

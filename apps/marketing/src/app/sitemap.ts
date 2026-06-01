@@ -2,14 +2,8 @@ import type { MetadataRoute } from 'next';
 import { siteConfig } from '@/content/site.config';
 import { listBlogPosts } from '@/lib/blog';
 import { samplePacks } from '@/content/interactive-proof';
-import {
-  comparePages,
-  guides,
-  jobDescriptions,
-  skillLibrary,
-  slugify,
-  solutionPages,
-} from '@/content/phase4';
+import { guides, jobDescriptions, slugify, solutionPages } from '@/content/phase4';
+import { seoSitemapFamilies } from '@/content/seo-graph';
 
 const STATIC_PATHS = [
   '/',
@@ -59,6 +53,10 @@ const STATIC_PATHS = [
   '/privacy',
   '/terms',
   '/dpa',
+  '/library',
+  '/solutions/role',
+  '/solutions/stack',
+  '/vs',
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -79,25 +77,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  const skillEntries = skillLibrary.map((skill) => ({
-    url: `${siteConfig.url}/skill/${slugify(skill.name)}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.75,
-  }));
-
   const jdEntries = jobDescriptions.map((job) => ({
     url: `${siteConfig.url}/resources/job-descriptions/${slugify(job.title)}`,
     lastModified: now,
     changeFrequency: 'weekly' as const,
     priority: 0.72,
-  }));
-
-  const compareEntries = comparePages.map((page) => ({
-    url: `${siteConfig.url}/compare/${page.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
   }));
 
   const guideEntries = guides.map((guide) => ({
@@ -121,14 +105,40 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const seoGraphEntries: MetadataRoute.Sitemap = [
+    ...seoSitemapFamilies.library.map((entry) => ({
+      url: entry.url,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.74,
+    })),
+    ...seoSitemapFamilies.roles.map((entry) => ({
+      url: entry.url,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.76,
+    })),
+    ...seoSitemapFamilies.stacks.map((entry) => ({
+      url: entry.url,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.76,
+    })),
+    ...seoSitemapFamilies.vs.map((entry) => ({
+      url: entry.url,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+  ];
+
   return [
     ...staticEntries,
     ...blogEntries,
-    ...skillEntries,
     ...jdEntries,
-    ...compareEntries,
     ...guideEntries,
     ...solutionEntries,
     ...samplePackEntries,
+    ...seoGraphEntries,
   ];
 }
