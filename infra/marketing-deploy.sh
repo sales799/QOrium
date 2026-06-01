@@ -69,7 +69,7 @@ log "Syncing repo to $APP_DIR (branch: $BRANCH)"
 mkdir -p /opt/apps
 if [[ -d "$APP_DIR/.git" ]]; then
   cd "$APP_DIR"
-  git fetch --depth=1 origin "$BRANCH:refs/remotes/origin/$BRANCH"
+  git fetch --depth=1 origin "+$BRANCH:refs/remotes/origin/$BRANCH"
   git reset --hard "origin/$BRANCH"
   git clean -fd
 else
