@@ -23,7 +23,18 @@ export async function proxyChatbotJson(
     },
     body: JSON.stringify(payload),
     cache: 'no-store',
-  });
+  }).catch(() => undefined);
+
+  if (!res) {
+    return {
+      status: 502,
+      body: {
+        ok: false,
+        data: null,
+        error: { code: 'bad_gateway', message: 'Chatbot service is unavailable.' },
+      },
+    };
+  }
 
   const body = (await res.json().catch(() => ({
     ok: false,

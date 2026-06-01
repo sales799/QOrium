@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { chatbotServiceUrl, signLeadPayload } from '../chatbot-proxy';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { chatbotServiceUrl, proxyChatbotJson, signLeadPayload } from '../chatbot-proxy';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('chatbot proxy helpers', () => {
   it('normalizes the chatbot service base URL', () => {
@@ -14,5 +18,23 @@ describe('chatbot proxy helpers', () => {
 
     expect(first).toBe(second);
     expect(first).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('returns a JSON bad-gateway envelope when the service is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('connection refused')));
+
+    const proxied = await proxyChatbotJson('/v1/chatbot/message', {
+      sessionId: 'chat_test',
+      message: 'What is ReadyBank?',
+    });
+
+    expect(proxied).toEqual({
+      status: 502,
+      body: {
+        ok: false,
+        data: null,
+        error: { code: 'bad_gateway', message: 'Chatbot service is unavailable.' },
+      },
+    });
   });
 });
