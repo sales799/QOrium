@@ -66,6 +66,7 @@ const nextConfig = {
       { source: '/resources/docs', destination: '/product/api', permanent: false },
       { source: '/docs', destination: '/product/api', permanent: false },
       { source: '/glossary', destination: '/resources', permanent: false },
+      { source: '/sample-pack', destination: '/resources/sample-packs', permanent: false },
       {
         source: '/benchmarks',
         destination: '/research/plagiarism-benchmark',

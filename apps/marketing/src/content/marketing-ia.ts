@@ -11,7 +11,7 @@ export const evidenceFlags: Record<EvidenceFlag, boolean> = {
   customerStories: false,
   externalLogoRail: false,
   outcomeStats: false,
-  samplePack: false,
+  samplePack: true,
   workspaceSignIn: true,
 };
 
@@ -402,6 +402,25 @@ export const megaMenuPanels: MegaMenuPanel[] = [
         heading: 'Proof',
         links: [
           {
+            label: 'Try JD-Forge',
+            href: '/try/jd-forge',
+            description: 'Paste a JD and see a live assessment plan generated from mapped skills.',
+            icon: 'forge',
+          },
+          {
+            label: 'Graded Answer Viewer',
+            href: '/try/graded-answer',
+            description: 'Inspect rubric scoring, reasoning, and audit metadata.',
+            icon: 'benchmarks',
+          },
+          {
+            label: 'Sample Packs',
+            href: '/resources/sample-packs',
+            description: 'Preview authored question packs and unlock the deeper pack by email.',
+            icon: 'book',
+            flag: 'samplePack',
+          },
+          {
             label: 'Case Studies',
             href: '/case-studies',
             description: 'Published only after real customer evidence lands.',
@@ -439,9 +458,9 @@ export const megaMenuPanels: MegaMenuPanel[] = [
             icon: 'docs',
           },
           {
-            label: 'Sample Pack',
-            href: '/sample-pack',
-            description: 'Lead magnet appears only when capture is wired.',
+            label: 'Sample Packs',
+            href: '/resources/sample-packs',
+            description: 'Email-gated lead magnet backed by live capture endpoints.',
             icon: 'book',
             flag: 'samplePack',
           },
@@ -514,7 +533,9 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Glossary', href: '/glossary' },
       { label: 'Benchmarks', href: '/benchmarks' },
       { label: 'Changelog', href: '/changelog' },
-      { label: 'Sample Pack', href: '/sample-pack', flag: 'samplePack' },
+      { label: 'Try JD-Forge', href: '/try/jd-forge' },
+      { label: 'Graded Answer Viewer', href: '/try/graded-answer' },
+      { label: 'Sample Packs', href: '/resources/sample-packs', flag: 'samplePack' },
     ],
   },
   {

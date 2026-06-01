@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { siteConfig } from '@/content/site.config';
 import { listBlogPosts } from '@/lib/blog';
+import { samplePacks } from '@/content/interactive-proof';
 import {
   comparePages,
   guides,
@@ -31,6 +32,9 @@ const STATIC_PATHS = [
   '/solutions/staffing',
   '/pricing',
   '/resources',
+  '/try/jd-forge',
+  '/try/graded-answer',
+  '/resources/sample-packs',
   '/research/plagiarism-benchmark',
   '/resources/guides',
   '/resources/job-descriptions',
@@ -110,6 +114,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const samplePackEntries = samplePacks.map((pack) => ({
+    url: `${siteConfig.url}/resources/sample-packs/${pack.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticEntries,
     ...blogEntries,
@@ -118,5 +129,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...compareEntries,
     ...guideEntries,
     ...solutionEntries,
+    ...samplePackEntries,
   ];
 }

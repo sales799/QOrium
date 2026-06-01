@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 import { env } from '@/lib/env';
 
 export interface MailPayload {
+  to?: string | string[];
   subject: string;
   text: string;
   html?: string;
@@ -49,6 +50,9 @@ async function sendViaGraph(payload: MailPayload): Promise<void> {
   const token = await getGraphToken();
   const sender = env.M365_SENDER_EMAIL!;
   const graphUrl = `https://graph.microsoft.com/v1.0/users/${sender}/sendMail`;
+  const recipients = Array.isArray(payload.to)
+    ? payload.to
+    : [payload.to ?? env.CONTACT_TO_EMAIL];
 
   const message: Record<string, unknown> = {
     subject: payload.subject,
@@ -56,7 +60,7 @@ async function sendViaGraph(payload: MailPayload): Promise<void> {
       contentType: payload.html ? 'HTML' : 'Text',
       content: payload.html || payload.text,
     },
-    toRecipients: [{ emailAddress: { address: env.CONTACT_TO_EMAIL } }],
+    toRecipients: recipients.map((address) => ({ emailAddress: { address } })),
   };
 
   if (payload.replyTo) {
@@ -101,7 +105,7 @@ export async function sendMail(payload: MailPayload): Promise<MailResult> {
       const resend = new Resend(env.RESEND_API_KEY);
       await resend.emails.send({
         from: env.CONTACT_FROM_EMAIL,
-        to: env.CONTACT_TO_EMAIL,
+        to: payload.to ?? env.CONTACT_TO_EMAIL,
         subject: payload.subject,
         text: payload.text,
         ...(payload.html ? { html: payload.html } : {}),
@@ -123,7 +127,7 @@ export async function sendMail(payload: MailPayload): Promise<MailResult> {
       });
       await transporter.sendMail({
         from: env.CONTACT_FROM_EMAIL,
-        to: env.CONTACT_TO_EMAIL,
+        to: payload.to ?? env.CONTACT_TO_EMAIL,
         subject: payload.subject,
         text: payload.text,
         ...(payload.html ? { html: payload.html } : {}),

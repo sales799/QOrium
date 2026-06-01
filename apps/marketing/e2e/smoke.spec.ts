@@ -1,20 +1,16 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Critical-route smoke', () => {
-  test('/ — hero, locked USP, primary CTA links to /demo', async ({ page }) => {
+  test('/ — hero, trust shell, primary CTA links to /demo', async ({ page }) => {
     await page.goto('/');
 
-    // Hero badge ("Question-Bank-as-a-Service")
     await expect(
-      page.getByText('Question-Bank-as-a-Service', { exact: false }).first(),
+      page.getByRole('heading', { name: /Skills assessments you can defend in an audit/i }),
     ).toBeVisible();
 
-    // Locked USP fragment from Constitution §1.1 (the H1 may be split across lines).
-    // Match a stable substring rather than the whole sentence (the marketing
-    // headline shortens it in copy/home.ts) — but the proof copy below it
-    // contains the verbatim USP fragment.
-    const ustText = page.locator('body');
-    await expect(ustText).toContainText(/world.{0,2}s/i);
+    const body = page.locator('body');
+    await expect(body).toContainText(/TRUST INFRASTRUCTURE FOR SKILLS HIRING/i);
+    await expect(body).toContainText(/Evidence-gated/i);
 
     // Primary CTA: book a demo
     const cta = page.getByRole('link', { name: /book a demo/i }).first();
@@ -22,17 +18,17 @@ test.describe('Critical-route smoke', () => {
     await expect(cta).toHaveAttribute('href', /\/demo/);
   });
 
-  test('/pricing — three tier columns + ROI calculator', async ({ page }) => {
+  test('/pricing — four plan columns + honest paid-tier posture', async ({ page }) => {
     await page.goto('/pricing');
 
-    // Three SKUs visible.
-    await expect(page.getByText(/ReadyBank/i).first()).toBeVisible();
-    await expect(page.getByText(/JD-Forge/i).first()).toBeVisible();
-    await expect(page.getByText(/Stack-Vault/i).first()).toBeVisible();
+    await expect(page.getByText(/Customer-Zero/i).first()).toBeVisible();
+    await expect(page.getByText(/Growth/i).first()).toBeVisible();
+    await expect(page.getByText(/Scale/i).first()).toBeVisible();
+    await expect(page.getByText(/Enterprise/i).first()).toBeVisible();
 
-    // ROI calculator presence — we look for an input/range that controls the JD volume.
-    const calculatorInput = page.locator('input[type="range"], input[type="number"]').first();
-    await expect(calculatorInput).toBeVisible();
+    const body = page.locator('body');
+    await expect(body).toContainText(/Paid tier numbers are not public/i);
+    await expect(body).toContainText(/Talk to sales/i);
   });
 
   test('/features/readybank — JSON response demo renders', async ({ page }) => {
@@ -43,18 +39,17 @@ test.describe('Critical-route smoke', () => {
     await expect(page.locator('body')).toContainText(/anti_leak_scan/);
   });
 
-  test('/security — 4-card compliance status (no SOC 2 false claim)', async ({ page }) => {
+  test('/security — control ledger renders with no SOC 2 false claim', async ({ page }) => {
     await page.goto('/security');
 
-    // Verify all 4 compliance posture cards render with their honest status.
-    await expect(page.getByText(/DPDPA/i)).toBeVisible();
-    await expect(page.getByText(/GDPR/i)).toBeVisible();
-    await expect(page.getByText(/SOC 2/i)).toBeVisible();
-    await expect(page.getByText(/ISO 27001/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Security posture/i })).toBeVisible();
+    await expect(page.getByText(/Control ledger/i).first()).toBeVisible();
+    await expect(page.getByText(/SOC 2 Type II/i)).toBeVisible();
+    await expect(page.getByText(/ISO 27001/i).first()).toBeVisible();
 
-    // Constitutional check: SOC 2 must be marked "in progress" — never claimed Type II.
     const body = await page.locator('body').textContent();
-    expect(body?.toLowerCase()).toMatch(/(in progress|in-progress|roadmap)/);
+    expect(body).toMatch(/No SOC 2 or ISO badge claimed/i);
+    expect(body).not.toMatch(/SOC 2 certified|ISO 27001 certified/i);
   });
 
   test('/contact — form renders with honeypot + submit button', async ({ page }) => {
@@ -67,5 +62,42 @@ test.describe('Critical-route smoke', () => {
     // Honeypot field exists (hidden from users; bots fill it).
     const honeypot = page.locator('input[name="website"], input[name="honeypot"]').first();
     await expect(honeypot).toHaveCount(1);
+  });
+
+  test('/try/jd-forge — generates plan and queues email-gated PDF', async ({ page }) => {
+    await page.goto('/try/jd-forge');
+
+    await expect(page.getByRole('heading', { name: /Paste a JD/i })).toBeVisible();
+    await page.getByRole('button', { name: /Generate assessment plan/i }).click();
+    await expect(page.locator('body')).toContainText(/High coverage|Partial coverage/);
+
+    await page.getByLabel(/Work email for assessment PDF/i).fill('buyer@example.com');
+    await page.getByRole('button', { name: /^PDF$/i }).click();
+    await expect(page.locator('body')).toContainText(/Plan PDF queued/i);
+  });
+
+  test('/try/graded-answer — shows rubric audit trail and records feedback', async ({ page }) => {
+    await page.goto('/try/graded-answer');
+
+    await expect(page.getByRole('heading', { name: /rubric, the score/i })).toBeVisible();
+    await expect(page.locator('body')).toContainText(/rubricVersion/);
+    await expect(page.locator('body')).toContainText(/promptHash/);
+
+    await page.getByRole('button', { name: /^Yes$/i }).click();
+    await expect(page.locator('body')).toContainText(/Recorded/);
+  });
+
+  test('/resources/sample-packs — unlocks gated pack through email capture', async ({ page }) => {
+    await page.goto('/resources/sample-packs/senior-java');
+
+    await expect(page.locator('h1').filter({ hasText: /Senior Java Sample Pack/i })).toBeVisible();
+    const unlockPanel = page.locator('aside').first();
+    await unlockPanel.getByPlaceholder(/Work email/i).fill('buyer@example.com');
+    await unlockPanel.getByPlaceholder('Company').fill('Example GCC');
+    await unlockPanel.getByPlaceholder('Role').fill('Talent leader');
+    await unlockPanel.getByRole('button', { name: /Unlock full pack/i }).click();
+
+    await expect(page.locator('body')).toContainText(/Unlocked pack items/);
+    await expect(page.locator('body')).toContainText(/PDF delivery has been queued by email/);
   });
 });
