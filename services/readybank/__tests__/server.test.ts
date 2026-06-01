@@ -50,6 +50,19 @@ describe('readybank server', () => {
     });
   });
 
+  describe('GET /health', () => {
+    it('aliases the public liveness endpoint used by monitors', async () => {
+      const { app } = createServer({ config: testConfig(), logger: silentLogger });
+      const res = await request(app).get('/health');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({
+        status: 'ok',
+        service: 'qorium-readybank',
+      });
+    });
+  });
+
   describe('GET /readyz', () => {
     it('returns 200 with checks.db not-configured when no pool', async () => {
       const { app } = createServer({ config: testConfig(), logger: silentLogger });

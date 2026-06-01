@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Request, Response } from 'express';
 import type { Pool } from '@qorium/db';
 import { ping } from '@qorium/db';
 import type { Config } from '../config.js';
@@ -26,7 +27,7 @@ export function healthRouter(deps: HealthDeps): Router {
   const router = Router();
 
   // Liveness: process is up. Cheap. Used by PM2 / load balancer.
-  router.get('/healthz', (_req, res) => {
+  const liveness = (_req: Request, res: Response) => {
     const body: HealthResponse = {
       status: 'ok',
       service: deps.config.serviceName,
@@ -37,7 +38,10 @@ export function healthRouter(deps: HealthDeps): Router {
       checks: { db: deps.pool ? 'ok' : 'not-configured' },
     };
     res.status(200).json(body);
-  });
+  };
+
+  router.get('/health', liveness);
+  router.get('/healthz', liveness);
 
   // Readiness: dependencies are reachable. Used for traffic-shifting.
   router.get('/readyz', async (_req, res) => {
