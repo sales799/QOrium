@@ -21,8 +21,8 @@ const fs = require('node:fs');
  * Health checks: Managed by talpro_watchdog_add (see comments below)
  */
 
-const ROOT_DIR = '/opt/apps/qorium/readybank-service';
-const SECRETS_FILE = '/opt/apps/qorium/dotenv.production';
+const ROOT_DIR = '/opt/apps/qorium-marketing';
+const SECRETS_FILE = '/opt/apps/qorium-marketing/.env.production.local';
 
 function loadEnvFile(path) {
   if (!fs.existsSync(path)) return {};
@@ -345,51 +345,49 @@ module.exports = {
      * =====================================================================
      * ANTI-LEAK CRAWLER WORKER (Fork Mode)
      * =====================================================================
-     * Purpose: Background scheduled crawl for leaked questions
-     *   - Queries Serper.dev for known leak sources
-     *   - Embeds question body in semantic search
-     *   - Detects high-similarity leaks
-     *   - Marks for rotation or dismissal
+     * Purpose: Persistent scheduler for leaked-question scans. The scanner
+     * itself is one-shot; this wrapper stays alive under PM2 so successful
+     * scans do not look like crash loops.
      *
-     * Mode: Fork (single instance; long-running stateful job)
-     * Port: None (internal, not exposed)
-     * Schedule: Cron — daily restart at 02:00 IST (UTC+5:30 = 20:30 prev day UTC)
-     *
-     * Watchdog: Not applicable (intentional restarts via cron)
+     * Mode: Fork (single instance; no public port)
+     * Schedule: ANTILEAK_SCAN_INTERVAL defaults to 24h. PM2 also performs a
+     * daily cold restart at 02:00 UTC to pick up env rotation.
      */
     {
       name: 'qorium-leak-crawler',
-      script: './dist/workers/anti-leak-crawler.js',
+      cwd: ROOT_DIR,
+      script: './services/anti-leak/dist/worker.js',
       instances: 1,
       exec_mode: 'fork',
 
       max_memory_restart: '768M',
       exp_backoff_restart_delay: 500,
-
-      // Cold restart daily at 02:00 IST (20:30 UTC)
-      // Format: "minute hour day month day_of_week"
       cron_restart: '0 2 * * *',
-
-      // Critical: Keep autorestart enabled between cron cycles
       autorestart: true,
+      watch: false,
       max_restarts: 10,
       min_uptime: '30s',
 
       env: {
         NODE_ENV: 'staging',
         SERVICE_NAME: 'qorium-leak-crawler',
+        ANTILEAK_PROVIDER: 'mock',
+        ANTILEAK_SCAN_INTERVAL: '24h',
       },
 
       env_production: {
+        ...productionEnv,
         NODE_ENV: 'production',
         SERVICE_NAME: 'qorium-leak-crawler',
-        DATABASE_URL: process.env.DATABASE_URL_PROD,
+        DATABASE_URL: productionEnv.DATABASE_URL ?? process.env.DATABASE_URL_PROD,
         REDIS_URL: 'redis://localhost:6379',
-        SERPER_API_KEY: process.env.SERPER_API_KEY,
-        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-        SENTRY_DSN: process.env.SENTRY_DSN,
+        SERPER_API_KEY: productionEnv.SERPER_API_KEY ?? process.env.SERPER_API_KEY,
+        ANTHROPIC_API_KEY: productionEnv.ANTHROPIC_API_KEY ?? process.env.ANTHROPIC_API_KEY,
+        SENTRY_DSN: productionEnv.SENTRY_DSN ?? process.env.SENTRY_DSN,
         LOG_LEVEL: 'info',
-        CRAWL_MODE: 'daily',       // daily = full corpus scan; hourly = delta scan
+        ANTILEAK_PROVIDER: productionEnv.SERPER_API_KEY ?? process.env.SERPER_API_KEY ? 'serper' : 'mock',
+        ANTILEAK_SCAN_INTERVAL: productionEnv.ANTILEAK_SCAN_INTERVAL ?? '24h',
+        CRAWL_MODE: 'daily',
       },
 
       out_file: '/var/log/pm2/qorium-leak-crawler-out.log',

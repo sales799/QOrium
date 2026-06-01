@@ -11,6 +11,7 @@ export default tseslint.config(
       '**/build/**',
       '**/.next/**',
       '**/coverage/**',
+      '**/.deploy-backups/**',
       '**/*.tsbuildinfo',
       '**/next-env.d.ts',
       // Marketing app uses Next.js + flat config locally (eslint-config-next).
