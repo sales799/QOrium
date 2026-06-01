@@ -5,11 +5,11 @@ import { WebPageJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 import { trustPages } from '@/content/trust';
 
-const page = trustPages.security;
+const page = trustPages.science;
 
 export const metadata: Metadata = getTrustPageMeta(page);
 
-export default function SecurityPage() {
+export default function SciencePage() {
   return (
     <>
       <WebPageJsonLd

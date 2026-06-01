@@ -37,6 +37,9 @@ const nextConfig = {
   poweredByHeader: false,
   experimental: {
     optimizePackageImports: ['lucide-react', 'motion'],
+    staticGenerationMaxConcurrency: 1,
+    staticGenerationMinPagesPerWorker: 2_000,
+    staticGenerationRetryCount: 1,
   },
   async headers() {
     return [
@@ -58,13 +61,6 @@ const nextConfig = {
         destination: '/solutions/by-industry/:slug',
         permanent: false,
       },
-      { source: '/method', destination: '/product', permanent: false },
-      { source: '/science', destination: '/blog/irt-calibration-explained', permanent: false },
-      { source: '/anti-leak', destination: '/blog/leak-problem', permanent: false },
-      { source: '/authoring', destination: '/features', permanent: false },
-      { source: '/trust', destination: '/security', permanent: false },
-      { source: '/compliance-dpdp', destination: '/dpa', permanent: false },
-      { source: '/responsible-ai', destination: '/llm-info', permanent: false },
       { source: '/vs/:slug', destination: '/compare/:slug', permanent: false },
       { source: '/library/:slug', destination: '/skill/:slug', permanent: false },
       { source: '/resources/docs', destination: '/product/api', permanent: false },
