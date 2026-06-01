@@ -33,6 +33,7 @@ const STATIC_PATHS = [
   '/solutions/staffing',
   '/pricing',
   '/resources',
+  '/resources/docs',
   '/resources/sample-packs',
   '/research/plagiarism-benchmark',
   '/resources/guides',

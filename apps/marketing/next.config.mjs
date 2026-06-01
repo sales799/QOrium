@@ -54,8 +54,7 @@ const nextConfig = {
       { source: '/skill/:slug', destination: '/library/:slug', permanent: true },
       { source: '/compare/qorium-vs-:slug', destination: '/vs/:slug', permanent: true },
       { source: '/compare/:slug', destination: '/vs/:slug', permanent: true },
-      { source: '/resources/docs', destination: '/product/api', permanent: false },
-      { source: '/docs', destination: '/product/api', permanent: false },
+      { source: '/docs', destination: '/resources/docs', permanent: false },
       { source: '/glossary', destination: '/resources', permanent: false },
       {
         source: '/benchmarks',

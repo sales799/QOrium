@@ -57,6 +57,20 @@ test.describe('Critical-route smoke', () => {
     await expect(honeypot).toHaveCount(1);
   });
 
+  test('/resources/docs — OpenAPI docs expose public API contract', async ({ page }) => {
+    await page.goto('/resources/docs');
+
+    await expect(
+      page.getByRole('heading', { name: /api contracts are public-preview ready/i }),
+    ).toBeVisible();
+    await expect(page.getByText('https://qorium.online/v1', { exact: true })).toBeVisible();
+    await expect(page.getByText('/sample-packs').first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /download openapi json/i })).toHaveAttribute(
+      'href',
+      '/openapi.json',
+    );
+  });
+
   test('/try/jd-forge — live JD demo returns an assessment plan', async ({ page }) => {
     await page.goto('/try/jd-forge');
 
