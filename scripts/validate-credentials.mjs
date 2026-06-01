@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
 const strict = process.argv.includes('--strict');
 const asJson = process.argv.includes('--json');
+const requireFromDbPackage = createRequire(new URL('../packages/db/package.json', import.meta.url));
 
 const env = process.env;
 const results = [];
@@ -73,7 +75,7 @@ async function checkDatabase() {
     return;
   }
   try {
-    const { Client } = await import('pg');
+    const Client = await loadPgClient();
     const client = new Client({ connectionString: databaseUrl, connectionTimeoutMillis: 10_000 });
     await client.connect();
     const result = await client.query('select 1 as ok');
@@ -89,6 +91,22 @@ async function checkDatabase() {
       required: true,
     });
   }
+}
+
+async function loadPgClient() {
+  try {
+    return resolvePgClient(await import('pg'));
+  } catch {
+    return resolvePgClient(requireFromDbPackage('pg'));
+  }
+}
+
+function resolvePgClient(pgModule) {
+  const Client = pgModule?.Client ?? pgModule?.default?.Client;
+  if (!Client) {
+    throw new Error('pg Client export not found');
+  }
+  return Client;
 }
 
 async function checkSerper() {
