@@ -317,7 +317,13 @@ export function Header() {
 
         <div className="hidden items-center gap-2 lg:flex">
           {secondaryActions.map((item) => (
-            <Button asChild key={item.href} variant="ghost" size="sm">
+            <Button
+              asChild
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              className="text-shell-muted hover:bg-white/[0.08] hover:text-white"
+            >
               <HeaderLink item={item}>
                 <KeyRound className="size-4" />
                 {item.label}

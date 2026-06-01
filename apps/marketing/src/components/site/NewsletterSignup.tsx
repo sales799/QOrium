@@ -33,7 +33,7 @@ export function NewsletterSignup() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex h-9 items-center gap-1.5 rounded-md bg-secondary px-3 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/90 disabled:opacity-50"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md bg-secondary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-secondary/90 disabled:opacity-50"
         >
           {pending ? (
             <Loader2 className="size-3.5 animate-spin" />
