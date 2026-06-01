@@ -6,8 +6,7 @@ import { phase4Faqs } from '@/content/phase4';
 
 export const metadata: Metadata = {
   title: 'QOrium API',
-  description:
-    'API access for QOrium is in beta. Request access for assessment-library and hiring workflow integrations.',
+  description: 'Public-preview QOrium API documentation for live proof and demo endpoints.',
   alternates: { canonical: '/product/api' },
 };
 
@@ -24,20 +23,20 @@ export default function ApiLandingPage() {
       <main>
         <PageHero
           eyebrow="API docs"
-          title="QOrium API docs are in beta."
-          description="The public marketing surface is ready for API interest, but full OpenAPI docs wait for the backend M20 milestone. Teams can request early access now."
-          cta={{ label: 'Request API access', href: '/demo' }}
+          title="QOrium API docs are public-preview ready."
+          description="OpenAPI 3.1 contracts are published for the live public proof APIs: JD-Forge demo plans, sample-pack unlocks, grader exemplars, and trust evidence."
+          cta={{ label: 'Open API documentation', href: '/resources/docs' }}
         />
-        <SectionBand title="Planned surfaces">
+        <SectionBand title="Documented surfaces">
           <CardGrid>
-            <SurfaceCard title="Assessment library API">
-              Browse approved skill packs and role templates.
+            <SurfaceCard title="JD-Forge demo API" href="/resources/docs">
+              Generate a job-description-based assessment plan from public proof inputs.
             </SurfaceCard>
-            <SurfaceCard title="Candidate workflow API">
-              Create invitations and retrieve status when backend evidence lands.
+            <SurfaceCard title="Sample-pack API" href="/resources/docs">
+              Preview and unlock buyer-facing sample packs with lead-gated artifacts.
             </SurfaceCard>
-            <SurfaceCard title="Score evidence API">
-              Fetch structured scorecards and audit notes when M20 ships.
+            <SurfaceCard title="Trust evidence API" href="/resources/docs">
+              Read quality-gate, plagiarism-benchmark, and responsible-AI status metadata.
             </SurfaceCard>
           </CardGrid>
         </SectionBand>

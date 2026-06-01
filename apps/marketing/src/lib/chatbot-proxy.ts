@@ -3,7 +3,7 @@ import { createHmac } from 'node:crypto';
 type JsonObject = Record<string, unknown>;
 
 export function chatbotServiceUrl(raw: string | undefined = process.env.CHATBOT_SERVICE_URL) {
-  return (raw ?? 'http://localhost:5105').replace(/\/+$/, '');
+  return (raw ?? 'http://127.0.0.1:5122').replace(/\/+$/, '');
 }
 
 export function signLeadPayload(payload: JsonObject, secret: string): string {
@@ -23,7 +23,18 @@ export async function proxyChatbotJson(
     },
     body: JSON.stringify(payload),
     cache: 'no-store',
-  });
+  }).catch(() => undefined);
+
+  if (!res) {
+    return {
+      status: 502,
+      body: {
+        ok: false,
+        data: null,
+        error: { code: 'bad_gateway', message: 'Chatbot service is unavailable.' },
+      },
+    };
+  }
 
   const body = (await res.json().catch(() => ({
     ok: false,

@@ -57,6 +57,20 @@ test.describe('Critical-route smoke', () => {
     await expect(honeypot).toHaveCount(1);
   });
 
+  test('/resources/docs — OpenAPI docs expose public API contract', async ({ page }) => {
+    await page.goto('/resources/docs');
+
+    await expect(
+      page.getByRole('heading', { name: /api contracts are public-preview ready/i }),
+    ).toBeVisible();
+    await expect(page.getByText('https://qorium.online/v1', { exact: true })).toBeVisible();
+    await expect(page.getByText('/sample-packs').first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /download openapi json/i })).toHaveAttribute(
+      'href',
+      '/openapi.json',
+    );
+  });
+
   test('/try/jd-forge — live JD demo returns an assessment plan', async ({ page }) => {
     await page.goto('/try/jd-forge');
 
@@ -88,9 +102,104 @@ test.describe('Critical-route smoke', () => {
     await page.getByPlaceholder('Work email', { exact: true }).fill('buyer@example.com');
     await page.getByPlaceholder('Company', { exact: true }).fill('Example GCC');
     await page.getByPlaceholder('Role', { exact: true }).fill('Talent leader');
-    await page.getByRole('button', { name: /unlock full pack/i }).click();
+    const [unlockResponse] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.request().method() === 'POST' &&
+          response.url().includes('/v1/sample-packs/senior-java/unlock'),
+      ),
+      page.getByRole('button', { name: /unlock full pack/i }).click(),
+    ]);
+
+    expect(unlockResponse.status()).toBe(200);
 
     await expect(page.getByText(/Unlocked pack items/i)).toBeVisible();
     await expect(page.getByText(/PDF delivery has been queued/i)).toBeVisible();
+  });
+
+  test('/ — buyer chatbot opens, cites roadmap, and captures lead', async ({ page }) => {
+    await page.route('**/api/chatbot/session', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ok: true,
+          data: {
+            sessionId: 'chat_e2e',
+            greeting:
+              'Hi. I can answer QOrium buyer questions from cited public surfaces, route pricing to sales, or escalate to a human.',
+          },
+          error: null,
+        }),
+      });
+    });
+    await page.route('**/api/chatbot/message', async (route) => {
+      const body = route.request().postDataJSON() as { message?: string };
+      const isPricing = body.message?.toLowerCase().includes('pricing');
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ok: true,
+          data: isPricing
+            ? {
+                reply:
+                  'QOrium does not quote pricing inside the chatbot. Share your work email, company, role, and one-line need, and sales will route the right plan.',
+                intent: 'lead_capture',
+                citations: [],
+                escalate: true,
+              }
+            : {
+                reply:
+                  "No. QOrium's AI Interviewer is on the roadmap, not a shipped marketing-site capability.",
+                intent: 'roadmap',
+                citations: [
+                  {
+                    id: 'responsible-ai-roadmap',
+                    title: 'Responsible AI',
+                    url: '/responsible-ai',
+                  },
+                ],
+                escalate: false,
+              },
+          error: null,
+        }),
+      });
+    });
+    await page.route('**/api/chatbot/lead-capture', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ok: true,
+          data: { leadId: 'lead_e2e' },
+          error: null,
+        }),
+      });
+    });
+
+    await page.goto('/');
+    await page.getByRole('button', { name: /open qorium chatbot/i }).click();
+
+    const chatbot = page.getByRole('dialog', { name: /QOrium answer desk/i });
+    await expect(chatbot).toBeVisible();
+    await chatbot.getByRole('button', { name: /do you have an ai interviewer/i }).click();
+    await expect(chatbot.getByText(/roadmap, not a shipped/i)).toBeVisible();
+    await expect(chatbot.getByRole('link', { name: /Responsible AI/i })).toHaveAttribute(
+      'href',
+      '/responsible-ai',
+    );
+
+    await chatbot.getByPlaceholder('Ask about QOrium').fill('What is pricing?');
+    await chatbot.getByRole('button', { name: /send message/i }).click();
+    await expect(chatbot.getByText(/does not quote pricing/i)).toBeVisible();
+
+    await chatbot.getByPlaceholder('Work email').fill('buyer@example.com');
+    await chatbot.getByPlaceholder('Company').fill('Example GCC');
+    await chatbot.getByPlaceholder('Role').fill('Talent leader');
+    await chatbot.getByPlaceholder('Need').fill('Demo');
+    await chatbot.getByRole('button', { name: /request human follow-up/i }).click();
+
+    await expect(chatbot.getByText(/human will reach out/i)).toBeVisible();
   });
 });

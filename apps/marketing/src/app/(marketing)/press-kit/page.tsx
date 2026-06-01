@@ -102,7 +102,7 @@ export default function PressKitPage() {
           <SectionHeading
             eyebrow="Brand assets"
             title="SVG only. No bitmap raster files yet."
-            description="Final brand identity is in design review. Current assets are clearly marked as placeholders in the source code; they're production-acceptable until the final identity ships."
+            description="Current SVG assets are the production-approved interim set while the full brand identity system is finalized."
           />
           <Stagger className="mt-10 grid gap-4 md:grid-cols-3">
             {ASSETS.map((asset) => (
