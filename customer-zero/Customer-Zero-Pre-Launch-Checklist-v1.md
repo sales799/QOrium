@@ -32,7 +32,7 @@ Customer Zero "Day 1 — first candidate runs through QOrium" has **5 dependency
 | A3 | Counsel signoff on A6 MSA template | ⏳ | Counsel + CEO | Email confirmation; A6-Final.docx in /legal/ |
 | A4 | Counsel signoff on A7 DPA template | ⏳ | Counsel + CEO | A7-Final.docx in /legal/ |
 | A5 | Counsel signoff on C8 Offer Letter template | ⏳ | Counsel + CEO | C8-Final.docx in /legal/ |
-| A6 | Domain qorium.io + qorium.in registered | ⏳ | CEO + CTO browser (BP-01) | DNS records visible in Hostinger panel |
+| A6 | Domain qorium.online + qorium.in registered | ⏳ | CEO + CTO browser (BP-01) | DNS records visible in Hostinger panel |
 | A7 | Trademark filings filed India + US (CC-08) | ⏳ | Counsel | Filing receipts; application numbers in `legal/CC-02-engagement-thread.md` |
 | A8 | Talpro Internal Kickoff Doc M1 W1 distributed to first 2 hires | ⏳ | CTO Office | Pinned in Customer Zero feedback channel |
 
@@ -45,7 +45,7 @@ Customer Zero "Day 1 — first candidate runs through QOrium" has **5 dependency
 | ID | Check | Status | Owner | Evidence required |
 |---|---|---|---|---|
 | B1 | VPS topology (per B1 plan) | ✅ | CTO | B1 plan accepted; managed PG provider chosen |
-| B2 | DNS records for qorium.io + subdomains | ⏳ | CEO + CTO browser | DNS lookup successful for all subdomains |
+| B2 | DNS records for qorium.online + subdomains | ⏳ | CEO + CTO browser | DNS lookup successful for all subdomains |
 | B3 | Let's Encrypt SSL on all subdomains | ⏳ | CTO | SSL Labs A+ rating |
 | B4 | GitHub org `qorium-co` + `qorium-platform` repo + branch protection on main | ⏳ | CEO + CTO browser (BP-02) | Branch protection visible on repo settings |
 | B5 | CI/CD pipeline (GitHub Actions; B5 spec) | 🚫 (B4 prerequisite) | CTO | All-green build on first PR |

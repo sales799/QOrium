@@ -143,7 +143,7 @@ Estimating **sustained request rate** + **peak hourly rate** + **RAM/CPU** for e
     │  PM2 Cluster Mode   │          │  PM2 Fork Mode   │
     │  (Hostinger VPS)    │          │  (Hostinger VPS) │
     │                     │          │                  │
-    │  api.qorium.io      │          │  Worker Service  │
+    │  api.qorium.online      │          │  Worker Service  │
     │  ├─ ReadyBank API   │          │  ├─ AntiLeak     │
     │  ├─ JD-Forge API    │          │  │  Crawler      │
     │  ├─ Stack-Vault API │          │  └─ BullMQ       │
@@ -326,7 +326,7 @@ Before Month 1 spend:
 - [ ] DigitalOcean Postgres cluster provisioned (1GB, auto-backups, daily snapshots to R2)
 - [ ] Hostinger VPS ports 5101–5110, 5120 reserved in `PORT_REGISTRY.md`
 - [ ] PM2 ecosystem.config.js written with 4 cluster procs (ReadyBank, JD-Forge, Stack-Vault, Admin) + 1 fork proc (AntiLeak)
-- [ ] Nginx reverse proxy configured: qorium.io, api.qorium.io, admin.qorium.io, app.qorium.io → ports 5101–5103
+- [ ] Nginx reverse proxy configured: qorium.online, api.qorium.online, admin.qorium.online, app.qorium.online → ports 5101–5103
 - [ ] SSL certificates issued via Let's Encrypt (auto-renewal via certbot)
 - [ ] Postgres primary restored from backup template (schema only, no data)
 - [ ] Redis cluster joined (shared Talpro Redis)

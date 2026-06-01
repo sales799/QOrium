@@ -43,7 +43,7 @@ QOrium is a question library built specifically for technical hiring — think o
 
 **Link format:**  
 ```
-https://app.qorium.io/assessments/[assessment_uuid]/[candidate_token]
+https://app.qorium.online/assessments/[assessment_uuid]/[candidate_token]
 ```
 
 **SLA on link expiry:** 30 days. After 30 days, the candidate receives a reminder email. The link expires permanently after 60 days and you'll need to generate a fresh one.

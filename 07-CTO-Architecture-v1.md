@@ -592,17 +592,17 @@ When a leak signal arrives for a Stack-Vault question, the leak_signals.evidence
 
 ### 9.4 Environments
 
-- **Production (`qorium.io` + `api.qorium.io` + `app.qorium.io`)** — VPS only; PM2 cluster; full monitoring.
-- **Staging (`staging.qorium.io`)** — VPS, separate database; mirrors production config.
+- **Production (`qorium.online` + `api.qorium.online` + `app.qorium.online`)** — VPS only; PM2 cluster; full monitoring.
+- **Staging (`staging.qorium.online`)** — VPS, separate database; mirrors production config.
 - **Dev (local + Mac Mini Docker Compose)** — Each engineer runs full stack locally with Docker.
 
 ### 9.5 Domains & DNS
 
-- `qorium.io` — Marketing site (Next.js, SSR, public)
-- `app.qorium.io` — Customer console (Next.js, auth-gated)
-- `api.qorium.io` — REST API (Express)
-- `admin.qorium.io` — Internal admin (Next.js, MFA-gated)
-- `partners.qorium.io` — Reserved for SDK docs + developer portal
+- `qorium.online` — Marketing site (Next.js, SSR, public)
+- `app.qorium.online` — Customer console (Next.js, auth-gated)
+- `api.qorium.online` — REST API (Express)
+- `admin.qorium.online` — Internal admin (Next.js, MFA-gated)
+- `partners.qorium.online` — Reserved for SDK docs + developer portal
 
 ---
 
@@ -765,7 +765,7 @@ Before Month 1 spend, the CTO + Senior Engineer must have:
 
 - [ ] GitHub repo created with branch protection + CI configured
 - [ ] Hostinger VPS provisioned with PostgreSQL + Redis + Node 22 + Nginx
-- [ ] Domain DNS pointing (qorium.io + subdomains)
+- [ ] Domain DNS pointing (qorium.online + subdomains)
 - [ ] SSL certificates issued via Let's Encrypt
 - [ ] PM2 ecosystem.config.js set up for all services
 - [ ] Database schema migration applied (initial tables from §5.1)

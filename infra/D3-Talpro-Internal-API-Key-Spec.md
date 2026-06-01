@@ -176,7 +176,7 @@ Talpro Delivery Head receives this 1-page integration guide alongside the API ke
 #!/bin/bash
 
 API_KEY="qor_internal_talind001_a7f3b2c1e8d4f9a6b2c5e1d8a9f3b2c1"
-BASE_URL="https://api.qorium.io"
+BASE_URL="https://api.qorium.online"
 
 # List all questions for "Senior Java" role
 curl -X GET \
@@ -199,7 +199,7 @@ const axios = require('axios');
 
 const apiKey = process.env.QORIUM_API_KEY;
 const client = axios.create({
-  baseURL: 'https://api.qorium.io',
+  baseURL: 'https://api.qorium.online',
   headers: {
     'Authorization': `Bearer ${apiKey}`,
     'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ module.exports = { client, fetchQuestions };
 {
   "nodeType": "n8n-nodes-base.httpRequest",
   "name": "QOrium – Fetch Questions",
-  "url": "https://api.qorium.io/api/v1/questions/search",
+  "url": "https://api.qorium.online/api/v1/questions/search",
   "method": "GET",
   "authentication": "bearerToken",
   "authentication.bearerToken": "{{ env('QORIUM_API_KEY') }}",

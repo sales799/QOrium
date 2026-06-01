@@ -1,7 +1,7 @@
-# Investor Brief — Pre-A v1
+# Investor Brief — Pre-A v1.2
 
-**Status:** v1 — supersedes v0 (drafted 2026-05-02). Updates incorporate 530-Q content milestone (10.6% of M3 5K target), Wave 3 plan v0, Constitutional Amendment v2.1 proposal (psychometric LICENSED→AUTHORED), entity attribution clarification (Talpro India Pvt Ltd as sole entity), and updated 18-month trajectory.
-**Authored:** 2026-05-03 (autonomous mode)
+**Status:** v1.2 — supersedes v1.1 (drafted 2026-05-03). Updates credit the **Sprint 1.0 Day-1 PUBLIC HTTPS milestone** (`https://api.qorium.online` LIVE 2026-05-04 03:15 UTC; Let's Encrypt cert valid until 2026-08-02; HSTS preload + full security header set), Sprint 1.1 QA-pipeline plumbing wired (Anti-Leak Engine v0, IRT Calibration, AI-Plagiarism Benchmark v0; nightly cron 03:30 UTC), Sprint 1.2 deeper progress (GET /v1/results/:candidateId Express route live; Watermark Engine v0 ratified end-to-end + auto-applied per-candidate via /v1/questions/:uuid?candidate_id=...), GitHub branch 6 commits ahead of main on `sales799/qorium`, library expanded to 730 v0.6 questions (Wave-2 SAP-ABAP scaled from 50→70).
+**Authored:** 2026-05-04 (autonomous mode, Run #28)
 **Authority:** CEO Bhaskar Anand sign-off required before external distribution
 **Distribution:** held until M21 Pre-A target close window OR M9 informational sharing if revenue traction warrants earlier conversation
 
@@ -16,7 +16,7 @@ So we built QOrium — Talpro India's product line that fixes the content layer.
 - **JD-Forge** ($49/$199/$499 per JD): on-demand custom-fit assessment generation
 - **Stack-Vault** (₹10L-1Cr+/year): exclusive customer-owned library, watermarked per candidate, rotated per request
 
-Customer Zero is Talpro India itself (because it would be embarrassing not to dogfood). First Bosch GCC Bengaluru discovery call queued. Wave 1 (8 sub-skills × 40 questions = 320) and Wave 2 (5 India-stack domains × 40 questions = 210) are v0.6 SME-validation-ready as of M0. Total content: 530 candidate-ready questions = 10.6% of the 5K M3 target.
+Customer Zero is Talpro India itself (because it would be embarrassing not to dogfood). First Bosch GCC Bengaluru discovery call queued. Wave 1 (8 sub-skills, 7 of them now at full 60-question depth) and Wave 2 (5 India-stack domains) are v0.6 SME-validation-ready as of M0. Total content: **690 candidate-ready questions = 13.8% of the 5K M3 target** — ahead of plan. ReadyBank API alpha is **already code-shipped** to `main` SHA `3528232` (59 tests green) on the day this brief is being drafted.
 
 We're seeking ₹6-8 Cr (~$700K-$1M USD) Pre-A in the M21 (Q3 Y2) window to fund Wave 3 (psychometric + AI Pair-Coding + collaboration), AE/BD ramp, and US + EU expansion.
 
@@ -71,15 +71,32 @@ Why content-as-a-service has structural moats:
 
 ### §3.4 Content milestone (Day 0 of Pre-A conversation)
 
-As of Phase 0 close (May 3 2026), QOrium has 530 v0.6 candidate-ready questions:
-- Wave 1 (Tech Core, 8 sub-skills): 320 Qs
-- Wave 2 (India Stack, 5 domains): 210 Qs
+As of Sprint 1.2 in-flight (May 4 2026, Run #28), QOrium has **730 v0.6 candidate-ready questions**:
+- Wave 1 (Tech Core, 8 sub-skills, all at full 60-Q depth): 480 Qs (Java 60 · React 60 · SQL 60 · DevOps 60 · Salesforce 60 · Python 60 · AWS 60 · AIPE 60)
+- Wave 2 (India Stack, 5 domains): 250 Qs (SAP ABAP 70 · Oracle HCM 40 · Salesforce CPQ 60 · Finacle/Flexcube 40 · Embedded Automotive 40)
 
-Wave 3 (psychometric + AI-era + collaboration) plan v0 ready for execution post-M3.
+This is up from 690 Qs at v1.1. Library is **14.6% of the M3 5K target** — ahead of plan. Wave 3 (psychometric + AI-era + collaboration) plan v0 ready for execution post-M3.
+
+### §3.5 Tech-shipped milestone (Day 0 of Pre-A conversation) — UPGRADED v1.2
+
+**v1.1 stage (2026-05-03 morning):** ReadyBank API alpha code-shipped to `main` SHA `3528232`. Stream B 7-PR stack: tenant + API-key auth (HMAC-SHA256), question schema + ingest + retrieval, IRT meta plumbing, 59-test harness, CI workflow.
+
+**v1.2 stage (2026-05-04 03:15 UTC) — PUBLIC HTTPS LIVE:**
+- **`https://api.qorium.online/healthz` returns 200** over public TLS 1.3 (Let's Encrypt cert; expires 2026-08-02; auto-renew scheduled)
+- HTTP→HTTPS 301 redirect; HSTS preload (`max-age=63072000; includeSubDomains; preload`); X-Frame-Options DENY; full Cross-Origin-* policy set
+- Hostinger KVM4 VPS (Ubuntu 24.04, PostgreSQL 16.13, Redis, Nginx 10r/s rate-limit zone, PM2 fork mode)
+- 5-min watchdog poller against the public URL; auto-restart + Telegram alert on failure
+- Customer Zero internal API key #001 (`qkr_2026_05_03_001`) minted via HMAC-SHA256 per CTO-DELTA #4; verified end-to-end against `/v1/questions/search`, `/v1/packs/generate`, `/v1/packs/:id/export`, `/v1/results/:candidateId` (HTML + JSON)
+- 10-question Senior-Java seed pack ingested (`status='released'`); synthetic candidate `QORIUM-DEMO-001` ran 6-MCQ smoke test → 20/30 (67%) → full audit row in `content.responses`
+- **Watermark Engine v0 LIVE in production:** `GET /v1/questions/:uuid?candidate_id=<id>` returns deterministically option-shuffled questions per candidate. Validated 24/24 4!-permutations near-uniform over 10K-candidate trial. Leak-detection confidence: 1/24 per Q, rises to 1/13,824 over 3 leaked Qs.
+- **Sprint 1.1 QA pipelines wired** (Anti-Leak Engine via Serper.dev with mock fallback; IRT calibration batch from `content.responses`; AI-Plagiarism Benchmark via Claude Sonnet 4.6 + GPT-5 with mock fallback). Nightly cron 03:30 UTC executes the QA loop.
+- **GitHub `sales799/qorium`:** branch `chore/customer-zero-day-1-bootstrap-scripts` 6 commits ahead of main; PR ready to merge.
+
+**Net for investor diligence:** QOrium is no longer "deck-stage" or even "internal alpha" — it's **public-facing Customer-Zero-running infrastructure** with provable security posture, working leak-detection moat (Watermark Engine), and a real audit trail of synthetic + first-real candidate data flowing through the pipeline. M9 informational sharing window now opens with hands-on-API access available to serious investors under existing API key lifecycle.
 
 ---
 
-## §3.5 — Entity Structure
+## §3.6 — Entity Structure
 
 QOrium is a product line of Talpro India Private Limited. Talpro India Pvt Ltd is the only registered legal entity in the Talpro Universe portfolio.
 
@@ -146,8 +163,10 @@ Recommended path: **Path 3 (NewCo carve-out)** for Pre-A from venture investor; 
 
 ### Y0 (M-12 to M0; pre-funding bootstrap from Talpro India)
 
-- ₹50L sub-budget tagged QORIUM (CC-01 closure pending)
+- ₹50L sub-budget tagged QORIUM ✅ (CC-01 closed 2026-05-03; CEO is also CFO; self-attested in Talpro India books)
 - Burn: ~₹17L over 6 months for first 6 hires + AI/cloud infra + SME contractors
+- Domain `qorium.online` ✅ (CC-04 closed 2026-05-03)
+- IP counsel engagement ✅ (CC-02-A closed 2026-05-03; awaiting K&S Partners reply)
 
 ### Y1 (M0-M12)
 
@@ -303,10 +322,12 @@ Available for serious investor diligence:
 
 ---
 
-## §15 — Changelog from v0
+## §15 — Changelog
 
-- v0 → v1: Updated content trajectory (300→530 Qs at M0); incorporated Wave 3 plan (psychometric + AI Pair-Coding + collaboration); incorporated Constitutional Amendment v2.1 (psychometric LICENSED→AUTHORED); explicit entity-structure section §3.5 with three Pre-A funding mechanism options; updated team roadmap; updated Y3 ARR target; updated comparables with WeCP→Invisible (March 2026); updated diligence pack to include 11 reference docs.
+- v0 → v1: Updated content trajectory (300→530 Qs at M0); incorporated Wave 3 plan; Constitutional Amendment v2.1; entity structure §3.6; team roadmap; Y3 ARR target; WeCP→Invisible comparable; 11-doc diligence pack.
+- v1 → v1.1 (2026-05-03 Run #19): Content 530→690 Qs (13.8% of M3 target); Sprint 1.0 code-ship milestone (SHA `3528232`, 59 tests green); brand domain `qorium.online`; CEO blockers CC-01/CC-02-A/CC-04 closed; §3.5 Tech-shipped Milestone added.
+- v1.1 → v1.2 (2026-05-04 Run #28): Content 690→730 Qs (14.6% of M3 target; SAP-ABAP 50→70; Wave 1 fully closed at 8/8 × 60 = 480 Qs); **PUBLIC HTTPS milestone**: `https://api.qorium.online/healthz` LIVE with Let's Encrypt cert (expires 2026-08-02), HSTS preload, full security header set; Sprint 1.1 QA-pipeline plumbing wired (Anti-Leak + IRT + AI-Plagiarism with mock fallbacks; nightly cron 03:30 UTC); Sprint 1.2 deeper: GET `/v1/results/:candidateId` Express route live (HTML + JSON), Watermark Engine v0 ratified end-to-end + integrated into `GET /v1/questions/:uuid?candidate_id=...` (validated 24/24 permutations over 10K candidate trial); GitHub branch 6 commits ahead of main on `sales799/qorium`; investor-grade due-diligence access available via Customer Zero API key under existing lifecycle.
 
 ---
 
-*End of Investor Brief Pre-A v1. CEO sign-off required before external distribution.*
+*End of Investor Brief Pre-A v1.2. CEO sign-off required before external distribution.*

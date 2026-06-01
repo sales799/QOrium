@@ -22,7 +22,7 @@ Phase 0 transition criteria are partially complete (documentation events ✅; ph
 | A1 | Open QOrium-ringfenced bank account OR Talpro Universe sub-budget tagged QORIUM | CEO | Day 3 | ⏳ |
 | A2 | Transfer ₹50L sanctioned runway to ringfenced account | CEO | Day 7 | ⏳ |
 | A3 | Engage external IP counsel for trademark filing prep (India + US) | CEO | Day 7 | ⏳ |
-| A4 | Domain registration: `qorium.io`, `qorium.in` | CEO + CTO | Day 3 | ⏳ |
+| A4 | Domain registration: `qorium.online`, `qorium.in` | CEO + CTO | Day 3 | ⏳ |
 | A5 | Trademark filing: India (Class 9 + 42); US (intent-to-use Class 9 + 42) | IP counsel | Day 14 | ⏳ |
 | A6 | MSA template drafted by counsel (for enterprise + platform contracts) | IP counsel | Day 14 | ⏳ |
 | A7 | DPA template drafted by counsel (DPDPA + GDPR) | IP counsel | Day 14 | ⏳ |
@@ -33,7 +33,7 @@ Phase 0 transition criteria are partially complete (documentation events ✅; ph
 | # | Action | Owner | ETA | Status |
 |---|---|---|---|---|
 | B1 | Hostinger VPS upgrade evaluation (KVM4 16GB sufficient for Phase 1?) | CTO | Day 5 | ⏳ |
-| B2 | DNS configured: `qorium.io`, `app.qorium.io`, `api.qorium.io`, `admin.qorium.io`, `partners.qorium.io`, `staging.qorium.io` | CTO | Day 7 | ⏳ |
+| B2 | DNS configured: `qorium.online`, `app.qorium.online`, `api.qorium.online`, `admin.qorium.online`, `partners.qorium.online`, `staging.qorium.online` | CTO | Day 7 | ⏳ |
 | B3 | Let's Encrypt SSL on all subdomains | CTO | Day 7 | ⏳ |
 | B4 | GitHub organization or repo provisioned with branch protection | CTO | Day 3 | ⏳ |
 | B5 | CI/CD pipeline (GitHub Actions) configured per CTO Architecture §12 | CTO | Day 7 | ⏳ |

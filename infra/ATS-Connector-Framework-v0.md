@@ -41,7 +41,7 @@
 ### 2.1 System Design Principles
 
 **Hub (QOrium source of truth):**
-- QOrium API (`api.qorium.io`) holds assessments, candidates, results.
+- QOrium API (`api.qorium.online`) holds assessments, candidates, results.
 - Single canonical data source; connectors are thin adapters.
 - No ATSes directly modify QOrium data (read-only from ATS perspective, with exceptions for webhook auth).
 
@@ -271,7 +271,7 @@ interface AssessmentResult {
    - Queries metadata: which ATS? which tenant? which candidate external_id?
 3. **ATS callback:**
    - POST to ATS webhook registered by tenant admin (e.g., `https://bosch-webhook.qorium.local/webhooks/assessment_complete`).
-   - Payload: `{ candidateId: "ext_123", score: 87, url: "qorium.io/results/..." }`.
+   - Payload: `{ candidateId: "ext_123", score: 87, url: "qorium.online/results/..." }`.
 4. **ATS processing:**
    - Receives webhook.
    - Updates candidate record with score (via Greenhouse PATCH, Workday update, etc.).

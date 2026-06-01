@@ -628,7 +628,7 @@ export default async function AssessmentPage({ params }) {
 
 // Helper: Fetch assessment (synchronous on server)
 async function fetchAssessment(id: string) {
-  const res = await fetch(`https://api.qorium.io/assessments/${id}`, {
+  const res = await fetch(`https://api.qorium.online/assessments/${id}`, {
     next: { revalidate: 3600 }, // Cache for 1 hour
   });
   return res.json();
@@ -646,7 +646,7 @@ function ScoresSkeleton() {
 async function UserScores({ assessmentId }) {
   // This fetch happens independently; if it's slow, Suspense shows fallback
   const scores = await fetch(
-    `https://api.qorium.io/assessments/${assessmentId}/scores`,
+    `https://api.qorium.online/assessments/${assessmentId}/scores`,
     { next: { revalidate: 60 } } // Cache for 1 minute
   ).then(r => r.json());
 
@@ -875,7 +875,7 @@ app.get('/api/assessments/:id', async (c) => {
 
     // Fetch from origin (database or main API)
     const response = await fetch(
-      `https://api.internal.qorium.io/assessments/${id}?fields=id,title,questionCount,duration,updatedAt`,
+      `https://api.internal.qorium.online/assessments/${id}?fields=id,title,questionCount,duration,updatedAt`,
       {
         headers: {
           Authorization: `Bearer ${c.env.API_KEY}`,

@@ -196,7 +196,7 @@ MCQ; correct = 5 points, incorrect = 0.
 
 **body:**
 
-QOrium uses subdomain-based multi-tenancy (e.g., `acme.qorium.io`, `techcorp.qorium.io`). Each tenant has a different assessment bank and user base. You want to:
+QOrium uses subdomain-based multi-tenancy (e.g., `acme.qorium.online`, `techcorp.qorium.online`). Each tenant has a different assessment bank and user base. You want to:
 1. Extract tenant from subdomain in middleware
 2. Validate tenant exists
 3. Pass tenant context to app routes
@@ -249,7 +249,7 @@ app/
         page.tsx
 ```
 
-A user from Spain visits `qorium.io` (no locale in URL). You want to redirect them to `/es` based on their browser language. However, you also want to serve static content for known locales. How should this be handled?
+A user from Spain visits `qorium.online` (no locale in URL). You want to redirect them to `/es` based on their browser language. However, you also want to serve static content for known locales. How should this be handled?
 
 **options:**
 

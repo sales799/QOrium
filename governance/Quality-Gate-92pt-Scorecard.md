@@ -93,7 +93,7 @@ Every production release of QOrium must pass this **92-point scorecard** before 
 | Item | Criteria | Evidence | Points |
 |---|---|---|---|
 | A7 DPA active | Data Processing Agreement signed; QOrium = Processor, Customer = Fiduciary | DPA doc in /governance/legal/ + signed cover page | 1 |
-| DPDPA grievance redressal | Grievance Officer designated; grievance_officer@qorium.io exists | Email account active + contact published | 1 |
+| DPDPA grievance redressal | Grievance Officer designated; grievance_officer@qorium.online exists | Email account active + contact published | 1 |
 | GDPR data subject rights | Right to access, rectification, erasure, portability live (when EU customers exist) | `/api/v1/gdpr/*` endpoints return 200 for valid requests | 1 |
 | Breach notification SLA tested | DR drill: simulate data breach, execute notification SLA (notification within 24–72 hours per DPDPA) | Incident simulation log + notification templates ready | 1 |
 | Consent records auditable | Consent for data processing (DPDPA, GDPR) immutable in audit log | audit_log table shows consent record with datetime + version | 1 |

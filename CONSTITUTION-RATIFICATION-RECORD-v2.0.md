@@ -32,9 +32,9 @@ Each decision below is formally answered. Where the CTO recommendation aligns wi
 
 **Answer: APPROVED — PROCEED.**
 
-**CTO recommendation rationale:** The name has been used consistently across all 13 deliverables in the project folder; tested across the full external-facing materials suite (CEO Deck, market analysis, competitor positioning, sales playbook); pronounceable; non-conflicting with major competitor names per quick search; available as `qorium.io` + `qorium.in` domain candidates. The name is locked into Constitution §1.1 (Mission, Vision, USP) which is itself a Locked Clause per Article XI §11.4. Renaming would require founder + Board approval. No grounds for divergence.
+**CTO recommendation rationale:** The name has been used consistently across all 13 deliverables in the project folder; tested across the full external-facing materials suite (CEO Deck, market analysis, competitor positioning, sales playbook); pronounceable; non-conflicting with major competitor names per quick search; available as `qorium.online` + `qorium.in` domain candidates. The name is locked into Constitution §1.1 (Mission, Vision, USP) which is itself a Locked Clause per Article XI §11.4. Renaming would require founder + Board approval. No grounds for divergence.
 
-**Action items downstream:** Domain registration (`qorium.io`, `qorium.in`), trademark filing (India + US, Class 9 + 42), social handle reservation (LinkedIn, Twitter, GitHub, npm). Owner: CEO + CTO. ETA: Phase 0 (Day 0–14).
+**Action items downstream:** Domain registration (`qorium.online`, `qorium.in`), trademark filing (India + US, Class 9 + 42), social handle reservation (LinkedIn, Twitter, GitHub, npm). Owner: CEO + CTO. ETA: Phase 0 (Day 0–14).
 
 ### Decision 2 — Sanction ₹50 lakh (₹50,00,000) Runway for Months 0–3
 
@@ -125,7 +125,7 @@ Each decision below is formally answered. Where the CTO recommendation aligns wi
 
 **Answer: APPROVED — PROCEED.**
 
-**CTO recommendation rationale:** The three SKU names are descriptive (each tells the use case in one word), pronounceable, available as domain prefixes (`readybank.qorium.io`, `jd-forge.qorium.io`, `stack-vault.qorium.io`), non-conflicting with major competitor product names per quick search. They are locked into Constitution §1.2 as Locked Clauses per Article XI §11.4 — renaming would require founder + Board approval.
+**CTO recommendation rationale:** The three SKU names are descriptive (each tells the use case in one word), pronounceable, available as domain prefixes (`readybank.qorium.online`, `jd-forge.qorium.online`, `stack-vault.qorium.online`), non-conflicting with major competitor product names per quick search. They are locked into Constitution §1.2 as Locked Clauses per Article XI §11.4 — renaming would require founder + Board approval.
 
 **Marketing review opportunity:** A future marketing hire (Month 11 per Bali Playbook §2) may propose surface-level branding refreshes, but the SKU semantic identity is locked. Any name change post-Phase 1 launch would be more costly than valuable.
 

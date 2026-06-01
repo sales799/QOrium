@@ -240,7 +240,7 @@ Q2 2026 AI Plagiarism Benchmark Report
 
 **Audience:** Customers, prospects, industry.
 
-**Format:** ~1,500-word blog post, published on qorium.io/blog within 5 days of M3/M6/M9/M12 close.
+**Format:** ~1,500-word blog post, published on qorium.online/blog within 5 days of M3/M6/M9/M12 close.
 
 **Sections:**
 1. **Executive summary:** Detection rate, key finding (e.g., "GPT-4 responses harder to detect than Claude").

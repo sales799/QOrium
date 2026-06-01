@@ -71,7 +71,7 @@ QOrium handles production secrets (API keys, database credentials, encryption ke
   - **Database URL**: Restart database connection pool (PM2 cluster reload)
   - **GitHub PAT**: Next deploy automatically uses new key
   - **TLS certs**: Auto-renewed; no manual restart
-- Verify all services healthy via health checks: `curl https://api.qorium.io/health`
+- Verify all services healthy via health checks: `curl https://api.qorium.online/health`
 
 ### Step 5: Archive old secret + log rotation
 - Revoke old secret on provider side (if provider allows; e.g., GitHub revoke old PAT)
@@ -164,10 +164,10 @@ QOrium handles production secrets (API keys, database credentials, encryption ke
 **Responsibility:** Automated (certbot on Nginx)  
 **Trigger:** Auto-renewal via Let's Encrypt (60 days before expiry)
 
-- **Nginx configuration**: `ssl_certificate /etc/letsencrypt/live/qorium.io/fullchain.pem;`
+- **Nginx configuration**: `ssl_certificate /etc/letsencrypt/live/qorium.online/fullchain.pem;`
 - **Certbot cron**: Runs daily; auto-renews 30 days before expiry
 - **No manual action required**; verify certs with: `certbot certificates`
-- **Monthly audit**: Check certificate expiry: `openssl s_client -connect api.qorium.io:443 -showcerts | grep -A 3 Validity`
+- **Monthly audit**: Check certificate expiry: `openssl s_client -connect api.qorium.online:443 -showcerts | grep -A 3 Validity`
 
 ---
 
@@ -233,7 +233,7 @@ UPDATE ENVIRONMENT
 
 DEPLOY & VALIDATE
 [ ] Deploy to staging first; verify services boot
-[ ] Run smoke tests: `curl https://staging.qorium.io/health`
+[ ] Run smoke tests: `curl https://staging.qorium.online/health`
 [ ] Deploy to production
 [ ] Monitor logs for 30 minutes (Sentry, Grafana, PM2)
 

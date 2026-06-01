@@ -10,14 +10,14 @@ Enable enterprise customers (Talpro India, tier-2 customers on Stack-Vault/JD-Fo
 
 **SAML 2.0:** Primary protocol for enterprises
 - Service Provider (QOrium) initiated flow
-- Assertion Consumer Service (ACS) endpoint: `https://api.qorium.io/v1/auth/saml/acs`
-- Single Logout (SLO) endpoint: `https://api.qorium.io/v1/auth/saml/slo`
+- Assertion Consumer Service (ACS) endpoint: `https://api.qorium.online/v1/auth/saml/acs`
+- Single Logout (SLO) endpoint: `https://api.qorium.online/v1/auth/saml/slo`
 - Signed assertions required
 - Encrypted assertions optional (customer configurable)
 
 **OpenID Connect (OIDC):** Secondary, for modern IDPs (Okta, Auth0)
 - Authorization Code flow
-- Redirect URI: `https://api.qorium.io/v1/auth/oidc/callback`
+- Redirect URI: `https://api.qorium.online/v1/auth/oidc/callback`
 - Scopes: `openid profile email`
 - Token endpoint TLS 1.3+ required
 
@@ -68,14 +68,14 @@ xml2js (SAML response parsing)
 
 **SAML Initiation (Customer → QOrium → IdP):**
 ```
-1. User visits https://app.qorium.io/login?tenant=acme
+1. User visits https://app.qorium.online/login?tenant=acme
 2. Browser redirected to /v1/auth/saml/login?tenant=acme
 3. QOrium generates AuthnRequest (signed), stores state in Redis
 4. Browser redirected to IdP with SAMLRequest=<base64>
 5. IdP authenticates user (if needed)
 6. IdP returns SAMLResponse to ACS endpoint with signed assertion
 7. QOrium validates signature, creates JWT, sets secure httpOnly cookie
-8. Browser redirected to https://app.qorium.io/dashboard
+8. Browser redirected to https://app.qorium.online/dashboard
 ```
 
 **Session Token:**
@@ -88,7 +88,7 @@ xml2js (SAML response parsing)
   "email": "alice@acme.com",
   "iat": 1714753800,
   "exp": 1714840200,
-  "aud": "https://app.qorium.io"
+  "aud": "https://app.qorium.online"
 }
 ```
 

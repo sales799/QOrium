@@ -4,7 +4,7 @@
 **Audience:** Platform partners, enterprise customers, SDK developers  
 **Date:** May 1, 2026  
 **Status:** v0 — Public API specification for ReadyBank & JD-Forge  
-**Latest Stable Version:** https://api.qorium.io/v1
+**Latest Stable Version:** https://api.qorium.online/v1
 
 ---
 
@@ -30,14 +30,14 @@
 All API requests must be made to:
 
 ```
-https://api.qorium.io/v1
+https://api.qorium.online/v1
 ```
 
 Regional endpoints (latency optimization):
 
-- **India (primary):** `https://api.qorium.io/v1`
-- **US (fallback):** `https://us-api.qorium.io/v1`
-- **APAC (future M8):** `https://apac-api.qorium.io/v1`
+- **India (primary):** `https://api.qorium.online/v1`
+- **US (fallback):** `https://us-api.qorium.online/v1`
+- **APAC (future M8):** `https://apac-api.qorium.online/v1`
 
 All communication must be over HTTPS with TLS 1.3 or higher. Plain HTTP requests are rejected with HTTP 426 Upgrade Required.
 
@@ -63,7 +63,7 @@ Example: qor_readybank_bosch_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 **Header-based Authentication:**
 
 ```bash
-curl -X GET https://api.qorium.io/v1/questions \
+curl -X GET https://api.qorium.online/v1/questions \
   -H "Authorization: Bearer qor_readybank_bosch_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" \
   -H "Content-Type: application/json"
 ```
@@ -88,14 +88,14 @@ For human users accessing the QOrium admin console or customer dashboard.
 
 ```bash
 # Step 1: Redirect user to OAuth consent screen
-GET https://api.qorium.io/oauth/authorize?
+GET https://api.qorium.online/oauth/authorize?
   client_id=YOUR_CLIENT_ID&
   redirect_uri=https://your-app.com/callback&
   response_type=code&
   scope=openid+profile+email+read:questions
 
 # Step 2: Exchange code for access token
-POST https://api.qorium.io/oauth/token \
+POST https://api.qorium.online/oauth/token \
   -d client_id=YOUR_CLIENT_ID \
   -d client_secret=YOUR_CLIENT_SECRET \
   -d code=AUTHORIZATION_CODE \
@@ -720,7 +720,7 @@ if (signature !== expected) {
     "order_id": "ord_jdforge_1714649445a1b2c3",
     "client_reference_id": "bosch_order_may_2026_001",
     "num_questions": 15,
-    "questions_url": "https://api.qorium.io/v1/jd-forge/orders/{order_id}/questions"
+    "questions_url": "https://api.qorium.online/v1/jd-forge/orders/{order_id}/questions"
   }
 }
 ```
@@ -766,7 +766,7 @@ QOrium stores idempotency results for 24 hours. If you retry with the same key w
 
 ```bash
 # First request
-curl -X POST https://api.qorium.io/v1/jd-forge/orders \
+curl -X POST https://api.qorium.online/v1/jd-forge/orders \
   -H "Idempotency-Key: bosch_order_001" \
   -H "Authorization: Bearer ..." \
   -d '{ "jd_text": "...", "num_questions": 15 }'
@@ -866,7 +866,7 @@ const status = await client.jdForge.orders.getStatus(order.orderId);
 QOrium provides a complete OpenAPI 3.1 specification for code generation and API testing tools:
 
 ```
-https://api.qorium.io/v1/openapi.json
+https://api.qorium.online/v1/openapi.json
 ```
 
 Use with Swagger UI, Insomnia, Postman, or code generators (openapi-generator, Speakeasy, etc.).
@@ -898,7 +898,7 @@ For production monitoring, integrate with your APM tool (Datadog, New Relic, Sen
 ## Support & SLA
 
 **Support Channels:**
-- Email: api-support@qorium.io (48-hour response SLA)
+- Email: api-support@qorium.online (48-hour response SLA)
 - Slack: #qorium-api-support (Slack workspace for enterprise customers)
 
 **SLA Targets:**

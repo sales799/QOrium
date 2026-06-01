@@ -41,7 +41,7 @@ Reuse existing Talpro payment logic (Maitro project):
 2. GST calculation (India-specific)
 3. Usage-based billing (JD-Forge per-order)
 4. Dunning policy (retry failed payments)
-5. Customer self-service portal (my.qorium.io)
+5. Customer self-service portal (my.qorium.online)
 
 ## 4. PostgreSQL Schema
 
@@ -266,7 +266,7 @@ Customer can manually retry anytime via `/v1/billing/invoices/{id}/retry` endpoi
 
 ## 8. Customer Billing Portal
 
-**Location:** https://my.qorium.io/billing (JWT required)
+**Location:** https://my.qorium.online/billing (JWT required)
 
 **Pages:**
 1. **Dashboard:** Current plan, next billing date, YTD spend
@@ -290,7 +290,7 @@ POST /v1/billing/subscriptions/{id}/cancel → Cancel subscription (with survey)
 
 ## 9. Admin Dashboard (Talpro Internal)
 
-**Location:** https://admin.qorium.io/billing (admin JWT required)
+**Location:** https://admin.qorium.online/billing (admin JWT required)
 
 **Pages:**
 1. **Revenue Dashboard:** MRR, ARR, churn rate, ARPU by SKU/country

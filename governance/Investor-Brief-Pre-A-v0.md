@@ -503,7 +503,7 @@ This decision unlocks at counsel review (post-CC-02 closure) and Pre-A lead inve
 - **Financial Model:** Detailed 3-year P&L, sensitivity analysis, CAC/LTV math.
 - **Customer References:** Talk to Talpro India (Customer Zero) about their experience (Month 3+).
 
-**Contact:** [CEO Email] | [CEO Phone] | www.qorium.io
+**Contact:** [CEO Email] | [CEO Phone] | www.qorium.online
 
 ---
 
