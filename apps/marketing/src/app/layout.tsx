@@ -1,23 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Bricolage_Grotesque, IBM_Plex_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { siteConfig } from '@/content/site.config';
 import './globals.css';
-
-const qoriumSans = Bricolage_Grotesque({
-  subsets: ['latin'],
-  variable: '--font-qorium-sans',
-  display: 'swap',
-});
-
-const qoriumMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  variable: '--font-qorium-mono',
-  weight: ['400', '500', '600'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -84,11 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${qoriumSans.variable} ${qoriumMono.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <a

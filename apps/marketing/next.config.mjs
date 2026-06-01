@@ -36,7 +36,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
-    optimizePackageImports: ['lucide-react', 'motion'],
+    staticGenerationMaxConcurrency: 1,
+    staticGenerationMinPagesPerWorker: 2_000,
+    staticGenerationRetryCount: 1,
   },
   async headers() {
     return [
@@ -48,25 +50,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      {
-        source: '/solutions/role/:slug',
-        destination: '/solutions/by-use-case/:slug',
-        permanent: false,
-      },
-      {
-        source: '/solutions/stack/:slug',
-        destination: '/solutions/by-industry/:slug',
-        permanent: false,
-      },
-      { source: '/method', destination: '/product', permanent: false },
-      { source: '/science', destination: '/blog/irt-calibration-explained', permanent: false },
-      { source: '/anti-leak', destination: '/blog/leak-problem', permanent: false },
-      { source: '/authoring', destination: '/features', permanent: false },
-      { source: '/trust', destination: '/security', permanent: false },
-      { source: '/compliance-dpdp', destination: '/dpa', permanent: false },
-      { source: '/responsible-ai', destination: '/llm-info', permanent: false },
-      { source: '/vs/:slug', destination: '/compare/:slug', permanent: false },
-      { source: '/library/:slug', destination: '/skill/:slug', permanent: false },
+      { source: '/skill/:slug', destination: '/library/:slug', permanent: true },
+      { source: '/compare/qorium-vs-:slug', destination: '/vs/:slug', permanent: true },
+      { source: '/compare/:slug', destination: '/vs/:slug', permanent: true },
       { source: '/resources/docs', destination: '/product/api', permanent: false },
       { source: '/docs', destination: '/product/api', permanent: false },
       { source: '/glossary', destination: '/resources', permanent: false },

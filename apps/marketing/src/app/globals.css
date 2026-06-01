@@ -101,6 +101,10 @@
 /* LIGHT theme — default. A+B+C synthesis: bright product surface over trust tokens. */
 :root {
   --radius: 0.5rem;
+  --font-qorium-sans:
+    'Aptos', 'Segoe UI', 'Helvetica Neue', Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-qorium-mono:
+    'SFMono-Regular', 'Cascadia Mono', 'Roboto Mono', ui-monospace, 'Menlo', monospace;
   --background: oklch(0.985 0.006 190);
   --foreground: oklch(0.16 0.025 214);
   --card: oklch(1 0 0);

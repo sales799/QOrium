@@ -20,7 +20,7 @@ export const siteConfig = {
         children: [
           {
             label: 'Assessment Library',
-            href: '/product/assessment-library',
+            href: '/library',
             description: 'Browse skill assessments by role, category, and calibration status.',
           },
           {

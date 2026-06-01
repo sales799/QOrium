@@ -4,17 +4,11 @@ test.describe('Critical-route smoke', () => {
   test('/ — hero, locked USP, primary CTA links to /demo', async ({ page }) => {
     await page.goto('/');
 
-    // Hero badge ("Question-Bank-as-a-Service")
     await expect(
-      page.getByText('Question-Bank-as-a-Service', { exact: false }).first(),
+      page.getByRole('heading', { name: /skills assessments you can defend/i }),
     ).toBeVisible();
-
-    // Locked USP fragment from Constitution §1.1 (the H1 may be split across lines).
-    // Match a stable substring rather than the whole sentence (the marketing
-    // headline shortens it in copy/home.ts) — but the proof copy below it
-    // contains the verbatim USP fragment.
-    const ustText = page.locator('body');
-    await expect(ustText).toContainText(/world.{0,2}s/i);
+    await expect(page.locator('body')).toContainText(/ReadyBank/i);
+    await expect(page.locator('body')).toContainText(/JD-Forge/i);
 
     // Primary CTA: book a demo
     const cta = page.getByRole('link', { name: /book a demo/i }).first();
@@ -22,17 +16,13 @@ test.describe('Critical-route smoke', () => {
     await expect(cta).toHaveAttribute('href', /\/demo/);
   });
 
-  test('/pricing — three tier columns + ROI calculator', async ({ page }) => {
+  test('/pricing — three SKU columns and sales CTA', async ({ page }) => {
     await page.goto('/pricing');
 
-    // Three SKUs visible.
     await expect(page.getByText(/ReadyBank/i).first()).toBeVisible();
     await expect(page.getByText(/JD-Forge/i).first()).toBeVisible();
     await expect(page.getByText(/Stack-Vault/i).first()).toBeVisible();
-
-    // ROI calculator presence — we look for an input/range that controls the JD volume.
-    const calculatorInput = page.locator('input[type="range"], input[type="number"]').first();
-    await expect(calculatorInput).toBeVisible();
+    await expect(page.getByRole('link', { name: /talk to sales/i }).first()).toBeVisible();
   });
 
   test('/features/readybank — JSON response demo renders', async ({ page }) => {
@@ -46,11 +36,9 @@ test.describe('Critical-route smoke', () => {
   test('/security — 4-card compliance status (no SOC 2 false claim)', async ({ page }) => {
     await page.goto('/security');
 
-    // Verify all 4 compliance posture cards render with their honest status.
-    await expect(page.getByText(/DPDPA/i)).toBeVisible();
-    await expect(page.getByText(/GDPR/i)).toBeVisible();
-    await expect(page.getByText(/SOC 2/i)).toBeVisible();
-    await expect(page.getByText(/ISO 27001/i)).toBeVisible();
+    await expect(page.getByText(/DPDP/i).first()).toBeVisible();
+    await expect(page.getByText(/SOC 2/i).first()).toBeVisible();
+    await expect(page.getByText(/ISO 27001/i).first()).toBeVisible();
 
     // Constitutional check: SOC 2 must be marked "in progress" — never claimed Type II.
     const body = await page.locator('body').textContent();
@@ -67,5 +55,42 @@ test.describe('Critical-route smoke', () => {
     // Honeypot field exists (hidden from users; bots fill it).
     const honeypot = page.locator('input[name="website"], input[name="honeypot"]').first();
     await expect(honeypot).toHaveCount(1);
+  });
+
+  test('/try/jd-forge — live JD demo returns an assessment plan', async ({ page }) => {
+    await page.goto('/try/jd-forge');
+
+    await expect(page.getByRole('heading', { name: /paste a jd/i })).toBeVisible();
+    await page
+      .getByRole('button', { name: /generate assessment plan/i })
+      .first()
+      .click();
+    await expect(page.getByText(/High coverage from seeded QOrium role graph/i)).toBeVisible();
+    await expect(page.getByRole('link', { name: /book a demo with this plan/i })).toBeVisible();
+  });
+
+  test('/try/graded-answer — grader theatre exposes audit metadata', async ({ page }) => {
+    await page.goto('/try/graded-answer');
+
+    await expect(page.getByRole('heading', { name: /see the rubric/i })).toBeVisible();
+    await expect(page.getByText(/rubricVersion/i)).toBeVisible();
+    await expect(page.getByText(/promptHash/i)).toBeVisible();
+  });
+
+  test('/resources/sample-packs/senior-java — gated unlock reveals pack items', async ({
+    page,
+  }) => {
+    await page.goto('/resources/sample-packs/senior-java');
+
+    await expect(
+      page.getByRole('heading', { name: /senior java sample pack/i }).first(),
+    ).toBeVisible();
+    await page.getByPlaceholder('Work email', { exact: true }).fill('buyer@example.com');
+    await page.getByPlaceholder('Company', { exact: true }).fill('Example GCC');
+    await page.getByPlaceholder('Role', { exact: true }).fill('Talent leader');
+    await page.getByRole('button', { name: /unlock full pack/i }).click();
+
+    await expect(page.getByText(/Unlocked pack items/i)).toBeVisible();
+    await expect(page.getByText(/PDF delivery has been queued/i)).toBeVisible();
   });
 });

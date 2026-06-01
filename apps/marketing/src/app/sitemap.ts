@@ -9,6 +9,8 @@ import {
   slugify,
   solutionPages,
 } from '@/content/phase4';
+import { samplePacks } from '@/content/interactive-proof';
+import { seoSitemapFamilies } from '@/content/seo-graph';
 
 const STATIC_PATHS = [
   '/',
@@ -31,13 +33,23 @@ const STATIC_PATHS = [
   '/solutions/staffing',
   '/pricing',
   '/resources',
+  '/resources/sample-packs',
   '/research/plagiarism-benchmark',
   '/resources/guides',
   '/resources/job-descriptions',
+  '/try/jd-forge',
+  '/try/graded-answer',
   '/llm-info',
   '/customers',
   '/customer/talpro-india',
+  '/trust',
   '/security',
+  '/compliance-dpdp',
+  '/responsible-ai',
+  '/science',
+  '/method',
+  '/anti-leak',
+  '/authoring',
   '/about',
   '/contact',
   '/demo',
@@ -103,6 +115,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const samplePackEntries = samplePacks.map((pack) => ({
+    url: `${siteConfig.url}/resources/sample-packs/${pack.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.68,
+  }));
+
+  const seoGraphEntries = [
+    ...seoSitemapFamilies.library,
+    ...seoSitemapFamilies.roles,
+    ...seoSitemapFamilies.stacks,
+    ...seoSitemapFamilies.vs,
+  ].map((entry) => ({
+    url: entry.url,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: entry.url.includes('/library/') ? 0.7 : 0.66,
+  }));
+
   return [
     ...staticEntries,
     ...blogEntries,
@@ -111,5 +142,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...compareEntries,
     ...guideEntries,
     ...solutionEntries,
+    ...samplePackEntries,
+    ...seoGraphEntries,
   ];
 }

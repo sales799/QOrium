@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import { FlickeringGrid } from '@/components/magicui/FlickeringGrid';
+import { JdForgeDemo } from '@/components/interactive-proof/JdForgeDemo';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { MaxWidth } from '@/components/site/MaxWidth';
@@ -367,24 +368,7 @@ export function HomeV2Page() {
             dark
           />
           <Reveal>
-            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="rounded-lg border border-white/10 bg-white/[0.045] p-5">
-                <p className="font-mono text-xs font-semibold uppercase text-signal-300">
-                  Sample question viewer
-                </p>
-                <p className="mt-4 text-xl font-semibold leading-8 text-white">
-                  {homeV2.proofZone.sampleQuestion}
-                </p>
-              </div>
-              <div className="rounded-lg border border-white/10 bg-white/[0.045] p-5">
-                <p className="font-mono text-xs font-semibold uppercase text-india-500">
-                  Rubric signals
-                </p>
-                <div className="mt-4">
-                  <BulletList items={homeV2.proofZone.rubric} dark />
-                </div>
-              </div>
-            </div>
+            <JdForgeDemo compact dark />
           </Reveal>
         </MaxWidth>
       </section>

@@ -11,7 +11,7 @@ export const evidenceFlags: Record<EvidenceFlag, boolean> = {
   customerStories: false,
   externalLogoRail: false,
   outcomeStats: false,
-  samplePack: false,
+  samplePack: true,
   workspaceSignIn: true,
 };
 
@@ -206,25 +206,25 @@ export const megaMenuPanels: MegaMenuPanel[] = [
         links: [
           {
             label: 'Software Engineering',
-            href: '/solutions/role/software',
+            href: '/solutions/role/java-developer',
             description: 'Frontend, backend, full-stack, QA, and architecture tracks.',
             icon: 'code',
           },
           {
             label: 'Data / ML / Analytics',
-            href: '/solutions/role/data',
+            href: '/solutions/role/data-engineer',
             description: 'SQL, BI, data engineering, ML, and AI-era evaluation.',
             icon: 'data',
           },
           {
             label: 'DevOps / SRE / Cloud',
-            href: '/solutions/role/devops',
+            href: '/solutions/role/devops-engineer',
             description: 'Cloud, Kubernetes, observability, and reliability skills.',
             icon: 'globe',
           },
           {
             label: 'Non-tech Functions',
-            href: '/solutions/role/non-tech',
+            href: '/solutions/role/salesforce-developer',
             description: 'Sales, support, finance, aptitude, and communication signals.',
             icon: 'building',
           },
@@ -235,7 +235,7 @@ export const megaMenuPanels: MegaMenuPanel[] = [
         links: [
           {
             label: 'SAP',
-            href: '/solutions/stack/sap',
+            href: '/solutions/stack/sap-abap',
             description: 'ABAP, HCM, FICO, and India enterprise implementation depth.',
             icon: 'india',
           },
@@ -348,7 +348,7 @@ export const megaMenuPanels: MegaMenuPanel[] = [
           },
           {
             label: 'vs Mercer Mettl',
-            href: '/vs/mettl',
+            href: '/vs/mercer-mettl',
             description: 'India enterprise assessment comparison.',
             icon: 'compare',
           },
@@ -402,6 +402,18 @@ export const megaMenuPanels: MegaMenuPanel[] = [
         heading: 'Proof',
         links: [
           {
+            label: 'Try JD-Forge',
+            href: '/try/jd-forge',
+            description: 'Paste a JD and see a mapped assessment plan.',
+            icon: 'forge',
+          },
+          {
+            label: 'Graded Answer Viewer',
+            href: '/try/graded-answer',
+            description: 'Inspect a rubric, score breakdown, and reasoning trace.',
+            icon: 'method',
+          },
+          {
             label: 'Case Studies',
             href: '/case-studies',
             description: 'Published only after real customer evidence lands.',
@@ -439,9 +451,9 @@ export const megaMenuPanels: MegaMenuPanel[] = [
             icon: 'docs',
           },
           {
-            label: 'Sample Pack',
-            href: '/sample-pack',
-            description: 'Lead magnet appears only when capture is wired.',
+            label: 'Sample Packs',
+            href: '/resources/sample-packs',
+            description: 'Download real authored packs after previewing open items.',
             icon: 'book',
             flag: 'samplePack',
           },
@@ -489,8 +501,8 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Assessment Platforms', href: '/solutions/assessment-platforms' },
       { label: 'Enterprises & GCCs', href: '/solutions/enterprises-gcc' },
       { label: 'Staffing Firms', href: '/solutions/staffing-firms' },
-      { label: 'Role Pages', href: '/solutions/role/software' },
-      { label: 'Stack Pages', href: '/solutions/stack/sap' },
+      { label: 'Role Pages', href: '/solutions/role/java-developer' },
+      { label: 'Stack Pages', href: '/solutions/stack/sap-abap' },
     ],
   },
   {
@@ -513,8 +525,10 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Blog', href: '/blog' },
       { label: 'Glossary', href: '/glossary' },
       { label: 'Benchmarks', href: '/benchmarks' },
+      { label: 'Try JD-Forge', href: '/try/jd-forge' },
+      { label: 'Graded Answers', href: '/try/graded-answer' },
       { label: 'Changelog', href: '/changelog' },
-      { label: 'Sample Pack', href: '/sample-pack', flag: 'samplePack' },
+      { label: 'Sample Packs', href: '/resources/sample-packs', flag: 'samplePack' },
     ],
   },
   {
@@ -522,7 +536,7 @@ export const footerSitemap: MegaMenuColumn[] = [
     links: [
       { label: 'Vervoe', href: '/vs/vervoe' },
       { label: 'HackerRank', href: '/vs/hackerrank' },
-      { label: 'Mercer Mettl', href: '/vs/mettl' },
+      { label: 'Mercer Mettl', href: '/vs/mercer-mettl' },
       { label: 'iMocha', href: '/vs/imocha' },
       { label: 'CoderByte', href: '/vs/coderbyte' },
     ],
