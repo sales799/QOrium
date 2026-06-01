@@ -45,9 +45,9 @@ describe('trust shell content', () => {
       expect(row.lastVerified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
 
-    expect(rows.filter((row) => row.status === 'shipped').every((row) => row.flagState === 'enabled')).toBe(
-      true,
-    );
+    expect(
+      rows.filter((row) => row.status === 'shipped').every((row) => row.flagState === 'enabled'),
+    ).toBe(true);
   });
 
   it('does not publish certification states without evidence', () => {

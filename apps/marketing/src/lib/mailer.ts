@@ -50,9 +50,7 @@ async function sendViaGraph(payload: MailPayload): Promise<void> {
   const token = await getGraphToken();
   const sender = env.M365_SENDER_EMAIL!;
   const graphUrl = `https://graph.microsoft.com/v1.0/users/${sender}/sendMail`;
-  const recipients = Array.isArray(payload.to)
-    ? payload.to
-    : [payload.to ?? env.CONTACT_TO_EMAIL];
+  const recipients = Array.isArray(payload.to) ? payload.to : [payload.to ?? env.CONTACT_TO_EMAIL];
 
   const message: Record<string, unknown> = {
     subject: payload.subject,
