@@ -44,8 +44,9 @@ For long-lived feature work that won't merge for weeks, **reserve** a slot by ad
 | 0015   | `0015_outcome_metrics_views.sql`            | applied  | (pre-history)                               |
 | 0016   | `0016_programmatic_seo_role_graph.sql`      | applied  | codex/qorium-marketing-phase4-main          |
 | 0017   | `0017_interactive_proof.sql`                | applied  | codex/qorium-marketing-phase4-main          |
+| 0018   | `0018_chatbot.sql`                          | applied  | codex/qorium-c1-chatbot                     |
 
-**Next available number: 0018.**
+**Next available number: 0019.**
 
 ## Documented gaps (CI ignores these)
 

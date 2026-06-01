@@ -12,6 +12,7 @@
 # Idempotent. Safe to re-run on every deploy. Does NOT touch existing services
 # (n8n, ReadyBank API, Postgres, Redis). Only adds:
 #   - PM2 process: qorium-marketing on port 5110
+#   - PM2 process: qorium-chatbot on port 5105
 #   - nginx vhost: qorium.online (apex + www)
 #   - Let's Encrypt cert for qorium.online + www.qorium.online
 
@@ -21,6 +22,7 @@ REPO_URL="${REPO_URL:-https://github.com/sales799/qorium.git}"
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/opt/apps/qorium-marketing}"
 APP_PORT="5110"
+CHATBOT_PORT="5105"
 DOMAIN_PRIMARY="qorium.online"
 DOMAIN_WWW="www.qorium.online"
 DOMAIN_REDIRECT="qorium.in"
@@ -91,6 +93,11 @@ command pnpm --filter @qorium/marketing build 2>&1 | tail -25
 [[ -d "$APP_DIR/apps/marketing/.next" ]] || die "build did not produce .next/ — check log above"
 ok "build complete · $(du -sh "$APP_DIR/apps/marketing/.next" | cut -f1)"
 
+log "Building chatbot service"
+command pnpm --filter @qorium/chatbot build 2>&1 | tail -25
+[[ -f "$APP_DIR/services/chatbot/dist/index.js" ]] || die "chatbot build did not produce dist/index.js — check log above"
+ok "chatbot build complete"
+
 # ── 6. Env file ────────────────────────────────────────────────────────────
 ENV_FILE="$APP_DIR/apps/marketing/.env.production"
 if [[ ! -f "$ENV_FILE" ]]; then
@@ -106,6 +113,9 @@ HOSTNAME=127.0.0.1
 # RESEND_API_KEY=
 # CONTACT_TO_EMAIL=${CONTACT_EMAIL}
 # CONTACT_FROM_EMAIL=noreply@${DOMAIN_PRIMARY}
+# CHATBOT_SERVICE_URL=http://127.0.0.1:5105
+# CHATBOT_LEAD_HMAC_SECRET=
+# DATABASE_URL=
 # GMAIL_USER=
 # GMAIL_APP_PASSWORD=
 EOF
@@ -113,6 +123,21 @@ EOF
   ok "$ENV_FILE created (chmod 600)"
 else
   ok "$ENV_FILE already exists, leaving untouched"
+fi
+
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
+
+if [[ -n "${DATABASE_URL:-}" ]]; then
+  log "Rebuilding chatbot corpus"
+  command pnpm --filter @qorium/chatbot corpus:rebuild 2>&1 | tail -20
+  ok "chatbot corpus refreshed"
+else
+  warn "DATABASE_URL not present in deploy environment; skipping chatbot corpus rebuild"
 fi
 
 # ── 7. PM2 process ─────────────────────────────────────────────────────────
@@ -135,8 +160,37 @@ chmod +x "$LAUNCHER"
 
 # If a previous attempt left a broken entry, clean it up.
 command pm2 delete qorium-marketing >/dev/null 2>&1 || true
+command pm2 delete qorium-chatbot >/dev/null 2>&1 || true
 # Remove any stale ecosystem file from the previous version of this script.
 rm -f "$APP_DIR/infra/qorium-marketing.pm2.cjs"
+
+CHATBOT_LAUNCHER="$APP_DIR/services/chatbot/.pm2-start.sh"
+cat > "$CHATBOT_LAUNCHER" <<CHATBOT_LAUNCHER_EOF
+#!/usr/bin/env bash
+set -e
+cd "$APP_DIR"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  source "$ENV_FILE"
+  set +a
+fi
+export NODE_ENV=production
+export CHATBOT_PORT=${CHATBOT_PORT}
+export PORT=${CHATBOT_PORT}
+export QORIUM_PUBLIC_BASE_URL=https://${DOMAIN_PRIMARY}
+export CHATBOT_SYSTEM_PROMPT_PATH="$APP_DIR/services/chatbot/prompts/system.v1.md"
+exec node services/chatbot/dist/index.js
+CHATBOT_LAUNCHER_EOF
+chmod +x "$CHATBOT_LAUNCHER"
+
+command pm2 start "$CHATBOT_LAUNCHER" \
+  --name qorium-chatbot \
+  --max-memory-restart 512M \
+  --log-date-format 'YYYY-MM-DD HH:mm:ss' \
+  --merge-logs \
+  --time \
+  --output /var/log/qorium-chatbot.out.log \
+  --error /var/log/qorium-chatbot.err.log
 
 command pm2 start "$LAUNCHER" \
   --name qorium-marketing \
@@ -151,7 +205,9 @@ command pm2 save >/dev/null
 command pm2 startup systemd -u root --hp /root >/dev/null 2>&1 || true
 sleep 3
 command pm2 describe qorium-marketing | grep -E "status|pid|uptime|memory" | head -5 || true
+command pm2 describe qorium-chatbot | grep -E "status|pid|uptime|memory" | head -5 || true
 curl -s -m 5 -o /dev/null -w "  local probe :${APP_PORT} → HTTP %{http_code}\n" "http://127.0.0.1:${APP_PORT}" || warn "local probe failed"
+curl -s -m 5 -o /dev/null -w "  local probe :${CHATBOT_PORT} → HTTP %{http_code}\n" "http://127.0.0.1:${CHATBOT_PORT}/v1/chatbot/health" || warn "chatbot local probe failed"
 
 # ── 8. nginx vhost ─────────────────────────────────────────────────────────
 log "Configuring nginx vhost for ${DOMAIN_PRIMARY}"
@@ -356,6 +412,7 @@ for path in "/" "/product" "/pricing" "/security" "/blog"; do
   code=$(curl -s -m 10 -o /dev/null -w "%{http_code}" "https://${DOMAIN_PRIMARY}${path}" || echo "000")
   printf "  https://${DOMAIN_PRIMARY}%-12s → %s\n" "$path" "$code"
 done
+curl -s -m 10 -o /dev/null -w "  http://127.0.0.1:${CHATBOT_PORT}/v1/chatbot/health → HTTP %{http_code}\n" "http://127.0.0.1:${CHATBOT_PORT}/v1/chatbot/health" || warn "chatbot health smoke failed"
 # qorium.in redirect smoke (only if cert exists)
 if [[ -d "/etc/letsencrypt/live/${DOMAIN_REDIRECT}" ]]; then
   code=$(curl -s -m 10 -o /dev/null -w "%{http_code}" -I "https://${DOMAIN_REDIRECT}/" || echo "000")
@@ -367,6 +424,7 @@ log "DONE"
 echo ""
 echo "  Live URL:    https://${DOMAIN_PRIMARY}"
 echo "  PM2 process: pm2 logs qorium-marketing"
+echo "  Chatbot:     pm2 logs qorium-chatbot · http://127.0.0.1:${CHATBOT_PORT}/v1/chatbot/health"
 echo "  nginx vhost: $NGINX_VHOST"
 echo "  app dir:     $APP_DIR"
 echo "  env:         $ENV_FILE  (edit Resend/Calendly later, then: safe-pm2 restart qorium-marketing)"
