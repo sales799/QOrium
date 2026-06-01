@@ -21,10 +21,11 @@ import {
 } from 'lucide-react';
 
 import { FlickeringGrid } from '@/components/magicui/FlickeringGrid';
+import { EvidenceProofBand } from '@/components/marketing/EvidenceProof';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { MaxWidth } from '@/components/site/MaxWidth';
-import { evidenceFlags } from '@/content/marketing-ia';
+import { evidenceFlags } from '@/content/evidence-flags';
 import {
   homeV2,
   platformProducts,
@@ -441,6 +442,8 @@ export function HomeV2Page() {
         </MaxWidth>
       </section>
 
+      <EvidenceProofBand surface="home" />
+
       <section className="surface-shell py-14">
         <MaxWidth
           as="div"
@@ -581,6 +584,8 @@ export function PlatformProductPage({ product }: { product: PlatformProduct }) {
           </Reveal>
         </MaxWidth>
       </section>
+
+      <EvidenceProofBand surface={product.slug} />
 
       <section className="surface-india border-b border-border py-16 md:py-20">
         <MaxWidth as="div">
@@ -795,6 +800,8 @@ export function BuyerSolutionPage({ solution }: { solution: BuyerSolution }) {
           </Reveal>
         </MaxWidth>
       </section>
+
+      <EvidenceProofBand surface={solution.slug} />
 
       <section className="surface-shell py-14">
         <MaxWidth

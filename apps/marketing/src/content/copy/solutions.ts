@@ -129,7 +129,7 @@ export const staffingCopy: SolutionCopy = {
     },
   ],
   proof:
-    'Talpro India runs 50+ candidate screens per week. Customer Zero validates the SKU before any external customer touches it.',
+    'Talpro India runs internal candidate screens through the Customer Zero workflow before any external customer touches it.',
   primarySku: { name: 'ReadyBank', href: '/features/readybank' },
   primaryCta: { label: 'See ReadyBank', href: '/features/readybank' },
 };

@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+import { EvidenceProofBand } from '@/components/marketing/EvidenceProof';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { MaxWidth } from '@/components/site/MaxWidth';
@@ -352,6 +353,7 @@ export function TrustHubPage() {
                 );
               })}
             </Stagger>
+            <EvidenceProofBand surface="trust" className="rounded-lg" />
             <CitationStrip citations={trustHub.citations} />
           </div>
         </MaxWidth>

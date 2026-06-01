@@ -93,10 +93,10 @@ export default function CustomersPage() {
 
       <section className="border-t border-border/60 relative py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <MaxWidth as="div" className="text-center">
-          <h2 className="text-display-2 font-semibold">Become a Day-0 logo.</h2>
+          <h2 className="text-display-2 font-semibold">Become an approved reference.</h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Pilot pricing on offer for the first 10 logos in each segment. Honest pricing, honest
-            timeline, honest case-study commitment when you renew.
+            Pilot pricing is available for qualified early customers. Public logos, quantified
+            outcomes, and case studies publish only after evidence and permission exist.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild variant="primary" size="lg">

@@ -1,19 +1,6 @@
-export type EvidenceFlag =
-  | 'caseStudies'
-  | 'customerStories'
-  | 'externalLogoRail'
-  | 'outcomeStats'
-  | 'samplePack'
-  | 'workspaceSignIn';
+import { evidenceFlags, type EvidenceFlag } from '@/content/evidence-flags';
 
-export const evidenceFlags: Record<EvidenceFlag, boolean> = {
-  caseStudies: false,
-  customerStories: false,
-  externalLogoRail: false,
-  outcomeStats: false,
-  samplePack: true,
-  workspaceSignIn: true,
-};
+export type { EvidenceFlag } from '@/content/evidence-flags';
 
 export type MenuIcon =
   | 'api'

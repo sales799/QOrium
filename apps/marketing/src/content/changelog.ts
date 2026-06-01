@@ -70,7 +70,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: '2026-04-30',
     category: 'content',
     title: '530 validated questions milestone',
-    body: '10.6% of M3 5,000-question target reached. Validated against IRT calibration on the Reference Panel + I/O psychologist sign-off per Constitution Article VII auto-fail criteria. Customer Zero (Talpro India) running 50+ live screens per week through QOrium.',
+    body: '10.6% of M3 5,000-question target reached. Validated against IRT calibration on the Reference Panel + I/O psychologist sign-off per Constitution Article VII auto-fail criteria. Customer Zero (Talpro India) is the internal dogfood motion; public outcome volumes remain evidence-gated.',
   },
   {
     date: '2026-04-29',
