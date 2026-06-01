@@ -36,6 +36,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
+    optimizePackageImports: ['lucide-react', 'motion'],
     staticGenerationMaxConcurrency: 1,
     staticGenerationMinPagesPerWorker: 2_000,
     staticGenerationRetryCount: 1,
