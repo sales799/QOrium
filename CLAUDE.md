@@ -19,16 +19,16 @@
 ## MANTHAN session
 `9194eed8` (started 2026-05-31) — full lifecycle of the Mega Build
 
-## PM2 ground truth (2026-06-01)
-Cloudflare live origin is recorded in `QUEUE-QOrium.md` Run #17 as `187.127.155.150`. The local SSH alias `talpro-vps` still points at the previous origin `147.93.103.194`; do not treat that alias as the Cloudflare-fronted production source without rechecking DNS/origin first.
+## PM2 ground truth (2026-06-02)
+Cloudflare live origin is `187.127.155.150`; use SSH alias `qorium-active-origin`. The older `talpro-vps` alias points at `147.93.103.194` and is not the Cloudflare-fronted production source.
 
-Old-origin PM2 snapshot from `147.93.103.194` at 2026-06-01T09:05Z: 38 `qorium-*` processes online, 0 errored, 51 aggregate restarts. Processes include `qorium-api`, `qorium-admin`, `qorium-jd-forge`, `qorium-stack-vault`, `qorium-leak-crawler`, `qorium-irt-calibration`, `qorium-webhooks`, `qorium-sso`, `qorium-audit-log`, `qorium-uptime-monitor`, `qorium-web-v2-preview`, `qorium-billing`, `qorium-api-key-mgmt`, `qorium-secret-rotation`, `qorium-webhooks-delivery-worker`, `qorium-setu`, `qorium-ai-pair-coding-orchestrator`, `qorium-ats-bridge`, `qorium-docs`, `qorium-candidate-portal`, `qorium-leak-rotation`, `qorium-my`, `qorium-chatbot`, and `qorium-marketing`.
+Active-origin PM2 snapshot from `qorium-active-origin` at 2026-06-02T03:39Z: 12 `qorium-*` processes online, 0 errored, 36 aggregate restarts. Processes: `qorium-api` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-admin` x2, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`, and `qorium-marketing`.
 
-Active-origin blocker as of 2026-06-01T09:05Z: SSH to `187.127.155.150:2244` rejects the available key and port 22 times out. Public `https://api.qorium.online/healthz` is served by that active origin, not by `talpro-vps`; deploys and PM2 evidence must be repeated there once credentials/alias are available.
+Active-origin route fix: `https://api.qorium.online/chatbot/v1/healthz` now returns HTTP 200 through Cloudflare and proxies to `qorium-chatbot` on port 5122. The nginx config backup is under `/root/nginx-config-backups/qorium-marketing.conf.codex-bhima-chatbot-20260602T033900Z.bak` on the active origin.
 
-Build has moved ahead of the original "marketing-only" greenfield framing: api/admin/jd-forge/stack-vault/leak-crawler/chatbot shipped between 2026-05-31 and 2026-06-01.
+Open follow-up: `https://qorium.online/openapi.json` is 200 at active-origin nginx but still 404 at the Cloudflare-fronted public edge as of 2026-06-02T03:41Z. Treat this as a separate Cloudflare cache/purge or edge-route issue, not a chatbot blocker.
 
-**Monitoring gap (open):** MCP `talpro_pm2_list` and any `talpro_qorium_fleet_status`-style registry may show a filtered/shadow fleet that differs from raw PM2 on the origin. Raw PM2 on the active Cloudflare origin is canonical once SSH is available.
+**Monitoring gap (open):** MCP `talpro_pm2_list` and any `talpro_qorium_fleet_status`-style registry may show a filtered/shadow fleet that differs from raw PM2 on the origin. Raw PM2 on `qorium-active-origin` is canonical.
 
 ## Phase order (no calendar — exit-criteria gated)
 1. Foundation lock (this doc set + CEO ratify)

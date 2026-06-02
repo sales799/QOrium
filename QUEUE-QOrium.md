@@ -3,7 +3,39 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #22 (PROVE queue reconciliation + live route blocker refresh)
+**Last touched:** 2026-06-02 — Codex Run #23 (active-origin chatbot health route fixed)
+
+---
+
+## RUN #23 — Codex Active-Origin Chatbot Health Route Fix (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Active-origin SSH access verified** — `qorium-active-origin` reaches `187.127.155.150` as root on port 2244.
+- [2026-06-02] **Confirmed active-origin PM2 state** — 12/12 `qorium-*` processes online, 0 errored, 36 aggregate restarts.
+- [2026-06-02] **Confirmed chatbot service health** — local active-origin `http://127.0.0.1:5122/v1/chatbot/health` returned 200 JSON.
+- [2026-06-02] **Patched active-origin nginx API vhost** — added `/chatbot/v1/healthz`, `/chatbot/v1/*`, and `/v1/chatbot/*` proxy locations to `/etc/nginx/conf.d/qorium-marketing.conf`; backup stored under `/root/nginx-config-backups/`.
+- [2026-06-02] **Reloaded nginx safely** — `nginx -t` passed, then `systemctl reload nginx` completed.
+- [2026-06-02] **Verified public Cloudflare route** — `https://api.qorium.online/chatbot/v1/healthz` now returns HTTP 200 JSON from `qorium-chatbot`.
+
+### EVIDENCE
+
+- Active-origin checkout: `/opt/apps/qorium-marketing`, branch `codex/prod-merge-3256dd5`, HEAD `3256dd5` (`merge: deploy current QOrium marketing tip`).
+- Public `https://qorium.online/` → HTTP `200`.
+- Public `https://api.qorium.online/healthz` → HTTP `200` ReadyBank JSON.
+- Public `https://api.qorium.online/chatbot/v1/healthz` → HTTP `200` chatbot JSON.
+- Public `https://admin.qorium.online/api/health` → HTTP `200` admin JSON.
+- Active-origin `https://qorium.online/openapi.json` with origin resolved to `127.0.0.1` → HTTP `200` JSON.
+- Public Cloudflare `https://qorium.online/openapi.json` → still HTTP `404` HTML with `x-nextjs-cache: HIT`.
+
+### REMAINING NON-CHATBOT FOLLOW-UP
+
+- [MEDIUM] Cloudflare/fronted OpenAPI route still needs purge or edge-route repair. The active origin serves `/openapi.json` correctly; the public edge remains stale.
+- [LOW] Fresh Rakshak consolidation could not be run in this resumed session because the Rakshak MCP/consolidate tool was not exposed.
+
+### FOUNDER / INFRA ACTION REQUIRED
+
+- [MEDIUM] Provide a purge-capable Cloudflare token or purge `https://qorium.online/openapi.json` manually if the stale edge object persists.
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-PARTIAL LIVE: code, tests, old-origin PM2, and old-origin nginx are complete. Cloudflare active-origin deploy is blocked by SSH credentials for `187.127.155.150`.
+LIVE on active origin as of 2026-06-02.
 
 ## Commits
 
@@ -16,9 +16,10 @@ PARTIAL LIVE: code, tests, old-origin PM2, and old-origin nginx are complete. Cl
 - `npm test` — PASS
 - `npm --prefix apps/marketing run build` — PASS
 - `npm --prefix apps/marketing run test:e2e` — PASS, 10/10
-- Old-origin PM2: `qorium-chatbot` online on port 5122 with 0 restarts.
-- Old-origin direct nginx: `/chatbot/v1/healthz` returned 200 when resolved to the repaired origin.
+- Active-origin PM2: `qorium-chatbot` online on port 5122.
+- Active-origin nginx: `/chatbot/v1/healthz` proxies to `/v1/chatbot/health`.
+- Public Cloudflare route: `https://api.qorium.online/chatbot/v1/healthz` returned HTTP 200 chatbot JSON on 2026-06-02.
 
-## Blocker
+## Notes
 
-Public `https://api.qorium.online/chatbot/v1/healthz` is served by the active Cloudflare origin `187.127.155.150`, not the old `talpro-vps` alias. SSH to `187.127.155.150:2244` rejected the available key.
+The prior active-origin SSH blocker is resolved via alias `qorium-active-origin`. Public OpenAPI edge freshness is a separate follow-up and does not block C1 chatbot health.
