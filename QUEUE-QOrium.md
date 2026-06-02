@@ -3,7 +3,58 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #31 (Apex origin consolidation)
+**Last touched:** 2026-06-02 — Codex Run #32 (Marketing Phase 2 schema hardening)
+
+---
+
+## RUN #32 — Marketing Phase 2 Schema Hardening + Two-Origin Deploy (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Shipped Phase 2 structured-data hardening** — solution pages now emit `WebPage` JSON-LD with corrected `/solutions` breadcrumb parent; interactive proof hubs now emit `WebPage`/`SoftwareApplication` and `CollectionPage`/`ItemList` JSON-LD.
+- [2026-06-02] **Committed and pushed verified work** — branch `codex/qorium-marketing-redesign-phase2`, commits `70c57d7` and `dba8fc7`, pushed to `qorium`.
+- [2026-06-02] **Deployed both origins safely** — old origin `147.93.103.194` via corrected GBS job `255d7193-6498-4007-8b29-3eb3cafe5c17`; active origin `187.127.155.150` via raw deploy after shallow-ref correction. Both checkouts are at `dba8fc7`.
+- [2026-06-02] **Purged Cloudflare cache** — targeted purge for 23 slash/no-slash URL variants returned `success=true`.
+- [2026-06-02] **Verified public live surfaces** — route matrix passed HTTP `200`, valid HTML, parseable JSON-LD, and required schema types for 12 public routes.
+- [2026-06-02] **Verified accessibility and CWV sample** — axe-core WCAG 2.1 A/AA scan found `0` violations across 11 pages; Lighthouse desktop sample stayed green on homepage, JD-Forge demo, sample packs, trust, and DPDP compliance.
+- [2026-06-02] **Closed API-health path ambiguity** — correct public API health paths are `https://api.qorium.online/healthz` and `/health`; `/api/health` remains the wrong path and returns nginx `404`.
+- [2026-06-02] **Verified PM2 default namespace enumeration** — active origin PM2 default namespace lists 12 QOrium processes, including API/admin/JD-Forge/Stack-Vault/marketing/chatbot/leak-crawler/keeper.
+
+### EVIDENCE
+
+- Branch: `codex/qorium-marketing-redesign-phase2`.
+- Commits: `70c57d7` (`test(marketing): lock phase two route schema`), `dba8fc7` (`fix(marketing): add proof surface schema`).
+- Local gates: `pnpm --filter @qorium/marketing lint` pass; `typecheck` pass; `test` `11` files / `54` tests pass; `build` pass with `1195/1195` static pages.
+- Deploy evidence:
+  - Old origin GBS failed once on shallow non-fast-forward ref (`4647174d-c2fd-46a4-bf21-2fd5aa44dac1`), then succeeded after force-fetching only the remote-tracking ref (`255d7193-6498-4007-8b29-3eb3cafe5c17`, exit `0`).
+  - Active origin needed the same shallow-ref correction, then deployed `dba8fc7`; PM2 `qorium-marketing` online, unstable restarts `0`, ready in `412ms`.
+  - Old origin PM2 `qorium-marketing` online, unstable restarts `0`, ready in `1599ms`.
+- Public route matrix: `/`, `/product`, `/platform/readybank`, `/platform/jd-forge`, `/platform/stack-vault`, `/solutions/assessment-platforms`, `/solutions/staffing-firms`, `/solutions/enterprises-gcc`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, `/compliance-dpdp` all returned HTTP `200`, valid HTML, and parseable JSON-LD.
+- Required JSON-LD passed:
+  - Product routes: `BreadcrumbList`, `Product`, `FAQPage`.
+  - Solution routes: `BreadcrumbList`, `WebPage`, breadcrumb parent `https://qorium.online/solutions`.
+  - `/try/jd-forge`: `WebPage`, `SoftwareApplication`.
+  - `/resources/sample-packs`: `CollectionPage`, `ItemList`.
+  - `/trust`: `AboutPage`, `ItemList`.
+  - `/compliance-dpdp`: `WebPage`.
+- axe-core CLI `4.11.4`: WCAG 2.1 A/AA tags, 11 pages, `0` violations; artifact `/tmp/qorium-axe-dba8fc7.json`.
+- Lighthouse desktop sample:
+  - `/`: performance `99`, accessibility `100`, SEO `100`, FCP `401ms`, LCP `959ms`, CLS `0`, TBT `0`.
+  - `/try/jd-forge`: performance `99`, accessibility `100`, SEO `100`, FCP/LCP `741ms`, CLS `0`, TBT `0`.
+  - `/resources/sample-packs`: performance `100`, accessibility `100`, SEO `100`, FCP `383ms`, LCP `611ms`, CLS `0`, TBT `0`.
+  - `/trust`: performance `100`, accessibility `100`, SEO `100`, FCP `354ms`, LCP `584ms`, CLS `0`, TBT `0`.
+  - `/compliance-dpdp`: performance `100`, accessibility `100`, SEO `100`, FCP `348ms`, LCP `576ms`, CLS `0`, TBT `0`.
+- Quality gate: `https://qorium.online/v1/science/quality-gate` returned HTTP `200`, latest run `92/92`, dated `2026-06-01`.
+- Rakshak floor: latest saved `qorium.online` run `rakshak-qorium_online-mpw46c2z-7bd0` remains `GO 94/100`, `17/17` audits saved; API/admin saved floors remain `89/100` and `88/100`.
+- API health: `https://api.qorium.online/` returned gateway `200`; `/healthz` and `/health` returned ReadyBank health `200`; `/chatbot/v1/healthz` returned chatbot health `200`.
+- PM2 fleet: active origin default namespace enumerated 12 QOrium entries: `qorium-api` x2, `qorium-admin` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-marketing`, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Current `deploy:atomic:raw` script is not a true releases/`<SHA>` symlink flip; it performs in-place checkout/build/PM2 restart despite the script name. Evidence recorded; future infra cleanup should align implementation with `MARKETING_REDESIGN_360_v1.md`.
+- [LOW] Raw deploy recreated baseline `.env.production` files on both origins with public/runtime keys only. No secret values were printed or committed; static/proof surfaces are healthy. Future deploy cleanup should make the `git clean` exclusion deterministic.
+- [LOW] Optional `qorium.in` redirect certificate still fails ACME HTTP challenge because `qorium.in` resolves to the other origin; primary `qorium.online` HTTPS is healthy.
+- [LOW] Fresh Rakshak MCP orchestration was not callable in this Codex tool session; same-day saved Rakshak certification plus live quality-gate/axe/Lighthouse evidence were used for the no-regression floor.
 
 ---
 
