@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { CardGrid, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import { ArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { getLibrarySkill, librarySkills, rolePages, stackPages } from '@/content/seo-graph';
+import { siteConfig } from '@/content/site.config';
 
 type LibraryPageProps = {
   params: Promise<{ slug: string }>;
@@ -40,9 +42,38 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
   const relatedSkills = skill.relatedSkills
     .map((relatedSlug) => getLibrarySkill(relatedSlug))
     .filter((related): related is NonNullable<typeof related> => related !== undefined);
+  const faq = [
+    {
+      question: `Is the ${skill.name} assessment IRT-calibrated?`,
+      answer:
+        skill.calibration.status === 'IRT-calibrated'
+          ? `${skill.name} has enough calibrated items to show an IRT-calibrated public badge.`
+          : `${skill.name} is shown honestly as ${skill.calibration.status}; ${skill.calibration.label}`,
+    },
+    {
+      question: `Can QOrium build a ${skill.name} pack for a hiring team?`,
+      answer:
+        'Yes. QOrium maps skill pages to roles, stacks, and sample assessment flows, then routes production packs through review and calibration gates.',
+    },
+  ];
 
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Library', path: '/library' },
+          { name: skill.name, path: skill.path },
+        ]}
+      />
+      <ArticleJsonLd
+        title={skill.seoMeta.title}
+        description={skill.seoMeta.description}
+        url={`${siteConfig.url}${skill.path}`}
+        datePublished="2026-06-01"
+        author="QOrium Content Engine"
+      />
+      <FAQPageJsonLd questions={faq} />
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <p className="font-mono text-xs font-semibold uppercase text-signal-300">
@@ -55,6 +86,9 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
             {skill.calibration.label}. Sample items below are public previews; production packs keep
             calibration and audit state attached.
           </p>
+          <div className="mt-8 inline-flex rounded-lg border border-white/15 bg-white/10 px-4 py-2 font-mono text-xs font-semibold uppercase text-white">
+            Calibration status: {skill.calibration.status}
+          </div>
         </MaxWidth>
       </section>
       <section className="surface-product border-b border-border py-16 md:py-20">

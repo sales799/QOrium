@@ -75,22 +75,231 @@ export type CompetitorPage = {
   sourceNote: string;
 };
 
-const seedSkills = [
-  ['javascript', 'JavaScript', 'Programming'],
-  ['python', 'Python', 'Programming'],
-  ['java', 'Java', 'Programming'],
-  ['react', 'React', 'Frontend'],
-  ['sql', 'SQL', 'Data'],
-  ['aws', 'AWS', 'Cloud'],
-  ['kubernetes', 'Kubernetes', 'Cloud'],
-  ['salesforce', 'Salesforce', 'Enterprise apps'],
-  ['sap-abap', 'SAP ABAP', 'India-stack'],
-  ['oracle-hcm-cloud', 'Oracle HCM Cloud', 'India-stack'],
-  ['embedded-c', 'Embedded C', 'Automotive'],
-  ['finacle-flexcube', 'Finacle/Flexcube', 'BFSI'],
-  ['devops-sre', 'DevOps/SRE', 'Cloud'],
-  ['ai-prompt-engineering', 'AI Prompt Engineering', 'AI-era'],
-  ['salesforce-cpq', 'Salesforce CPQ', 'Enterprise apps'],
+const primarySkillSeeds = [
+  [
+    'javascript',
+    'JavaScript',
+    'Programming',
+    'Backend Developer',
+    'Full Stack Developer',
+    'node-js',
+  ],
+  [
+    'typescript',
+    'TypeScript',
+    'Programming',
+    'Frontend Developer',
+    'Full Stack Developer',
+    'react',
+  ],
+  ['python', 'Python', 'Programming', 'Data Engineer', 'Backend Developer', 'python'],
+  ['java', 'Java', 'Programming', 'Java Developer', 'Backend Developer', 'java'],
+  ['go', 'Go', 'Programming', 'Platform Engineer', 'Backend Developer', 'cloud-native'],
+  ['csharp', 'C#', 'Programming', '.NET Developer', 'Enterprise Application Developer', 'dotnet'],
+  ['react', 'React', 'Frontend', 'React Developer', 'Frontend Developer', 'react'],
+  ['nextjs', 'Next.js', 'Frontend', 'Frontend Developer', 'Product Engineer', 'react'],
+  ['angular', 'Angular', 'Frontend', 'Frontend Developer', 'Enterprise UI Developer', 'angular'],
+  ['vue', 'Vue', 'Frontend', 'Frontend Developer', 'Product Engineer', 'vue'],
+  ['sql', 'SQL', 'Data', 'Data Analyst', 'Data Engineer', 'sql'],
+  ['postgresql', 'PostgreSQL', 'Data', 'Data Engineer', 'Backend Developer', 'postgresql'],
+  ['spark', 'Apache Spark', 'Data', 'Data Engineer', 'Analytics Engineer', 'spark'],
+  ['power-bi', 'Power BI', 'Data', 'BI Analyst', 'Analytics Consultant', 'power-bi'],
+  ['machine-learning', 'Machine Learning', 'AI-era', 'ML Engineer', 'Data Scientist', 'mlops'],
+  ['llm-evaluation', 'LLM Evaluation', 'AI-era', 'AI Engineer', 'Prompt Engineer', 'ai-era'],
+  [
+    'ai-prompt-engineering',
+    'AI Prompt Engineering',
+    'AI-era',
+    'AI Prompt Engineer',
+    'Product Engineer',
+    'ai-era',
+  ],
+  ['aws', 'AWS', 'Cloud', 'Cloud Engineer', 'DevOps Engineer', 'aws'],
+  ['azure', 'Azure', 'Cloud', 'Cloud Engineer', 'Enterprise Platform Engineer', 'azure'],
+  ['gcp', 'Google Cloud', 'Cloud', 'Cloud Engineer', 'Data Platform Engineer', 'gcp'],
+  ['kubernetes', 'Kubernetes', 'Cloud', 'DevOps Engineer', 'SRE', 'kubernetes'],
+  ['terraform', 'Terraform', 'Cloud', 'DevOps Engineer', 'Platform Engineer', 'terraform'],
+  ['linux', 'Linux', 'Cloud', 'SRE', 'Infrastructure Engineer', 'linux'],
+  ['devops-sre', 'DevOps/SRE', 'Cloud', 'SRE', 'Platform Engineer', 'sre'],
+  ['cybersecurity', 'Cybersecurity', 'Security', 'Security Engineer', 'SOC Analyst', 'security'],
+  [
+    'application-security',
+    'Application Security',
+    'Security',
+    'Security Engineer',
+    'Backend Developer',
+    'security',
+  ],
+  [
+    'salesforce',
+    'Salesforce',
+    'Enterprise apps',
+    'Salesforce Developer',
+    'CRM Consultant',
+    'salesforce',
+  ],
+  [
+    'salesforce-cpq',
+    'Salesforce CPQ',
+    'Enterprise apps',
+    'Salesforce CPQ Consultant',
+    'Revenue Ops Engineer',
+    'salesforce',
+  ],
+  [
+    'servicenow',
+    'ServiceNow',
+    'Enterprise apps',
+    'ServiceNow Developer',
+    'ITSM Consultant',
+    'servicenow',
+  ],
+  [
+    'sap-abap',
+    'SAP ABAP',
+    'India-stack',
+    'SAP ABAP Consultant',
+    'GCC Platform Engineer',
+    'sap-abap',
+  ],
+  ['sap-fico', 'SAP FICO', 'India-stack', 'SAP FICO Consultant', 'Finance Systems Analyst', 'sap'],
+  ['sap-hcm', 'SAP HCM', 'India-stack', 'SAP HCM Consultant', 'HRIS Consultant', 'sap'],
+  [
+    'oracle-ebs',
+    'Oracle E-Business Suite',
+    'India-stack',
+    'Oracle EBS Consultant',
+    'ERP Developer',
+    'oracle',
+  ],
+  [
+    'oracle-hcm-cloud',
+    'Oracle HCM Cloud',
+    'India-stack',
+    'Oracle HCM Consultant',
+    'HRIS Consultant',
+    'oracle',
+  ],
+  [
+    'oracle-fusion',
+    'Oracle Fusion',
+    'India-stack',
+    'Oracle Fusion Consultant',
+    'ERP Cloud Consultant',
+    'oracle',
+  ],
+  [
+    'finacle-flexcube',
+    'Finacle/Flexcube',
+    'BFSI',
+    'Core Banking Engineer',
+    'BFSI Implementation Consultant',
+    'bfsi',
+  ],
+  ['tcs-bancs', 'TCS BaNCS', 'BFSI', 'Core Banking Engineer', 'Capital Markets Consultant', 'bfsi'],
+  ['murex', 'Murex', 'BFSI', 'Treasury Systems Consultant', 'Capital Markets Engineer', 'murex'],
+  [
+    'fix-protocol',
+    'FIX Protocol',
+    'BFSI',
+    'Trading Systems Engineer',
+    'Capital Markets Engineer',
+    'fix-protocol',
+  ],
+  ['cobol', 'COBOL', 'Mainframe', 'Mainframe Developer', 'Core Banking Engineer', 'mainframe'],
+  [
+    'as400',
+    'AS/400',
+    'Mainframe',
+    'AS/400 Developer',
+    'Legacy Modernization Engineer',
+    'mainframe',
+  ],
+  [
+    'embedded-c',
+    'Embedded C',
+    'Automotive',
+    'Embedded Software Engineer',
+    'Automotive Firmware Engineer',
+    'embedded-automotive',
+  ],
+  [
+    'rtos',
+    'RTOS',
+    'Automotive',
+    'Embedded Software Engineer',
+    'Firmware Engineer',
+    'embedded-automotive',
+  ],
+  [
+    'autosar',
+    'AUTOSAR',
+    'Automotive',
+    'Automotive Software Engineer',
+    'Embedded Systems Architect',
+    'embedded-automotive',
+  ],
+  ['qa-automation', 'QA Automation', 'Quality', 'QA Automation Engineer', 'SDET', 'qa'],
+  ['playwright', 'Playwright', 'Quality', 'SDET', 'Frontend Test Engineer', 'qa'],
+  [
+    'product-analytics',
+    'Product Analytics',
+    'Product',
+    'Product Analyst',
+    'Growth Analyst',
+    'analytics',
+  ],
+  [
+    'business-analysis',
+    'Business Analysis',
+    'Non-tech',
+    'Business Analyst',
+    'Product Manager',
+    'business-analysis',
+  ],
+  [
+    'customer-success',
+    'Customer Success',
+    'Non-tech',
+    'Customer Success Manager',
+    'Implementation Consultant',
+    'customer-success',
+  ],
+  [
+    'technical-writing',
+    'Technical Writing',
+    'Non-tech',
+    'Technical Writer',
+    'Developer Advocate',
+    'technical-writing',
+  ],
+] as const;
+
+const skillFocusAreas = [
+  ['fundamentals', 'Fundamentals', 'core concepts, syntax, and vocabulary'],
+  ['debugging', 'Debugging', 'root-cause analysis and production triage'],
+  ['architecture', 'Architecture', 'design tradeoffs and boundary choices'],
+  ['security', 'Security', 'risk, access, and defensive controls'],
+  ['performance', 'Performance', 'latency, scale, and efficiency'],
+  ['testing', 'Testing', 'quality strategy and failure coverage'],
+  ['integration', 'Integration', 'API, platform, and workflow fit'],
+  ['data-modeling', 'Data Modeling', 'schema, entities, and relationships'],
+  ['automation', 'Automation', 'repeatable workflows and operational scripts'],
+  ['migration', 'Migration', 'legacy-to-modern transition planning'],
+  ['observability', 'Observability', 'logs, metrics, traces, and alerting'],
+  ['governance', 'Governance', 'controls, auditability, and review cadence'],
+  ['troubleshooting', 'Troubleshooting', 'incident response and diagnostic judgment'],
+  ['configuration', 'Configuration', 'environment, tenant, and policy setup'],
+  ['reporting', 'Reporting', 'dashboards, insights, and stakeholder summaries'],
+  ['compliance', 'Compliance', 'regional, privacy, and audit obligations'],
+  ['workflow-design', 'Workflow Design', 'role-relevant process design'],
+  ['quality-review', 'Quality Review', 'defect detection and rubric judgment'],
+  [
+    'stakeholder-communication',
+    'Stakeholder Communication',
+    'explanation, handoff, and escalation',
+  ],
+  ['scenario-practice', 'Scenario Practice', 'applied work samples and role simulations'],
 ] as const;
 
 export function slugify(value: string) {
@@ -103,66 +312,68 @@ export function slugify(value: string) {
     .replace(/(^-|-$)/g, '');
 }
 
-export const librarySkills: LibrarySkillPage[] = Array.from({ length: 1_000 }, (_, index) => {
-  const seed = seedSkills[index % seedSkills.length]!;
-  const batch = Math.floor(index / seedSkills.length);
-  const slug = batch === 0 ? seed[0] : `${seed[0]}-${batch + 1}`;
-  const itemCountTotal = batch === 0 ? 40 : 0;
-  const itemCountCalibrated = 0;
-  const status: CalibrationStatus = itemCountTotal > 0 ? 'Beta' : 'Authored';
-  const name = batch === 0 ? seed[1] : `${seed[1]} Skill Track ${batch + 1}`;
-  const roleMap: Record<string, string[]> = {
-    Programming: ['Backend Developer', 'Full Stack Developer'],
-    Frontend: ['Frontend Developer', 'React Developer'],
-    Data: ['Data Analyst', 'Data Engineer'],
-    Cloud: ['Cloud Engineer', 'DevOps Engineer'],
-    'Enterprise apps': ['Enterprise Application Consultant', 'GCC Platform Engineer'],
-    'India-stack': ['Enterprise Application Consultant', 'GCC Platform Engineer'],
-    Automotive: ['Embedded Software Engineer', 'Automotive Firmware Engineer'],
-    BFSI: ['Core Banking Engineer', 'BFSI Implementation Consultant'],
-    'AI-era': ['AI Prompt Engineer', 'Product Engineer'],
-  };
-
-  return {
-    slug,
-    path: `/library/${slug}`,
-    name,
-    category: seed[2],
-    family: seed[2],
-    stackFamily: seed[2].toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    seoMeta: {
-      title: `${name} Assessment | QOrium Library`,
-      description: `Preview the QOrium ${name} assessment: skills measured, calibration status, role mapping, stack mapping, and sample questions.`,
-      h1: `${name} Assessment`,
-    },
-    calibration: {
-      status,
-      itemCountTotal,
-      itemCountCalibrated,
-      lastCalibratedAt: null,
-      label:
-        itemCountTotal > 0
-          ? `${itemCountTotal} authored items seeded; calibration in progress.`
-          : 'Authored stub; calibration in progress.',
-    },
-    roles: roleMap[seed[2]] ?? ['Hiring Manager', 'Team Lead'],
-    stacks: [seed[0]],
-    relatedSkills: seedSkills
+export const librarySkills: LibrarySkillPage[] = primarySkillSeeds.flatMap((seed, seedIndex) => {
+  return skillFocusAreas.map((focus, focusIndex) => {
+    const isSeededCanonical = focusIndex === 0 && seedIndex < 25;
+    const slug = focusIndex === 0 ? seed[0] : `${seed[0]}-${focus[0]}`;
+    const itemCountTotal = isSeededCanonical ? 40 : 0;
+    const itemCountCalibrated = 0;
+    const status: CalibrationStatus = itemCountTotal > 0 ? 'Beta' : 'Authored';
+    const name = focusIndex === 0 ? seed[1] : `${seed[1]} ${focus[1]}`;
+    const category = seed[2];
+    const family = focusIndex === 0 ? seed[2] : `${seed[2]} · ${focus[1]}`;
+    const relatedSameCategory = primarySkillSeeds
       .filter((related) => related[0] !== seed[0] && related[2] === seed[2])
       .slice(0, 4)
-      .map((related) => related[0]),
-    synonyms: seed[0] === 'javascript' ? ['ECMAScript', 'JS'] : [],
-    sampleQuestions: [
-      `Explain a production ${seed[1]} risk a senior interviewer should test.`,
-      `Debug a realistic ${seed[1]} work sample and name the root cause.`,
-      `Choose the next best action in a ${seed[1]} hiring scenario.`,
-    ],
-    measures: [
-      `Applied ${name} judgment in realistic hiring tasks.`,
-      `${seed[2]} fundamentals, tradeoffs, and production-readiness signals.`,
-      'Communication of assumptions, risk, and evidence without unsupported claims.',
-    ],
-  };
+      .map((related) => related[0]);
+    const relatedSameSkill = skillFocusAreas
+      .filter((related) => related[0] !== focus[0])
+      .slice(0, 2)
+      .map((related) => (related[0] === 'fundamentals' ? seed[0] : `${seed[0]}-${related[0]}`));
+
+    return {
+      slug,
+      path: `/library/${slug}`,
+      name,
+      category,
+      family,
+      stackFamily: seed[5],
+      seoMeta: {
+        title: `${name} Assessment | QOrium Library`,
+        description: `Preview the QOrium ${name} assessment: skills measured, calibration status, role mapping, stack mapping, and sample questions for ${focus[2]}.`,
+        h1: `${name} Assessment`,
+      },
+      calibration: {
+        status,
+        itemCountTotal,
+        itemCountCalibrated,
+        lastCalibratedAt: null,
+        label:
+          itemCountTotal > 0
+            ? `${itemCountTotal} authored items seeded; calibration in progress.`
+            : 'Authored stub; calibration in progress.',
+      },
+      roles: [seed[3], seed[4]],
+      stacks: [seed[5]],
+      relatedSkills: [...relatedSameCategory, ...relatedSameSkill].slice(0, 6),
+      synonyms:
+        focusIndex === 0
+          ? seed[0] === 'javascript'
+            ? ['ECMAScript', 'JS']
+            : [seed[1]]
+          : [`${seed[1]} ${focus[1]}`, `${focus[1]} in ${seed[1]}`],
+      sampleQuestions: [
+        `Explain a production ${name} risk a senior interviewer should test.`,
+        `Debug a realistic ${name} work sample and name the root cause.`,
+        `Choose the next best action in a ${name} hiring scenario.`,
+      ],
+      measures: [
+        `Applied ${name} judgment in realistic hiring tasks.`,
+        `${category} ${focus[2]} with production-readiness signals.`,
+        'Communication of assumptions, risk, and evidence without unsupported claims.',
+      ],
+    };
+  });
 });
 
 const roleSeeds = [

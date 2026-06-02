@@ -21,6 +21,17 @@ describe('programmatic SEO role graph', () => {
     expect(competitorPages.length).toBeGreaterThanOrEqual(10);
   });
 
+  it('keeps generated skill pages distinct enough for the authored-stub rollout', () => {
+    const slugs = new Set(librarySkills.map((skill) => skill.slug));
+    const names = new Set(librarySkills.map((skill) => skill.name));
+    const titles = new Set(librarySkills.map((skill) => skill.seoMeta.title));
+
+    expect(slugs.size).toBe(librarySkills.length);
+    expect(names.size).toBeGreaterThanOrEqual(950);
+    expect(titles.size).toBe(librarySkills.length);
+    expect(librarySkills.some((skill) => /Skill Track/i.test(skill.name))).toBe(false);
+  });
+
   it('uses canonical S1-S4 paths from the SEO factory brief', () => {
     expect(getLibrarySkill('javascript')?.path).toBe('/library/javascript');
     expect(getRolePage('react-developer')?.path).toBe('/solutions/role/react-developer');
@@ -35,6 +46,8 @@ describe('programmatic SEO role graph', () => {
       expect(allowed.has(skill.calibration.status)).toBe(true);
       expect(skill.calibration.label.length).toBeGreaterThan(0);
       expect(skill.sampleQuestions.length).toBeGreaterThanOrEqual(3);
+      expect(skill.measures.length).toBeGreaterThanOrEqual(3);
+      expect(skill.relatedSkills.every((slug) => getLibrarySkill(slug))).toBe(true);
 
       if (skill.calibration.itemCountCalibrated < 30) {
         expect(skill.calibration.status).not.toBe('IRT-calibrated');
