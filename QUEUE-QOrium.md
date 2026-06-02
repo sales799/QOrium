@@ -3,7 +3,29 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #26 (OpenAPI edge + Rakshak certification)
+**Last touched:** 2026-06-02 — Codex Run #27 (Cloudflare purge token installed)
+
+---
+
+## RUN #27 — Cloudflare Cache Purge Token Installed + Verified (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Created scoped Cloudflare purge token** — token name `QOrium Cache Purge`; permission scope is `qorium.online - Cache Purge:Purge`.
+- [2026-06-02] **Installed token locally without printing the secret** — stored as `CLOUDFLARE_QORIUM_CACHE_PURGE_TOKEN` in user-only secret file `/Users/talprouniversepro/.qorium-cloudflare-cache-purge.env` with mode `600`; also attempted macOS Keychain storage under the same service name.
+- [2026-06-02] **Verified Cloudflare API access** — token verification endpoint returned success.
+- [2026-06-02] **Verified real purge capability** — zone lookup for `qorium.online` returned exactly one zone, and a single-URL purge for `https://qorium.online/openapi.json` returned success.
+
+### EVIDENCE
+
+- Cloudflare dashboard summary before creation showed account `Bhaskar@talpro.in`, resource `qorium.online`, permission `Cache Purge:Purge`.
+- Token verification: `cloudflare_token_verify_success=True`.
+- Zone lookup: result count `1`, zone id prefix `7ee17856`.
+- Purge proof: `single_url_purge_success=True` for `https://qorium.online/openapi.json`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Keep origin consolidation deferred per Run #25 `KEEP NOW` decision.
 
 ---
 
@@ -33,7 +55,7 @@
 
 ### REMAINING FOLLOW-UP
 
-- [LOW] Provide a Cloudflare token with `Zone.Cache Purge` permission for future purge-only repairs; current public OpenAPI/admin/API issue is fixed without it.
+- [DONE in Run #27] Cloudflare token with `Zone.Cache Purge` permission is now installed and verified for `qorium.online`.
 - [LOW] Keep origin consolidation deferred per Run #25 `KEEP NOW` decision.
 
 ---
@@ -86,12 +108,8 @@
 
 ### REMAINING FOLLOW-UP
 
-- [MEDIUM] Cloudflare purge-capable token is still unavailable; purge endpoint still returns auth error `10000`. The public issue is fixed by origin refresh, but future manual edge purge still needs a `Zone.Cache Purge` token.
+- [DONE in Run #27] Cloudflare purge-capable token is now installed and verified for future purge-only repairs.
 - [LOW] Apex and API are intentionally split across old/new origins for now (`qorium.online` on `147.93.103.194`, `api.qorium.online` on `187.127.155.150`). CEO decision on 2026-06-02: `KEEP NOW`; consolidation is deferred to planned infra cleanup.
-
-### FOUNDER / INFRA ACTION REQUIRED
-
-- [LOW] Provide a Cloudflare token with `Zone.Cache Purge` permission for future purge-only repairs.
 
 ---
 
@@ -166,7 +184,7 @@
 ### FOUNDER / INFRA ACTION REQUIRED
 
 - [HIGH] Provide working SSH/deploy access for `187.127.155.150` (preferred alias: `qorium-active-origin`) or explicitly authorize a Cloudflare route/DNS change to the origin that has the chatbot route.
-- [MEDIUM] Provide a Cloudflare token with `Zone.Cache Purge` permission for `qorium.online` after the origin-side OpenAPI route is repaired.
+- [DONE in Run #27] Cloudflare token with `Zone.Cache Purge` permission for `qorium.online` is installed and verified after the origin-side OpenAPI route repair.
 
 ---
 

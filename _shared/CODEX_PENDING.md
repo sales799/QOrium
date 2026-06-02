@@ -83,7 +83,7 @@ Source of truth for Codex execution order in this workspace.
 - [x] Restore public OpenAPI JSON at `https://qorium.online/openapi.json`.
   - Shipped: active origin `187.127.155.150` serves `/openapi.json` from deployed merge `3256dd5`; old origin `147.93.103.194` was rebuilt/reloaded at marketing branch `codex/qorium-marketing-phase4-main` HEAD `6ac741c` because Cloudflare apex `qorium.online` routes there.
   - Public proof from 2026-06-02: `https://qorium.online/openapi.json` returns HTTP `200` `application/json` with OpenAPI `3.1.0` and title `QOrium Public Proof API`.
-  - Remaining infra note: Cloudflare purge-capable token is still unavailable for future purge-only repairs; current route is fixed by origin refresh.
+  - Purge infra proof from 2026-06-02: scoped token `QOrium Cache Purge` is installed locally as `CLOUDFLARE_QORIUM_CACHE_PURGE_TOKEN`, Cloudflare token verify returned success, and single-URL purge for `https://qorium.online/openapi.json` returned success.
   - Recorded in: `QUEUE-QOrium.md` Run #24.
 
 - [x] Run fresh QOrium Rakshak certification after OpenAPI/API/admin edge hardening.

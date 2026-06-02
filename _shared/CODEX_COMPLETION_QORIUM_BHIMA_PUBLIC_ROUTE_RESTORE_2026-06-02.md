@@ -24,6 +24,7 @@ COMPLETE.
 
 ## Remaining Infra Notes
 
-- Cloudflare purge-capable token is still unavailable. This is no longer blocking the current public route, but it remains useful for future purge-only repairs.
+- Cloudflare purge-capable token is now installed and verified. Token name: `QOrium Cache Purge`; scope: `qorium.online - Cache Purge:Purge`; local secret file: `/Users/talprouniversepro/.qorium-cloudflare-cache-purge.env` mode `600`.
+- Verification proof from 2026-06-02: Cloudflare token verify returned success, zone lookup found exactly one `qorium.online` zone, and single-URL purge for `https://qorium.online/openapi.json` returned success.
 - CEO decision on 2026-06-02: `KEEP NOW`. Apex `qorium.online` and API `api.qorium.online` intentionally remain on different origins for now because both tested public surfaces are operational.
 - Consolidation to `187.127.155.150` remains a future infra cleanup, not an urgent production repair.
