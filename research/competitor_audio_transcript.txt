@@ -1,0 +1,103 @@
+[   0.0s] Hello Samantha.
+[   1.3s] Good morning.
+[   2.4s] I'm just sending you a quick recording
+[   4.0s] to give you a glimpse of our platform.
+[   6.6s] I'll be demonstrating a small use case
+[   8.8s] that will help you understand what our platform,
+[  11.4s] artifactum, is all about.
+[  13.7s] It specializes in creating high quality assessment questions
+[  16.9s] for any job role, whether it's IT, non-IT,
+[  20.6s] or across various question types.
+[  23.4s] Let's jump right in and create an assessment
+[  25.7s] for a position listed on your quest website.
+[  28.7s] I'll show you how it works by setting up an assessment.
+[  32.2s] You'll notice there are three types of assessments available,
+[  35.3s] for vocational training, hiring, and learning.
+[  39.2s] Let's focus on the hiring assessment for now.
+[  42.0s] Within hiring, I have the option
+[  44.0s] to create multiple choice questions, MCQs,
+[  47.6s] subjective questions or coding questions.
+[  51.0s] I'll quickly craft an MCQ for a specific role.
+[  54.4s] The first step is adding a job description, JD.
+[  58.4s] I'll swiftly input a JD here.
+[  60.5s] I have a few job vacancies in mind,
+[  62.6s] so let's use one of them.
+[  64.4s] Great, I've got those details ready to go.
+[  67.3s] I'll start with the first role that appears,
+[  69.4s] which is in performance testing.
+[  71.3s] I'll simply copy this JD and paste it into the platform.
+[  75.2s] If you're recruiting for a particular company,
+[  77.3s] you can input their address.
+[  79.2s] For demonstration purposes, I'll use QuestCorp,
+[  82.0s] assuming we're hiring for them.
+[  84.2s] You can also add details about the product you're hiring for
+[  87.1s] or notes from the manager to tailor the assessment more precisely.
+[  90.9s] The platform will then analyze this context,
+[  93.6s] drawing from the internet to become well-versed
+[  95.9s] in the specific topic.
+[  98.0s] Post analysis, it creates a blueprint for the role,
+[ 101.4s] which guides the assessment creation process.
+[ 104.3s] I'll show you once the analysis is complete.
+[ 107.0s] All right, the analysis is finished,
+[ 109.3s] and the role profile is ready.
+[ 111.8s] The candidate profile suggests a senior person
+[ 114.7s] with seven to 10 years of experience in retail e-commerce performance engineering.
+[ 120.0s] The JD indicates performance testing skills,
+[ 123.1s] and the relevant tools and technologies have been identified.
+[ 127.1s] You can modify this information at any time.
+[ 130.2s] Various topics are listed here,
+[ 132.3s] and you can remove any that aren't necessary.
+[ 135.4s] Alternatively, you can add topics from your experience.
+[ 139.0s] For instance, if you want to test scripting skills,
+[ 142.0s] you can add scripting as a topic.
+[ 144.5s] Scripting will be assessed through a code snippet-based question.
+[ 148.7s] Let's make this a conceptual question.
+[ 151.5s] These are situational judgment tests.
+[ 153.9s] For troubleshooting, I'll set it as a scenario-based question.
+[ 157.8s] Communication questions will remain as situational judgment tests, SJTs.
+[ 163.4s] That's the structure we've developed.
+[ 165.6s] The system also allows you to analyze difficulty levels,
+[ 169.0s] and all assessments are graded using Bloom's taxonomy.
+[ 172.8s] Now, I'll proceed to generate 14 questions.
+[ 175.9s] Let's bring it down to 14 and create them.
+[ 178.8s] The system design blueprints capture not only technical skills,
+[ 182.8s] but also essential job skills, like communication and leadership.
+[ 187.4s] You can also create a skill-focused assessment,
+[ 190.3s] using the skills from the role profile.
+[ 193.2s] At this stage, the system is generating questions for the specified role.
+[ 198.0s] These questions are high quality and contextually relevant,
+[ 201.8s] allowing you to assess the candidate's skills and capabilities.
+[ 206.2s] We're primarily a question creation tool.
+[ 209.1s] You can integrate these questions into your system to conduct assessments accordingly.
+[ 214.6s] Here are some examples of the questions generated.
+[ 218.2s] We have multi-select questions where all options are correct.
+[ 222.8s] This is a code snippet question,
+[ 225.0s] crafted specifically from the JD to align with the products we're targeting.
+[ 229.9s] Here's another code snippet question, followed by a scenario-based question
+[ 234.2s] discussing garbage collection in the Java virtual machine,
+[ 237.7s] directly derived from the JD.
+[ 240.5s] These are examples of the types of questions generated.
+[ 243.7s] I can provide more insights into their quality.
+[ 246.7s] For instance, here's a situational judgment question tailored for the role,
+[ 251.0s] focusing on retention during peak hours on an e-commerce platform.
+[ 255.4s] Vichram, a mid-level performance engineer,
+[ 258.3s] has written multiple J-meter scripts, a key skill noted,
+[ 262.0s] and has identified slow SQL queries as potential bottlenecks.
+[ 266.6s] The DB administrator suggests increasing the JVM heap size.
+[ 271.3s] All scenarios and options are deeply rooted in the specifics of the role
+[ 276.0s] and test the necessary behaviors for success.
+[ 279.6s] These are the diverse questions our system generates,
+[ 282.8s] giving you a comprehensive assessment.
+[ 285.4s] You can finalize and save the assessment,
+[ 288.3s] integrating it into any platform for candidate evaluation.
+[ 292.8s] This is how MCQs are created.
+[ 295.5s] Besides MCQs, we offer coding questions, which can be generated anew.
+[ 301.4s] For blue collar roles, we also provide vocational questions,
+[ 305.2s] designed to be simple and job-specific,
+[ 307.8s] stemming from the vocational context.
+[ 310.6s] All questions are stored in a question bank.
+[ 313.6s] If you need to translate questions into different languages
+[ 316.4s] for staffing across various locations,
+[ 319.2s] our product includes a translation feature.
+[ 322.4s] This was a brief overview of our platform.
+[ 325.2s] I'd love to connect further to explore how it can enhance your ecosystem.

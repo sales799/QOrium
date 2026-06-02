@@ -3,7 +3,33 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #36 (Full-auto Closeout + Content Voice Lock)
+**Last touched:** 2026-06-02 — Codex Run #37 (Phase 4 Sentry Observability Proof)
+
+---
+
+## RUN #37 — Phase 4 Sentry Observability Proof Closeout (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Verified Phase 4 Sentry observability plumbing is present on the active production origin** — active origin `qorium-active-origin` is checked out at `18110f1f5653` on `codex/qorium-programmatic-seo-factory-phase1`, and the built route table includes dynamic route `/v1/observability/sentry`.
+- [2026-06-02] **Verified public and forced-origin status responses** — `https://qorium.online/v1/observability/sentry?verify=active-20260602` and forced active-origin `--resolve qorium.online:443:187.127.155.150` both returned JSON `{"provider":"sentry","enabled":false,"environment":"production","dsnConfigured":false}`.
+- [2026-06-02] **Confirmed Sentry code lineage and deployment safety** — current active release contains the Sentry route, instrumentation files, `global-error.tsx`, and CSP Sentry ingest hosts; original Sentry instrumentation commit `0c342be37f62` remains pushed on `codex/qorium-marketing-phase4-main`.
+- [2026-06-02] **Ran fresh active-origin gates** — `pnpm --filter @qorium/marketing typecheck`, `test`, `build`, and `pnpm secrets:scan` passed on active origin; marketing tests passed `11` files / `55` tests; build generated `1195/1195` pages; gitleaks scanned `162` commits and found no leaks.
+- [2026-06-02] **Verified production health and security headers** — public root and key routes returned HTTP `200`; root headers include HSTS, CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy`.
+
+### EVIDENCE
+
+- Active production origin: SSH alias `qorium-active-origin` (`187.127.155.150`), checkout `18110f1f5653`, branch `codex/qorium-programmatic-seo-factory-phase1`, PM2 `qorium-marketing` online with unstable restarts `0`.
+- Phase branch proof: remote `codex/qorium-marketing-phase4-main` head `c2ea0a225bfe`; original instrumentation commit `0c342be37f62` (`feat(marketing): activate sentry observability`) is in that branch's history.
+- Live Sentry status: public and forced-origin responses returned HTTP `200` JSON with `enabled:false` and `dsnConfigured:false`.
+- Live route matrix: `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`.
+- Active-origin gates: typecheck pass; Vitest `11` files / `55` tests pass; Next build pass with `1195/1195` static pages and `/v1/observability/sentry` listed; `gitleaks` no leaks found.
+- Old-origin caveat: SSH alias `talpro-vps` points to standby/old origin `147.93.103.194`, where the Sentry route returned `404`; this is not current Cloudflare production origin.
+
+### BLOCKED / FOUNDER ACTION REQUIRED
+
+- [BLOCKED] **Real Sentry event capture remains disabled** — active production status reports `enabled:false` and `dsnConfigured:false`. Owner: Founder/Sentry admin. Unblock by provisioning a QOrium-specific `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN`, or by providing a Sentry token with permission to create/read the `qorium-marketing` project client key. Previous token could list projects/teams but project creation returned HTTP `403`.
+- [BLOCKED] **Cross-account merge remains required before author-owned branch can be considered landed on `main`** — current production is safe because a newer active release includes the observability route, but the phase branch itself should still be reviewed/merged by a non-author account if `main` parity is required.
 
 ---
 
