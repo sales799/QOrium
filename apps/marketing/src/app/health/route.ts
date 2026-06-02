@@ -46,3 +46,18 @@ export function GET() {
     },
   );
 }
+
+export function HEAD() {
+  const now = new Date();
+  const timestamp = now.toISOString();
+
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      ...securityHeaders,
+      'Cache-Control': 'no-store, max-age=0',
+      ETag: `W/"qorium-marketing-${timestamp}"`,
+      'Last-Modified': now.toUTCString(),
+    },
+  });
+}
