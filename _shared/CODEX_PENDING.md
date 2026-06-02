@@ -85,3 +85,8 @@ Source of truth for Codex execution order in this workspace.
   - Public proof from 2026-06-02: `https://qorium.online/openapi.json` returns HTTP `200` `application/json` with OpenAPI `3.1.0` and title `QOrium Public Proof API`.
   - Remaining infra note: Cloudflare purge-capable token is still unavailable for future purge-only repairs; current route is fixed by origin refresh.
   - Recorded in: `QUEUE-QOrium.md` Run #24.
+
+- [x] Run fresh QOrium Rakshak certification after OpenAPI/API/admin edge hardening.
+  - Shipped: active and old origins now expose API/admin security headers, `security.txt`, versioned admin health, and API/admin rate-limit policy headers; nginx syntax tests passed before reload on both origins.
+  - Fresh Rakshak proof from 2026-06-02: `qorium.online` GO `94/100` (`rakshak-qorium_online-mpw46c2z-7bd0`), `api.qorium.online` GO `89/100` (`rakshak-api_qorium_online-mpw46c77-a38a`), `admin.qorium.online` GO `88/100` (`rakshak-admin_qorium_online-mpw46ca2-ceb6`).
+  - Recorded in: `QUEUE-QOrium.md` Run #26 and `_shared/CODEX_COMPLETION_QORIUM_BHIMA_OPENAPI_EDGE_RAKSHAK_2026-06-02.md`.

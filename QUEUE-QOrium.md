@@ -3,7 +3,38 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #25 (CEO origin-routing decision captured)
+**Last touched:** 2026-06-02 — Codex Run #26 (OpenAPI edge + Rakshak certification)
+
+---
+
+## RUN #26 — OpenAPI Edge Purge Attempt + Rakshak Certification (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Re-verified OpenAPI edge** — public `https://qorium.online/openapi.json` returns HTTP `200` `application/json` with QOrium Public Proof API JSON.
+- [2026-06-02] **Retried Cloudflare purge API safely** — zone lookup succeeded with the available certbot token, but `purge_cache` returned Cloudflare auth error `10000`; no DNS mutation was performed.
+- [2026-06-02] **Closed live edge mismatch by origin hardening** — patched both origins currently serving QOrium hostnames so API/admin JSON responses expose security headers, `security.txt`, versioned admin health, and API/admin rate-limit policy headers.
+- [2026-06-02] **Reloaded nginx safely on both origins** — active origin backup stamp `20260602T040034Z`; old-origin backup stamp `20260602T040034Z`; `nginx -t` passed before and after reload on both hosts.
+- [2026-06-02] **Fixed Rakshak runtime allow-list drift** — on-disk `/opt/talpro-mcp-server/dist/tools/rakshak.js` already included `qorium.online`; restarted `talpro-mcp-server.service` so the live MCP backend loaded the current allow-list.
+- [2026-06-02] **Ran fresh Rakshak consolidation** — `qorium.online` GO `94/100`, `api.qorium.online` GO `89/100`, `admin.qorium.online` GO `88/100`.
+
+### EVIDENCE
+
+- Public `https://qorium.online/openapi.json` → HTTP `200`, `application/json`, OpenAPI `3.1.0`, title `QOrium Public Proof API`.
+- Public `https://api.qorium.online/chatbot/v1/healthz` → HTTP `200` chatbot JSON.
+- Public `https://api.qorium.online/.well-known/security.txt` → HTTP `200`.
+- Public `https://admin.qorium.online/api/health` → HTTP `200` JSON with `version: admin-preview-lock-1`.
+- Public `https://admin.qorium.online/.well-known/security.txt` → HTTP `200`.
+- Public API/admin headers now include HSTS, `X-Content-Type-Options`, `X-Frame-Options`, CSP, Permissions-Policy, Referrer-Policy, and `X-RateLimit-Policy`.
+- Gatekeeper after fixes: `qorium.online` scored `36/39` (`92%`, Grade A, SHIP IT). API/admin generic web pulses scored `27/39` because SEO/legal page checks are not role-applicable to JSON service surfaces; security was `9/10` and monitoring was `4/4` on both.
+- Fresh Rakshak run IDs: `rakshak-qorium_online-mpw46c2z-7bd0`, `rakshak-api_qorium_online-mpw46c77-a38a`, `rakshak-admin_qorium_online-mpw46ca2-ceb6`.
+- PM2: active origin `187.127.155.150` has `12/12` QOrium processes online, `36` aggregate restarts; old origin `147.93.103.194` has `38/38` QOrium processes online, `58` aggregate restarts.
+- Talpro smoke tests: `15/15` passed.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Provide a Cloudflare token with `Zone.Cache Purge` permission for future purge-only repairs; current public OpenAPI/admin/API issue is fixed without it.
+- [LOW] Keep origin consolidation deferred per Run #25 `KEEP NOW` decision.
 
 ---
 

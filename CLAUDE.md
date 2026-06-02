@@ -1,7 +1,7 @@
 # QOrium — Project CLAUDE.md
 
 **Brand:** QOrium
-**Domain:** qorium.online (live since 2026-05-31, Rakshak GO 88/100 17/17)
+**Domain:** qorium.online (live since 2026-05-31; latest Rakshak 2026-06-02: qorium 94/100, api 89/100, admin 88/100)
 **Position (working):** India-built, psychometrically-defensible, AI-graded skills assessments
 **Customer Zero:** Talpro India
 **Apex doctrine:** Claude writes specs; Codex BHIMA + ARJUN write code in parallel KARYA lanes.
@@ -20,13 +20,17 @@
 `9194eed8` (started 2026-05-31) — full lifecycle of the Mega Build
 
 ## PM2 ground truth (2026-06-02)
-Cloudflare live origin is `187.127.155.150`; use SSH alias `qorium-active-origin`. The older `talpro-vps` alias points at `147.93.103.194` and is not the Cloudflare-fronted production source.
+Current public routing is intentionally dual-origin per CEO `KEEP NOW` decision on 2026-06-02. Use SSH alias `qorium-active-origin` for `187.127.155.150`; use SSH alias `talpro-vps` for `147.93.103.194`. Public apex `qorium.online` is served from the old origin, public API `api.qorium.online` is served from the active origin, and public admin traffic can reach the old origin. Both origins are now hardened for QOrium API/admin headers and `security.txt`.
 
-Active-origin PM2 snapshot from `qorium-active-origin` at 2026-06-02T03:39Z: 12 `qorium-*` processes online, 0 errored, 36 aggregate restarts. Processes: `qorium-api` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-admin` x2, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`, and `qorium-marketing`.
+Active-origin PM2 snapshot from `qorium-active-origin` at 2026-06-02T04:04Z: 12 `qorium-*` processes online, 0 errored, 36 aggregate restarts. Processes: `qorium-api` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-admin` x2, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`, and `qorium-marketing`.
+
+Old-origin PM2 snapshot from `talpro-vps` at 2026-06-02T04:04Z: 38 `qorium-*` processes online, 0 errored, 58 aggregate restarts. This remains part of the live route while `KEEP NOW` is in effect.
 
 Active-origin route fix: `https://api.qorium.online/chatbot/v1/healthz` now returns HTTP 200 through Cloudflare and proxies to `qorium-chatbot` on port 5122. The nginx config backup is under `/root/nginx-config-backups/qorium-marketing.conf.codex-bhima-chatbot-20260602T033900Z.bak` on the active origin.
 
-Open follow-up: `https://qorium.online/openapi.json` is 200 at active-origin nginx but still 404 at the Cloudflare-fronted public edge as of 2026-06-02T03:41Z. Treat this as a separate Cloudflare cache/purge or edge-route issue, not a chatbot blocker.
+OpenAPI edge resolved: `https://qorium.online/openapi.json` returns HTTP 200 JSON publicly as of 2026-06-02T04:00Z. Cloudflare cache purge still requires a purge-capable token; the available certbot token can find the zone but `purge_cache` returns auth error `10000`.
+
+Latest Rakshak certification: `rakshak-qorium_online-mpw46c2z-7bd0` GO 94/100, `rakshak-api_qorium_online-mpw46c77-a38a` GO 89/100, `rakshak-admin_qorium_online-mpw46ca2-ceb6` GO 88/100. Reports live under `/opt/apps/rakshak-runs/<run-id>/{ceo.md,cto.md}` on `qorium-active-origin`.
 
 **Monitoring gap (open):** MCP `talpro_pm2_list` and any `talpro_qorium_fleet_status`-style registry may show a filtered/shadow fleet that differs from raw PM2 on the origin. Raw PM2 on `qorium-active-origin` is canonical.
 
@@ -48,4 +52,5 @@ Open follow-up: `https://qorium.online/openapi.json` is 200 at active-origin ngi
 - coderbyte.com homepage crawled 2026-05-31
 - techcurators.in homepage + /skill-library crawled 2026-05-31
 - brainstack.net crawled and excluded (wrong category)
-- Rakshak run `rakshak-qorium_online-mpt7km6c-44a4` (GO 88/100 17/17)
+- Rakshak baseline `rakshak-qorium_online-mpt7km6c-44a4` (GO 88/100 17/17)
+- Rakshak certification 2026-06-02: `rakshak-qorium_online-mpw46c2z-7bd0`, `rakshak-api_qorium_online-mpw46c77-a38a`, `rakshak-admin_qorium_online-mpw46ca2-ceb6`
