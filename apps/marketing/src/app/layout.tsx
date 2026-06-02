@@ -1,9 +1,24 @@
 import type { Metadata, Viewport } from 'next';
+import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { siteConfig } from '@/content/site.config';
 import './globals.css';
+
+const qoriumSans = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-qorium-sans',
+});
+
+const qoriumMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-qorium-mono',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -71,7 +86,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground antialiased">
+      <body
+        className={`${qoriumSans.variable} ${qoriumMono.variable} min-h-screen bg-background text-foreground antialiased`}
+      >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <a
             href="#main"

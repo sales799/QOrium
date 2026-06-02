@@ -491,8 +491,18 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'ReadyBank', href: '/platform/readybank' },
       { label: 'JD-Forge', href: '/platform/jd-forge' },
       { label: 'Stack-Vault', href: '/platform/stack-vault' },
-      { label: 'Assessment Library', href: '/product/assessment-library' },
       { label: 'API Documentation', href: '/resources/docs' },
+    ],
+  },
+  {
+    heading: 'Library',
+    links: [
+      { label: 'Assessment Library', href: '/product/assessment-library' },
+      { label: 'Skill Library', href: '/library' },
+      { label: 'JavaScript', href: '/library/javascript' },
+      { label: 'Python', href: '/library/python' },
+      { label: 'SAP ABAP', href: '/solutions/stack/sap-abap' },
+      { label: 'Role Batteries', href: '/solutions/role' },
     ],
   },
   {
@@ -527,6 +537,8 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Benchmarks', href: '/benchmarks' },
       { label: 'Try JD-Forge', href: '/try/jd-forge' },
       { label: 'Graded Answers', href: '/try/graded-answer' },
+      { label: 'Case Studies', href: '/case-studies', flag: 'caseStudies' },
+      { label: 'Customer Stories', href: '/customers', flag: 'customerStories' },
       { label: 'Changelog', href: '/changelog' },
       { label: 'Sample Packs', href: '/resources/sample-packs', flag: 'samplePack' },
     ],
@@ -552,6 +564,7 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
       { label: 'DPA', href: '/dpa' },
+      { label: 'Cookie Policy', href: '/cookie-policy' },
     ],
   },
 ];

@@ -127,23 +127,35 @@ export default function ProductPage() {
             <table className="w-full text-left text-sm">
               <thead className="bg-surface-1">
                 <tr className="border-b border-border">
-                  <th className="px-4 py-3 font-medium text-muted-foreground">SKU</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">What it is</th>
-                  <th className="hidden px-4 py-3 font-medium text-muted-foreground md:table-cell">
+                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    SKU
+                  </th>
+                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    What it is
+                  </th>
+                  <th
+                    scope="col"
+                    className="hidden px-4 py-3 font-medium text-muted-foreground md:table-cell"
+                  >
                     For whom
                   </th>
-                  <th className="hidden px-4 py-3 font-medium text-muted-foreground lg:table-cell">
+                  <th
+                    scope="col"
+                    className="hidden px-4 py-3 font-medium text-muted-foreground lg:table-cell"
+                  >
                     Pricing
                   </th>
-                  <th className="px-4 py-3" />
+                  <th scope="col" className="px-4 py-3">
+                    <span className="sr-only">Product action</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {productCopy.skus.rows.map((r) => (
                   <tr key={r.name} className="border-b border-border last:border-0">
-                    <td className="px-4 py-4 align-top">
+                    <th scope="row" className="px-4 py-4 text-left align-top">
                       <span className="font-semibold text-foreground">{r.name}</span>
-                    </td>
+                    </th>
                     <td className="px-4 py-4 align-top text-foreground/80">{r.what}</td>
                     <td className="hidden px-4 py-4 align-top text-muted-foreground md:table-cell">
                       {r.forWho}
@@ -154,7 +166,7 @@ export default function ProductPage() {
                     <td className="px-4 py-4 align-top text-right">
                       <Link
                         href={r.href}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-signal-300 hover:text-signal-500"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-signal-300 hover:text-signal-500"
                       >
                         Explore <ArrowRight className="size-4" />
                       </Link>

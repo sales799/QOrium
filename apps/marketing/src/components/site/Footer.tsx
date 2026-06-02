@@ -40,7 +40,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
             {footerSitemap.map((column) => {
               const links = visibleLinks(column.links);
 

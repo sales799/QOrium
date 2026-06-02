@@ -73,7 +73,7 @@ if [[ -d "$APP_DIR/.git" ]]; then
   cd "$APP_DIR"
   git fetch --depth=1 origin "$BRANCH:refs/remotes/origin/$BRANCH"
   git reset --hard "origin/$BRANCH"
-  git clean -fd
+  git clean -fd -e apps/marketing/.env.production
 else
   if [[ -d "$APP_DIR" ]] && [[ -n "$(ls -A "$APP_DIR" 2>/dev/null)" ]]; then
     die "$APP_DIR exists and is not empty. Move it aside or delete it before rerunning."

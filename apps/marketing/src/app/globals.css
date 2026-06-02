@@ -27,7 +27,7 @@
 
   /* Brand accents: trust cyan, proof green, India amber */
   --color-signal-100: oklch(0.96 0.04 188);
-  --color-signal-300: oklch(0.84 0.11 188);
+  --color-signal-300: oklch(0.5 0.13 188);
   --color-signal-500: oklch(0.67 0.16 188);
   --color-signal-600: oklch(0.56 0.15 188);
   --color-signal-700: oklch(0.46 0.13 188);
@@ -101,10 +101,8 @@
 /* LIGHT theme — default. A+B+C synthesis: bright product surface over trust tokens. */
 :root {
   --radius: 0.5rem;
-  --font-qorium-sans:
-    'Aptos', 'Segoe UI', 'Helvetica Neue', Arial, ui-sans-serif, system-ui, sans-serif;
-  --font-qorium-mono:
-    'SFMono-Regular', 'Cascadia Mono', 'Roboto Mono', ui-monospace, 'Menlo', monospace;
+  --font-qorium-sans: 'IBM Plex Sans', sans-serif;
+  --font-qorium-mono: 'IBM Plex Mono', monospace;
   --background: oklch(0.985 0.006 190);
   --foreground: oklch(0.16 0.025 214);
   --card: oklch(1 0 0);
@@ -132,6 +130,15 @@
   --product-panel: oklch(1 0 0);
   --india-accent: oklch(0.76 0.16 72);
   --ledger-line: oklch(0.72 0.1 188 / 18%);
+  --zone-shell-bg: var(--shell-bg);
+  --zone-shell-panel: var(--shell-panel);
+  --zone-shell-accent: var(--secondary);
+  --zone-product-bg: var(--product-bg);
+  --zone-product-panel: var(--product-panel);
+  --zone-product-accent: oklch(0.5 0.14 145);
+  --zone-india-bg: oklch(0.98 0.025 82);
+  --zone-india-panel: oklch(1 0 0);
+  --zone-india-accent: var(--india-accent);
 }
 
 /* DARK theme — opt-in via `class="dark"` on html */
@@ -163,6 +170,15 @@
   --product-panel: oklch(0.22 0.04 145);
   --india-accent: oklch(0.8 0.15 72);
   --ledger-line: oklch(0.72 0.1 188 / 16%);
+  --zone-shell-bg: var(--shell-bg);
+  --zone-shell-panel: var(--shell-panel);
+  --zone-shell-accent: var(--secondary);
+  --zone-product-bg: var(--product-bg);
+  --zone-product-panel: var(--product-panel);
+  --zone-product-accent: oklch(0.72 0.14 145);
+  --zone-india-bg: oklch(0.18 0.032 72);
+  --zone-india-panel: oklch(0.22 0.036 72);
+  --zone-india-accent: var(--india-accent);
 }
 
 @layer base {
@@ -221,16 +237,16 @@
     background-size: 56px 56px;
   }
   .surface-shell {
-    background: linear-gradient(135deg, oklch(1 0 0 / 6%), transparent 38%), var(--shell-bg);
+    background: linear-gradient(135deg, oklch(1 0 0 / 6%), transparent 38%), var(--zone-shell-bg);
     color: oklch(0.965 0.012 190);
   }
   .surface-product {
     background:
-      linear-gradient(135deg, oklch(0.94 0.05 145 / 72%), transparent 42%), var(--product-bg);
+      linear-gradient(135deg, oklch(0.94 0.05 145 / 72%), transparent 42%), var(--zone-product-bg);
   }
   .surface-india {
     background:
-      linear-gradient(135deg, oklch(0.92 0.08 82 / 72%), transparent 44%), var(--background);
+      linear-gradient(135deg, oklch(0.92 0.08 82 / 72%), transparent 44%), var(--zone-india-bg);
   }
   .evidence-ledger {
     background-image:

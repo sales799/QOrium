@@ -21,6 +21,28 @@ describe('marketing IA phase 1 navigation', () => {
     expect(actionNavLinks.map((link) => link.label)).toEqual(['Book a demo', 'Sign in']);
   });
 
+  it('keeps the footer aligned to the full redesign sitemap', () => {
+    expect(footerSitemap.map((column) => column.heading)).toEqual([
+      'Platform',
+      'Library',
+      'Solutions',
+      'Why QOrium',
+      'Resources',
+      'Compare',
+      'Company',
+    ]);
+
+    const visibleFooter = footerSitemap.flatMap((column) =>
+      visibleLinks(column.links).map((link) => `${column.heading}:${link.label}`),
+    );
+
+    expect(visibleFooter).toContain('Library:Skill Library');
+    expect(visibleFooter).toContain('Solutions:Assessment Platforms');
+    expect(visibleFooter).toContain('Why QOrium:Responsible AI');
+    expect(visibleFooter).toContain('Resources:Sample Packs');
+    expect(visibleFooter).toContain('Company:Cookie Policy');
+  });
+
   it('keeps each mega-menu panel complete for desktop and mobile renderers', () => {
     for (const panel of megaMenuPanels) {
       expect(panel.columns).toHaveLength(3);

@@ -148,7 +148,7 @@ export function ChatbotWidget() {
       <DialogTrigger asChild>
         <motion.button
           type="button"
-          aria-label="Open QOrium chatbot"
+          aria-label="Ask QOrium chatbot"
           className={cn(
             'fixed bottom-5 right-5 z-50 inline-flex h-14 items-center gap-2 rounded-md border border-product-500/30 bg-product-500 px-4 text-sm font-semibold text-white shadow-2xl shadow-product-500/20 transition-colors hover:bg-product-500/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-500',
             !visited && 'ring-2 ring-product-500/20',
