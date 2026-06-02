@@ -15,6 +15,7 @@
 - [2026-06-02] **Installed token locally without printing the secret** — stored as `CLOUDFLARE_QORIUM_CACHE_PURGE_TOKEN` in user-only secret file `/Users/talprouniversepro/.qorium-cloudflare-cache-purge.env` with mode `600`; also attempted macOS Keychain storage under the same service name.
 - [2026-06-02] **Verified Cloudflare API access** — token verification endpoint returned success.
 - [2026-06-02] **Verified real purge capability** — zone lookup for `qorium.online` returned exactly one zone, and a single-URL purge for `https://qorium.online/openapi.json` returned success.
+- [2026-06-02] **Caught and cleared post-purge apex 502** — immediate public smoke after purge exposed Cloudflare `502` on apex routes while old-origin `qorium-marketing` was restarting; waited for PM2 to settle and re-verified public apex recovery without changing DNS.
 
 ### EVIDENCE
 
@@ -22,6 +23,8 @@
 - Token verification: `cloudflare_token_verify_success=True`.
 - Zone lookup: result count `1`, zone id prefix `7ee17856`.
 - Purge proof: `single_url_purge_success=True` for `https://qorium.online/openapi.json`.
+- Post-purge origin-bypass proof: both `147.93.103.194` and `187.127.155.150` returned HTTP `200` `application/json` for `/openapi.json`.
+- Post-purge public proof: `https://qorium.online/`, `https://qorium.online/openapi.json`, `https://qorium.online/resources/docs`, and `POST https://qorium.online/api/chatbot/session` all returned HTTP `200`.
 
 ### REMAINING FOLLOW-UP
 
