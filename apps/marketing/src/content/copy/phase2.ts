@@ -75,10 +75,90 @@ export const homeV2 = {
     eyebrow: 'Trust infrastructure for skills hiring',
     title: 'Skills assessments you can defend in an audit.',
     description:
-      'QOrium packages India-built assessment content, JD-specific authoring, and private stack libraries inside an evidence-first trust shell.',
+      'QOrium is the product marketing and operating system for defensible hiring evidence: calibrated libraries, JD-shaped assessment generation, private Stack-Vaults, anti-leak lifecycle controls, and trust pages that never overclaim.',
     primaryCta: { label: 'Book a 20-min walkthrough', href: '/demo' },
     secondaryCta: { label: 'Explore the library', href: '/product/assessment-library' },
   },
+  sitemap: [
+    {
+      label: 'Platform',
+      count: '4 pages',
+      href: '/platform',
+      body: 'ReadyBank, JD-Forge, Stack-Vault, and the delivery engine.',
+    },
+    {
+      label: 'Solutions',
+      count: '63 pages',
+      href: '/solutions/enterprises-gcc',
+      body: 'Buyer, company type, use case, industry, role, and stack routing.',
+    },
+    {
+      label: 'Library',
+      count: '1,000 pages',
+      href: '/library/javascript',
+      body: 'Skill plus scenario pages for programmatic SEO and buyer proof.',
+    },
+    {
+      label: 'Resources',
+      count: '44 pages',
+      href: '/resources',
+      body: 'Docs, sample packs, guides, job descriptions, and research.',
+    },
+    {
+      label: 'Trust',
+      count: '8 pages',
+      href: '/trust',
+      body: 'Security, DPDP, responsible AI, science, method, and anti-leak proof.',
+    },
+    {
+      label: 'Compare',
+      count: '15 pages',
+      href: '/vs/vervoe',
+      body: 'Fair competitor and migration pages for high-intent evaluators.',
+    },
+  ],
+  benchmark: [
+    {
+      name: 'Vervoe',
+      signal: 'Strong real-work assessment story and explainable AI proof.',
+      qoriumMove: 'Keep product proof concrete while adding a deeper enterprise trust shell.',
+    },
+    {
+      name: 'TestGorilla',
+      signal: 'Broad library navigation, pricing clarity, and skills-test SEO scale.',
+      qoriumMove:
+        'Match discoverability while differentiating on defensible content infrastructure.',
+    },
+    {
+      name: 'HackerRank',
+      signal: 'Technical-screening authority, enterprise familiarity, and AI feature depth.',
+      qoriumMove: 'Win beyond coding-only use cases through India/GCC stack depth.',
+    },
+    {
+      name: 'CodeSignal',
+      signal: 'Certified assessment language and validation-led market posture.',
+      qoriumMove: 'Make assessment science readable for HR, legal, and platform buyers.',
+    },
+    {
+      name: 'iMocha',
+      signal: 'Skills intelligence framing beyond point-in-time assessments.',
+      qoriumMove:
+        'Position role graph, stack coverage, and lifecycle evidence as workforce intelligence.',
+    },
+    {
+      name: 'Mercer Mettl',
+      signal: 'India enterprise familiarity, proctoring, and large assessment operations.',
+      qoriumMove: 'Look newer, cleaner, and more transparent while owning India-built credibility.',
+    },
+  ],
+  gapClosure: [
+    ['IA', 'Mega-menu plus complete sitemap families'],
+    ['Moat', 'Anti-leak, IRT, role graph, Stack-Vault, and watermark posture'],
+    ['Proof', 'Interactive JD-Forge and graded-answer surfaces'],
+    ['Trust', 'Security, DPDP, science, method, responsible AI'],
+    ['SEO', 'Skills, library, jobs, roles, stacks, guides, competitors'],
+    ['Conversion', 'Demo, sample-pack, API, pricing, and buyer-specific CTAs'],
+  ],
   ledgerRows: [
     ['Claim', 'Evidence status', 'Public behavior'],
     ['Customer logos', 'Flag off', 'Module hidden'],

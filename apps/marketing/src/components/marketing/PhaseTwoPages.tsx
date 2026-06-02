@@ -149,9 +149,28 @@ function SectionIntro({
 }
 
 function EvidenceLedger() {
+  const [header = [], ...rows] = homeV2.ledgerRows;
+
   return (
     <div className="mt-8 overflow-hidden rounded-lg border border-white/12 bg-white/[0.045]">
-      <div className="grid min-w-[38rem] grid-cols-[1fr_1fr_1fr] text-sm">
+      <div className="grid gap-3 p-3 md:hidden">
+        {rows.map((row) => (
+          <div
+            key={row.join('-')}
+            className="rounded-md border border-white/10 bg-white/[0.04] p-4"
+          >
+            {row.map((cell, cellIndex) => (
+              <div key={`${cell}-${cellIndex}`} className={cellIndex === 0 ? '' : 'mt-3'}>
+                <p className="font-mono text-[0.68rem] font-semibold uppercase text-signal-300">
+                  {header[cellIndex]}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-shell-muted">{cell}</p>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="hidden min-w-[38rem] grid-cols-[1fr_1fr_1fr] text-sm md:grid">
         {homeV2.ledgerRows.flatMap((row, rowIndex) =>
           row.map((cell, cellIndex) => (
             <div
@@ -286,6 +305,36 @@ export function HomeV2Page() {
         </MaxWidth>
       </section>
 
+      <section className="surface-india border-b border-border py-16 md:py-20">
+        <MaxWidth as="div">
+          <SectionIntro
+            eyebrow="Sitemap created from the live site"
+            title="The marketing system now covers the complete public surface."
+            description="Every major route family has a job: explain the platform, route the buyer, prove the moat, capture search demand, or reduce enterprise trust friction."
+          />
+          <Stagger className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {homeV2.sitemap.map((family) => (
+              <StaggerItem key={family.label}>
+                <Link
+                  href={family.href}
+                  className="group block h-full rounded-lg border border-border bg-card p-5 transition-colors hover:border-india-500/50"
+                >
+                  <p className="font-mono text-xs font-semibold uppercase text-india-700">
+                    {family.count}
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold">{family.label}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{family.body}</p>
+                  <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-india-700">
+                    Open route family
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </MaxWidth>
+      </section>
+
       <section className="border-b border-border bg-background py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
@@ -359,6 +408,31 @@ export function HomeV2Page() {
         </MaxWidth>
       </section>
 
+      <section className="surface-product border-b border-border py-16 md:py-20">
+        <MaxWidth as="div">
+          <SectionIntro
+            eyebrow="Competitor and global benchmark research"
+            title="QOrium's strongest position is defensible content infrastructure."
+            description="The category already has polished assessment tools. QOrium wins when buyers see the lifecycle behind the bank: how content is authored, mapped, refreshed, protected, and explained."
+          />
+          <Stagger className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {homeV2.benchmark.map((competitor) => (
+              <StaggerItem key={competitor.name}>
+                <div className="h-full rounded-lg border border-border bg-card p-5">
+                  <p className="font-mono text-xs font-semibold uppercase text-secondary">
+                    {competitor.name}
+                  </p>
+                  <h3 className="mt-3 text-xl font-semibold">{competitor.signal}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {competitor.qoriumMove}
+                  </p>
+                </div>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </MaxWidth>
+      </section>
+
       <section className="surface-shell border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
@@ -395,6 +469,29 @@ export function HomeV2Page() {
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Link>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </MaxWidth>
+      </section>
+
+      <section className="surface-shell border-b border-white/10 py-16 md:py-20">
+        <MaxWidth as="div">
+          <SectionIntro
+            eyebrow="Gap analysis closed"
+            title="From broad sitemap to a connected buyer journey."
+            description="The redesign closes the gap between what QOrium has built and what a global enterprise buyer needs to understand before booking."
+            dark
+          />
+          <Stagger className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {homeV2.gapClosure.map(([label, body]) => (
+              <StaggerItem key={label}>
+                <div className="h-full rounded-lg border border-white/12 bg-white/[0.055] p-5">
+                  <p className="font-mono text-xs font-semibold uppercase text-signal-300">
+                    {label}
+                  </p>
+                  <p className="mt-4 text-sm leading-6 text-shell-muted">{body}</p>
+                </div>
               </StaggerItem>
             ))}
           </Stagger>
