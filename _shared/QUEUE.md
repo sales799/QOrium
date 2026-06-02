@@ -1,11 +1,13 @@
 # Shared Queue — QOrium Content Recreation Closeout
 
-Last touched: 2026-06-02 — Codex Run #44
+Last touched: 2026-06-03 — Codex full-site archive closeout
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Full-site QOrium marketing route-family redesign | DONE | Production commit `7d7ca8d` is live at `https://qorium.online/` on active origin release `/opt/apps/qorium-marketing/releases/7d7ca8db52d1`; sitemap has `1191` public URLs; build generated `1196/1196` pages; upgraded library, role, stack, solution, resources, job-description, sample-pack, comparison, and blog templates with enterprise buyer journey/proof CTAs; `/vs/codesignal` added and live. | Non-author review before main merge; optional editorial polish for top 50-100 long-tail pages only. |
+| Verify full-site redesign closeout gates | DONE | Frozen install passed; `pnpm lint` passed; workspace package build passed; marketing typecheck passed; Vitest passed `13` files / `60` tests; marketing production build passed `1196/1196`; live `/`, `/healthz`, `/library/javascript-debugging`, `/solutions/role/react-developer`, `/solutions/stack/sap-abap`, `/resources/sample-packs/senior-java`, `/vs/codesignal`, `/trust`, `/security`, and `/sitemap.xml` returned HTTP `200`; root and health headers include HSTS, CSP, XFO, XCTO, Referrer-Policy, and Permissions-Policy; PM2 local marketing/chatbot probes returned `200`; `pm2 save --force` succeeded. | Archive-ready for this route-family rollout; continue watchdog monitoring. |
 | Recreate visitor-facing QOrium content | DONE | Branch `codex/qorium-content-recreation-live-redesign-20260602`, commit `60b9e1a086c24d4e49d5f34b559eed4bc5175b9d`, is live at `/opt/apps/qorium-marketing/releases/60b9e1a086c2`; homepage implementation ledger removed; SKU, buyer, trust, sample-pack, API-doc, and programmatic copy cleaned after the newer redesign reintroduced banned copy. | Non-author review before main merge. |
 | Enforce Content Recreation honesty gate | DONE | Marketing build now runs `scripts/check-rendered-copy.mjs`; local and origin builds passed the rendered-copy gate across `1168` HTML files. | Re-run on every marketing build. |
 | Verify Content Recreation live evidence | DONE | Local package build/typecheck/lint/Vitest/build/E2E passed; Cloudflare targeted purge returned `success:true`; live route matrix returned HTTP `200`; JSON-LD present on sampled routes; homepage banned-copy sample is clean; axe-core found `0` WCAG A/AA violations across `17` sampled routes; FCP sample `144ms`-`1296ms`; quality gate `92/92`; saved Rakshak GO `94/100`, `17/17`. | Continue watchdog/Rakshak monitoring after traffic. |
@@ -33,6 +35,7 @@ Last touched: 2026-06-02 — Codex Run #44
 | Task | Status | Owner | Evidence | Next |
 | --- | --- | --- | --- | --- |
 | Merge author-owned phase branch to `main` | BLOCKED | Non-author reviewer | Current production includes the route via newer active release, but branch `codex/qorium-marketing-phase4-main` still needs cross-account review/merge for `main` parity. | Have another account review/merge; author must not approve own merge. |
+| Save full-site closeout to Talpro MCP session/MANTHAN | BLOCKED | Tooling / Talpro MCP-enabled session | `tool_search` for `watchdog talpro session_save_state manthan_save memory` returned `0` tools in this Codex context on 2026-06-03; local `_shared/QUEUE.md` and `task_plan.md` were updated instead. | Run `session_save_state` / `manthan_save` from a Talpro-tool-enabled session if archive automation requires that external record. |
 
 ## ARCHIVE CERTIFICATION
 
