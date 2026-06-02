@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import {
   CardGrid,
+  EnterpriseJourneyBand,
   EvidenceList,
   PageHero,
   SectionBand,
@@ -123,6 +124,32 @@ export default async function VsPage({ params }: Props) {
       <SectionBand title="Source note">
         <SurfaceCard title="Claim discipline">{page.sourceNote}</SurfaceCard>
       </SectionBand>
+      <EnterpriseJourneyBand
+        title={`Evaluate QOrium against ${page.competitor} without vendor theater.`}
+        description="Comparison pages now make the migration decision explicit: where the competitor is stronger, where QOrium is structurally different, which evidence is public, and what proof run should happen before a buying decision."
+        proofPoints={[
+          `${page.competitor} strengths are shown before QOrium edges.`,
+          'Comparison rows separate category posture from evidence status.',
+          'The demo path carries the competitor context into a proof-run conversation.',
+        ]}
+        links={[
+          {
+            label: 'Plan competitor proof run',
+            href: `/demo?from=${page.slug}`,
+            body: 'Compare your current workflow against QOrium with a scoped role or stack pack.',
+          },
+          {
+            label: 'Open trust review',
+            href: '/trust',
+            body: 'Check QOrium security, method, science, anti-leak, and responsible AI posture.',
+          },
+          {
+            label: 'Browse comparisons',
+            href: '/vs',
+            body: 'Review adjacent vendor pages before narrowing the shortlist.',
+          },
+        ]}
+      />
     </>
   );
 }

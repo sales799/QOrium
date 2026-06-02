@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, ProductJsonLd } from '@/components/seo/JsonLd';
 import { librarySkills } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
@@ -58,6 +64,15 @@ export default function LibraryHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title="The library is the spine of the product marketing site."
+          description="The hub now explains the full public surface: generated pages create search coverage, calibration labels protect claim discipline, and every skill page routes into roles, stacks, trust, and demo paths."
+          proofPoints={[
+            `${librarySkills.length.toLocaleString('en-IN')} public skill pages are generated from one governed graph.`,
+            'Calibration-in-progress pages are labeled honestly instead of appearing complete.',
+            'The library connects to buyer-specific role, stack, sample-pack, and trust journeys.',
+          ]}
+        />
       </main>
     </>
   );

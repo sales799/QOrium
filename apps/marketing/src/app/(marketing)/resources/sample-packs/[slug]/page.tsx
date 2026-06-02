@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { SamplePackDetail } from '@/components/interactive-proof/SamplePacks';
+import { EnterpriseJourneyBand } from '@/components/phase4/MarketingSurface';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { getSamplePack, samplePacks } from '@/content/interactive-proof';
 
@@ -48,6 +49,32 @@ export default async function SamplePackDetailPage({ params }: SamplePackPagePro
           <SamplePackDetail pack={pack} />
         </MaxWidth>
       </section>
+      <EnterpriseJourneyBand
+        title={`${pack.title} should prove item quality without leaking the bank.`}
+        description="Sample-pack pages now explain the protected-content logic behind the lead capture: show enough to evaluate fit, gate enough to keep production banks fresh, and connect every pack back to library, role, and stack pages."
+        proofPoints={[
+          `${pack.previewItems.length} public preview items are visible before unlock.`,
+          `${pack.itemCount - pack.previewItems.length} deeper items stay gated to reduce harvesting risk.`,
+          'Library, role, and stack links keep the evaluator inside the full assessment graph.',
+        ]}
+        links={[
+          {
+            label: 'Unlock full pack',
+            href: `/resources/sample-packs/${pack.slug}`,
+            body: 'Use the form on this page to request the complete sample pack by email.',
+          },
+          {
+            label: 'Review anti-leak posture',
+            href: '/anti-leak',
+            body: 'See why public previews and production content need different exposure rules.',
+          },
+          {
+            label: 'Book sample-pack walkthrough',
+            href: `/demo?sample_pack=${pack.slug}`,
+            body: 'Discuss how this pack would map to your role, stack, and shortlist workflow.',
+          },
+        ]}
+      />
     </>
   );
 }

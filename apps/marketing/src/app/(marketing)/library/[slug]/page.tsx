@@ -2,7 +2,12 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { GradedAnswerViewer } from '@/components/interactive-proof/GradedAnswerViewer';
-import { CardGrid, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { ArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { getLibrarySkill, librarySkills, rolePages, stackPages } from '@/content/seo-graph';
@@ -156,6 +161,32 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
         </div>
         <GradedAnswerViewer skillFilter={skill.name} embedded />
       </SectionBand>
+      <EnterpriseJourneyBand
+        title={`Turn ${skill.name} evidence into a defensible hiring step.`}
+        description={`${skill.name} buyers should leave this page knowing the public calibration status, what signals are measured, which roles and stacks connect to the skill, and how to request a production-safe pack without exposing the full bank.`}
+        proofPoints={[
+          `${skill.calibration.status} status is visible instead of implied.`,
+          'Public samples are limited to reduce harvesting while still showing assessment quality.',
+          'Related roles, stacks, and skills keep the visitor inside a connected evaluation journey.',
+        ]}
+        links={[
+          {
+            label: 'Build from this skill',
+            href: `/demo?skill=${skill.slug}`,
+            body: 'Request a JD-shaped pack, calibration review, or Stack-Vault discussion.',
+          },
+          {
+            label: 'Review anti-leak method',
+            href: '/anti-leak',
+            body: 'See how QOrium protects question freshness and public preview surfaces.',
+          },
+          {
+            label: 'Open assessment library',
+            href: '/library',
+            body: 'Compare this page against the wider skill graph and seeded categories.',
+          },
+        ]}
+      />
     </>
   );
 }

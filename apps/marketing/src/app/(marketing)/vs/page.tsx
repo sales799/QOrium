@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { competitorPages } from '@/content/seo-graph';
 
@@ -36,6 +42,15 @@ export default function VsHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title="Comparison pages should help the buyer shortlist responsibly."
+          description="The comparison hub now frames vendor evaluation around competitor strengths, QOrium differences, evidence status, and a proof-run path instead of unsupported winner language."
+          proofPoints={[
+            `${competitorPages.length} comparison pages are generated from named buyer criteria.`,
+            'Each comparison keeps competitor strengths visible before QOrium edges.',
+            'The demo path preserves competitor context for migration or replacement discussions.',
+          ]}
+        />
       </main>
     </>
   );

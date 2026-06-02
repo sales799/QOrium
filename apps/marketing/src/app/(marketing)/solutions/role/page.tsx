@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, SoftwareApplicationJsonLd } from '@/components/seo/JsonLd';
 import { rolePages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
@@ -41,6 +47,15 @@ export default function RoleHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title="Role pages convert hiring intent into assessment evidence."
+          description="The role hub now explains how QOrium moves from job family to core skills, stack context, calibration labels, and a proof run that can be defended by the hiring team."
+          proofPoints={[
+            `${rolePages.length} role pages connect skills, seniority, and stack context.`,
+            'Each role page routes to library evidence instead of stopping at a generic persona.',
+            'Enterprise buyers can move from role discovery to ReadyBank or demo with context intact.',
+          ]}
+        />
       </main>
     </>
   );

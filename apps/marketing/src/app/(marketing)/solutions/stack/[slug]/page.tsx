@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, SoftwareApplicationJsonLd } from '@/components/seo/JsonLd';
 import { getLibrarySkill, getRolePage, getStackPage, stackPages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
@@ -82,6 +88,32 @@ export default async function StackPage({ params }: Props) {
           This slot stays unclaimed until a customer reference, permission, and source note exist.
         </SurfaceCard>
       </SectionBand>
+      <EnterpriseJourneyBand
+        title={`${stack.name} buyers need stack-specific proof, not a generic skill test.`}
+        description="This stack page connects vendor context, India/GCC relevance, related roles, and skill modules so enterprise teams can see whether QOrium can model their actual work environment."
+        proofPoints={[
+          `Region relevance is explicit: ${stack.regionRelevance.join(', ')}.`,
+          'Role and skill links keep the buyer inside a connected stack-to-assessment journey.',
+          'Customer proof remains gated until reference permission and source notes exist.',
+        ]}
+        links={[
+          {
+            label: 'Plan Stack-Vault pack',
+            href: `/demo?stack=${stack.slug}`,
+            body: 'Scope a private stack library with review, watermark, and refresh posture.',
+          },
+          {
+            label: 'Open Stack-Vault',
+            href: '/platform/stack-vault',
+            body: 'See how customer-exclusive content is positioned for enterprise buyers.',
+          },
+          {
+            label: 'Review security posture',
+            href: '/security',
+            body: 'Check the public security and trust surface before a deeper vendor review.',
+          },
+        ]}
+      />
     </>
   );
 }

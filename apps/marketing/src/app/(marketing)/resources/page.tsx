@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { guides, jobDescriptions, slugify } from '@/content/phase4';
 
 export const metadata: Metadata = {
@@ -57,6 +63,32 @@ export default function ResourcesPage() {
           ))}
         </CardGrid>
       </SectionBand>
+      <EnterpriseJourneyBand
+        title="Resources should convert education into evaluation."
+        description="The resources hub now connects guides, job descriptions, sample packs, and research to the same buyer path: learn the method, inspect the evidence, and request a scoped proof run."
+        proofPoints={[
+          'Guides serve high-intent evaluators who are still defining assessment requirements.',
+          'Job descriptions connect role language to skills evidence and JD-Forge intent.',
+          'Sample packs bridge public previews and protected production content.',
+        ]}
+        links={[
+          {
+            label: 'Open sample packs',
+            href: '/resources/sample-packs',
+            body: 'Inspect public previews and unlock deeper packs without exposing full banks.',
+          },
+          {
+            label: 'Browse job descriptions',
+            href: '/resources/job-descriptions',
+            body: 'Start from a role brief and move into skill evidence.',
+          },
+          {
+            label: 'Book resource walkthrough',
+            href: '/demo?surface=resources',
+            body: 'Turn a guide or template into an implementation conversation.',
+          },
+        ]}
+      />
     </main>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ChevronLeft, Calendar, User } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 
+import { EnterpriseJourneyBand } from '@/components/phase4/MarketingSurface';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { mdxComponents } from '@/lib/mdx';
@@ -102,6 +103,32 @@ export default async function BlogPostPage({ params }: PageProps) {
           <MDXRemote source={post.content} components={mdxComponents} />
         </div>
       </MaxWidth>
+      <EnterpriseJourneyBand
+        title="Turn this article into a buyer-side next step."
+        description="Blog pages now connect thought leadership to QOrium's product evidence: the reader can inspect the library, review trust posture, or convert the topic into a proof run without leaving the narrative cold."
+        proofPoints={[
+          'Article context stays tied to product, trust, and demo routes.',
+          'The CTA path supports evaluators who arrive from search or AI summaries.',
+          'The page avoids unsupported customer claims while still creating a sales journey.',
+        ]}
+        links={[
+          {
+            label: 'Open assessment library',
+            href: '/library',
+            body: 'Move from the article concept into public skill and role evidence.',
+          },
+          {
+            label: 'Review method',
+            href: '/method',
+            body: 'Check how QOrium frames scoring, calibration, and reviewer evidence.',
+          },
+          {
+            label: 'Discuss this topic',
+            href: `/demo?blog=${post.slug}`,
+            body: 'Carry this article into a scoped buyer conversation.',
+          },
+        ]}
+      />
     </article>
   );
 }

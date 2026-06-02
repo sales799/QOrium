@@ -112,7 +112,7 @@ export const homeV2 = {
     },
     {
       label: 'Compare',
-      count: '15 pages',
+      count: '16 pages',
       href: '/vs/vervoe',
       body: 'Fair competitor and migration pages for high-intent evaluators.',
     },

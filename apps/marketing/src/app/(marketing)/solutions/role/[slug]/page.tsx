@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, SoftwareApplicationJsonLd } from '@/components/seo/JsonLd';
 import { getLibrarySkill, getRolePage, getStackPage, rolePages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
@@ -94,6 +100,32 @@ export default async function RolePage({ params }: Props) {
           ))}
         </CardGrid>
       </SectionBand>
+      <EnterpriseJourneyBand
+        title={`${role.name} hiring should end in evidence, not interview guesswork.`}
+        description="This role page connects the buyer from role definition to skills, stack context, sample flow, and a scoped proof run so HR, hiring managers, and legal reviewers see the same evidence trail."
+        proofPoints={[
+          `Seniority coverage is explicit: ${role.seniorityLevels.join(', ')}.`,
+          'Core and recommended skills route into public library pages with calibration status.',
+          'Stack context keeps GCC and enterprise teams from buying generic, role-blind tests.',
+        ]}
+        links={[
+          {
+            label: 'Build this role battery',
+            href: `/demo?role=${role.slug}`,
+            body: 'Convert the role graph into a buyer-specific walkthrough and pack plan.',
+          },
+          {
+            label: 'Check scoring method',
+            href: '/method',
+            body: 'Review how QOrium presents evidence, rubrics, and calibration status.',
+          },
+          {
+            label: 'Browse role solutions',
+            href: '/solutions/role',
+            body: 'Compare adjacent role batteries before choosing a proof run.',
+          },
+        ]}
+      />
     </>
   );
 }

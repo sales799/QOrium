@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, SoftwareApplicationJsonLd } from '@/components/seo/JsonLd';
 import { stackPages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
@@ -42,6 +48,15 @@ export default function StackHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title="Stack pages make QOrium specific where generic libraries blur."
+          description="The stack hub now ties enterprise-app and India/GCC stack context to roles, skills, Stack-Vault, and trust review so buyers can evaluate fit before a sales call."
+          proofPoints={[
+            `${stackPages.length} stack pages link vendor context to roles and skill modules.`,
+            'India-relevant stacks are named directly instead of hidden inside broad categories.',
+            'The Stack-Vault path explains how private content can be scoped without public leakage.',
+          ]}
+        />
       </main>
     </>
   );

@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import {
   CardGrid,
+  EnterpriseJourneyBand,
   EvidenceList,
   PageHero,
   SectionBand,
@@ -91,6 +92,32 @@ export default async function JobDescriptionPage({ params }: Props) {
             Back to job-description library
           </Link>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title={`${job.title} hiring starts with a defensible role brief.`}
+          description="This job-description page connects the buyer from role wording to skill evidence, assessment planning, and a proof run so the shortlist can be defended before interviews consume time."
+          proofPoints={[
+            `${job.seniority} scope is visible before the assessment is built.`,
+            'Skill cards route to published assessment pages when the taxonomy already exists.',
+            'Backlog skills are marked honestly instead of pretending every module is calibrated.',
+          ]}
+          links={[
+            {
+              label: 'Build from this JD',
+              href: `/demo?job=${slug}`,
+              body: 'Turn this job description into a JD-Forge walkthrough or pack request.',
+            },
+            {
+              label: 'Try JD-Forge',
+              href: '/try/jd-forge',
+              body: 'Preview how role language becomes assessment structure.',
+            },
+            {
+              label: 'Browse job templates',
+              href: '/resources/job-descriptions',
+              body: 'Compare adjacent job descriptions before finalizing the assessment scope.',
+            },
+          ]}
+        />
       </main>
     </>
   );

@@ -473,57 +473,375 @@ export const stackPages: StackPage[] = stackSeeds.map((slug) => ({
   skills: [librarySkills[stackSeeds.indexOf(slug) % librarySkills.length]!.slug],
 }));
 
-const competitors = [
-  'vervoe',
-  'hackerrank',
-  'mercer-mettl',
-  'imocha',
-  'coderbyte',
-  'testgorilla',
-  'wecp',
-  'adaface',
-  'karat',
-  'devskiller',
-] as const;
+function comparisonRows(
+  rows: Array<readonly [dimension: string, competitorPosition: string, qoriumPosition: string]>,
+): CompetitorPage['matrix'] {
+  const completeRows = [
+    ...rows,
+    [
+      'Implementation fit',
+      'Depends on buyer workflow, integrations, and hiring volume',
+      'Proof run should test one real role, one stack, and one shortlist flow',
+    ],
+    [
+      'Decision evidence',
+      'Vendor proof should be reviewed in the buyer environment',
+      'QOrium pages route to trust, library, and demo proof rather than numeric superiority claims',
+    ],
+  ] satisfies Array<readonly [string, string, string]>;
 
-export const competitorPages: CompetitorPage[] = competitors.map((slug) => ({
-  slug,
-  path: `/vs/${slug}`,
-  title: `QOrium vs ${slug
-    .split('-')
-    .map((part) => part[0]!.toUpperCase() + part.slice(1))
-    .join(' ')}`,
-  competitor: slug
-    .split('-')
-    .map((part) => part[0]!.toUpperCase() + part.slice(1))
-    .join(' '),
-  summary: `${slug
-    .split('-')
-    .map((part) => part[0]!.toUpperCase() + part.slice(1))
-    .join(
-      ' ',
-    )} is an established assessment category reference; QOrium compares honestly on structure rather than unsupported numeric claims.`,
-  whereCompetitorIsBetter: [
-    'More mature public customer proof where applicable.',
-    'Broader self-serve footprint in existing global markets.',
-  ],
-  qoriumEdges: [
-    'India-stack depth is first-class in the role graph.',
-    'Calibration status is visible instead of implied.',
-    'Unsupported claims stay gated until live review is complete.',
-  ],
-  matrix: Array.from({ length: 8 }, (_, index) => ({
-    dimension: `Dimension ${index + 1}`,
-    competitor: index % 2 === 0 ? 'Strong established surface' : 'Category-recognized workflow',
-    qorium: index % 2 === 0 ? 'India-first audit posture' : 'Role-graph and evidence-gated claims',
-    competitorPosition:
-      index % 2 === 0 ? 'Strong established surface' : 'Category-recognized workflow',
-    qoriumPosition:
-      index % 2 === 0 ? 'India-first audit posture' : 'Role-graph and evidence-gated claims',
+  return completeRows.map(([dimension, competitorPosition, qoriumPosition]) => ({
+    dimension,
+    competitor: competitorPosition,
+    qorium: qoriumPosition,
+    competitorPosition,
+    qoriumPosition,
     evidenceStatus: 'live-review-required',
-  })),
-  sourceNote:
-    'Requires live review before publication; seeded from internal competitor audit notes.',
+  }));
+}
+
+const competitorBlueprints: Array<{
+  slug: string;
+  competitor: string;
+  summary: string;
+  whereCompetitorIsBetter: string[];
+  qoriumEdges: string[];
+  matrix: CompetitorPage['matrix'];
+  sourceNote: string;
+}> = [
+  {
+    slug: 'vervoe',
+    competitor: 'Vervoe',
+    summary:
+      'Vervoe is strong when buyers want real-work assessments, AI-assisted grading language, and mature public customer proof; QOrium should be evaluated when the buying question is defensible content infrastructure and India/GCC stack depth.',
+    whereCompetitorIsBetter: [
+      'More mature public customer proof and global brand familiarity.',
+      'Clear real-work assessment story for broad hiring teams.',
+      'Established AI-assisted assessment workflow language.',
+    ],
+    qoriumEdges: [
+      'India-stack depth is first-class in the role graph.',
+      'Calibration and evidence status are visible instead of implied.',
+      'Anti-leak and protected-bank posture are central to the page narrative.',
+    ],
+    matrix: comparisonRows([
+      [
+        'Real-work assessment story',
+        'Mature public positioning',
+        'Mapped through role, stack, and skill pages',
+      ],
+      ['AI grading posture', 'Established category language', 'Evidence-gated automation claims'],
+      ['Customer proof', 'Stronger public proof', 'Proof slots stay unclaimed until sourced'],
+      [
+        'India/GCC depth',
+        'General global coverage',
+        'India-stack and GCC context built into the graph',
+      ],
+      [
+        'Question bank protection',
+        'Assessment workflow focus',
+        'Anti-leak lifecycle and gated samples are central',
+      ],
+      [
+        'Buyer next step',
+        'Demo-led vendor evaluation',
+        'Proof run tied to role, stack, and trust review',
+      ],
+    ]),
+    sourceNote:
+      'Official-site live review benchmark completed on 2026-06-02; page avoids unsupported numeric superiority claims.',
+  },
+  {
+    slug: 'hackerrank',
+    competitor: 'HackerRank',
+    summary:
+      'HackerRank is a category reference for developer screening, coding assessments, and technical interviews; QOrium compares as an evidence layer for broader skills, India-stack coverage, and protected content operations.',
+    whereCompetitorIsBetter: [
+      'Developer assessment brand recognition and technical-screening depth.',
+      'Mature interview and coding workflow surface.',
+      'Enterprise familiarity for engineering hiring teams.',
+    ],
+    qoriumEdges: [
+      'Hiring pages extend beyond code into role, stack, and non-technical evidence.',
+      'India/GCC stack pages are built as first-class routes.',
+      'Public pages separate shipped proof from roadmap claims.',
+    ],
+    matrix: comparisonRows([
+      [
+        'Coding assessment authority',
+        'Strong category ownership',
+        'Code-adjacent plus broader role evidence',
+      ],
+      [
+        'Interview workflows',
+        'Mature interview surface',
+        'Assessment-library and pack-first workflow',
+      ],
+      ['Enterprise awareness', 'High global familiarity', 'India/GCC trust and stack specificity'],
+      [
+        'Non-code roles',
+        'Less central to the brand story',
+        'Role graph includes non-tech and enterprise apps',
+      ],
+      [
+        'Leak posture',
+        'Assessment integrity features',
+        'Protected-bank lifecycle is central positioning',
+      ],
+      ['Claim discipline', 'Broad product claims', 'Evidence-gated public page behavior'],
+    ]),
+    sourceNote:
+      'Official-site live review benchmark completed on 2026-06-02; use this page for structural fit, not absolute vendor scoring.',
+  },
+  {
+    slug: 'mercer-mettl',
+    competitor: 'Mercer Mettl',
+    summary:
+      'Mercer Mettl has deep India enterprise familiarity, broad assessment operations, and proctoring-led credibility; QOrium should look cleaner, more transparent, and more content-infrastructure-led.',
+    whereCompetitorIsBetter: [
+      'India enterprise familiarity and assessment operations maturity.',
+      'Broad catalog and proctoring-led service posture.',
+      'Procurement familiarity for larger organizations.',
+    ],
+    qoriumEdges: [
+      'Modern buyer journey with explicit trust, method, and anti-leak links.',
+      'Visible calibration status prevents overclaiming.',
+      'Stack-Vault makes private bank positioning explicit.',
+    ],
+    matrix: comparisonRows([
+      [
+        'India enterprise trust',
+        'Very strong familiarity',
+        'India-built positioning with sharper product narrative',
+      ],
+      [
+        'Proctoring operations',
+        'Established proctoring posture',
+        'Anti-leak content lifecycle complements integrity',
+      ],
+      [
+        'Catalog breadth',
+        'Broad assessment catalog',
+        'Connected role, skill, and stack sitemap graph',
+      ],
+      [
+        'Private bank',
+        'Service-led enterprise model',
+        'Stack-Vault gives explicit customer-exclusive story',
+      ],
+      [
+        'Transparency',
+        'Large-platform complexity',
+        'Evidence labels and source discipline are visible',
+      ],
+      [
+        'Buyer journey',
+        'Procurement-led evaluation',
+        'Demo, trust, library, and proof-run route links',
+      ],
+    ]),
+    sourceNote:
+      'Official-site live review benchmark completed on 2026-06-02; public claims remain qualitative unless sourced.',
+  },
+  {
+    slug: 'imocha',
+    competitor: 'iMocha',
+    summary:
+      'iMocha has a strong skills-intelligence and enterprise assessment posture; QOrium should compete by making bank freshness, role graph, India-stack depth, and audit discipline easier to understand.',
+    whereCompetitorIsBetter: [
+      'Skills intelligence positioning is mature and enterprise-friendly.',
+      'Large-library posture and analytics language are familiar to buyers.',
+      'Established global enterprise sales motion.',
+    ],
+    qoriumEdges: [
+      'Content freshness and anti-leak rotation are surfaced as core infrastructure.',
+      'India enterprise and GCC use cases are named directly.',
+      'Every generated page links back into evidence and trust routes.',
+    ],
+    matrix: comparisonRows([
+      [
+        'Skills intelligence',
+        'Strong category framing',
+        'Role graph plus protected content operations',
+      ],
+      [
+        'Analytics posture',
+        'Enterprise analytics language',
+        'Calibration and evidence status before analytics claims',
+      ],
+      [
+        'Library scale',
+        'Large public posture',
+        '1,000-page library with honest authored/beta labels',
+      ],
+      [
+        'India/GCC specificity',
+        'Global enterprise framing',
+        'India-stack and GCC route families are explicit',
+      ],
+      [
+        'Anti-leak story',
+        'Integrity and assessment operations',
+        'Freshness lifecycle and gated samples are central',
+      ],
+      ['Conversion path', 'Enterprise sales motion', 'Buyer journey routes from every page family'],
+    ]),
+    sourceNote:
+      'Official-site live review benchmark completed on 2026-06-02; no unsupported outcome metrics are published.',
+  },
+  {
+    slug: 'testgorilla',
+    competitor: 'TestGorilla',
+    summary:
+      'TestGorilla is strong on self-serve discovery, skills-test library navigation, and accessible buyer education; QOrium compares by turning discoverability into defensible evidence and trust routing.',
+    whereCompetitorIsBetter: [
+      'Highly discoverable skills-test library and broad buyer education.',
+      'Self-serve packaging and pricing clarity are stronger public signals.',
+      'Mature SMB and mid-market conversion surface.',
+    ],
+    qoriumEdges: [
+      'Trust and evidence posture is woven into every route family.',
+      'India/GCC and stack-specific pages are stronger differentiation angles.',
+      'Protected-bank logic explains why not every item should be public.',
+    ],
+    matrix: comparisonRows([
+      [
+        'Self-serve discovery',
+        'Very strong public navigation',
+        'Connected sitemap families with enterprise proof layers',
+      ],
+      [
+        'Pricing clarity',
+        'Public pricing posture',
+        'Talk-to-sales until founder-locked pricing is approved',
+      ],
+      [
+        'Library breadth',
+        'Broad skills-test library',
+        'Skill graph includes role, stack, and calibration context',
+      ],
+      [
+        'Enterprise trust',
+        'Accessible trust language',
+        'DPDP, method, science, and anti-leak routes connected',
+      ],
+      ['India/GCC depth', 'General global coverage', 'India-stack and GCC pages are first-class'],
+      [
+        'Content protection',
+        'Public library emphasis',
+        'Gated samples plus protected production bank posture',
+      ],
+    ]),
+    sourceNote:
+      'Official-site live review benchmark completed on 2026-06-02; page focuses on buyer-fit tradeoffs.',
+  },
+  {
+    slug: 'codesignal',
+    competitor: 'CodeSignal',
+    summary:
+      'CodeSignal is strong on certified assessment language, technical skills evaluation, and validation-led market posture; QOrium should make assessment science readable for HR, legal, and platform buyers.',
+    whereCompetitorIsBetter: [
+      'Certified assessment and validation language is mature.',
+      'Technical skills evaluation brand is globally familiar.',
+      'Enterprise buyers can understand the science posture quickly.',
+    ],
+    qoriumEdges: [
+      'QOrium separates calibration status by page instead of implying universal maturity.',
+      'India-stack and Stack-Vault content depth widen the buyer context.',
+      'Trust routes connect science, method, responsible AI, and security.',
+    ],
+    matrix: comparisonRows([
+      [
+        'Validation language',
+        'Strong certified-assessment posture',
+        'Transparent calibration labels by page',
+      ],
+      [
+        'Technical evaluation',
+        'Mature technical evaluation brand',
+        'Technical plus enterprise-app and India-stack routes',
+      ],
+      [
+        'Science readability',
+        'Public science framing',
+        'Method, science, and evidence routes linked across pages',
+      ],
+      [
+        'Private content',
+        'Assessment delivery posture',
+        'Stack-Vault frames customer-exclusive libraries',
+      ],
+      [
+        'Buyer audience',
+        'Engineering and talent leaders',
+        'HR, legal, talent, platform, and GCC buyers',
+      ],
+      [
+        'Proof path',
+        'Enterprise evaluation motion',
+        'Role, library, trust, and demo path on every page',
+      ],
+    ]),
+    sourceNote:
+      'Official-site live review benchmark completed on 2026-06-02; QOrium claims stay evidence-gated.',
+  },
+  ...['coderbyte', 'wecp', 'adaface', 'karat', 'devskiller'].map((slug) => {
+    const competitor = slug
+      .split('-')
+      .map((part) => part[0]!.toUpperCase() + part.slice(1))
+      .join(' ');
+    return {
+      slug,
+      competitor,
+      summary: `${competitor} is an established assessment category reference; QOrium compares honestly on structure, buyer journey, India-stack depth, and evidence-gated claims.`,
+      whereCompetitorIsBetter: [
+        'More mature public customer proof where applicable.',
+        'Broader self-serve footprint in existing markets.',
+        'Existing category recognition for the buyer segment it serves.',
+      ],
+      qoriumEdges: [
+        'India-stack depth is first-class in the role graph.',
+        'Calibration status is visible instead of implied.',
+        'Unsupported claims stay gated until live review is complete.',
+      ],
+      matrix: comparisonRows([
+        [
+          'Category familiarity',
+          'Established vendor surface',
+          'Newer but more evidence-gated story',
+        ],
+        [
+          'Library navigation',
+          'Public assessment catalog posture',
+          'Role, skill, stack, and trust graph',
+        ],
+        [
+          'Enterprise trust',
+          'Varies by vendor',
+          'DPDP, method, science, and anti-leak routes connected',
+        ],
+        [
+          'India/GCC specificity',
+          'Generalized coverage',
+          'India-stack and GCC route families are explicit',
+        ],
+        [
+          'Private bank story',
+          'Varies by vendor',
+          'Stack-Vault frames protected customer-exclusive content',
+        ],
+        ['Next step', 'Vendor demo', 'Proof run tied to buyer context and page intent'],
+      ]),
+      sourceNote:
+        'Requires live review before stronger claims; seeded from category audit criteria and kept qualitative.',
+    };
+  }),
+];
+
+export const competitorPages: CompetitorPage[] = competitorBlueprints.map((page) => ({
+  ...page,
+  path: `/vs/${page.slug}`,
+  title: `QOrium vs ${page.competitor}`,
 }));
 
 export const seoSitemapFamilies = {

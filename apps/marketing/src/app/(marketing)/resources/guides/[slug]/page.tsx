@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { PageHero, SectionBand } from '@/components/phase4/MarketingSurface';
+import { EnterpriseJourneyBand, PageHero, SectionBand } from '@/components/phase4/MarketingSurface';
 import { ArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { guides, phase4Faqs } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
@@ -63,6 +63,32 @@ export default async function GuidePage({ params }: Props) {
             </p>
           </div>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title="Turn the guide into an operating decision."
+          description="Each resource page now connects education to action: apply the checklist, inspect the trust posture, and request the template or walkthrough tied to the buyer's hiring motion."
+          proofPoints={[
+            'The open preview explains the decision principle before asking for a lead.',
+            'The CTA keeps the guide context attached to the demo path.',
+            'Trust and library links help evaluators move from advice to vendor evidence.',
+          ]}
+          links={[
+            {
+              label: 'Request full template',
+              href: `/demo?guide=${slug}`,
+              body: 'Carry this guide into a template request or buyer-specific walkthrough.',
+            },
+            {
+              label: 'Review responsible AI',
+              href: '/responsible-ai',
+              body: 'Check how QOrium frames automation, review, and accountability.',
+            },
+            {
+              label: 'Open resources hub',
+              href: '/resources',
+              body: 'Continue through guides, job descriptions, sample packs, and research.',
+            },
+          ]}
+        />
       </main>
     </>
   );

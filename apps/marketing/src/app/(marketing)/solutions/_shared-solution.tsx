@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EnterpriseJourneyBand,
+  PageHero,
+  SectionBand,
+  SurfaceCard,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { phase4Faqs, solutionPages } from '@/content/phase4';
 
@@ -54,6 +60,32 @@ export default async function SolutionDetailPage({ params }: Props) {
             ))}
           </CardGrid>
         </SectionBand>
+        <EnterpriseJourneyBand
+          title={`${page.title} needs a page-to-proof path.`}
+          description="This solution page now closes the buyer loop from audience pain to QOrium wedge, trust review, related library evidence, and a demo path that can be scoped without unsupported public claims."
+          proofPoints={[
+            `Audience is named clearly: ${page.audience}`,
+            'Wedges are presented as buyer decision criteria, not loose feature claims.',
+            'The next action routes to a proof discussion with the page context intact.',
+          ]}
+          links={[
+            {
+              label: 'Discuss this workflow',
+              href: `/demo?solution=${page.slug}`,
+              body: 'Carry this solution context into a 20-minute proof walkthrough.',
+            },
+            {
+              label: 'Review trust posture',
+              href: '/trust',
+              body: 'Check the public controls, method, science, and responsible AI surface.',
+            },
+            {
+              label: 'Browse library evidence',
+              href: '/library',
+              body: 'Move from the solution to skills, roles, stacks, and calibration states.',
+            },
+          ]}
+        />
       </main>
     </>
   );
