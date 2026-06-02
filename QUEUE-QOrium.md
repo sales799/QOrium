@@ -3,7 +3,32 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #24 (Cloudflare OpenAPI route restored)
+**Last touched:** 2026-06-02 — Codex Run #25 (CEO origin-routing decision captured)
+
+---
+
+## RUN #25 — CEO Origin-Routing Decision: KEEP NOW (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Captured CEO decision** — founder chose `KEEP NOW` for current QOrium origin routing.
+- [2026-06-02] **Left Cloudflare DNS unchanged** — no autonomous DNS mutation was performed after the decision.
+- [2026-06-02] **Confirmed current dual-origin posture remains intentional** — apex `qorium.online` remains on old origin `147.93.103.194`; API `api.qorium.online` remains on active origin `187.127.155.150`.
+
+### EVIDENCE
+
+- Public `https://qorium.online/` returned HTTP `200`.
+- Public `https://qorium.online/openapi.json` returned HTTP `200` `application/json`.
+- Public `https://api.qorium.online/healthz` returned HTTP `200` JSON.
+- Forced old-origin probes for OpenAPI, chatbot session, and API health returned HTTP `200`.
+- Forced active-origin probes for OpenAPI, chatbot session, and API health returned HTTP `200`.
+- Active origin `187.127.155.150`: PM2 `qorium-*` online `12/12`, marketing checkout HEAD `3256dd5`.
+- Old origin `147.93.103.194`: PM2 `qorium-*` online `38/38`, marketing checkout HEAD `6ac741c`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Keep consolidation to `187.127.155.150` as a planned infra cleanup, not an urgent production repair.
+- [LOW] If consolidation is later approved, run parity smoke, DNS change, 10-URL smoke, and rollback-window monitoring.
 
 ---
 
@@ -31,11 +56,10 @@
 ### REMAINING FOLLOW-UP
 
 - [MEDIUM] Cloudflare purge-capable token is still unavailable; purge endpoint still returns auth error `10000`. The public issue is fixed by origin refresh, but future manual edge purge still needs a `Zone.Cache Purge` token.
-- [MEDIUM] Apex and API are currently split across old/new origins (`qorium.online` on `147.93.103.194`, `api.qorium.online` on `187.127.155.150`). This is now operationally consistent for the tested public routes, but infra should decide whether to keep dual-origin or move apex back to `187.127.155.150`.
+- [LOW] Apex and API are intentionally split across old/new origins for now (`qorium.online` on `147.93.103.194`, `api.qorium.online` on `187.127.155.150`). CEO decision on 2026-06-02: `KEEP NOW`; consolidation is deferred to planned infra cleanup.
 
 ### FOUNDER / INFRA ACTION REQUIRED
 
-- [MEDIUM] Decide whether Cloudflare apex `qorium.online` should remain on `147.93.103.194` or move back to `187.127.155.150`; Codex did not mutate DNS in Run #24.
 - [LOW] Provide a Cloudflare token with `Zone.Cache Purge` permission for future purge-only repairs.
 
 ---
