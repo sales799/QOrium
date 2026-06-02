@@ -3,7 +3,35 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #28 (Gatekeeper PM2/WCAG deploy)
+**Last touched:** 2026-06-02 — Codex Run #29 (Marketing Redesign Phase 1 deploy)
+
+---
+
+## RUN #29 — Marketing Redesign Phase 1 Deploy (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Executed `CODEX_PENDING_QORIUM_MARKETING_REDESIGN_v1_LANE_B_ARJUN.md` Phase 1** — shipped Tailwind v4 A/B/C zone tokens, IBM Plex font wiring, full marketing IA mega-menu/footer coverage, and evidence-gated navigation/footer links.
+- [2026-06-02] **Kept honesty gates closed** — Case Studies and Customer Stories links remain hidden while their evidence flags are false; live browser probe counted `0` visible links for both.
+- [2026-06-02] **Fixed live release blocker in deploy script** — raw deploy now preserves `apps/marketing/.env.production` and reuses the active-origin Cloudflare origin cert instead of failing on `www.qorium.online` Let's Encrypt issuance.
+- [2026-06-02] **Deployed via existing atomic deploy path** — `BRANCH=codex/qorium-marketing-redesign-phase1 pnpm deploy:atomic:raw`; branch head `3e99d8b`.
+- [2026-06-02] **Verified live Phase 1 UX** — desktop keyboard opens Platform mega-menu, right-rail promo renders, footer Library column renders, and mobile accordion exposes Platform/Resources content.
+
+### EVIDENCE
+
+- Branch: `codex/qorium-marketing-redesign-phase1`.
+- Commits: `83c9fdb` (`feat(marketing): harden phase 1 design shell`), `3e99d8b` (`fix(marketing): reuse origin cert during deploy`).
+- Local verification before deploy: marketing test `57/57`, marketing typecheck/lint/build pass, full workspace lint/test/typecheck/build pass, `pnpm secrets:scan` pass, `pnpm audit --audit-level=high --prod` pass, marketing Playwright smoke `10/10`, LHCI desktop local scores `99-100`.
+- Live HTTP 200: `/healthz`, `/`, `/product`, `/pricing`, `/features/readybank`, `/security`, `/resources/docs`, `/openapi.json`, and `api.qorium.online/chatbot/v1/healthz`.
+- Live Playwright: critical-route smoke `10/10`; Phase 1 custom probe passed desktop keyboard menu, right rail, footer Library, mobile accordion, and hidden proof links.
+- Live Lighthouse desktop: home performance `88`, accessibility `100`, best practices `93`, SEO `92`, LCP `1994ms`, CLS `0`, TBT `0`; product performance `90`, accessibility `96`, best practices `93`, SEO `92`, LCP `1848ms`, CLS `0`, TBT `0`; pricing performance `95`, accessibility `100`, best practices `93`, SEO `92`, LCP `1391ms`, CLS `0`, TBT `0`.
+- PM2 after deploy: `qorium-marketing` online, `0` restarts, `qorium-chatbot` online, `0` restarts, `qorium-leak-crawler` online with `87m` uptime.
+- Rakshak floor: persisted 2026-06-02 reports remain above 80/80 — `qorium.online` GO `94/100`, `api.qorium.online` GO `89/100`, `admin.qorium.online` GO `88/100`; live quality gate returns `92/92`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Optional `qorium.in` redirect certificate still fails ACME HTTP challenge and remains warning-only; primary `qorium.online` deploy is not blocked.
+- [LOW] Fresh full Rakshak MCP orchestration was not callable from this thread; same-day persisted Rakshak GO reports and live quality-gate evidence were used for the release floor.
 
 ---
 
