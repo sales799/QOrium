@@ -30,7 +30,7 @@ export async function runCode(language: SandboxLanguage, source: string, stdin =
     const compiled = await runProcess("javac", [file], "", 10_000);
     if (compiled.exitCode !== 0) {
       if (compiled.stderr.includes("Unable to locate a Java Runtime")) {
-        return await runDockerJava(dir);
+        return await runDockerJava(source, stdin);
       }
       return compiled;
     }
@@ -40,11 +40,22 @@ export async function runCode(language: SandboxLanguage, source: string, stdin =
   }
 }
 
-function runDockerJava(dir: string) {
+function runDockerJava(source: string, stdin: string) {
+  const encodedSource = Buffer.from(source, "utf8").toString("base64");
   return runProcess(
     "docker",
-    ["run", "--rm", "-v", `${dir}:/work`, "-w", "/work", "eclipse-temurin:21-jdk", "sh", "-lc", "javac Main.java && java Main"],
-    "",
+    [
+      "run",
+      "--rm",
+      "-i",
+      "-e",
+      `QORIUM_JAVA_SOURCE_B64=${encodedSource}`,
+      "eclipse-temurin:21-jdk",
+      "sh",
+      "-lc",
+      "mkdir -p /work && printf '%s' \"$QORIUM_JAVA_SOURCE_B64\" | base64 -d > /work/Main.java && javac /work/Main.java && java -cp /work Main"
+    ],
+    stdin,
     120_000
   );
 }

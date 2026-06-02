@@ -36,3 +36,4 @@ qorium-app/test-results/
 .vscode/
 * 2.md
 * 2.docx
+*.append-*

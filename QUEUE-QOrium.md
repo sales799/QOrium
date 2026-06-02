@@ -3,7 +3,130 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-01 — Codex Run #18 (old-origin chatbot/nginx fixed; active-origin SSH blocked)
+**Last touched:** 2026-06-02 — Codex Run #22 (PROVE queue reconciliation + live route blocker refresh)
+
+---
+
+## RUN #22 — Codex PROVE Queue Reconciliation + Live Route Blocker Refresh (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Accepted founder PROVE and reconciled the pasted queue against this checkout** — the branch is `specs`, remote `qorium` is configured, and the named Batch A-E files are already tracked on the current branch.
+- [2026-06-02] **Confirmed prior logical-batch evidence** — relevant pushed commits include `1a85334` marketing redesign brief, `65ad4e0` live-domain working-file alignment, and `6f2a456` active-origin blocker evidence; all include a Claude/Talpro co-author footer.
+- [2026-06-02] **Completed missing gitignore hygiene** — added `*.append-*` alongside the existing iCloud duplicate ignores `* 2.md` and `* 2.docx`.
+- [2026-06-02] **Corrected stale `_shared/CODEX_PENDING.md` status** — P2 rows are now marked done with proof SHAs: `9f5d215`, `40452c4`, `7fad155`, `55b4865`, and `bb1d459`.
+- [2026-06-02] **Verified current public live state** — root site is live, ReadyBank `/healthz` is live, but chatbot and OpenAPI routes still fail publicly.
+- [2026-06-02] **Confirmed marketing implementation branch separation** — real marketing routes live on worktree `/private/tmp/qorium-marketing-site` branch `codex/qorium-marketing-phase4-main`; stray untracked `apps/marketing/src/app/api/[...path]/route.ts` files in `specs` are fallback 404 fragments and were not staged.
+- [2026-06-02] **Fixed local Java sandbox verification failure** — root cause was Docker fallback mounting a macOS temp directory that appeared empty inside the container. The fallback now passes Java source into the container via base64 env payload and preserves program stdin.
+- [2026-06-02] **Added regression proof for Java Docker fallback** — new `qorium-app/tests/sandbox-runner.test.ts` covers `runCode("java", ...)` when local Java is unavailable.
+- [2026-06-02] **Full local QOrium app gate passed after fix** — `pnpm run ci` passed seed, secret scan, typecheck, build, smoke, and Playwright e2e.
+
+### EVIDENCE
+
+- `https://qorium.online/` → HTTP `200` HTML.
+- `https://qorium.online/product/api` → HTTP `200` HTML.
+- `https://qorium.online/resources/docs` → HTTP `307` then `200` to `/product/api`.
+- `https://api.qorium.online/healthz` → HTTP `200` JSON.
+- `https://api.qorium.online/health` → HTTP `404` problem JSON.
+- `https://api.qorium.online/chatbot/v1/healthz` → HTTP `404` HTML.
+- `POST https://qorium.online/api/chatbot/session` with `{}` → HTTP `404` problem JSON.
+- `https://qorium.online/openapi.json` → HTTP `404` HTML with `x-nextjs-cache: HIT`.
+- Forced old-origin chatbot health: `curl -k --resolve api.qorium.online:443:147.93.103.194 https://api.qorium.online/chatbot/v1/healthz` → HTTP `200` JSON.
+- Forced `187.127.155.150` chatbot health and OpenAPI probes → HTTP `404`; strict TLS also fails local certificate verification on the forced-origin path.
+- SSH active-origin retry: `ssh -p 2244 root@187.127.155.150 true` → `Permission denied (publickey)`.
+- No local `CLOUDFLARE_*` or `CF_*` token names were exposed in this shell, `/opt/talpro-mcp-server/.env`, or `.setup-tokens.json`.
+- Regression test: `pnpm exec vitest run tests/sandbox-runner.test.ts` first failed with Java sandbox exit code `2`, then passed after the Docker fallback fix.
+- Local app gate: `pnpm run ci` in `qorium-app` passed; smoke ended with `Smoke OK: stats, library, assessment, grading, audit, JS/Python/Java sandbox`; Playwright e2e passed `1/1`.
+
+### HARD BLOCKERS
+
+- [HIGH] **Active-origin access / route authority missing** — the chatbot service is present on old origin `147.93.103.194`, but the public Cloudflare-routed path still returns `404`. The active origin `187.127.155.150` rejects the available SSH key, so Codex cannot deploy, inspect PM2, or repair nginx there from this session.
+- [MEDIUM] **OpenAPI JSON is not currently served by either tested origin** — the previous Run #21 claim that origin-bypass returned `200` is stale from this workstation's 2026-06-02 probe. This now needs origin-side route/deploy repair first, then Cloudflare purge only if the public edge remains stale after origin repair.
+
+### FOUNDER / INFRA ACTION REQUIRED
+
+- [HIGH] Provide working SSH/deploy access for `187.127.155.150` (preferred alias: `qorium-active-origin`) or explicitly authorize a Cloudflare route/DNS change to the origin that has the chatbot route.
+- [MEDIUM] Provide a Cloudflare token with `Zone.Cache Purge` permission for `qorium.online` after the origin-side OpenAPI route is repaired.
+
+---
+
+## RUN #21 — Codex PROVE CLOUDFLARE PURGE Retry (2026-06-01)
+
+### COMPLETED
+
+- [2026-06-01] **Re-tested edge after founder prompt** — public `https://qorium.online/openapi.json` still returns HTTP 404 HTML with stale Next cache headers; origin-bypass to `187.127.155.150` still returns HTTP 200 `application/json`.
+- [2026-06-01] **Re-tested purge API** — Cloudflare zone lookup still succeeds, but cache purge still fails with auth error `10000`.
+- [2026-06-01] **Checked for alternate purge token** — no `CLOUDFLARE_*` or `CF_*` token is exposed in local environment, VPS environment, `/opt/talpro-mcp-server/.env`, or `.setup-tokens.json`.
+- [2026-06-01] **Verified docs page remains live** — `https://qorium.online/resources/docs` follows to HTTP 200 HTML; the remaining failure is the stale `/openapi.json` edge object.
+
+### EVIDENCE
+
+- Public Cloudflare path: `https://qorium.online/openapi.json` → 404 `text/html`, `x-nextjs-cache: HIT`.
+- Origin bypass: `curl --resolve qorium.online:443:187.127.155.150 https://qorium.online/openapi.json` → 200 `application/json`.
+- Cloudflare purge API: zone `7ee17856a93d2bca160ff1bdc3291354`; response `success=false`, error `10000 Authentication error`.
+
+### HARD BLOCKER
+
+- [MEDIUM] **No purge-capable Cloudflare credential available to Codex** — autonomous work remains blocked until Cloudflare dashboard purge is performed or a token with `Zone.Cache Purge` permission is installed.
+
+### FOUNDER / INFRA ACTION REQUIRED
+
+- [MEDIUM] Purge `https://qorium.online/openapi.json` in Cloudflare dashboard, or provide a scoped API token with `Zone.Cache Purge` permission for `qorium.online`.
+
+---
+
+## RUN #20 — Codex PROVE CLOUDFLARE PURGE (2026-06-01)
+
+### COMPLETED
+
+- [2026-06-01] **Re-verified split-brain cache state** — Cloudflare-fronted `https://qorium.online/openapi.json` still returns HTTP 404 HTML with `x-nextjs-cache: HIT`; origin-bypass `https://qorium.online/openapi.json` resolved directly to `187.127.155.150` returns HTTP 200 `application/json`.
+- [2026-06-01] **Retried Cloudflare single-URL purge** — zone lookup for `qorium.online` succeeded, but `POST /zones/:zone/purge_cache` failed with Cloudflare auth error `10000`.
+
+### EVIDENCE
+
+- Public Cloudflare path: `https://qorium.online/openapi.json` → 404 `text/html`, `cf-cache-status: DYNAMIC`, `x-nextjs-cache: HIT`.
+- Origin bypass: `curl --resolve qorium.online:443:187.127.155.150 https://qorium.online/openapi.json` → 200 `application/json`.
+- Cloudflare API: zone `7ee17856a93d2bca160ff1bdc3291354` found; purge response `success=false`, error `10000 Authentication error`.
+
+### HARD BLOCKER
+
+- [MEDIUM] **Available Cloudflare token lacks Zone Cache Purge permission** — the stored certbot token can read/modify DNS but cannot purge edge cache. No autonomous safe path remains for this exact purge without a purge-capable token or dashboard action.
+
+### FOUNDER / INFRA ACTION REQUIRED
+
+- [MEDIUM] In Cloudflare dashboard, purge `https://qorium.online/openapi.json` and `https://qorium.online/resources/docs`, or provide a scoped API token with `Zone.Cache Purge` permission for `qorium.online`.
+
+---
+
+## RUN #19 — Codex PROVE NEXT Active-Origin Deploy + Verification (2026-06-01)
+
+### COMPLETED
+
+- [2026-06-01] **Active-origin deploy completed** — VPS `/opt/apps/qorium-marketing` merged production hotfix `735dc17` with pushed marketing tip `6ac741c`, producing deployed merge `3256dd5`.
+- [2026-06-01] **C1 chatbot runtime moved off ATS bridge port** — `qorium-chatbot` now listens on 5122; local health `http://127.0.0.1:5122/v1/chatbot/health` returned 200 and public `POST https://qorium.online/api/chatbot/session` returned 200.
+- [2026-06-01] **Safe deploy passed after preserving runtime drift** — untracked `services/keeper` was moved out of the pnpm workspace during frozen install, restored after deploy, and the pre-existing B10 runtime drift was re-applied.
+- [2026-06-01] **Fleet registry P1 verified fixed** — `talpro_qorium_fleet_status` enumerates PM2 default namespace: 12 instances / 8 services / 0 errored, including `qorium-keeper`.
+- [2026-06-01] **API health P1 verified fixed** — `https://api.qorium.online/health` and `/healthz` both returned 200 JSON.
+- [2026-06-01] **Live shipped surfaces verified** — `/resources/docs`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, `/compliance-dpdp`, and `/product/api` returned 200 HTML with JSON-LD; `/v1/jd-forge/demo` returned 200; `/v1/jd-forge/demo/plan-pdf` returned 202 and its signed URL returned `%PDF-1.4`.
+
+### EVIDENCE
+
+- Commits: `9c12788` chatbot/proof fallback hardening, `8151e0f` honest public API docs, `6ac741c` chatbot 5105→5122 port move, active-origin deploy merge `3256dd5`.
+- Local marketing worktree verification at `6ac741c`: 50 unit tests passed, typecheck passed, lint passed, production build generated 1,195 routes, Playwright smoke 10/10 passed.
+- Active-origin merged-tree verification at `3256dd5`: 53 marketing tests passed, marketing typecheck/lint passed, 22 anti-leak tests passed, anti-leak typecheck passed.
+- Safe-deploy summary: pnpm frozen install passed with 15 workspace projects; full workspace build passed; smoke URLs returned 200 for `qorium.online/healthz`, `api.qorium.online/healthz`, `api.qorium.online/jdf/v1/health`, `api.qorium.online/sv/v1/health`, and `admin.qorium.online/api/health`.
+- Gatekeeper after deploy: `qorium.online` 36/39 (92%), Grade A, SHIP IT. Latest full Rakshak remains `94/100`, `17/17`, GO.
+- WCAG axe-core through Cloudflare: 0 violations on `/resources/docs`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, `/compliance-dpdp`.
+- CWV sample: Lighthouse desktop on `/resources/docs` performance 99, accessibility 100, SEO 100, FCP 0.8s, LCP 0.9s, CLS 0, TBT 0ms.
+
+### HARD BLOCKER
+
+- [MEDIUM] **Cloudflare cache purge permission missing for `/openapi.json`** — origin and Nginx return 200 JSON for `/openapi.json`, but Cloudflare still serves a stale 404 for that exact path. The available Cloudflare token is DNS-scoped; single-URL purge returned Cloudflare auth error `10000`. This leaves one Gatekeeper extended SEO broken-link finding until a cache-purge-capable token is provided or the edge cache naturally clears.
+
+### FOUNDER / INFRA ACTION REQUIRED
+
+- [MEDIUM] Provide a Cloudflare API token with Zone Cache Purge permission for `qorium.online`, or purge `https://qorium.online/openapi.json` from the Cloudflare dashboard.
+- [LOW] Add a GitHub deploy credential on the VPS if production-only merge commits must be pushed from the active origin; local branch `codex/qorium-marketing-phase4-main` is pushed through `6ac741c`, while VPS deploy merge `3256dd5` could not be pushed from the VPS because GitHub HTTPS credentials are absent there.
 
 ---
 

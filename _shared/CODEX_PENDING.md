@@ -11,7 +11,7 @@ Source of truth for Codex execution order in this workspace.
 
 - [x] QG-02: Keep generated local artifacts out of release diffs.
   - Shipped: root `.gitignore`
-  - Covers: `node_modules`, `.next`, `.turbo`, `*.tsbuildinfo`, local logs, pid files, and env files.
+  - Covers: `node_modules`, `.next`, `.turbo`, `*.tsbuildinfo`, local logs, pid files, env files, iCloud `* 2.md`/`* 2.docx` duplicates, and append-shard `*.append-*` artifacts.
   - Local proof: `pnpm run ci`
 
 - [x] QG-03: Restore git object integrity before auto-merge.
@@ -58,8 +58,27 @@ Source of truth for Codex execution order in this workspace.
 
 ## P2 — Phase 1 Product Hardening
 
-- [ ] Close QG-05 conditional Rakshak follow-ups: full 2h soak, public rate-limit visibility, `security.txt`, audit API customer smoke, chaos drill, DKIM, and error tracking.
-- [ ] Replace in-memory API store with Drizzle/Postgres repository implementation.
-- [ ] Add persistent reasoning-trace object storage for M4 grader.
-- [ ] Add recruiter authentication instead of demo recruiter identity.
-- [ ] Add Playwright browser e2e for builder → candidate → result.
+- [x] Close QG-05 conditional Rakshak follow-ups: full 2h soak, public rate-limit visibility, `security.txt`, audit API customer smoke, chaos drill, DKIM, and error tracking.
+  - Shipped: `9f5d215` (`qorium: gate conditional Rakshak follow-ups`).
+
+- [x] Replace in-memory API store with Drizzle/Postgres repository implementation.
+  - Shipped: `40452c4` (`qorium: persist API workflow through Postgres repository`).
+
+- [x] Add persistent reasoning-trace object storage for M4 grader.
+  - Shipped: `7fad155` (`qorium: persist grader reasoning traces`).
+
+- [x] Add recruiter authentication instead of demo recruiter identity.
+  - Shipped: `55b4865` (`qorium: add recruiter session auth`).
+
+- [x] Add Playwright browser e2e for builder → candidate → result.
+  - Shipped: `bb1d459` (`qorium: add browser e2e for assessment flow (#83)`).
+
+## P3 — Current Live Route Blockers
+
+- [ ] Restore public chatbot health and session routes on the Cloudflare-routed origin.
+  - Current proof from 2026-06-02: `https://api.qorium.online/chatbot/v1/healthz` returns `404`, while forced old-origin `147.93.103.194` returns `200`.
+  - Blocker: SSH to active origin `187.127.155.150:2244` still rejects the available key.
+
+- [ ] Restore public OpenAPI JSON at `https://qorium.online/openapi.json`.
+  - Current proof from 2026-06-02: public path returns `404` HTML with `x-nextjs-cache: HIT`; forced-origin probes to both `187.127.155.150` and `147.93.103.194` also return `404` from this workstation.
+  - Blocker: needs active-origin deploy/routing access and, after origin repair, a Cloudflare purge-capable token if the stale edge object persists.
