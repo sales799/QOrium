@@ -134,7 +134,7 @@ export function WebPageJsonLd({
   name: string;
   description: string;
   url: string;
-  type?: 'WebPage' | 'AboutPage' | 'TechArticle';
+  type?: 'WebPage' | 'AboutPage' | 'CollectionPage' | 'TechArticle';
 }) {
   const data = {
     '@context': 'https://schema.org',

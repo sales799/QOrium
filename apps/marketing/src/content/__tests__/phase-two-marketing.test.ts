@@ -7,8 +7,10 @@ import AssessmentPlatformsPage from '@/app/(marketing)/solutions/assessment-plat
 import EnterprisesGccPage from '@/app/(marketing)/solutions/enterprises-gcc/page';
 import StaffingFirmsPage from '@/app/(marketing)/solutions/staffing-firms/page';
 import JdForgePage from '@/app/(marketing)/platform/jd-forge/page';
+import SamplePacksPage from '@/app/(marketing)/resources/sample-packs/page';
 import ReadyBankPage from '@/app/(marketing)/platform/readybank/page';
 import StackVaultPage from '@/app/(marketing)/platform/stack-vault/page';
+import TryJdForgePage from '@/app/(marketing)/try/jd-forge/page';
 import { platformProducts, solutionBuyerPages } from '@/content/copy/phase2';
 
 Object.assign(globalThis, { React });
@@ -77,5 +79,14 @@ describe('phase two marketing pages', () => {
       );
       expect(breadcrumb?.itemListElement?.[1]?.item).toBe('https://qorium.online/solutions');
     }
+  });
+
+  it('emits structured data on interactive proof surfaces', () => {
+    expect(jsonLdTypesFor(TryJdForgePage)).toEqual(
+      expect.arrayContaining(['WebPage', 'SoftwareApplication']),
+    );
+    expect(jsonLdTypesFor(SamplePacksPage)).toEqual(
+      expect.arrayContaining(['CollectionPage', 'ItemList']),
+    );
   });
 });

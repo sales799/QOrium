@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 
 import { SamplePackHub } from '@/components/interactive-proof/SamplePacks';
+import { ItemListJsonLd, WebPageJsonLd } from '@/components/seo/JsonLd';
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { listSamplePacks } from '@/content/interactive-proof';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Sample Packs',
@@ -11,8 +14,25 @@ export const metadata: Metadata = {
 };
 
 export default function SamplePacksPage() {
+  const packs = listSamplePacks();
+
   return (
     <>
+      <WebPageJsonLd
+        name="Sample Packs"
+        description={metadata.description ?? ''}
+        url={`${siteConfig.url}/resources/sample-packs`}
+        type="CollectionPage"
+      />
+      <ItemListJsonLd
+        name="QOrium sample assessment packs"
+        url={`${siteConfig.url}/resources/sample-packs`}
+        items={packs.map((pack) => ({
+          name: pack.title,
+          url: `${siteConfig.url}/resources/sample-packs/${pack.slug}`,
+          description: pack.summary,
+        }))}
+      />
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <p className="font-mono text-xs font-semibold uppercase text-signal-300">Sample packs</p>

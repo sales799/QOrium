@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 
 import { JdForgeDemo } from '@/components/interactive-proof/JdForgeDemo';
+import { SoftwareApplicationJsonLd, WebPageJsonLd } from '@/components/seo/JsonLd';
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Try JD-Forge',
@@ -12,6 +14,17 @@ export const metadata: Metadata = {
 export default function TryJdForgePage() {
   return (
     <>
+      <WebPageJsonLd
+        name="Try JD-Forge"
+        description={metadata.description ?? ''}
+        url={`${siteConfig.url}/try/jd-forge`}
+      />
+      <SoftwareApplicationJsonLd
+        name="QOrium JD-Forge public demo"
+        description={metadata.description ?? ''}
+        url={`${siteConfig.url}/try/jd-forge`}
+        category="RecruitingApplication"
+      />
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <p className="font-mono text-xs font-semibold uppercase text-signal-300">Try JD-Forge</p>
