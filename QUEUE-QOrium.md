@@ -3,7 +3,56 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #37 (Phase 4 Sentry Observability Proof)
+**Last touched:** 2026-06-02 — Codex Run #39 (State Correction Wave-2 SC-1/SC-2/SC-4)
+
+---
+
+## RUN #39 — State Correction Wave-2 SC-1/SC-2/SC-4 (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Corrected QOrium canon for current routing and fleet truth** — `CLAUDE.md` now records active-origin production routing, old-origin rollback posture, active-origin `12/12` QOrium PM2 services online, and old-origin `38/38` QOrium PM2 services online with unstable restarts `0`.
+- [2026-06-02] **Added the fleet snapshot helper** — `apps/scripts/qorium-fleet-snapshot.sh` queries both `qorium-active-origin` and `talpro-vps`, filters PM2 names by `^qorium-`, and prints count/status/restart/memory evidence.
+- [2026-06-02] **Closed the health-path truth probe** — `https://api.qorium.online/healthz` and `/health` return HTTP `200`; `https://api.qorium.online/v1/healthz` and `/v1/health` return HTTP `404`, so watchdogs must use unversioned health paths until N11 intentionally ships aliases.
+- [2026-06-02] **Created the NIRANTAR sunset replacement stub** — `infra/NIRANTAR-Replacement-Plan-v0.md` records required capabilities, migration options, CTO recommendation, and the 2026-07-01 / 2026-08-15 / 2026-08-31 timeline.
+
+### EVIDENCE
+
+- Fleet script run: active origin `count=12`; old origin `count=38`; all listed QOrium services `online`; unstable restarts `0`.
+- API health probes: `/healthz` HTTP `200`; `/health` HTTP `200`; `/v1/healthz` HTTP `404`; `/v1/health` HTTP `404`.
+- NIRANTAR probe: `https://nirantar.talpro.in/api/health` HTTP `200` with `deprecation: true` and `sunset: Mon, 31 Aug 2026 00:00:00 GMT`.
+
+### REMAINING FOLLOW-UP
+
+- [PARTIAL] **SC-3 registry implementation** — `talpro_qorium_fleet_status` implementation is outside this repository/tool surface in this Codex session. The canonical script and docs now point future sessions to raw PM2 across both origins until the MCP registry is patched.
+- [BLOCKED] **NIRANTAR final sunset decision** — default is `nirantar-v2`; CEO/CTO final decision remains required after 360-audit.
+
+---
+
+## RUN #38 — PROVE Archive Reverification + Wave-2 Specs Refresh (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Fast-forwarded the clean specs worktree to the current remote head** — `qorium/specs` is at `17bac264bde112131717fc585f3235646a29d661`, which added Wave-2 shard specs for assessment formats, enterprise surface, flag pointers, and state correction.
+- [2026-06-02] **Reverified the public production route matrix** — `https://qorium.online/`, `/openapi.json`, `/sitemap.xml`, `https://api.qorium.online/chatbot/v1/healthz`, `https://api.qorium.online/healthz`, `https://api.qorium.online/health`, `https://admin.qorium.online/api/health`, and `/v1/observability/sentry` all returned HTTP `200`.
+- [2026-06-02] **Reverified security headers** — sampled apex, API, and admin responses include HSTS, CSP, frame protection, content-type protection, referrer policy, permissions policy, and rate-limit policy headers where applicable.
+- [2026-06-02] **Reverified active-origin runtime** — `qorium-active-origin` reports `/opt/apps/qorium-marketing/current` at `031883a` on branch `codex/saml-live-active-origin-20260602`; PM2 QOrium fleet is `12/12` online with `51` aggregate restarts and `0` unstable restarts.
+- [2026-06-02] **Reverified repository safety** — `git diff --check HEAD^..HEAD` passed; `gitleaks detect --log-opts=HEAD^..HEAD` found `0` leaks; `pnpm scan:secrets` in `qorium-app` passed across `69` tracked/untracked text files.
+- [2026-06-02] **Reverified sitemap health** — public sitemap is HTTP `200`, `application/xml`, `211200` bytes, with `1190` `<loc>` entries.
+
+### EVIDENCE
+
+- Specs SHA: `17bac264bde112131717fc585f3235646a29d661`.
+- Active-origin marketing SHA: `031883a`.
+- Sentry status JSON: `{"ok":true,"data":{"provider":"sentry","enabled":false,"environment":"production","dsnConfigured":false}}`.
+- PM2: `12/12 online restarts=51 unstable=0`.
+- Rakshak floor remains same-day certified: `qorium.online` GO `94/100`, `api.qorium.online` GO `89/100`, `admin.qorium.online` GO `88/100`.
+
+### REMAINING FOLLOW-UP
+
+- [BLOCKED] **Real Sentry event capture** — production has no `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, or `SENTRY_PROJECT`; live status remains `enabled:false`, `dsnConfigured:false`. Owner: Founder/Sentry admin.
+- [IN PROGRESS] **Bing sitemap processing** — no Bing/Webmaster/IndexNow credential names are present locally or on active origin; public sitemap is healthy and Bing processing remains an external wait.
+- [READY] **Wave-2 implementation shards** — specs are now queued on `qorium/specs`; execute in the declared shard order after archive blocker decisions.
 
 ---
 
