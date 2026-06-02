@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Download, Filter, Loader2, LockKeyhole, ShieldCheck } from 'lucide-react';
 
+import { trackProofEvent } from '@/components/interactive-proof/ProofTelemetry';
 import { Button } from '@/components/ui/button';
 import { type SamplePack, listSamplePacks } from '@/content/interactive-proof';
 import { cn } from '@/lib/cn';
@@ -17,6 +18,10 @@ export function SamplePackHub() {
   const [family, setFamily] = React.useState('All');
   const visible = family === 'All' ? packs : packs.filter((pack) => pack.family === family);
 
+  React.useEffect(() => {
+    trackProofEvent('sample_pack_hub_view', { pack_count: packs.length });
+  }, [packs.length]);
+
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -25,7 +30,10 @@ export function SamplePackHub() {
           <button
             key={item}
             type="button"
-            onClick={() => setFamily(item)}
+            onClick={() => {
+              setFamily(item);
+              trackProofEvent('sample_pack_filtered', { family: item });
+            }}
             className={cn(
               'rounded-md border px-3 py-2 text-sm font-semibold transition-colors',
               family === item
@@ -42,6 +50,12 @@ export function SamplePackHub() {
           <Link
             key={pack.slug}
             href={`/resources/sample-packs/${pack.slug}`}
+            onClick={() =>
+              trackProofEvent('sample_pack_card_click', {
+                slug: pack.slug,
+                family: pack.family,
+              })
+            }
             className="group flex min-h-72 flex-col rounded-lg border border-border bg-card p-5 transition-colors hover:border-secondary/60"
           >
             <div className="flex items-start justify-between gap-4">
@@ -89,6 +103,9 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
       const payload = (await response.json()) as { data?: { pack: SamplePack } };
       if (!response.ok || !payload.data?.pack) throw new Error('unlock failed');
       setUnlocked(payload.data.pack);
+      trackProofEvent('sample_pack_unlock_submitted', { slug: pack.slug });
+      trackProofEvent('sample_pack_pdf_email_sent', { slug: pack.slug });
+      trackProofEvent('proof_cta_clicked', { surface: 'sample_pack_unlock', slug: pack.slug });
       setStatus('idle');
     } catch {
       setStatus('error');
@@ -97,6 +114,19 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
 
   const fullPack = unlocked ?? pack;
   const lockedCount = pack.itemCount - pack.previewItems.length;
+
+  React.useEffect(() => {
+    trackProofEvent('sample_pack_preview_view', {
+      slug: pack.slug,
+      preview_count: pack.previewItems.length,
+    });
+  }, [pack.previewItems.length, pack.slug]);
+
+  React.useEffect(() => {
+    if (unlocked) {
+      trackProofEvent('sample_pack_full_view', { slug: pack.slug, item_count: pack.itemCount });
+    }
+  }, [pack.itemCount, pack.slug, unlocked]);
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">

@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Download, FileText, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
 
+import { trackProofEvent } from '@/components/interactive-proof/ProofTelemetry';
 import { Button } from '@/components/ui/button';
 import { type JdForgeDemoResult, runJdForgeDemo, sampleJds } from '@/content/interactive-proof';
 import { cn } from '@/lib/cn';
@@ -67,6 +68,10 @@ export function JdForgeDemo({
       const payload = (await response.json()) as { ok: boolean; data?: JdForgeDemoResult };
       if (!response.ok || !payload.data) throw new Error('demo failed');
       setResult(payload.data);
+      trackProofEvent('jd_forge_demo_extracted', {
+        skill_count: payload.data.skills.length,
+        low_confidence: Boolean(payload.data.lowConfidenceReason),
+      });
       setStatus('idle');
     } catch {
       setStatus('error');
@@ -83,6 +88,8 @@ export function JdForgeDemo({
         body: JSON.stringify({ email, plan_id: result.planId }),
       });
       if (!response.ok) throw new Error('pdf failed');
+      trackProofEvent('jd_forge_demo_plan_pdf_requested', { plan_id: result.planId });
+      trackProofEvent('proof_cta_clicked', { surface: 'jd_forge_plan_pdf' });
       setPdfState('sent');
     } catch {
       setPdfState('error');
@@ -122,6 +129,10 @@ export function JdForgeDemo({
                 onClick={() => {
                   setJdText(sample.body);
                   setResult(runJdForgeDemo(sample.body));
+                  trackProofEvent('jd_forge_demo_sample_loaded', {
+                    sample_id: sample.id,
+                    title: sample.title,
+                  });
                 }}
                 className={cn(
                   'rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors',
@@ -141,6 +152,7 @@ export function JdForgeDemo({
             id="jd-demo-textarea"
             value={jdText}
             onChange={(event) => setJdText(event.target.value)}
+            onPaste={() => trackProofEvent('jd_forge_demo_paste', { surface: 'jd_forge_demo' })}
             className={cn(
               'mt-2 min-h-44 w-full resize-y rounded-md border p-3 text-sm leading-6 outline-none focus:ring-2',
               dark
@@ -173,6 +185,7 @@ export function JdForgeDemo({
             'border-b p-4 lg:border-b-0 lg:border-r',
             dark ? 'border-white/10' : 'border-border',
           )}
+          aria-live="polite"
         >
           <p
             className={cn(
@@ -195,6 +208,12 @@ export function JdForgeDemo({
               <Link
                 key={skill.name}
                 href={skill.libraryHref}
+                onClick={() =>
+                  trackProofEvent('jd_forge_demo_skill_clicked', {
+                    skill: skill.name,
+                    href: skill.libraryHref,
+                  })
+                }
                 className={cn(
                   'flex items-center justify-between gap-3 rounded-md border p-3 text-sm transition-colors',
                   dark
@@ -273,6 +292,10 @@ export function JdForgeDemo({
           <div className="mt-5 flex flex-col gap-2">
             <Link
               href={`/demo?plan=${result.planId}`}
+              onClick={() => {
+                trackProofEvent('jd_forge_demo_demo_cta_click', { plan_id: result.planId });
+                trackProofEvent('proof_cta_clicked', { surface: 'jd_forge_demo' });
+              }}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Book a demo with this plan

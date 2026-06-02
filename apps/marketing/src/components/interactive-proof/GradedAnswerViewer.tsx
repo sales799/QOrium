@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { CheckCircle2, ChevronDown, Copy, Loader2, ThumbsDown, ThumbsUp } from 'lucide-react';
 
+import { trackProofEvent } from '@/components/interactive-proof/ProofTelemetry';
 import { Button } from '@/components/ui/button';
 import {
   type GraderExemplar,
@@ -33,8 +34,19 @@ export function GradedAnswerViewer({
   const [expanded, setExpanded] = React.useState(!embedded);
   const [voteState, setVoteState] = React.useState<'idle' | 'sent' | 'error'>('idle');
 
+  React.useEffect(() => {
+    trackProofEvent('graded_answer_viewer_open', {
+      embedded,
+      skill_filter: skillFilter ?? 'all',
+    });
+  }, [embedded, skillFilter]);
+
   async function selectExemplar(exemplar: ExemplarSummary) {
     setSelected(exemplar);
+    trackProofEvent('graded_answer_exemplar_selected', {
+      exemplar_id: exemplar.id,
+      skill: exemplar.skill,
+    });
     setLoading(true);
     setVoteState('idle');
     try {
@@ -52,6 +64,10 @@ export function GradedAnswerViewer({
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ vote: voteValue }),
+      });
+      trackProofEvent('graded_answer_fairness_vote', {
+        exemplar_id: detail.id,
+        vote: voteValue,
       });
       setVoteState(response.ok ? 'sent' : 'error');
     } catch {
@@ -88,7 +104,7 @@ export function GradedAnswerViewer({
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0" aria-live="polite">
           <div className="border-b border-border p-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -157,7 +173,17 @@ export function GradedAnswerViewer({
 
                 <button
                   type="button"
-                  onClick={() => setExpanded((value) => !value)}
+                  onClick={() =>
+                    setExpanded((value) => {
+                      const next = !value;
+                      if (next) {
+                        trackProofEvent('graded_answer_reasoning_expanded', {
+                          exemplar_id: detail.id,
+                        });
+                      }
+                      return next;
+                    })
+                  }
                   className="mt-5 flex w-full items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm font-semibold"
                 >
                   Reasoning trace
@@ -183,7 +209,13 @@ export function GradedAnswerViewer({
                       <span>{key}</span>
                       <button
                         type="button"
-                        onClick={() => void navigator.clipboard?.writeText(String(value))}
+                        onClick={() => {
+                          void navigator.clipboard?.writeText(String(value));
+                          trackProofEvent('graded_answer_audit_meta_copied', {
+                            exemplar_id: detail.id,
+                            field: key,
+                          });
+                        }}
                         className="inline-flex max-w-[13rem] items-center gap-1 truncate text-foreground"
                       >
                         {String(value)}
@@ -223,6 +255,12 @@ export function GradedAnswerViewer({
                 {!embedded ? (
                   <Link
                     href="/demo"
+                    onClick={() => {
+                      trackProofEvent('graded_answer_demo_cta_click', {
+                        exemplar_id: detail.id,
+                      });
+                      trackProofEvent('proof_cta_clicked', { surface: 'graded_answer_viewer' });
+                    }}
                     className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-secondary"
                   >
                     See how this works on your assessments
