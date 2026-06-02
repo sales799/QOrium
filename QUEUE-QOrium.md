@@ -15,7 +15,8 @@
 - [2026-06-02] **Removed the homepage implementation ledger** — deleted the hero Claim/Evidence/"Flag off"/"Module hidden" table and replaced the public copy with the locked voice-charter sample.
 - [2026-06-02] **Added the rendered-copy honesty gate** — `apps/marketing/scripts/check-rendered-copy.mjs` now scans built HTML for the shard banned list; marketing `build` fails if visitor-visible copy contains those terms.
 - [2026-06-02] **Committed and pushed code** — branch `codex/qorium-content-recreation-20260602`, commit `c96e1ee2119bbfb845cd98e72003d105957d3cf8`, pushed to `qorium`.
-- [2026-06-02] **Deployed atomic release** — active origin built `/opt/apps/qorium-marketing/releases/c96e1ee2119b`, flipped `/opt/apps/qorium-marketing/current`, reloaded `qorium-chatbot` and `qorium-marketing`, and saved PM2.
+- [2026-06-02] **Re-applied Content Recreation on the newer live redesign** — branch `codex/qorium-content-recreation-live-redesign-20260602`, commit `60b9e1a086c24d4e49d5f34b559eed4bc5175b9d`, preserves the enterprise redesign while removing the banned visitor-facing copy it reintroduced.
+- [2026-06-02] **Deployed atomic release** — active origin built `/opt/apps/qorium-marketing/releases/60b9e1a086c2`, flipped `/opt/apps/qorium-marketing/current`, reloaded `qorium-chatbot` and `qorium-marketing`, and saved PM2.
 - [2026-06-02] **Purged Cloudflare cache** — targeted purge for the shipped Content Recreation route set returned `success:true` with no errors.
 
 ### EVIDENCE
@@ -23,16 +24,17 @@
 - Local gates: `pnpm run build:packages` pass; marketing typecheck pass; marketing Vitest `13` files / `60` tests pass; explicit `next lint` pass; marketing build pass with rendered-copy gate `1168` HTML files; Playwright smoke `10/10` pass.
 - Origin deploy gates: workspace packages built; marketing build passed; rendered-copy gate passed across `1168` HTML files; chatbot build passed; local probes `:5110` and `:5122/v1/chatbot/health` returned HTTP `200`.
 - Cloudflare edge: targeted purge returned `cloudflare_purge_success=true`.
+- Live freshness: edge HTML contains `Skills assessment, built in India`, `Hire on evidence`, and `Every number here`; sampled homepage HTML no longer contains `Flag off`, `Module hidden`, `the redesign`, `unlock full pack`, or `Beta`.
 - Live routes: `/`, `/platform/readybank`, `/platform/jd-forge`, `/platform/stack-vault`, `/solutions/assessment-platforms`, `/solutions/enterprises-gcc`, `/solutions/staffing-firms`, `/method`, `/science`, `/anti-leak`, `/trust`, `/pricing`, `/try/jd-forge`, `/resources/sample-packs`, `/library/javascript`, `/job-descriptions/react-developer`, `/vs/vervoe`, and `/compliance-dpdp` returned HTTP `200 text/html`.
 - Live API health: `https://api.qorium.online/`, `/health`, and `/healthz` returned HTTP `200`; `/api/health` is not an API-domain path and correctly remains `404`; marketing-domain `/api/health`, `/health`, and `/healthz` returned HTTP `200`.
 - Live JSON-LD: sampled `/`, `/trust`, `/compliance-dpdp`, `/try/jd-forge`, `/resources/sample-packs`, `/platform/readybank`, `/library/javascript`, and `/vs/vervoe` all contained valid HTML plus JSON-LD scripts.
-- Live accessibility/CWV sample: Playwright + axe-core found `0` WCAG A/AA violations across `17` sampled routes; FCP samples ranged `252ms`-`1052ms`, TTFB ranged `137ms`-`645ms`; screenshots saved under `screenshots/content-recreation-*-20260602.png`.
+- Live accessibility/CWV sample: Playwright + axe-core found `0` WCAG A/AA violations across `17` sampled routes; fresh FCP samples ranged `144ms`-`1296ms`, TTFB ranged `123ms`-`783ms`; screenshots saved under `screenshots/content-recreation-*-20260602.png`.
 - Quality gate/Rakshak: `/v1/science/quality-gate` returned HTTP `200` with score `92/92`; latest saved Rakshak certification remains GO `94/100`, `17/17` (`rakshak-qorium_online-mpw46c2z-7bd0`), above the 88 floor.
-- PM2 fleet: active origin default namespace lists `12/12` QOrium processes online across `8` service names; current release symlink points to `/opt/apps/qorium-marketing/releases/c96e1ee2119b`.
+- PM2 fleet: active origin default namespace lists `12/12` QOrium processes online across `8` service names; current release symlink points to `/opt/apps/qorium-marketing/releases/60b9e1a086c2`.
 
 ### REMAINING FOLLOW-UP
 
-- [REVIEW] Non-author review is still required before merging author-owned branch `codex/qorium-content-recreation-20260602` to `main`.
+- [REVIEW] Non-author review is still required before merging author-owned branch `codex/qorium-content-recreation-live-redesign-20260602` to `main`.
 - [INFO] `qorium.in` redirect vhost remains skipped because DNS still points to `147.93.103.194`, not active origin `187.127.155.150`; no autonomous DNS/registrar action taken.
 
 ---
