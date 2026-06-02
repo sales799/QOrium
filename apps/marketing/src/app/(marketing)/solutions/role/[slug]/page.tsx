@@ -51,51 +51,49 @@ export default async function RolePage({ params }: Props) {
         description={role.description}
         url={`${siteConfig.url}${role.path}`}
       />
-      <main>
-        <PageHero
-          eyebrow={`${role.family} role`}
-          title={`${role.name} Assessment Battery`}
-          description={role.description}
-          cta={{ label: 'Build this battery', href: `/demo?role=${role.slug}` }}
-        />
-        <SectionBand
-          title="Recommended skill battery"
-          description={`Seniority levels covered: ${role.seniorityLevels.join(', ')}.`}
-        >
-          <CardGrid>
-            {[...coreSkills, ...recommendedSkills].map((skill) => (
-              <SurfaceCard key={skill.slug} title={skill.name} href={skill.path}>
-                {skill.category} · {skill.calibration.label}
-              </SurfaceCard>
-            ))}
-          </CardGrid>
-        </SectionBand>
-        <SectionBand title="Sample assessment flow">
-          <CardGrid columns="md:grid-cols-2">
-            <SurfaceCard title="Core screen">
-              Role-critical skills first, then stack context.
+      <PageHero
+        eyebrow={`${role.family} role`}
+        title={`${role.name} Assessment Battery`}
+        description={role.description}
+        cta={{ label: 'Build this battery', href: `/demo?role=${role.slug}` }}
+      />
+      <SectionBand
+        title="Recommended skill battery"
+        description={`Seniority levels covered: ${role.seniorityLevels.join(', ')}.`}
+      >
+        <CardGrid>
+          {[...coreSkills, ...recommendedSkills].map((skill) => (
+            <SurfaceCard key={skill.slug} title={skill.name} href={skill.path}>
+              {skill.category} · {skill.calibration.label}
             </SurfaceCard>
-            <SurfaceCard title="Work sample">
-              One scenario mirrors the hiring team workflow.
+          ))}
+        </CardGrid>
+      </SectionBand>
+      <SectionBand title="Sample assessment flow">
+        <CardGrid columns="md:grid-cols-2">
+          <SurfaceCard title="Core screen">
+            Role-critical skills first, then stack context.
+          </SurfaceCard>
+          <SurfaceCard title="Work sample">
+            One scenario mirrors the hiring team workflow.
+          </SurfaceCard>
+          <SurfaceCard title="Calibration badge">
+            Public report shows whether items are IRT-calibrated, beta, or authored.
+          </SurfaceCard>
+          <SurfaceCard title="ReadyBank CTA" href="/platform/readybank">
+            Convert this role into a reusable ReadyBank pack.
+          </SurfaceCard>
+        </CardGrid>
+      </SectionBand>
+      <SectionBand title="Stack context">
+        <CardGrid>
+          {stacks.map((stack) => (
+            <SurfaceCard key={stack.slug} title={stack.name} href={stack.path}>
+              {stack.indiaCallout}
             </SurfaceCard>
-            <SurfaceCard title="Calibration badge">
-              Public report shows whether items are IRT-calibrated, beta, or authored.
-            </SurfaceCard>
-            <SurfaceCard title="ReadyBank CTA" href="/platform/readybank">
-              Convert this role into a reusable ReadyBank pack.
-            </SurfaceCard>
-          </CardGrid>
-        </SectionBand>
-        <SectionBand title="Stack context">
-          <CardGrid>
-            {stacks.map((stack) => (
-              <SurfaceCard key={stack.slug} title={stack.name} href={stack.path}>
-                {stack.indiaCallout}
-              </SurfaceCard>
-            ))}
-          </CardGrid>
-        </SectionBand>
-      </main>
+          ))}
+        </CardGrid>
+      </SectionBand>
     </>
   );
 }

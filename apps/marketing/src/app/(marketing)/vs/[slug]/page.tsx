@@ -68,59 +68,61 @@ export default async function VsPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(comparisonJsonLd) }}
       />
-      <main>
-        <PageHero
-          eyebrow="Comparison"
-          title={`QOrium vs ${page.competitor}`}
-          description={page.summary}
-          cta={{ label: 'Plan a proof run', href: `/demo?from=${page.slug}` }}
-        />
-        <SectionBand title={`${page.competitor} is better where it is proven`}>
-          <EvidenceList items={page.whereCompetitorIsBetter} />
-        </SectionBand>
-        <SectionBand title="Where QOrium is different">
-          <CardGrid>
-            {page.qoriumEdges.map((edge) => (
-              <SurfaceCard key={edge} title={edge}>
-                Evidence-first QOrium positioning.
-              </SurfaceCard>
-            ))}
-          </CardGrid>
-        </SectionBand>
-        <SectionBand title="Structural comparison">
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full min-w-[760px] border-collapse text-sm">
-              <thead className="bg-card text-left">
-                <tr>
-                  <th className="border-b border-border p-4">Dimension</th>
-                  <th className="border-b border-border p-4">QOrium</th>
-                  <th className="border-b border-border p-4">{page.competitor}</th>
-                  <th className="border-b border-border p-4">Evidence</th>
+      <PageHero
+        eyebrow="Comparison"
+        title={`QOrium vs ${page.competitor}`}
+        description={page.summary}
+        cta={{ label: 'Plan a proof run', href: `/demo?from=${page.slug}` }}
+      />
+      <SectionBand title={`${page.competitor} is better where it is proven`}>
+        <EvidenceList items={page.whereCompetitorIsBetter} />
+      </SectionBand>
+      <SectionBand title="Where QOrium is different">
+        <CardGrid>
+          {page.qoriumEdges.map((edge) => (
+            <SurfaceCard key={edge} title={edge}>
+              Evidence-first QOrium positioning.
+            </SurfaceCard>
+          ))}
+        </CardGrid>
+      </SectionBand>
+      <SectionBand title="Structural comparison">
+        <div
+          aria-label="Structural comparison table"
+          className="overflow-x-auto rounded-lg border border-border"
+          tabIndex={0}
+        >
+          <table className="w-full min-w-[760px] border-collapse text-sm">
+            <thead className="bg-card text-left">
+              <tr>
+                <th className="border-b border-border p-4">Dimension</th>
+                <th className="border-b border-border p-4">QOrium</th>
+                <th className="border-b border-border p-4">{page.competitor}</th>
+                <th className="border-b border-border p-4">Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {page.matrix.map((row) => (
+                <tr key={row.dimension}>
+                  <td className="border-b border-border p-4 font-medium">{row.dimension}</td>
+                  <td className="border-b border-border p-4 text-muted-foreground">
+                    {row.qoriumPosition}
+                  </td>
+                  <td className="border-b border-border p-4 text-muted-foreground">
+                    {row.competitorPosition}
+                  </td>
+                  <td className="border-b border-border p-4 text-muted-foreground">
+                    {row.evidenceStatus}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {page.matrix.map((row) => (
-                  <tr key={row.dimension}>
-                    <td className="border-b border-border p-4 font-medium">{row.dimension}</td>
-                    <td className="border-b border-border p-4 text-muted-foreground">
-                      {row.qoriumPosition}
-                    </td>
-                    <td className="border-b border-border p-4 text-muted-foreground">
-                      {row.competitorPosition}
-                    </td>
-                    <td className="border-b border-border p-4 text-muted-foreground">
-                      {row.evidenceStatus}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </SectionBand>
-        <SectionBand title="Source note">
-          <SurfaceCard title="Claim discipline">{page.sourceNote}</SurfaceCard>
-        </SectionBand>
-      </main>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionBand>
+      <SectionBand title="Source note">
+        <SurfaceCard title="Claim discipline">{page.sourceNote}</SurfaceCard>
+      </SectionBand>
     </>
   );
 }

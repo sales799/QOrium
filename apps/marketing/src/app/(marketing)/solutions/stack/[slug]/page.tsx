@@ -50,40 +50,38 @@ export default async function StackPage({ params }: Props) {
         description={stack.description}
         url={`${siteConfig.url}${stack.path}`}
       />
-      <main>
-        <PageHero
-          eyebrow={`${stack.vendor} stack`}
-          title={`${stack.name} Assessment Modules`}
-          description={stack.description}
-          cta={{ label: 'Build Stack-Vault pack', href: `/demo?stack=${stack.slug}` }}
-        />
-        <SectionBand title="India enterprise context">
-          <SurfaceCard title={stack.name}>{stack.indiaCallout}</SurfaceCard>
-        </SectionBand>
-        <SectionBand title="Roles that need this stack">
-          <CardGrid columns="md:grid-cols-2">
-            {roles.map((role) => (
-              <SurfaceCard key={role.slug} title={role.name} href={role.path}>
-                {role.description}
-              </SurfaceCard>
-            ))}
-          </CardGrid>
-        </SectionBand>
-        <SectionBand title="Skill modules">
-          <CardGrid>
-            {skills.map((skill) => (
-              <SurfaceCard key={skill.slug} title={skill.name} href={skill.path}>
-                {skill.calibration.label}
-              </SurfaceCard>
-            ))}
-          </CardGrid>
-        </SectionBand>
-        <SectionBand title="Evidence-gated case-study slot">
-          <SurfaceCard title="Customer proof">
-            This slot stays unclaimed until a customer reference, permission, and source note exist.
-          </SurfaceCard>
-        </SectionBand>
-      </main>
+      <PageHero
+        eyebrow={`${stack.vendor} stack`}
+        title={`${stack.name} Assessment Modules`}
+        description={stack.description}
+        cta={{ label: 'Build Stack-Vault pack', href: `/demo?stack=${stack.slug}` }}
+      />
+      <SectionBand title="India enterprise context">
+        <SurfaceCard title={stack.name}>{stack.indiaCallout}</SurfaceCard>
+      </SectionBand>
+      <SectionBand title="Roles that need this stack">
+        <CardGrid columns="md:grid-cols-2">
+          {roles.map((role) => (
+            <SurfaceCard key={role.slug} title={role.name} href={role.path}>
+              {role.description}
+            </SurfaceCard>
+          ))}
+        </CardGrid>
+      </SectionBand>
+      <SectionBand title="Skill modules">
+        <CardGrid>
+          {skills.map((skill) => (
+            <SurfaceCard key={skill.slug} title={skill.name} href={skill.path}>
+              {skill.calibration.label}
+            </SurfaceCard>
+          ))}
+        </CardGrid>
+      </SectionBand>
+      <SectionBand title="Evidence-gated case-study slot">
+        <SurfaceCard title="Customer proof">
+          This slot stays unclaimed until a customer reference, permission, and source note exist.
+        </SurfaceCard>
+      </SectionBand>
     </>
   );
 }
