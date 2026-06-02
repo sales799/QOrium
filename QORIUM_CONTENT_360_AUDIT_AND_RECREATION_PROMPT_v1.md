@@ -5,7 +5,7 @@
 **Date:** 2026-06-01
 **Audited surface:** https://qorium.online/ live homepage copy (rendered 2026-06-01)
 **Companion specs:** `MARKETING_REDESIGN_360_v1.md` (IA/design — already locked A+B+C), `MARKETING_SITE_IA_v1.md` (sitemap + section map), `01-Market-Landscape.md`, `03-Gap-Analysis.md`, `sales/Pricing-Pages-3-SKUs-Copy.md`, `brand/QOrium-Brand-Asset-Spec.md`
-**Status:** v1.0 — diagnosis + ready-to-run recreation prompt
+**Status:** v1.0 — diagnosis + ready-to-run recreation prompt · **VOICE LOCKED by CEO 2026-06-02** → Codex ARJUN Lane-B READY
 **Non-negotiable carried through:** evidence-gating honesty stays. We add desire, not claims.
 
 ---
@@ -79,6 +79,8 @@ The earlier 360 scored IA/design. This scores **copy & message**, 10 = Stripe/Li
 # PART 2 — THE CONTENT OPERATING SYSTEM (rules the recreation must obey)
 
 ## 2.1 Voice & tone charter
+
+> **🔒 LOCKED 2026-06-02 (CEO "lock voice"):** this charter and the three-buyer lines (2.5) are ratified as written. Codex ARJUN Lane-B is cleared to run.
 
 QOrium sounds like **a senior practitioner who refuses to bullshit you.** Confident, concrete, plain-spoken, evidence-first. Closer to Stripe/Linear than to hype-SaaS. Indian-built and proud, never parochial. Honesty is a *flex*, not a confession.
 
