@@ -8,6 +8,7 @@ import { NextResponse } from 'next/server';
 
 import { rateLimitResponse } from '../../../_proof-response';
 import { getSamlProofTenants, resolveRelayPath, type SamlProofTenant } from '../_config';
+import { recordSamlSession, resolveSamlRecruiter } from '../_recruiter-session';
 import { samlProblem } from '../_response';
 import { createSamlSession, samlSessionCookie } from '../_session';
 import {
@@ -114,11 +115,43 @@ export async function POST(request: Request) {
     );
   }
 
+  const recruiter = await resolveSamlRecruiter({
+    tenant: matched.tenant,
+    assertion: validation.assertion,
+    email,
+  }).catch(() => null);
+  if (!recruiter) {
+    return samlProblem(
+      500,
+      'SAML session persistence failed',
+      'The SAML assertion was valid, but QOrium could not persist the recruiter identity.',
+    );
+  }
+  if (!recruiter.ok) {
+    return samlProblem(recruiter.status, recruiter.title, recruiter.message);
+  }
+
   const session = createSamlSession({
     tenant: matched.tenant,
     assertion: validation.assertion,
     email,
+    recruiterId: recruiter.recruiterId,
+    authSource: recruiter.authSource,
   });
+  try {
+    await recordSamlSession({
+      tenant: matched.tenant,
+      assertion: validation.assertion,
+      session: session.payload,
+    });
+  } catch {
+    return samlProblem(
+      500,
+      'SAML session persistence failed',
+      'The SAML assertion was valid, but QOrium could not store the issued session.',
+    );
+  }
+
   const response = NextResponse.json(
     {
       ok: true,
@@ -134,6 +167,7 @@ export async function POST(request: Request) {
           recruiterId: session.payload.recruiterId,
           expiresAt: new Date(session.payload.exp).toISOString(),
           roles: session.payload.roles,
+          persisted: recruiter.persisted,
         },
         trustedCertificateSha256: matched.verified.trustedCertificateSha256,
       },

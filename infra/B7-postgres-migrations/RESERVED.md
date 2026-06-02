@@ -43,8 +43,9 @@ For long-lived feature work that won't merge for weeks, **reserve** a slot by ad
 | 0014   | `0014_ats_connectors.sql`                   | applied  | (pre-history)                               |
 | 0015   | `0015_outcome_metrics_views.sql`            | applied  | (pre-history)                               |
 | 0016   | `0016_programmatic_seo_role_graph.sql`      | applied  | codex/qorium-marketing-phase5-programmatic-seo |
+| 0017   | `0017_saml_sessions.sql`                    | applied  | codex/saml-session-main-20260602            |
 
-**Next available number: 0017.**
+**Next available number: 0018.**
 
 ## Documented gaps (CI ignores these)
 
