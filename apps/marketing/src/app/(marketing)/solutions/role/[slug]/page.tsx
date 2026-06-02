@@ -84,7 +84,7 @@ export default async function RolePage({ params }: Props) {
             One scenario mirrors the hiring team workflow.
           </SurfaceCard>
           <SurfaceCard title="Calibration badge">
-            Public report shows whether items are IRT-calibrated, beta, or authored.
+            Public report shows whether items are IRT-calibrated, pilot, or authored.
           </SurfaceCard>
           <SurfaceCard title="ReadyBank CTA" href="/platform/readybank">
             Convert this role into a reusable ReadyBank pack.
@@ -105,7 +105,7 @@ export default async function RolePage({ params }: Props) {
         description="This role page connects the buyer from role definition to skills, stack context, sample flow, and a scoped proof run so HR, hiring managers, and legal reviewers see the same evidence trail."
         proofPoints={[
           `Seniority coverage is explicit: ${role.seniorityLevels.join(', ')}.`,
-          'Core and recommended skills route into public library pages with calibration status.',
+          'Core and recommended skills connect to public library pages with calibration status.',
           'Stack context keeps GCC and enterprise teams from buying generic, role-blind tests.',
         ]}
         links={[

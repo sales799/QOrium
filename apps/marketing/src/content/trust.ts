@@ -89,7 +89,7 @@ export const trustNavigation: readonly {
     slug: 'responsible-ai',
     label: 'Responsible AI',
     href: '/responsible-ai',
-    description: 'Shipped, beta, and roadmap states.',
+    description: 'Live, pilot, and roadmap states.',
   },
   {
     slug: 'science',
@@ -274,7 +274,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
     eyebrow: 'Trust / Security',
     title: 'Security posture without borrowed badges.',
     description:
-      'The security page names what is implemented, what is in beta, and which certifications QOrium does not claim yet.',
+      'Security records name what is implemented, what is in pilot, and which certifications QOrium does not claim yet.',
     facts: [
       { label: 'Transport', value: 'TLS, HSTS, and security headers' },
       { label: 'Secrets', value: 'Rotation calendar documented' },
@@ -351,8 +351,8 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
       },
       {
         id: 'limits',
-        title: 'What this page does not claim',
-        body: 'The page deliberately avoids proof that QOrium has not earned.',
+        title: 'What QOrium does not claim',
+        body: 'QOrium deliberately avoids proof it has not earned.',
         points: [
           'No SOC 2 badge appears without a certificate URL.',
           'No ISO 27001 badge appears without a certificate URL.',
@@ -364,11 +364,11 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
       ...commonCitations,
       {
         label: 'infra/SSO-SAML-Enterprise-Spec-v0.md',
-        detail: 'Enterprise identity capability is treated as beta until deployed and verified.',
+        detail: 'Enterprise identity capability is treated as pilot until deployed and verified.',
       },
       {
         label: 'infra/Audit-Log-API-Spec-v0.md',
-        detail: 'Customer audit-log capability is treated as beta until deployed and verified.',
+        detail: 'Customer audit-log capability is treated as pilot until deployed and verified.',
       },
     ],
     jsonLdType: 'WebPage',
@@ -485,11 +485,11 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
     slug: 'responsible-ai',
     route: '/responsible-ai',
     eyebrow: 'Trust / Responsible AI',
-    title: 'What is shipped, what is beta, and what is roadmap.',
+    title: 'What is live, what is pilot, and what is roadmap.',
     description:
       'Responsible AI is a status table before it is a slogan. QOrium names the capability state, owner, flag, and evidence link.',
     facts: [
-      { label: 'Status model', value: 'Shipped / beta / roadmap' },
+      { label: 'Status model', value: 'Shipped / pilot / roadmap' },
       { label: 'Public endpoint', value: '/v1/responsible-ai/status' },
       { label: 'Human review', value: 'SME review stays in the loop' },
     ],
@@ -503,8 +503,8 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
         title: 'Training and data boundaries',
         body: 'The public claim is narrow: QOrium uses AI in its authoring and grading workflow without claiming customer data becomes model-training fuel.',
         points: [
-          'No candidate PII training claim is made on this page.',
-          'No scraped-test-bank training claim is made on this page.',
+          'No candidate PII training claim is made here.',
+          'No scraped-test-bank training claim is made here.',
           'Claims about model behavior link back to shipped routes or governance artifacts.',
         ],
       },
@@ -523,7 +523,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
         title: 'Refusal boundaries',
         body: 'QOrium does not present roadmap AI interview products as live capability.',
         points: [
-          'The site routes AI Interviewer and AI Phone Screens to roadmap state.',
+          'AI Interviewer and AI Phone Screens remain in roadmap state.',
           'The product refuses candidate cheat-help positioning.',
           'Pricing and commercial commitments remain sales-led rather than invented by AI copy.',
         ],
@@ -764,15 +764,15 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
     eyebrow: 'Trust / Anti-Leak',
     title: 'Static question banks rot. Rotation is the product.',
     description:
-      'The anti-leak page explains the leak cycle, the crawler state, watermarking, and the limits of the current beta.',
+      'Anti-leak records explain the leak cycle, crawler state, watermarking, and current pilot limits.',
     facts: [
-      { label: 'Crawler', value: 'Beta provider state disclosed' },
+      { label: 'Crawler', value: 'Pilot provider state disclosed' },
       { label: 'Rotation target', value: '24h SLA as operating doctrine' },
       { label: 'Watermarking', value: 'Per-candidate attribution path' },
     ],
     rowsHeading: 'Leak-control ledger',
     rowsDescription:
-      'This page distinguishes structural anti-leak posture from claims that require production provider evidence.',
+      'The ledger separates structural anti-leak posture from claims that require production provider evidence.',
     rows: [
       {
         label: 'Leak crawler service',
@@ -799,7 +799,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
       {
         label: 'Continuous production takedown automation',
         status: 'roadmap',
-        evidence: 'Crawler beta must graduate before takedown automation is marketed as live.',
+        evidence: 'Crawler pilot must graduate before takedown automation is marketed as live.',
         lastVerified: '2026-06-01',
         owner: 'CDO + Legal',
       },
@@ -818,7 +818,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
       {
         id: 'crawler',
         title: 'Crawler and similarity matching',
-        body: 'The beta crawler names its provider state so buyers know what is operational and what still needs a production search key.',
+        body: 'The pilot crawler names its provider state so buyers know what is operational and what still needs a production search key.',
         points: [
           'Similarity checks compare published items against public leak surfaces.',
           'Provider mode is visible rather than hidden behind generic AI language.',

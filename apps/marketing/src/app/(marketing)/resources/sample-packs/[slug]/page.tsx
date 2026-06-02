@@ -53,15 +53,15 @@ export default async function SamplePackDetailPage({ params }: SamplePackPagePro
         title={`${pack.title} should prove item quality without leaking the bank.`}
         description="Sample-pack pages now explain the protected-content logic behind the lead capture: show enough to evaluate fit, gate enough to keep production banks fresh, and connect every pack back to library, role, and stack pages."
         proofPoints={[
-          `${pack.previewItems.length} public preview items are visible before unlock.`,
+          `${pack.previewItems.length} public preview items are visible before request.`,
           `${pack.itemCount - pack.previewItems.length} deeper items stay gated to reduce harvesting risk.`,
           'Library, role, and stack links keep the evaluator inside the full assessment graph.',
         ]}
         links={[
           {
-            label: 'Unlock full pack',
+            label: 'Get full pack',
             href: `/resources/sample-packs/${pack.slug}`,
-            body: 'Use the form on this page to request the complete sample pack by email.',
+            body: 'Use the request form to receive the complete sample pack by email.',
           },
           {
             label: 'Review anti-leak posture',

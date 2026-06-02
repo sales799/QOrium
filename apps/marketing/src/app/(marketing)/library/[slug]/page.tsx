@@ -102,8 +102,8 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
           <div className="mb-8 max-w-2xl">
             <h2 className="text-3xl font-semibold tracking-normal">Sample question explorer</h2>
             <p className="mt-3 text-muted-foreground">
-              One set of examples is unlocked publicly. Production packs keep full item banks gated
-              to reduce harvesting risk.
+              One set of examples is open publicly. Production packs keep full item banks gated to
+              reduce harvesting risk.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
@@ -163,7 +163,7 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
       </SectionBand>
       <EnterpriseJourneyBand
         title={`Turn ${skill.name} evidence into a defensible hiring step.`}
-        description={`${skill.name} buyers should leave this page knowing the public calibration status, what signals are measured, which roles and stacks connect to the skill, and how to request a production-safe pack without exposing the full bank.`}
+        description={`${skill.name} buyers should leave with the public calibration status, measured signals, connected roles and stacks, and a production-safe pack request path that does not expose the full bank.`}
         proofPoints={[
           `${skill.calibration.status} status is visible instead of implied.`,
           'Public samples are limited to reduce harvesting while still showing assessment quality.',
@@ -183,7 +183,7 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
           {
             label: 'Open assessment library',
             href: '/library',
-            body: 'Compare this page against the wider skill graph and seeded categories.',
+            body: 'Compare the skill against the wider graph and seeded categories.',
           },
         ]}
       />

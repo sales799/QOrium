@@ -24,7 +24,7 @@ export default function ApiLandingPage() {
         <PageHero
           eyebrow="API docs"
           title="QOrium API docs are public-preview ready."
-          description="OpenAPI 3.1 contracts are published for the live public proof APIs: JD-Forge demo plans, sample-pack unlocks, grader exemplars, and trust evidence."
+          description="OpenAPI 3.1 contracts are published for the live public proof APIs: JD-Forge demo plans, sample-pack requests, grader exemplars, and trust evidence."
           cta={{ label: 'Open API documentation', href: '/resources/docs' }}
         />
         <SectionBand title="Documented surfaces">
@@ -33,7 +33,7 @@ export default function ApiLandingPage() {
               Generate a job-description-based assessment plan from public proof inputs.
             </SurfaceCard>
             <SurfaceCard title="Sample-pack API" href="/resources/docs">
-              Preview and unlock buyer-facing sample packs with lead-gated artifacts.
+              Preview buyer-facing sample packs and request lead-gated artifacts.
             </SurfaceCard>
             <SurfaceCard title="Trust evidence API" href="/resources/docs">
               Read quality-gate, plagiarism-benchmark, and responsible-AI status metadata.

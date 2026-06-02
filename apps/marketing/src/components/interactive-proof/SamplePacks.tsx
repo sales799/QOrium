@@ -152,7 +152,7 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
           <div className="mt-8">
             <div className="mb-4 flex items-center gap-2">
               <ShieldCheck className="size-5 text-secondary" />
-              <h2 className="text-2xl font-semibold">Unlocked pack items</h2>
+              <h2 className="text-2xl font-semibold">Full pack items</h2>
             </div>
             <div className="grid gap-4">
               {fullPack.gatedItems.map((item) => (
@@ -174,8 +174,8 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
         ) : (
           <div className="mt-6 rounded-lg border border-dashed border-border bg-muted p-5 text-sm text-muted-foreground">
             <LockKeyhole className="mb-3 size-5 text-secondary" />
-            {lockedCount} additional items are gated behind email capture. The PDF is delivered by
-            email.
+            {lockedCount} additional items are available after email capture. The PDF is delivered
+            by email.
           </div>
         )}
       </div>
@@ -243,10 +243,10 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
               ) : (
                 <Download className="size-4" />
               )}
-              Unlock full pack
+              Get full pack
             </Button>
             {status === 'error' ? (
-              <p className="text-sm text-danger">Could not unlock right now.</p>
+              <p className="text-sm text-danger">Could not open the full pack right now.</p>
             ) : null}
           </form>
         )}

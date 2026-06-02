@@ -1,6 +1,6 @@
 import { siteConfig } from './site.config';
 
-export type CalibrationStatus = 'IRT-calibrated' | 'Beta' | 'Authored';
+export type CalibrationStatus = 'IRT-calibrated' | 'Pilot' | 'Authored';
 
 export type LibrarySkillPage = {
   slug: string;
@@ -318,7 +318,7 @@ export const librarySkills: LibrarySkillPage[] = primarySkillSeeds.flatMap((seed
     const slug = focusIndex === 0 ? seed[0] : `${seed[0]}-${focus[0]}`;
     const itemCountTotal = isSeededCanonical ? 40 : 0;
     const itemCountCalibrated = 0;
-    const status: CalibrationStatus = itemCountTotal > 0 ? 'Beta' : 'Authored';
+    const status: CalibrationStatus = itemCountTotal > 0 ? 'Pilot' : 'Authored';
     const name = focusIndex === 0 ? seed[1] : `${seed[1]} ${focus[1]}`;
     const category = seed[2];
     const family = focusIndex === 0 ? seed[2] : `${seed[2]} · ${focus[1]}`;
@@ -468,7 +468,7 @@ export const stackPages: StackPage[] = stackSeeds.map((slug) => ({
     .join(' ')} assessment modules mapped to roles and related skills.`,
   indiaCallout: ['sap-abap', 'oracle', 'bfsi', 'embedded-automotive'].includes(slug)
     ? 'India enterprise hiring needs applied stack evidence that generic libraries often miss.'
-    : 'Stack context links this page to role-specific assessment batteries.',
+    : 'Stack context links the skill to role-specific assessment batteries.',
   roles: [rolePages[stackSeeds.indexOf(slug) % rolePages.length]!.slug],
   skills: [librarySkills[stackSeeds.indexOf(slug) % librarySkills.length]!.slug],
 }));
@@ -591,7 +591,7 @@ const competitorBlueprints: Array<{
       ['Claim discipline', 'Broad product claims', 'Evidence-gated public page behavior'],
     ]),
     sourceNote:
-      'Official-site live review benchmark completed on 2026-06-02; use this page for structural fit, not absolute vendor scoring.',
+      'Official-site live review benchmark completed on 2026-06-02; use the comparison for structural fit, not absolute vendor scoring.',
   },
   {
     slug: 'mercer-mettl',
@@ -672,7 +672,7 @@ const competitorBlueprints: Array<{
       [
         'Library scale',
         'Large public posture',
-        '1,000-page library with honest authored/beta labels',
+        '1,000-page library with honest authored and pilot labels',
       ],
       [
         'India/GCC specificity',

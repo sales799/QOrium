@@ -39,7 +39,7 @@ const pageIcons: Record<TrustPageSlug, LucideIcon> = {
 
 const statusLabels: Record<TrustStatus, string> = {
   shipped: 'Shipped',
-  beta: 'Beta',
+  beta: 'Pilot',
   roadmap: 'Roadmap',
   'self-attested': 'Self-attested',
   'evidence-held': 'Evidence held',
@@ -382,7 +382,7 @@ export function TrustDetailPage({ page }: { page: TrustPageContent }) {
                   Evidence policy
                 </p>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Shipped rows need evidence. Beta rows need owner and date. Roadmap rows do not
+                  Shipped rows need evidence. Pilot rows need owner and date. Roadmap rows do not
                   masquerade as live product.
                 </p>
               </div>

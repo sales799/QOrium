@@ -66,7 +66,7 @@ export default function LibraryHubPage() {
         </SectionBand>
         <EnterpriseJourneyBand
           title="The library is the spine of the product marketing site."
-          description="The hub now explains the full public surface: generated pages create search coverage, calibration labels protect claim discipline, and every skill page routes into roles, stacks, trust, and demo paths."
+          description="The hub now explains the full public surface: generated pages create search coverage, calibration labels protect claim discipline, and every skill page connects to roles, stacks, trust, and demo paths."
           proofPoints={[
             `${librarySkills.length.toLocaleString('en-IN')} public skill pages are generated from one governed graph.`,
             'Calibration-in-progress pages are labeled honestly instead of appearing complete.',

@@ -40,8 +40,8 @@ export default function SamplePacksPage() {
             Real question-pack depth, shown before the sales call.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-shell-muted">
-            Browse 13 authored packs. Each page opens with a preview and unlocks the deeper pack
-            through email capture.
+            Browse 13 authored packs. Each pack opens with a preview and offers the deeper pack
+            after email capture.
           </p>
         </MaxWidth>
       </section>

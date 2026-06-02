@@ -50,7 +50,7 @@ export function PageHero({
             </p>
             <dl className="mt-5 grid gap-4">
               {[
-                ['Question answered', 'What evidence does this page create?'],
+                ['Question answered', 'What evidence is created?'],
                 ['Proof discipline', 'Evidence-gated, no unsupported metrics'],
                 ['Next action', 'Library, trust review, or proof run'],
               ].map(([label, value]) => (
@@ -105,7 +105,7 @@ const defaultJourneyLinks: JourneyLink[] = [
 
 export function EnterpriseJourneyBand({
   eyebrow = 'Connected buyer journey',
-  title = 'What this page helps the buyer decide.',
+  title = 'What this route helps the buyer decide.',
   description = 'Every QOrium page now resolves into a clear enterprise decision path: assess the role, understand the evidence, check the trust posture, and choose the next action.',
   proofPoints = [
     'Role, stack, or skill context is linked back to the library graph.',
