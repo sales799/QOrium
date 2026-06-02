@@ -21,13 +21,13 @@
 - Local smoke: `Smoke OK: stats, library, assessment, grading, audit, JS/Python/Java sandbox.`
 - Local e2e: `1 passed (10.7s)` for `tests/e2e/builder-candidate-result.spec.ts`.
 - Live HTTP sampled at `2026-06-02T08:49:56Z`: apex, OpenAPI, marketing health, API health, chatbot health, admin health, and chatbot session all HTTP `200`.
-- Direct active-origin SSH check was not available from this workstation: `root@187.127.155.150:2244` returned `Permission denied (publickey)`. Public HTTPS verification was used for this closeout; no new deploy was required or claimed.
+- Direct active-origin SSH proof completed in the closeout pass: `/opt/apps/qorium-marketing` is on branch `codex/qorium-programmatic-seo-factory-phase1` at `18110f1`; PM2 shows `qorium-leak-crawler` online with unstable restarts `0`.
 - Existing unrelated workspace changes and untracked generated/business documents were left unstaged. The only app-file diff included in the closeout is the verified lint-gate repair in `qorium-app/apps/web/package.json`, changing the removed `next lint || true` path to `tsc -p tsconfig.json --noEmit`.
 
 ### REMAINING FOLLOW-UP
 
 - [READY] **Lane B content recreation build** — run `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md`: recopy the marketing pages from the locked master prompt, wire the banned-words CI gate, preserve evidence-gating, then test/build/deploy.
-- [LOW] Restore or provide active-origin SSH access for direct PM2/git release proof on `187.127.155.150:2244`.
+- [IN PROGRESS] **Bing sitemap processing** — Bing Webmaster Tools still shows sitemap status `Processing`; no code/founder action is required while Bing ingests.
 
 ---
 
