@@ -276,6 +276,13 @@ else
   )
   ok "deps installed"
 
+  log "Building workspace packages"
+  (
+    cd "$TMP_RELEASE"
+    command pnpm run build:packages 2>&1 | tail -25
+  )
+  ok "workspace packages built"
+
   log "Building marketing app (Next.js 15)"
   (
     cd "$TMP_RELEASE"
@@ -284,11 +291,6 @@ else
   [[ -d "$TMP_RELEASE/apps/marketing/.next" ]] || die "build did not produce .next/ — check log above"
   ok "build complete · $(du -sh "$TMP_RELEASE/apps/marketing/.next" | cut -f1)"
 
-  log "Building database workspace package"
-  (
-    cd "$TMP_RELEASE"
-    command pnpm --filter @qorium/db build 2>&1 | tail -20
-  )
   [[ -f "$TMP_RELEASE/packages/db/dist/index.js" ]] || die "database build did not produce dist/index.js — check log above"
   ok "database package build complete"
 
