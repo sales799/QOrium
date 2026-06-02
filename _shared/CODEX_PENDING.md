@@ -81,10 +81,16 @@ Source of truth for Codex execution order in this workspace.
   - Recorded in: `QUEUE-QOrium.md` Run #23 and Run #24.
 
 - [x] Restore public OpenAPI JSON at `https://qorium.online/openapi.json`.
-  - Shipped: active origin `187.127.155.150` serves `/openapi.json` from deployed merge `3256dd5`; old origin `147.93.103.194` was rebuilt/reloaded at marketing branch `codex/qorium-marketing-phase4-main` HEAD `6ac741c` because Cloudflare apex `qorium.online` routes there.
+  - Shipped: active origin `187.127.155.150` serves `/openapi.json` from deployed merge `3256dd5`; old origin `147.93.103.194` was rebuilt/reloaded at marketing branch `codex/qorium-marketing-phase4-main` HEAD `6ac741c` because Cloudflare apex `qorium.online` routed there at the time.
   - Public proof from 2026-06-02: `https://qorium.online/openapi.json` returns HTTP `200` `application/json` with OpenAPI `3.1.0` and title `QOrium Public Proof API`.
   - Purge infra proof from 2026-06-02: scoped token `QOrium Cache Purge` is installed locally as `CLOUDFLARE_QORIUM_CACHE_PURGE_TOKEN`, Cloudflare token verify returned success, and single-URL purge for `https://qorium.online/openapi.json` returned success.
   - Recorded in: `QUEUE-QOrium.md` Run #24.
+
+- [x] Consolidate apex `qorium.online` to active origin `187.127.155.150`.
+  - Shipped: Cloudflare proxied `A qorium.online` changed from `147.93.103.194` to `187.127.155.150` with TTL Auto preserved; cache purge returned success.
+  - Public proof from 2026-06-02: 6 spaced watch samples returned HTTP `200` for root, OpenAPI, docs, API health, chatbot health, admin health, and chatbot session.
+  - Origin proof: public nonce request `qorium-cutover-1780380029-13821` appeared in active-origin nginx access logs and not in old-origin logs.
+  - Recorded in: `QUEUE-QOrium.md` Run #31.
 
 - [x] Run fresh QOrium Rakshak certification after OpenAPI/API/admin edge hardening.
   - Shipped: active and old origins now expose API/admin security headers, `security.txt`, versioned admin health, and API/admin rate-limit policy headers; nginx syntax tests passed before reload on both origins.

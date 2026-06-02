@@ -3,7 +3,32 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #30 (Full-auto NIRANTAR + QOrium proof)
+**Last touched:** 2026-06-02 — Codex Run #31 (Apex origin consolidation)
+
+---
+
+## RUN #31 — Apex Origin Consolidation to Active Origin (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Executed CEO-approved consolidation cleanup** — after `START 1` walkthrough and `PROVE`, moved Cloudflare apex `qorium.online` from old origin `147.93.103.194` to active origin `187.127.155.150`.
+- [2026-06-02] **Preflighted active-origin parity before DNS mutation** — forced active-origin probes returned HTTP `200` for `/`, `/openapi.json`, `/resources/docs`, and `POST /api/chatbot/session`.
+- [2026-06-02] **Updated Cloudflare DNS safely** — apex `A qorium.online` changed from `147.93.103.194` to `187.127.155.150`; proxied mode stayed `true`, TTL stayed `1`/Auto.
+- [2026-06-02] **Purged relevant Cloudflare cache** — purge request for root, OpenAPI, docs, and chatbot session route returned success.
+- [2026-06-02] **Proved public traffic reaches active origin** — public nonce request to `/openapi.json` appeared in active-origin nginx access logs and did not appear in old-origin logs.
+- [2026-06-02] **Completed post-cutover watch** — 6 spaced public samples stayed HTTP `200` for root, OpenAPI, docs, API health, chatbot health, admin health, and chatbot session.
+
+### EVIDENCE
+
+- DNS before: `A qorium.online 147.93.103.194 proxied=true ttl=1`.
+- DNS after: `A qorium.online 187.127.155.150 proxied=true ttl=1`.
+- Public nonce: `qorium-cutover-1780380029-13821`; active-origin `/var/log/nginx/access.log` recorded HTTP `200`; old-origin logs had no matching nonce.
+- Cache purge proof: `cache_purge_success=True`.
+- Watch samples at `2026-06-02T06:01:18Z`, `06:04:22Z`, `06:07:26Z`, `06:10:30Z`, `06:13:33Z`, and `06:16:36Z` all returned HTTP `200` across the monitored route set.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Keep old-origin `qorium-marketing` available as rollback capacity until the next infra review, then decide whether to retire or repurpose it.
 
 ---
 
@@ -107,7 +132,7 @@
 
 ### REMAINING FOLLOW-UP
 
-- [LOW] Keep origin consolidation deferred per Run #25 `KEEP NOW` decision.
+- [DONE in Run #31] Origin consolidation is complete; apex `qorium.online` now routes to active origin `187.127.155.150`.
 
 ---
 
@@ -138,7 +163,7 @@
 ### REMAINING FOLLOW-UP
 
 - [DONE in Run #27] Cloudflare token with `Zone.Cache Purge` permission is now installed and verified for `qorium.online`.
-- [LOW] Keep origin consolidation deferred per Run #25 `KEEP NOW` decision.
+- [DONE in Run #31] Origin consolidation is complete; apex `qorium.online` now routes to active origin `187.127.155.150`.
 
 ---
 
@@ -162,8 +187,7 @@
 
 ### REMAINING FOLLOW-UP
 
-- [LOW] Keep consolidation to `187.127.155.150` as a planned infra cleanup, not an urgent production repair.
-- [LOW] If consolidation is later approved, run parity smoke, DNS change, 10-URL smoke, and rollback-window monitoring.
+- [DONE in Run #31] Consolidation to `187.127.155.150` was approved and completed with parity smoke, DNS change, cache purge, nonce proof, and post-cutover monitoring.
 
 ---
 
@@ -191,7 +215,7 @@
 ### REMAINING FOLLOW-UP
 
 - [DONE in Run #27] Cloudflare purge-capable token is now installed and verified for future purge-only repairs.
-- [LOW] Apex and API are intentionally split across old/new origins for now (`qorium.online` on `147.93.103.194`, `api.qorium.online` on `187.127.155.150`). CEO decision on 2026-06-02: `KEEP NOW`; consolidation is deferred to planned infra cleanup.
+- [DONE in Run #31] Apex/API split is closed for `qorium.online`; apex now routes to active origin `187.127.155.150`.
 
 ---
 

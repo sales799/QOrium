@@ -10,7 +10,7 @@ COMPLETE.
 - Deployed the active origin to the production merge that contains `/openapi.json` and chatbot proxy routes.
 - Recreated the active-origin chatbot PM2 launcher after the branch switch exposed the missing runtime file.
 - Verified active-origin local and origin-bypass probes for `/openapi.json`, `/api/chatbot/session`, and chatbot health.
-- Rebuilt and reloaded old-origin marketing at `147.93.103.194` because Cloudflare apex `qorium.online` routes there.
+- Rebuilt and reloaded old-origin marketing at `147.93.103.194` because Cloudflare apex `qorium.online` routed there at the time.
 - Left Cloudflare DNS unchanged.
 
 ## Production Evidence
@@ -26,5 +26,6 @@ COMPLETE.
 
 - Cloudflare purge-capable token is now installed and verified. Token name: `QOrium Cache Purge`; scope: `qorium.online - Cache Purge:Purge`; local secret file: `/Users/talprouniversepro/.qorium-cloudflare-cache-purge.env` mode `600`.
 - Verification proof from 2026-06-02: Cloudflare token verify returned success, zone lookup found exactly one `qorium.online` zone, and single-URL purge for `https://qorium.online/openapi.json` returned success.
-- CEO decision on 2026-06-02: `KEEP NOW`. Apex `qorium.online` and API `api.qorium.online` intentionally remain on different origins for now because both tested public surfaces are operational.
-- Consolidation to `187.127.155.150` remains a future infra cleanup, not an urgent production repair.
+- Later CEO decision on 2026-06-02: consolidation approved via `START 1` / `PROVE`.
+- Apex consolidation is now complete: Cloudflare proxied `A qorium.online` points to active origin `187.127.155.150`; cache purge succeeded; 6 spaced public watch samples returned HTTP `200`.
+- Old-origin `147.93.103.194` remains useful rollback capacity until the next infra review.
