@@ -92,6 +92,16 @@ Source of truth for Codex execution order in this workspace.
   - Origin proof: public nonce request `qorium-cutover-1780380029-13821` appeared in active-origin nginx access logs and not in old-origin logs.
   - Recorded in: `QUEUE-QOrium.md` Run #31.
 
+- [x] Review old-origin rollback capacity after apex consolidation.
+  - Shipped: old origin `147.93.103.194` kept as manual rollback standby; no Cloudflare production A record points there now.
+  - Proof from 2026-06-02: forced-origin rollback smoke returned HTTP `200` for apex root, OpenAPI, docs, marketing health, chatbot session, API health, chatbot health, and `security.txt` after controlled restart of old-origin `qorium-marketing` and `qorium-chatbot`.
+  - Caveat: old-origin `pm2-root.service` is enabled but failed, and disk is `82%` used; fix those before treating old origin as reboot-durable standby.
+  - Recorded in: `QUEUE-QOrium.md` Run #33.
+
+- [ ] Clean up old-origin standby durability.
+  - Scope: repair or intentionally disable `pm2-root.service`, reduce disk below `75%`, and re-run forced-origin rollback smoke.
+  - Priority: LOW while active origin remains stable and old origin remains manual rollback standby.
+
 - [x] Run fresh QOrium Rakshak certification after OpenAPI/API/admin edge hardening.
   - Shipped: active and old origins now expose API/admin security headers, `security.txt`, versioned admin health, and API/admin rate-limit policy headers; nginx syntax tests passed before reload on both origins.
   - Fresh Rakshak proof from 2026-06-02: `qorium.online` GO `94/100` (`rakshak-qorium_online-mpw46c2z-7bd0`), `api.qorium.online` GO `89/100` (`rakshak-api_qorium_online-mpw46c77-a38a`), `admin.qorium.online` GO `88/100` (`rakshak-admin_qorium_online-mpw46ca2-ceb6`).

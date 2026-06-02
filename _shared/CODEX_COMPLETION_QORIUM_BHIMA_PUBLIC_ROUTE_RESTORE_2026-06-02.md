@@ -28,4 +28,5 @@ COMPLETE.
 - Verification proof from 2026-06-02: Cloudflare token verify returned success, zone lookup found exactly one `qorium.online` zone, and single-URL purge for `https://qorium.online/openapi.json` returned success.
 - Later CEO decision on 2026-06-02: consolidation approved via `START 1` / `PROVE`.
 - Apex consolidation is now complete: Cloudflare proxied `A qorium.online` points to active origin `187.127.155.150`; cache purge succeeded; 6 spaced public watch samples returned HTTP `200`.
-- Old-origin `147.93.103.194` remains useful rollback capacity until the next infra review.
+- Old-origin `147.93.103.194` was reviewed after consolidation and remains useful manual rollback capacity. Forced-origin rollback smoke passed after controlled restart of old-origin `qorium-marketing` and `qorium-chatbot`.
+- Old-origin durability caveat: `pm2-root.service` is enabled but failed, and disk is `82%` used; fix those before treating old origin as reboot-durable standby.

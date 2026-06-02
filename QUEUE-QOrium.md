@@ -3,7 +3,36 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #32 (Marketing Phase 2 schema hardening)
+**Last touched:** 2026-06-02 — Codex Run #33 (Old-origin rollback capacity review)
+
+---
+
+## RUN #33 — Old-Origin Rollback Capacity Review (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Reviewed old-origin rollback capacity after apex consolidation** — verified Cloudflare production A records no longer point at `147.93.103.194`; both `qorium.online` and `api.qorium.online` point to active origin `187.127.155.150`.
+- [2026-06-02] **Forced-origin rollback smoke passed** — old origin `147.93.103.194` returned HTTP `200` for apex root, OpenAPI, docs, marketing health, chatbot session, API health, chatbot health, and `security.txt`.
+- [2026-06-02] **Proved old-origin restart viability** — restarted only old-origin `qorium-marketing` and `qorium-chatbot`, saved PM2 state, waited for settle, and re-ran forced-origin smoke; all checked rollback routes stayed HTTP `200`.
+- [2026-06-02] **Classified standby posture** — keep old origin as manual rollback standby for now; do not retire yet, because it is still useful rollback capacity, but do not treat it as fully reboot-durable until PM2 systemd health and disk pressure are cleaned up.
+
+### EVIDENCE
+
+- Cloudflare A records: `api.qorium.online -> 187.127.155.150`, `qorium.online -> 187.127.155.150`, `records_pointing_old_origin=0`.
+- Old-origin rollback smoke after restart: `/`, `/openapi.json`, `/resources/docs`, `/healthz`, `POST /api/chatbot/session`, `api.qorium.online/healthz`, `api.qorium.online/chatbot/v1/healthz`, and `api.qorium.online/.well-known/security.txt` all returned HTTP `200`.
+- PM2 after controlled restart: `qorium-marketing status online restart_time 1 unstable 0`; `qorium-chatbot status online restart_time 1 unstable 0`.
+- Nginx: `nginx -t` passed; service active.
+- Resource caveat: root filesystem `82%` used; memory available about `8330 MiB`.
+- Reboot-durability caveat: `pm2-root.service` is enabled but currently failed since `2026-05-24`; PM2 daemon and QOrium processes are online, but systemd service health needs cleanup before old origin can be called fully reboot-durable.
+
+### RECOMMENDATION
+
+- [KEEP MANUAL STANDBY] Keep `147.93.103.194` as rollback capacity through the next infra review.
+- [DO NOT RETIRE YET] Retire only after active-origin stability has more soak time and after old-origin PM2/systemd + disk cleanup are either fixed or deemed unnecessary.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Repair or intentionally disable old-origin `pm2-root.service` and reduce disk usage below `75%` before calling the old origin reboot-durable standby.
 
 ---
 
@@ -79,7 +108,7 @@
 
 ### REMAINING FOLLOW-UP
 
-- [LOW] Keep old-origin `qorium-marketing` available as rollback capacity until the next infra review, then decide whether to retire or repurpose it.
+- [DONE in Run #33] Old origin reviewed; recommendation is to keep it as manual rollback standby, not retire yet.
 
 ---
 
