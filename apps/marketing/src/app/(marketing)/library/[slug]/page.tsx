@@ -42,7 +42,7 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
     .filter((related): related is NonNullable<typeof related> => related !== undefined);
 
   return (
-    <main>
+    <>
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <p className="font-mono text-xs font-semibold uppercase text-signal-300">
@@ -112,6 +112,6 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
           ))}
         </CardGrid>
       </SectionBand>
-    </main>
+    </>
   );
 }

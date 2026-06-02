@@ -150,7 +150,7 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
         )}
       </div>
 
-      <aside className="h-fit rounded-lg border border-border bg-card p-5 lg:sticky lg:top-24">
+      <div className="h-fit rounded-lg border border-border bg-card p-5 lg:sticky lg:top-24">
         <p className="font-mono text-xs font-semibold uppercase text-secondary">Sample pack</p>
         <h2 className="mt-3 text-2xl font-semibold">{pack.title}</h2>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{pack.summary}</p>
@@ -220,7 +220,7 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
             ) : null}
           </form>
         )}
-      </aside>
+      </div>
     </div>
   );
 }

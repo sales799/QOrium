@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function SamplePacksPage() {
   return (
-    <main>
+    <>
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <p className="font-mono text-xs font-semibold uppercase text-signal-300">Sample packs</p>
@@ -30,6 +30,6 @@ export default function SamplePacksPage() {
           <SamplePackHub />
         </MaxWidth>
       </section>
-    </main>
+    </>
   );
 }

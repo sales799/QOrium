@@ -25,7 +25,7 @@ export default function ApiDocsPage() {
         ]}
       />
       <FAQPageJsonLd questions={phase4Faqs.slice(0, 2)} />
-      <main>
+      <div>
         <PageHero
           eyebrow="API documentation"
           title="QOrium API contracts are public-preview ready."
@@ -147,7 +147,7 @@ export default function ApiDocsPage() {
             The full machine-readable public proof contract is served at /openapi.json.
           </div>
         </SectionBand>
-      </main>
+      </div>
     </>
   );
 }

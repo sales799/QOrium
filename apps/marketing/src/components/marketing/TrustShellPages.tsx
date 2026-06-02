@@ -111,7 +111,7 @@ function TrustHero({
 
 function TrustRail({ active }: { active: TrustPageSlug }) {
   return (
-    <aside className="lg:sticky lg:top-24 lg:self-start">
+    <div className="lg:sticky lg:top-24 lg:self-start">
       <nav aria-label="Trust pages" className="grid gap-1">
         {trustNavigation.map((item) => {
           const Icon = pageIcons[item.slug];
@@ -148,7 +148,7 @@ function TrustRail({ active }: { active: TrustPageSlug }) {
           );
         })}
       </nav>
-    </aside>
+    </div>
   );
 }
 
