@@ -262,7 +262,8 @@ module.exports = {
      */
     {
       name: 'qorium-leak-crawler',
-      script: './services/leak-crawler/dist/index.js',
+      script: './services/leak-crawler/dist/cli.js',
+      args: '--watch --interval 86400',
       instances: 1,
       exec_mode: 'fork',
 
@@ -322,7 +323,8 @@ module.exports = {
      */
     {
       name: 'qorium-irt-calibration',
-      script: './services/irt-calibration/dist/index.js',
+      script: './services/irt-calibration/dist/cli.js',
+      args: '--watch --interval 86400',
       instances: 1,
       exec_mode: 'fork',
 
