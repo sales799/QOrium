@@ -1,8 +1,10 @@
 /**
- * Programmatic entry point. The CLI in `cli.ts` is the operational entry
- * driven by PM2's nightly cron-restart at 03:00 IST.
+ * Programmatic entry point. PM2 runs this file directly and owns the nightly
+ * cron-restart at 03:00 IST; `cli.ts` remains a manual wrapper.
  */
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createPool, resolveDatabaseUrl } from '@qorium/db';
 import { loadConfig, type IrtConfig } from './config.js';
 import { buildLogger } from './logger.js';
@@ -12,10 +14,14 @@ import {
   fetchResponsesForQuestions,
   listCalibratingQuestions,
 } from './repositories/calibrating.js';
+import { waitForStartupDependencies } from './readiness.js';
+
+const SERVICE_NAME = 'qorium-irt-calibration';
+const KEEPALIVE_INTERVAL_MS = 60_000;
 
 export async function runOnce(overrides: { config?: IrtConfig } = {}): Promise<CalibrationReport> {
   const config = overrides.config ?? loadConfig();
-  const logger = buildLogger();
+  const logger = buildLogger({ serviceName: SERVICE_NAME });
 
   try {
     resolveDatabaseUrl();
@@ -44,8 +50,21 @@ export async function runOnce(overrides: { config?: IrtConfig } = {}): Promise<C
     };
   }
 
-  const pool = createPool({ connectionString: resolveDatabaseUrl(), max: 4 });
+  const pool = createPool({
+    connectionString: resolveDatabaseUrl(),
+    max: 4,
+    connectionTimeoutMillis: 1_000,
+    applicationName: SERVICE_NAME,
+  });
   try {
+    await waitForStartupDependencies({
+      logger,
+      pool,
+      redisUrl: process.env.REDIS_URL,
+      serviceName: SERVICE_NAME,
+    });
+    logger.info({ ev: 'boot', svc: SERVICE_NAME, deps: 'ok' });
+
     return await runCalibration({
       listQuestions: () =>
         listCalibratingQuestions(pool, {
@@ -64,6 +83,35 @@ export async function runOnce(overrides: { config?: IrtConfig } = {}): Promise<C
   } finally {
     await pool.end();
   }
+}
+
+export async function start(): Promise<void> {
+  const report = await runOnce();
+  process.stdout.write(JSON.stringify({ event: 'calibration.report', ...report }) + '\n');
+
+  // Keep the worker online between PM2 cron restarts; the cron owns cadence.
+  const handle = setInterval(() => undefined, KEEPALIVE_INTERVAL_MS);
+  const shutdown = (signal: string): void => {
+    clearInterval(handle);
+    process.stdout.write(JSON.stringify({ event: 'calibration.shutdown', signal }) + '\n');
+    process.exit(0);
+  };
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+const currentFile = fileURLToPath(import.meta.url);
+const entryFile = process.argv[1] ? path.resolve(process.argv[1]) : '';
+if (entryFile === currentFile) {
+  void start().catch((err) => {
+    process.stderr.write(
+      JSON.stringify({
+        event: 'calibration.fatal',
+        error: err instanceof Error ? err.message : String(err),
+      }) + '\n',
+    );
+    process.exit(1);
+  });
 }
 
 export { runCalibration } from './orchestrator.js';

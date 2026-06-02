@@ -7,15 +7,18 @@ export interface BuildLoggerOptions {
 }
 
 export function buildLogger(opts: BuildLoggerOptions = {}): Logger {
-  return pino({
-    level: opts.level ?? process.env.LOG_LEVEL ?? 'info',
-    base: {
-      service: opts.serviceName ?? 'qorium-leak-crawler',
-      git_sha: opts.gitSha ?? process.env.GIT_SHA,
+  return pino(
+    {
+      level: opts.level ?? process.env.LOG_LEVEL ?? 'info',
+      base: {
+        service: opts.serviceName ?? 'qorium-leak-crawler',
+        git_sha: opts.gitSha ?? process.env.GIT_SHA,
+      },
+      redact: {
+        paths: ['SERPER_API_KEY', 'ANTHROPIC_API_KEY', 'DATABASE_URL', 'REDIS_URL'],
+        remove: true,
+      },
     },
-    redact: {
-      paths: ['SERPER_API_KEY', 'ANTHROPIC_API_KEY', 'DATABASE_URL', 'REDIS_URL'],
-      remove: true,
-    },
-  });
+    pino.destination({ dest: 1, sync: true }),
+  );
 }
