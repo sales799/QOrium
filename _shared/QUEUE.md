@@ -1,11 +1,14 @@
-# Shared Queue — QOrium Interactive Proof Closeout
+# Shared Queue — QOrium Content Recreation Closeout
 
-Last touched: 2026-06-02 — Codex Run #43
+Last touched: 2026-06-02 — Codex Run #44
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Recreate visitor-facing QOrium content | DONE | Branch `codex/qorium-content-recreation-20260602`, commit `c96e1ee2119bbfb845cd98e72003d105957d3cf8`, is live at `/opt/apps/qorium-marketing/releases/c96e1ee2119b`; homepage implementation ledger removed; SKU, buyer, trust, sample-pack, API-doc, and programmatic copy cleaned. | Non-author review before main merge. |
+| Enforce Content Recreation honesty gate | DONE | Marketing build now runs `scripts/check-rendered-copy.mjs`; local and origin builds passed the rendered-copy gate across `1168` HTML files. | Re-run on every marketing build. |
+| Verify Content Recreation live evidence | DONE | Local package build/typecheck/lint/Vitest/build/E2E passed; live route matrix returned HTTP `200`; JSON-LD present on sampled routes; axe-core found `0` WCAG A/AA violations across `17` sampled routes; FCP sample `252ms`-`1052ms`; quality gate `92/92`; saved Rakshak GO `94/100`, `17/17`. | Continue watchdog/Rakshak monitoring after traffic. |
 | Harden/deploy Interactive Proof | DONE | Branch `codex/qorium-active-proof-merge-20260602` final head `8317edbf4eeb` is live at `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; widgets emit proof telemetry and graded-answer embeds are on `/method` and `/library/[slug]`. | Non-author review before main merge. |
 | Verify Interactive Proof live evidence | DONE | Proof pages/APIs returned HTTP `200`/`202`; SAML metadata stayed `200`; axe-core found `0` violations across six proof pages; Lighthouse samples: home 90, JD-Forge 100, graded-answer 97, sample-packs 91 performance with accessibility/SEO 100. | Re-run after proof copy/code changes. |
 | Harden/deploy Trust Shell telemetry | DONE | Commit `ff491c51b565` on `codex/qorium-programmatic-seo-factory-phase1` adds Trust Shell page/evidence/CTA telemetry and keyboard-focusable evidence ledgers; active origin serves release `/opt/apps/qorium-marketing/releases/ff491c51b565`; Cloudflare purge succeeded. | Execute Interactive Proof shard next. |

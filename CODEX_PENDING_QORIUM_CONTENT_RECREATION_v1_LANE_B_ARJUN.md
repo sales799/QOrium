@@ -2,8 +2,9 @@
 
 **Lane:** B (marketing site, `qorium-marketing`) — ARJUN (Mac Mini, `bhaskar@talproindia.com`)
 **Author of spec:** Claude (Super Brain). **Executor:** Codex ARJUN. Do NOT route this code build to Claude.
-**Status:** ✅ READY — CEO locked voice charter (Part 2.1) + three-buyer lines (Part 2.5) on 2026-06-02 ("lock voice"). Run now.
+**Status:** ✅ COMPLETED — shipped by Codex ARJUN on 2026-06-02.
 **Date staged:** 2026-06-01 · **Unblocked:** 2026-06-02
+**Completion evidence:** branch `codex/qorium-content-recreation-20260602`, commit `c96e1ee2119bbfb845cd98e72003d105957d3cf8`, active release `/opt/apps/qorium-marketing/releases/c96e1ee2119b`, rendered-copy gate passed across `1168` HTML files, live route matrix HTTP `200`, axe-core `0` violations across `17` sampled routes, quality gate `92/92`, latest saved Rakshak GO `94/100` `17/17`.
 
 ## Source of truth
 `QORIUM_CONTENT_360_AUDIT_AND_RECREATION_PROMPT_v1.md` — read in full. Part 3 is the master prompt; run it to generate copy. Part 2.2 is the BANNED list. Part 3.1 is the golden before/after sample (the bar to match).
