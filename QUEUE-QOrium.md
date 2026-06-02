@@ -3,7 +3,34 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #27 (Cloudflare purge token installed)
+**Last touched:** 2026-06-02 — Codex Run #28 (Gatekeeper PM2/WCAG deploy)
+
+---
+
+## RUN #28 — Gatekeeper PM2 Start Durability + WCAG Landmark Repair (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Made QOrium marketing PM2 restart durable** — tracked `apps/marketing/.pm2-start.sh` on the live deploy branch so `qorium-marketing` no longer loses its launcher after branch switches or clean deploys.
+- [2026-06-02] **Fixed shipped WCAG landmark regressions** — removed nested page-level `<main>` wrappers from shard pages and converted non-landmark side rails from `<aside>` to neutral containers.
+- [2026-06-02] **Deployed via GBS atomic deploy path** — GBS job `8c3b8dea-f45b-4b7a-a02f-36f7e5f93ffb` ran `BRANCH=codex/qorium-marketing-phase4-main pnpm deploy:atomic:raw`; PM2 restarted `qorium-marketing` at 04:43 UTC.
+- [2026-06-02] **Verified live Gatekeeper proxy evidence** — public shard routes, OpenAPI, API health, JSON-LD, axe, internal GET links, Lighthouse samples, quality gate, and PM2 fleet enumeration all passed after deploy.
+
+### EVIDENCE
+
+- Commits: `04fbe43` (tracked PM2 start script), `373a102` (landmark semantics), deployed branch head `3efde9d` (includes `373a102` plus `.gitleaksignore` allowlist chore).
+- PM2: `qorium-marketing` online, pid `2162652`, restart count `44`; QOrium fleet enumeration found `38` processes, `24` service names, `0` offline.
+- Live HTTP 200: `/`, `/healthz`, `/openapi.json`, `/resources/docs`, `/library/react`, `/library/aws`, `/library/sql`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, `/compliance-dpdp`, `api.qorium.online/healthz`, `api.qorium.online/chatbot/v1/healthz`, `admin.qorium.online/api/health`.
+- JSON-LD + axe: `/` `3/3`, `/resources/docs` `3/3`, `/trust` `3/3`, `/compliance-dpdp` `2/2`, `/try/jd-forge` `1/1`, `/resources/sample-packs` `1/1`, `/library/{react,aws,sql}` `1/1`; axe violations `0` on all checked pages.
+- Quality gate: `https://qorium.online/v1/science/quality-gate` returned latest run `92/92`, dated `2026-06-01`.
+- Lighthouse desktop lab: home `97/100` performance, `100` accessibility, `100` SEO, LCP `1043ms`, CLS `0`, TBT `0`; docs `89/100` performance, `100` accessibility, `100` SEO, LCP `1884ms`, CLS `0`, TBT `0`.
+- GET-only internal link sweep: `65` checked, `0` broken.
+- Correct API health path confirmed: `https://api.qorium.online/healthz`; `api.qorium.online/v1/science/quality-gate` is not the service health path.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Formal `gatekeeper_scan` MCP tool was not exposed in this Codex session; manual Gatekeeper proxy evidence was recorded instead.
+- [LOW] Deploy script still writes a launcher during raw deploy; the tracked launcher keeps checkout durability, but a future cleanup can make `infra/marketing-deploy.sh` reuse the tracked script verbatim.
 
 ---
 
