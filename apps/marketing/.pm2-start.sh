@@ -1,17 +1,8 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-cd "$(dirname "$0")"
-
-export NODE_ENV="${NODE_ENV:-production}"
-
-if [[ -f .env.production.local ]]; then
-  set -a
-  source .env.production.local
-  set +a
-fi
-
-export PORT="${PORT:-5110}"
-MARKETING_HOST="${QORIUM_MARKETING_HOST:-127.0.0.1}"
-
-exec ./node_modules/next/dist/bin/next start -H "$MARKETING_HOST" -p "$PORT"
+set -e
+cd "/opt/apps/qorium-marketing/apps/marketing"
+export NODE_ENV=production
+export PORT=5110
+export HOSTNAME=127.0.0.1
+# Next.js 15 auto-loads .env.production from cwd
+exec ./node_modules/next/dist/bin/next start -H 127.0.0.1 -p 5110

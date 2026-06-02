@@ -46,3 +46,5 @@ infra/docker/data/
 
 # Migrations artifacts (generated)
 packages/db/drizzle/meta/
+
+.env.production
