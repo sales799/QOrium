@@ -3,7 +3,39 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #33 (Old-origin rollback capacity review)
+**Last touched:** 2026-06-02 — Codex Run #34 (Marketing atomic deploy hardening)
+
+---
+
+## RUN #34 — Marketing Atomic Deploy Hardening (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Converted `infra/marketing-deploy.sh` to a real release pipeline** — builds now stage into `/opt/apps/qorium-marketing/releases/<SHA>`, preserve runtime state under `/opt/apps/qorium-marketing/shared`, flip `/opt/apps/qorium-marketing/current`, and then reload PM2.
+- [2026-06-02] **Preserved runtime env outside the git checkout** — existing `apps/marketing/.env.production` is migrated once to `shared/apps/marketing/.env.production`; release env files are symlinks to shared state.
+- [2026-06-02] **Fixed deploy-order bug for chatbot builds** — deploy now builds `@qorium/db` before `@qorium/chatbot`, matching the workspace dependency graph.
+- [2026-06-02] **Hardened PM2 release handoff** — existing marketing/chatbot PM2 processes reload when already pointed at `current`, and safely recreate only when migrating from a legacy launcher path.
+- [2026-06-02] **Kept primary TLS on Cloudflare origin cert** — active origin reused `/etc/ssl/qorium/origin.pem` and skipped Let's Encrypt issuance for `qorium.online`.
+- [2026-06-02] **Stopped wrong-origin `qorium.in` ACME attempts** — redirect cert setup now compares `qorium.in` DNS to the actual server public IP and skips on active origin while DNS still points to `147.93.103.194`.
+- [2026-06-02] **Committed, pushed, and deployed final safe work** — branch `codex/qorium-marketing-atomic-deploy-hardening`, commit `7c69d29f7251`, pushed to `qorium`, deployed on active origin `187.127.155.150`.
+
+### EVIDENCE
+
+- Branch: `codex/qorium-marketing-atomic-deploy-hardening`.
+- Commit: `7c69d29f7251` (`Harden marketing atomic deploy pipeline`).
+- Local gates: `bash -n infra/marketing-deploy.sh` pass; `git diff --check` pass; `pnpm --filter @qorium/marketing build` pass; `pnpm --filter @qorium/db build` pass; `pnpm --filter @qorium/chatbot build` pass; `pnpm secrets:scan` pass.
+- Deploy summary: active-origin checkout reset to `7c69d29`; release built at `/opt/apps/qorium-marketing/releases/7c69d29f7251`; symlink flipped to `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/7c69d29f7251`; PM2 reloaded `qorium-chatbot` and `qorium-marketing`; local probes `:5110` and `:5122/v1/chatbot/health` returned HTTP `200`.
+- Live HTTP/JSON-LD: `/`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`, valid HTML, and `2` JSON-LD blocks each.
+- API health: `https://api.qorium.online/healthz` and `/health` returned HTTP `200`; `/api/health` remains the wrong path.
+- PM2 fleet: active origin default namespace enumerates `12` QOrium processes; marketing/chatbot now use `/opt/apps/qorium-marketing/current/.../.pm2-start.sh`.
+- Cloudflare edge: targeted purge for final-release URLs returned `cloudflare_purge_success=true`; sampled pages returned HTTP `200`.
+- Accessibility: `@axe-core/cli` `4.11.4` found `0` violations across `/`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp`.
+- CWV/Lighthouse sample: home page performance `85`, accessibility `100`, best practices `92`, SEO `92`; FCP `2101ms`, LCP `3635ms`, CLS `0`, TBT `77ms`.
+- Rakshak floor: latest keeper-backed saved run remains `rakshak-qorium_online-mpw46c2z-7bd0` with `GO 94/100`; API/admin saved floors remain `89/100` and `88/100`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Active origin shared env currently reflects the deploy-time `.env.production` available on the host. If private production integrations are required for Resend, corpus rebuild, or lead capture, re-land credentials into `/opt/apps/qorium-marketing/shared/apps/marketing/.env.production` out-of-band.
 
 ---
 
@@ -80,9 +112,9 @@
 
 ### REMAINING FOLLOW-UP
 
-- [LOW] Current `deploy:atomic:raw` script is not a true releases/`<SHA>` symlink flip; it performs in-place checkout/build/PM2 restart despite the script name. Evidence recorded; future infra cleanup should align implementation with `MARKETING_REDESIGN_360_v1.md`.
-- [LOW] Raw deploy recreated baseline `.env.production` files on both origins with public/runtime keys only. No secret values were printed or committed; static/proof surfaces are healthy. Future deploy cleanup should make the `git clean` exclusion deterministic.
-- [LOW] Optional `qorium.in` redirect certificate still fails ACME HTTP challenge because `qorium.in` resolves to the other origin; primary `qorium.online` HTTPS is healthy.
+- [DONE in Run #34] `deploy:atomic:raw` now builds releases under `releases/<SHA>`, flips `current`, and reloads PM2 from stable release launchers.
+- [DONE in Run #34] Runtime env now lives under `shared/apps/marketing/.env.production` and release env files symlink to shared state.
+- [DONE in Run #34] Optional `qorium.in` redirect certificate setup now skips on origins whose public IP does not match current `qorium.in` DNS.
 - [LOW] Fresh Rakshak MCP orchestration was not callable in this Codex tool session; same-day saved Rakshak certification plus live quality-gate/axe/Lighthouse evidence were used for the no-regression floor.
 
 ---
