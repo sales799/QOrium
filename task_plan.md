@@ -1,20 +1,18 @@
 # QOrium Session Task Plan
 
-Last updated: 2026-06-02 — Codex archive closeout + NIRANTAR registry proof
+Last updated: 2026-06-02 — Codex Phase 4 Sentry proof closeout
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
-| Recap every requested/started session item | DONE | `_shared/QUEUE.md` contains task table and archive certification. | Include final summary. |
-| Run safe checks | DONE | `pnpm install --frozen-lockfile`, `pnpm run scan:secrets`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run test`, `pnpm run build`, `pnpm run smoke`, and `pnpm run e2e` passed on 2026-06-02. | Keep gates green. |
-| Fix broken local gate | DONE | `@qorium/web` lint no longer runs removed `next lint || true`; it now runs `tsc -p tsconfig.json --noEmit` and passes inside Turbo. | Done. |
-| Verify live routes and headers | DONE | `https://qorium.online/`, `/healthz`, `/sitemap.xml`, `https://api.qorium.online/healthz`, and `/health` returned HTTP `200` across the 2026-06-02 closeout checks; active-origin head is `18110f1`; public routes include HSTS, CSP, frame, content-type, referrer, and permissions headers where applicable. | Continue watchdog monitoring. |
-| Verify SEO indexing state | IN PROGRESS | Bing Webmaster Tools still shows sitemap status `Processing`, known `1`, errors `0`, warnings `0`, total URLs discovered `0`; sitemap is public `200` with `1190` URLs and Bing CNAME resolves. | Re-check Bing later. |
-| Update queue/state | DONE | Updated `_shared/QUEUE.md`, `task_plan.md`, `QUEUE-QOrium.md` Run #36, and the live NIRANTAR completion queues; MCP evidence branch `codex/nirantar-fleet-registry-20260602` is pushed at `965ea45`. | Done. |
-| Save session state | DONE | `session_save_state` called for project `QOrium`. | Resume from saved state if thread is reopened. |
-| Commit/push safe verified work | DONE | Scoped closeout repair committed and pushed on branch `specs`; final report carries the exact SHA. | No author self-merge. |
-| Deploy/reverify production | DONE | No runtime deploy needed for the lint-script-only code change; current production remains live and verified. | Re-check Bing processing later. |
-| PM2 saved-state check | DONE | Active-origin `pm2 save` completed; direct PM2 shows marketing/chatbot/leak-crawler online with unstable restarts `0`; MCP orphan tool output was inconsistent with direct host PM2 and recorded as a tool-context warning. | Re-run direct host PM2 check if fleet dashboard disagrees. |
+| Recap every requested/started session item | DONE | This plan plus `_shared/QUEUE.md` and `QUEUE-QOrium.md` Run #37 record prove/commit/push/deploy/start requests with evidence. | Include final BALI Phase 4 recap. |
+| Verify commit/push proof | DONE | Remote `codex/qorium-marketing-phase4-main` is at `c2ea0a225bfe`; Sentry instrumentation commit `0c342be37f62` remains in branch history. | Non-author review/merge for `main` parity. |
+| Verify active deployment | DONE | Active origin `qorium-active-origin` (`187.127.155.150`) is at `18110f1f5653` on `codex/qorium-programmatic-seo-factory-phase1`; built route table lists `/v1/observability/sentry`; public and forced-origin route calls return HTTP `200` JSON. | Keep current active release; do not downgrade to older phase branch. |
+| Run safe checks | DONE | Active origin marketing typecheck passed; Vitest `11` files / `55` tests passed; Next build generated `1195/1195` pages; `gitleaks` scanned `162` commits and found no leaks. | Re-run after DSN/env landing or code change. |
+| Verify live routes and headers | DONE | Public `/`, `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`; root headers include HSTS, CSP, frame, content-type, referrer, and permissions policies. | Continue watchdog monitoring. |
+| Update queue/state | DONE | Updated `QUEUE-QOrium.md`, `_shared/QUEUE.md`, `task_plan.md`, and completion artifact `_shared/CODEX_COMPLETION_QORIUM_PHASE4_SENTRY_OBSERVABILITY_2026-06-02.md`. | Commit state files by name only. |
+| Save session/MANTHAN state | DONE | `session_save_state` and MANTHAN CTO handoff for session `9194eed8` point to the DSN blocker and exact active-origin proof. | Resume from this state if reopened. |
+| Enable real Sentry capture | BLOCKED | Live status JSON says `enabled:false` and `dsnConfigured:false`; production env has no QOrium DSN; previous Sentry token could list but could not create project/client key (`403`). | Founder/Sentry admin must provide QOrium DSN or a token with project-create/client-key permission. |
 
 ## Founder Action Required
 
-Bing sitemap processing remains external/pending; no founder action required.
+Provide a QOrium-specific Sentry DSN/client key, or a Sentry token with permission to create/read the `qorium-marketing` project client key.

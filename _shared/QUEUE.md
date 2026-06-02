@@ -1,26 +1,25 @@
-# Shared Queue — QOrium / NIRANTAR Closeout
+# Shared Queue — QOrium Phase 4 Proof Closeout
 
-Last touched: 2026-06-02 — Codex archive closeout + NIRANTAR registry proof
+Last touched: 2026-06-02 — Codex Run #37
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
-| Locate NIRANTAR service behind `https://nirantar.talpro.in` | DONE | VPS cwd `/opt/apps/nirantar/current`; branch `main`; remote `https://github.com/sales799/nirantar.git`; head `1a5d009`; PM2 `nirantar` online; public `/api/health` HTTP `200` at `2026-06-02T08:54:59Z`. | Keep watchdog in active registry. |
-| Explain NIRANTAR restart | DONE | PM2 shows restarts `0`, unstable restarts `0`; deploy-created at `2026-06-02T04:11:17Z`; prior reset matched planned deploy/reload, not crash logs. | No founder action. |
-| Register NIRANTAR in fleet/watchdog registry | DONE | Live `PROJECT_REGISTRY.md` now parses NIRANTAR with `public_url=nirantar.talpro.in` and repo paths `/opt/apps/nirantar`, `/opt/apps/nirantar/current`; pushed MCP branch `codex/nirantar-fleet-registry-20260602` at `965ea45`; PM2 reload/save completed. | Monitor normally. |
-| Investigate `qorium-leak-crawler` restart flapping | DONE | `pm2 logs qorium-leak-crawler --lines 50 --nostream` had empty last-50 logs; PM2 entries online; cron restart `0 2 * * *`; unstable restarts `0`; `pm2 save` completed. | Treat daily 02:00 restart as scheduled unless unstable restarts rise. |
-| QOrium Phase 1 / marketing release proof | DONE | Active-origin `/opt/apps/qorium-marketing` is on `codex/qorium-programmatic-seo-factory-phase1` at `18110f1`; public `/`, `/healthz`, `/sitemap.xml`, `api.qorium.online/healthz`, and `/health` returned HTTP `200` across the 2026-06-02 closeout checks; security headers present. | Keep current active-origin release. |
-| QOrium WCAG / evidence gates | DONE | Live axe after `8fb0553` showed `0` WCAG 2.1 A/AA violations on critical routes; later Run #35 queue evidence records axe `0` on library/role/stack/comparison routes and Lighthouse accessibility `100` for sampled page. | No founder action. |
-| QOrium app local gates | DONE | `pnpm install --frozen-lockfile`, `pnpm run scan:secrets`, `typecheck`, `lint`, `test`, `build`, `smoke`, and `e2e` passed on 2026-06-02 after repairing masked web lint script. | Commit/push lint gate repair; no runtime deploy needed. |
-| Bing sitemap processing check | IN PROGRESS | Bing Webmaster Tools row still shows `https://qorium.online/sitemap.xml`, last submit `6/2/2026`, last crawl `-`, status `Processing`, URLs discovered `-`; summary cards show known `1`, errors `0`, warnings `0`, total discovered `0`. | Re-check Bing later. |
-| PM2 saved-state verification | DONE | Active-origin `pm2 save` completed; direct PM2 shows `qorium-marketing`, `qorium-chatbot`, and `qorium-leak-crawler` online with unstable restarts `0`. MCP orphan check reported broad `running=0` mismatch, contradicted by direct SSH PM2 evidence. | Treat MCP orphan output as stale/tool-context warning unless direct host PM2 changes. |
-| Completion queue update | DONE | `QUEUE-QOrium.md` records latest run history through Run #36; this shared queue records the closeout evidence; task plan updated in `task_plan.md`. | Archive only after Bing processing is no longer open. |
+| Recap every requested item this session | DONE | User asked: prove, commit Phase 4 proof, push Phase 4 proof, deploy Phase 4 proof, then START walkthroughs. This closeout reconciled build/push/deploy/live state and recorded Run #37 in `QUEUE-QOrium.md`. | Include final BALI recap. |
+| Commit/push Phase 4 Sentry proof code | DONE | Original instrumentation commit `0c342be37f62` is pushed; remote phase branch `codex/qorium-marketing-phase4-main` is at `c2ea0a225bfe` and contains the Sentry route/instrumentation history. | Non-author review/merge if `main` parity is required. |
+| Deploy/verify Phase 4 observability route | DONE | Active production origin `qorium-active-origin` (`187.127.155.150`) is at `18110f1f5653` on `codex/qorium-programmatic-seo-factory-phase1`; build output lists `/v1/observability/sentry`; public and forced-origin route calls return HTTP `200` JSON. | Keep the newer active-origin release; do not roll back to older phase branch. |
+| Run safe checks on active production checkout | DONE | On `qorium-active-origin`: marketing typecheck pass; Vitest `11` files / `55` tests pass; Next build pass with `1195/1195` pages; `gitleaks` scanned `162` commits and found no leaks. | Re-run after any code/env change. |
+| Verify production routes/security headers | DONE | Public `/`, `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`; root headers include HSTS, CSP, frame, content-type, referrer, and permissions policies. | Continue watchdog monitoring. |
+| Update state and handoff | DONE | Updated `QUEUE-QOrium.md`, `_shared/QUEUE.md`, `task_plan.md`, and `_shared/CODEX_COMPLETION_QORIUM_PHASE4_SENTRY_OBSERVABILITY_2026-06-02.md`; saved session state; saved MANTHAN CTO handoff for `9194eed8`. | Archive only after founder blocker is acknowledged. |
 
 ## BLOCKED
 
-None.
+| Task | Status | Owner | Evidence | Next |
+| --- | --- | --- | --- | --- |
+| Enable real Sentry event capture | BLOCKED | Founder/Sentry admin | Live status JSON says `enabled:false` and `dsnConfigured:false`; production env grep found only commented DSN examples; prior Sentry token could list projects/teams but project creation returned HTTP `403`. | Provide QOrium Sentry DSN/client key or a Sentry token with project-create/client-key permission. |
+| Merge author-owned phase branch to `main` | BLOCKED | Non-author reviewer | Current production includes the route via newer active release, but branch `codex/qorium-marketing-phase4-main` still needs cross-account review/merge for `main` parity. | Have another account review/merge; author must not approve own merge. |
 
 ## ARCHIVE CERTIFICATION
 
-Not archive-ready as of 2026-06-02 because Bing sitemap processing is still open. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched. Active-origin release/runtime directories remain untracked by design; tracked source at repo top had no lockfile modification at final check.
+Not archive-ready as a fully complete Sentry activation. Code/deploy proof is archive-ready; real capture waits on the DSN/permission blocker. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched.
