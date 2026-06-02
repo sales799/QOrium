@@ -10,7 +10,7 @@ Last updated: 2026-06-02 — Codex full-auto closeout
 | Update queue/state | DONE | Added `_shared/QUEUE.md`; updated `task_plan.md`; existing `QUEUE-QOrium.md` already contains latest Run #35 live deployment evidence. | Commit and push state files only. |
 | Save session state | DONE | `session_save_state` called for project `QOrium`. | Resume from saved state if thread is reopened. |
 | Commit/push safe verified work | DONE | State-only commit after verification. | No merge by author. |
-| Deploy/reverify production | DONE | No new deploy needed in this closeout; current production already on active-origin `84d9045` and verified live. | Archive. |
+| Deploy/reverify production | DONE | No new deploy needed in this closeout; current production already on active-origin `f0207d8` and verified live. | Archive. |
 | PM2 saved-state check | DONE | Active-origin `pm2 save` completed; direct PM2 shows marketing/chatbot/leak-crawler online with unstable restarts `0`; MCP orphan tool output was inconsistent with direct host PM2 and recorded as a tool-context warning. | Re-run direct host PM2 check if fleet dashboard disagrees. |
 
 ## Founder Action Required
