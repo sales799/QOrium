@@ -51,7 +51,9 @@ jobs:
       - name: Build marketing app
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
-        run: pnpm --filter @qorium/marketing build
+        run: |
+          pnpm run build:packages
+          pnpm --filter @qorium/marketing build
 
       - name: Run Lighthouse CI
         run: |
@@ -91,7 +93,9 @@ jobs:
       - name: Build marketing app
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
-        run: pnpm --filter @qorium/marketing build
+        run: |
+          pnpm run build:packages
+          pnpm --filter @qorium/marketing build
 
       - name: Start marketing app
         run: |
@@ -178,7 +182,9 @@ jobs:
       - name: Build marketing app
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
-        run: pnpm --filter @qorium/marketing build
+        run: |
+          pnpm run build:packages
+          pnpm --filter @qorium/marketing build
 
       - name: Run Playwright E2E
         run: pnpm --filter @qorium/marketing test:e2e

@@ -71,7 +71,11 @@ if [[ -d "$APP_DIR/.git" ]]; then
   cd "$APP_DIR"
   git fetch --depth=1 origin "+$BRANCH:refs/remotes/origin/$BRANCH"
   git reset --hard "origin/$BRANCH"
-  git clean -fd
+  # Preserve runtime-only files that are created by deploys or companion services.
+  git clean -fd \
+    -e apps/marketing/.env.production \
+    -e apps/marketing/.pm2-start.sh \
+    -e services/chatbot/.pm2-start.sh
 else
   if [[ -d "$APP_DIR" ]] && [[ -n "$(ls -A "$APP_DIR" 2>/dev/null)" ]]; then
     die "$APP_DIR exists and is not empty. Move it aside or delete it before rerunning."
@@ -87,6 +91,7 @@ command pnpm install --frozen-lockfile --prefer-offline 2>&1 | tail -20
 ok "deps installed"
 
 log "Building marketing app (Next.js 15)"
+command pnpm run build:packages 2>&1 | tail -25
 command pnpm --filter @qorium/marketing build 2>&1 | tail -25
 [[ -d "$APP_DIR/apps/marketing/.next" ]] || die "build did not produce .next/ — check log above"
 ok "build complete · $(du -sh "$APP_DIR/apps/marketing/.next" | cut -f1)"

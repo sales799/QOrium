@@ -23,7 +23,7 @@
     "dev:marketing": "pnpm --filter @qorium/marketing dev",
     "secrets:scan": "gitleaks detect --source . --no-banner --redact || (echo 'gitleaks not installed — see README' && exit 1)",
     "prepare": "husky",
-    "build:packages": "pnpm --filter @qorium/db --filter @qorium/auth run build",
+    "build:packages": "pnpm --filter @qorium/db --filter @qorium/auth --filter @qorium/saml run build",
     "ops:validate-credentials": "node scripts/validate-credentials.mjs",
     "ops:validate-credentials:strict": "node scripts/validate-credentials.mjs --strict",
     "ops:validate-credentials:json": "node scripts/validate-credentials.mjs --json",
