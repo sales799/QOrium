@@ -24,6 +24,7 @@ Last updated: 2026-06-02 — Codex Interactive Proof hardening
 | Update queue/state | DONE | Updated `QUEUE-QOrium.md`, `_shared/QUEUE.md`, and `task_plan.md` with Run #40 evidence. | Commit state files by name only. |
 | Save session/MANTHAN state | BLOCKED | Talpro MCP `session_save_state` / `manthan_save` tools were not callable in this Codex session (`tool_search` returned `0` tools); local state files were updated instead. | Re-run session/MANTHAN save from a Talpro-tool-enabled session if archive tooling requires it. |
 | Enable real Sentry capture | BLOCKED | Live status JSON says `enabled:false` and `dsnConfigured:false`; production env has no QOrium DSN; previous Sentry token could list but could not create project/client key (`403`). | Founder/Sentry admin must provide QOrium DSN or a token with project-create/client-key permission. |
+| Close CEO remote-auto pending list | PARTIAL | `CODEX_COMPLETION_QORIUM_CEO_REMOTE_AUTO_PENDING_CLOSEOUT_2026-06-02.md` records the 9-item closeout: pricing and JD seeds are draft-ready; ATS/Serper/DB/K&S/BP-08/GitHub/Sentry require secrets, account auth, payment, or legal/business send authority. | Commit the completion shard and retry push when GitHub credentials are available. |
 
 ## Founder Action Required
 
