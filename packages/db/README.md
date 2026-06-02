@@ -53,7 +53,7 @@ canonical schema applies cleanly and produces the expected table layout
 Run it after `pnpm migrate:up`:
 
 ```bash
-DATABASE_URL=postgresql://qorium:qorium_dev_password@localhost:5432/qorium pnpm test
+DATABASE_URL=postgresql://localhost:5432/qorium_test pnpm test
 ```
 
 The test auto-skips when `DATABASE_URL` / `QORIUM_TEST_DATABASE_URL` is unset
