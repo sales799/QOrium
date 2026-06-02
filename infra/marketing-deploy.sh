@@ -212,6 +212,19 @@ curl -s -m 5 -o /dev/null -w "  local probe :${CHATBOT_PORT} → HTTP %{http_cod
 # ── 8. nginx vhost ─────────────────────────────────────────────────────────
 log "Configuring nginx vhost for ${DOMAIN_PRIMARY}"
 NGINX_VHOST="/etc/nginx/sites-available/qorium-marketing.conf"
+PRIMARY_LE_CERT_DIR="/etc/letsencrypt/live/${DOMAIN_PRIMARY}"
+CLOUDFLARE_ORIGIN_CERT="/etc/ssl/qorium/origin.pem"
+CLOUDFLARE_ORIGIN_KEY="/etc/ssl/qorium/origin.key"
+SSL_CERTIFICATE="${PRIMARY_LE_CERT_DIR}/fullchain.pem"
+SSL_CERTIFICATE_KEY="${PRIMARY_LE_CERT_DIR}/privkey.pem"
+PRIMARY_CERT_SOURCE="letsencrypt"
+
+if [[ -f "$CLOUDFLARE_ORIGIN_CERT" && -f "$CLOUDFLARE_ORIGIN_KEY" ]]; then
+  SSL_CERTIFICATE="$CLOUDFLARE_ORIGIN_CERT"
+  SSL_CERTIFICATE_KEY="$CLOUDFLARE_ORIGIN_KEY"
+  PRIMARY_CERT_SOURCE="cloudflare-origin"
+fi
+
 cat > "$NGINX_VHOST" <<NGINX
 # Managed by infra/marketing-deploy.sh — re-runs overwrite this file.
 
@@ -238,8 +251,8 @@ server {
     server_name ${DOMAIN_PRIMARY};
 
     # SSL certificates installed by certbot below
-    ssl_certificate     /etc/letsencrypt/live/${DOMAIN_PRIMARY}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_PRIMARY}/privkey.pem;
+    ssl_certificate     ${SSL_CERTIFICATE};
+    ssl_certificate_key ${SSL_CERTIFICATE_KEY};
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers off;
     ssl_session_cache shared:SSL:10m;
@@ -295,18 +308,21 @@ server {
     listen [::]:443 ssl http2;
     server_name ${DOMAIN_WWW};
 
-    ssl_certificate     /etc/letsencrypt/live/${DOMAIN_PRIMARY}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_PRIMARY}/privkey.pem;
+    ssl_certificate     ${SSL_CERTIFICATE};
+    ssl_certificate_key ${SSL_CERTIFICATE_KEY};
 
     return 301 https://${DOMAIN_PRIMARY}\$request_uri;
 }
 NGINX
 
 mkdir -p /var/www/certbot
+rm -f /etc/nginx/sites-enabled/qorium-marketing-bootstrap.conf
 ln -sf "$NGINX_VHOST" /etc/nginx/sites-enabled/qorium-marketing.conf
 
 # ── 9. Issue Let's Encrypt cert (only if missing) ──────────────────────────
-if [[ ! -d "/etc/letsencrypt/live/${DOMAIN_PRIMARY}" ]]; then
+if [[ "$PRIMARY_CERT_SOURCE" == "cloudflare-origin" ]]; then
+  ok "using existing Cloudflare origin certificate for ${DOMAIN_PRIMARY}; skipping Let's Encrypt issuance"
+elif [[ ! -d "$PRIMARY_LE_CERT_DIR" ]]; then
   log "Issuing Let's Encrypt certificate for ${DOMAIN_PRIMARY} + ${DOMAIN_WWW}"
   # Temporarily swap to an HTTP-only vhost so certbot can validate.
   cat > /etc/nginx/sites-available/qorium-marketing-bootstrap.conf <<NGINX_BOOT
