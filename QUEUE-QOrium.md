@@ -3,7 +3,40 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #34 (Marketing atomic deploy hardening)
+**Last touched:** 2026-06-02 — Codex Run #35 (Programmatic SEO Factory Phase 1)
+
+---
+
+## RUN #35 — Programmatic SEO Factory Phase 1 (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Shipped the Programmatic SEO Factory Phase 1 library graph** — `/library/[slug]` now generates an honesty-gated 1,000-page skill taxonomy from 50 primary skills x 20 focus areas, replacing clone-like `Skill Track` long-tail pages.
+- [2026-06-02] **Preserved existing sample-pack and legacy slugs** — `devops-sre` and companion sample-pack paths remain resolvable while new library pages use unique names, titles, and related-skill references.
+- [2026-06-02] **Added visible calibration status and schema for skill pages** — library skill pages expose calibration status in the hero and emit `Organization`, `BreadcrumbList`, `Article`, and `FAQPage` JSON-LD.
+- [2026-06-02] **Fixed live axe regressions found during SEO verification** — removed nested `<main>` landmarks from role, stack, and comparison pages; made the comparison table scroller keyboard focusable.
+- [2026-06-02] **Committed, pushed, purged, and deployed final safe work** — branch `codex/qorium-programmatic-seo-factory-phase1`, final commit `84d90456d03e`, deployed on active origin through the atomic release pipeline.
+
+### EVIDENCE
+
+- Branch: `codex/qorium-programmatic-seo-factory-phase1`.
+- Commits: `25896d783c84` (`Harden programmatic SEO library generator`) and `84d90456d03e` (`Fix SEO route accessibility landmarks`).
+- Local gates: `pnpm --filter @qorium/marketing test` pass (`11` files / `55` tests); `typecheck` pass; `lint` pass; `build` pass with `1195/1195` static pages; `pnpm secrets:scan` pass.
+- Deploy summary: active-origin checkout reset to `84d9045`; release built at `/opt/apps/qorium-marketing/releases/84d90456d03e`; symlink flipped to `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/84d90456d03e`; PM2 reloaded `qorium-chatbot` and `qorium-marketing`; local probes `:5110` and `:5122` returned HTTP `200`.
+- Cloudflare edge: targeted purge resolved zone `qorium.online` and returned `cloudflare_purge_success=true`.
+- Live HTTP: `/`, `/healthz`, `/library`, `/library/javascript`, `/library/java-security`, `/library/devops-sre`, `/sitemap-library.xml`, `/solutions/role/react-developer`, `/solutions/stack/sap-abap`, `/vs/vervoe`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`.
+- Live JSON-LD: library pages returned `Organization`, `BreadcrumbList`, `Article`, `FAQPage`; role/stack pages returned `Organization`, `BreadcrumbList`, `SoftwareApplication`; comparison page returned `Organization`, `BreadcrumbList`, `FAQPage`, `Table`; JD Forge/sample packs/trust/DPDP companion surfaces returned expected schema types.
+- Accessibility: `@axe-core/cli` `4.11.4` found `0` violations across `/library/javascript`, `/library/java-security`, `/library/devops-sre`, `/solutions/role/react-developer`, `/solutions/stack/sap-abap`, and `/vs/vervoe`.
+- CWV/Lighthouse sample: `/library/java-security` performance `96`, accessibility `100`, best practices `92`, SEO `100`; FCP `2226ms`, LCP `2226ms`, TBT `28ms`, CLS `0`.
+- Quality gate: `https://qorium.online/v1/science/quality-gate` returned HTTP `200` with latest run `92/92`, dated `2026-06-01`.
+- Rakshak floor: latest keeper-backed saved run remains `rakshak-qorium_online-mpw46c2z-7bd0` with `GO 94/100` and `17/17` audits; API/admin saved floors remain `89/100` and `88/100`.
+- API health clarification: correct public API health paths are `https://api.qorium.online/health` and `/healthz`; `/api/health*` and `/v1/health*` are wrong paths and return `404`.
+- PM2 fleet note: active-origin PM2 namespace is `default`; live enumeration lists QOrium processes online, including `qorium-api`, `qorium-jd-forge`, `qorium-stack-vault`, `qorium-admin`, `qorium-leak-crawler`, `qorium-keeper`, `qorium-chatbot`, and `qorium-marketing`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] `qorium-fleet-status` implementation was not found in this repository during this run. The live PM2 data confirms the `default` namespace contains QOrium processes; any registry patch appears to belong to an external Talpro status/MCP service.
+- [LOW] Fresh Rakshak MCP orchestration was not callable in this Codex tool session; same-day saved Rakshak certification plus live quality-gate/axe/Lighthouse evidence were used for the no-regression floor.
 
 ---
 
@@ -997,6 +1030,8 @@ User directive: "Let CEO ie Manthan take ownership, plan, get CTO approval, impl
 - [DONE 2026-05-02] **CTO: C8 Offer letter template v0.1** — `legal/C8-Offer-Letter-Template-v0.1-CTO-Draft.docx` (Indian-employment + 4-yr ESOP + 1-yr cliff)
 - [DONE 2026-05-02] **CTO: E1 Bosch warm-intro email (3 versions)** — `sales/E1-Bosch-GCC-Warm-Intro-Email.docx` (pre-send checklist + follow-up cadence)
 - [DONE 2026-05-02] **CTO: E2 Bosch GCC stack research** — `sales/E2-Bosch-GCC-Stack-Research.docx` (org map; top 10 roles; 12-week sales motion)
+- [DONE 2026-06-01] **CTO: Content 360 audit + recreation master prompt** — `QORIUM_CONTENT_360_AUDIT_AND_RECREATION_PROMPT_v1.md`. Diagnosed live site "build-voice" (spec-shipped-as-copy; content score ~3.9/10); full banned-words rule set, buyer-first architecture, copy-paste master prompt + golden before/after. Codex brief staged.
+- [BLOCKED 2026-06-01] **Lane B (ARJUN): QOrium content recreation build** — `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md`. Owner: Codex ARJUN. Unblock = CEO locks voice charter (Part 2.1) + three-buyer lines (Part 2.5). Then recopy all marketing pages + wire banned-words CI gate.
 
 ---
 
