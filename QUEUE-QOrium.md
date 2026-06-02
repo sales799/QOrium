@@ -3,7 +3,35 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #38 (Final health-header closeout)
+**Last touched:** 2026-06-02 — Codex Run #39 (Live SAML production closeout)
+
+---
+
+## RUN #39 — Live SAML Production Closeout (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Ported SAML session issuance onto the active production branch** — branch `codex/saml-live-active-origin-20260602` stacks SAML metadata/login/ACS/session persistence on live branch `codex/qorium-programmatic-seo-factory-phase1` without downgrading chatbot or programmatic SEO surfaces.
+- [2026-06-02] **Renumbered the live migration safely** — SAML sessions use `infra/B7-postgres-migrations/0019_saml_sessions.sql`; `RESERVED.md` now marks next available migration as `0020`.
+- [2026-06-02] **Hardened live deploy and CI build order** — `infra/marketing-deploy.sh` and marketing quality jobs now build `@qorium/db`, `@qorium/auth`, and `@qorium/saml` before `@qorium/marketing` builds.
+- [2026-06-02] **Pushed and opened cross-account review PR** — PR #88 is open and mergeable against `codex/qorium-programmatic-seo-factory-phase1`; author has not merged or self-approved.
+- [2026-06-02] **Deployed active-origin release** — active origin `qorium-active-origin` now points `current` at `/opt/apps/qorium-marketing/releases/17c81283417f`; PM2 reloaded and saved `qorium-marketing` and `qorium-chatbot`.
+- [2026-06-02] **Verified public SAML is live** — public Cloudflare `https://qorium.online/v1/auth/saml/metadata?tenant=acme` returns HTTP `200` with `application/samlmetadata+xml`; public login returns HTTP `302` to the SAML test IdP with `x-qorium-saml-request-id`.
+- [2026-06-02] **Verified watchdog coverage** — Talpro watchdog `qorium-marketing` is registered every 5 minutes against `https://qorium.online/healthz`; `qorium-chatbot` watchdog remains registered against `https://api.qorium.online/chatbot/v1/healthz`.
+
+### EVIDENCE
+
+- Branch/PR: `codex/saml-live-active-origin-20260602`; PR #88 `https://github.com/sales799/QOrium/pull/88`; head SHA `17c81283417f889fad9c06867b7aa9ad48d7e387`; PR is `MERGEABLE`; migration-numbering check passed.
+- Local gates on live integration branch: `pnpm install --frozen-lockfile` pass; `bash infra/B7-postgres-migrations/scripts/check-numbering.sh` pass (`18` files, `19` registered, `1` gap); `pnpm run lint` pass; `pnpm run secrets:scan` no leaks; `git diff --check` pass; `pnpm run build:packages` pass; `pnpm --filter @qorium/saml test` pass (`5` files / `39` tests); `pnpm run typecheck` pass; `pnpm run test` pass, including marketing `13` files / `60` tests and chatbot `8` files / `40` tests; `pnpm run build` pass with `1195/1195` static pages and SAML routes listed.
+- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/17c81283417f`; local probes `:5110` and `:5122/v1/chatbot/health` returned HTTP `200`; nginx config test passed and nginx reloaded.
+- Live HTTP: public metadata `200 application/samlmetadata+xml` with `x-qorium-saml-tenant: acme`; forced active-origin metadata `200 application/samlmetadata+xml`; public login `302` to `https://www.samltest.dev/...` with `cache-control: no-store`; public `/healthz` HEAD returns HTTP `200` with HSTS, `X-Content-Type-Options`, `X-Frame-Options`, Referrer-Policy, Permissions-Policy, and CSP.
+- Watchdog: `talpro_watchdog_add` re-registered `qorium-marketing` every `5min` to `https://qorium.online/healthz`; `talpro_watchdog_list` confirms `qorium-marketing` and `qorium-chatbot` entries.
+- Mainline note: latest `main` CI run `26809061747` for commit `084408551400` completed successfully across lint, test, security-audit, typecheck, secret-scan, build, and staging deploy; the deploy workflow for SAML live production used the active branch, not `main`, to avoid production rollback.
+
+### REMAINING FOLLOW-UP
+
+- [REVIEW] PR #88 still needs non-author review/merge. Author must not approve their own merge.
+- [LOW] Clean duplicate nginx vhost drift later: `/etc/nginx/conf.d/qorium-marketing.conf` still coexists with the deploy-script managed `/etc/nginx/sites-available/qorium-marketing.conf`.
 
 ---
 
@@ -11,15 +39,15 @@
 
 ### COMPLETED
 
-- [2026-06-02] **Hardened QOrium marketing health route headers** — code commits `18110f1f5653` and `cf717778541b` add security headers to `/health` and `/healthz` GET/HEAD responses.
-- [2026-06-02] **Deployed final active-origin release** — active origin `qorium-active-origin` now points `current` at `/opt/apps/qorium-marketing/releases/cf717778541b`; the repo checkout later advanced to docs SHA `4999d3a`; PM2 save completed.
+- [2026-06-02] **Hardened QOrium marketing health route headers** — the final active-origin release `17c81283417f` preserves `/health` and `/healthz` GET/HEAD security headers.
+- [2026-06-02] **Deployed final active-origin release** — active origin `qorium-active-origin` now points `current` at `/opt/apps/qorium-marketing/releases/17c81283417f`; repo checkout head is `17c81283417f` on `codex/saml-live-active-origin-20260602`; PM2 save completed.
 - [2026-06-02] **Fixed live nginx health-location drift** — `/etc/nginx/conf.d/qorium-marketing.conf` exact health locations were bypassing app headers; applied backed-up CSP hotfix and reloaded nginx after `nginx -t`.
 - [2026-06-02] **Re-ran verification gates** — marketing tests, typecheck, lint, build, and secret scan passed after the final health HEAD handler.
 
 ### EVIDENCE
 
 - Local gates: Vitest `11` files / `55` tests pass; typecheck pass; lint pass; build pass with `1195/1195` static pages; `pnpm secrets:scan` no leaks.
-- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/cf717778541b`; repo checkout head `4999d3a`; `qorium-marketing`, `qorium-chatbot`, and `qorium-leak-crawler` online with unstable restarts `0`.
+- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/17c81283417f`; repo checkout head `17c81283417f`; `qorium-marketing`, `qorium-chatbot`, and `qorium-leak-crawler` online with unstable restarts `0`.
 - Cloudflare purge: targeted purge returned `cloudflare_purge_success=true`.
 - Live route headers: `/`, `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200` with page security headers. `/health` and `/healthz` returned HTTP `200` with HSTS, `X-Content-Type-Options`, `X-Frame-Options`, Referrer-Policy, Permissions-Policy, and CSP.
 - Accessibility sample: axe-core `4.11.4` found `0` violations on `/library/java-security`, `/try/jd-forge`, and `/resources/sample-packs`.
@@ -40,12 +68,12 @@
 - [2026-06-02] **Verified Phase 4 Sentry observability plumbing is present on the active production origin** — the active release lineage includes the Sentry route; public `/v1/observability/sentry` returns HTTP `200`.
 - [2026-06-02] **Verified public and forced-origin status responses** — `https://qorium.online/v1/observability/sentry?verify=active-20260602` and forced active-origin `--resolve qorium.online:443:187.127.155.150` both returned JSON `{"provider":"sentry","enabled":false,"environment":"production","dsnConfigured":false}`.
 - [2026-06-02] **Confirmed Sentry code lineage and deployment safety** — current active release contains the Sentry route, instrumentation files, `global-error.tsx`, and CSP Sentry ingest hosts; original Sentry instrumentation commit `0c342be37f62` remains pushed on `codex/qorium-marketing-phase4-main`.
-- [2026-06-02] **Ran fresh active-origin gates** — `pnpm --filter @qorium/marketing typecheck`, `test`, `build`, and `pnpm secrets:scan` passed on active origin; marketing tests passed `11` files / `55` tests; build generated `1195/1195` pages; gitleaks scanned `162` commits and found no leaks.
+- [2026-06-02] **Ran fresh active-origin gates** — `pnpm --filter @qorium/marketing typecheck`, `test`, `pnpm install --frozen-lockfile --prefer-offline`, `pnpm run build:packages`, `build`, and `pnpm secrets:scan` passed on active origin; marketing tests passed `11` files / `55` tests; build generated `1195/1195` pages; gitleaks scanned `164` commits and found no leaks.
 - [2026-06-02] **Verified production health and security headers** — public root and key routes returned HTTP `200`; root headers include HSTS, CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy`.
 
 ### EVIDENCE
 
-- Active production origin: SSH alias `qorium-active-origin` (`187.127.155.150`), current release symlink `cf717778541b`, repo checkout head `4999d3a`, branch `codex/qorium-programmatic-seo-factory-phase1`, PM2 `qorium-marketing` online with unstable restarts `0`.
+- Active production origin: SSH alias `qorium-active-origin` (`187.127.155.150`), current release symlink `17c81283417f`, repo checkout head `17c81283417f`, branch `codex/saml-live-active-origin-20260602`, PM2 `qorium-marketing` online with unstable restarts `0`.
 - Phase branch proof: remote `codex/qorium-marketing-phase4-main` head `c2ea0a225bfe`; original instrumentation commit `0c342be37f62` (`feat(marketing): activate sentry observability`) is in that branch's history.
 - Live Sentry status: public and forced-origin responses returned HTTP `200` JSON with `enabled:false` and `dsnConfigured:false`.
 - Live route matrix: `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`.
@@ -73,7 +101,7 @@
 - Local smoke: `Smoke OK: stats, library, assessment, grading, audit, JS/Python/Java sandbox.`
 - Local e2e: `1 passed (10.7s)` for `tests/e2e/builder-candidate-result.spec.ts`.
 - Live HTTP sampled at `2026-06-02T08:49:56Z`: apex, OpenAPI, marketing health, API health, chatbot health, admin health, and chatbot session all HTTP `200`.
-- Direct active-origin SSH proof completed in the closeout pass: `/opt/apps/qorium-marketing` is on branch `codex/qorium-programmatic-seo-factory-phase1`; current release symlink is `cf717778541b`, repo checkout head is `4999d3a`, and PM2 shows `qorium-leak-crawler` online with unstable restarts `0`.
+- Direct active-origin SSH proof completed in the closeout pass: `/opt/apps/qorium-marketing` is on branch `codex/saml-live-active-origin-20260602`; current release symlink is `17c81283417f`, repo checkout head is `17c81283417f`, and PM2 shows `qorium-leak-crawler` online with unstable restarts `0`.
 - Existing unrelated workspace changes and untracked generated/business documents were left unstaged. The only app-file diff included in the closeout is the verified lint-gate repair in `qorium-app/apps/web/package.json`, changing the removed `next lint || true` path to `tsc -p tsconfig.json --noEmit`.
 
 ### REMAINING FOLLOW-UP

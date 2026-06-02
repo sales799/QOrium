@@ -1,15 +1,15 @@
 # CODEX COMPLETION — QOrium Session Closeout
 
 **Date:** 2026-06-02  
-**Final deployed SHA:** `cf717778541b`  
+**Final deployed SHA:** `17c81283417f`
 **Active origin:** `qorium-active-origin` (`187.127.155.150`)  
 
 ## Task Ledger
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
-| Programmatic SEO Factory Phase 1 | DONE | Branch `codex/qorium-programmatic-seo-factory-phase1`; SEO commit `84d90456d03e`; final active release `cf717778541b`; `/library/java-security` HTTP `200` with JSON-LD | None |
-| Health route security headers | DONE | Code commits `18110f1f5653`, `cf717778541b`; `/health` and `/healthz` HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, CSP | Track duplicate nginx vhost cleanup |
+| Programmatic SEO Factory Phase 1 | DONE | Branch `codex/qorium-programmatic-seo-factory-phase1`; SEO commit `84d90456d03e`; final active release `17c81283417f`; `/library/java-security` HTTP `200` with JSON-LD | None |
+| Health route security headers | DONE | Final active release `17c81283417f`; `/health` and `/healthz` HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, CSP | Track duplicate nginx vhost cleanup |
 | API health path ambiguity | DONE | Correct paths: `https://api.qorium.online/health` and `/healthz` HTTP `200`; `/api/health*` and `/v1/health*` are wrong paths | None |
 | PM2 default namespace enumeration | DONE | Active origin QOrium PM2 count `12`; offline list empty; namespace `default` | External fleet-status code not found in repo |
 | Content recreation build | READY | CEO voice-lock state recorded in prompt, pending shard, queue | Execute ARJUN content rewrite shard |
@@ -22,14 +22,16 @@
 - `pnpm --filter @qorium/marketing test`: pass, `11` files / `55` tests.
 - `pnpm --filter @qorium/marketing typecheck`: pass.
 - `pnpm --filter @qorium/marketing lint`: pass.
+- `pnpm install --frozen-lockfile --prefer-offline`: pass.
+- `pnpm run build:packages`: pass.
 - `pnpm --filter @qorium/marketing build`: pass, `1195/1195` static pages.
-- `pnpm secrets:scan`: pass, no leaks found.
+- `pnpm secrets:scan`: pass, `164` commits scanned, no leaks found.
 - axe-core `4.11.4`: `0` violations on `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`.
 
 ## Live Evidence
 
-- Release: `/opt/apps/qorium-marketing/releases/cf717778541b`.
-- Current symlink: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/cf717778541b`.
+- Release: `/opt/apps/qorium-marketing/releases/17c81283417f`.
+- Current symlink: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/17c81283417f`.
 - PM2: `qorium-marketing` online, `qorium-chatbot` online, QOrium PM2 count `12`, offline list empty.
 - Cloudflare purge: `cloudflare_purge_success=true`.
 - Live routes: `/`, `/health`, `/healthz`, `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, `/compliance-dpdp` returned HTTP `200`.
