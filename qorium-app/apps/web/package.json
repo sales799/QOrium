@@ -20,6 +20,6 @@
     "dev": "next dev -p 3000",
     "start": "next start -p ${PORT:-3000}",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "next lint || true"
+    "lint": "tsc -p tsconfig.json --noEmit"
   }
 }
