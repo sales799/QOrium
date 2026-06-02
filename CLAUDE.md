@@ -28,6 +28,8 @@ Old-origin PM2 snapshot from `talpro-vps` at 2026-06-02T13:40Z: 38 `qorium-*` pr
 
 Active-origin route fix: `https://api.qorium.online/chatbot/v1/healthz` now returns HTTP 200 through Cloudflare and proxies to `qorium-chatbot` on port 5122. The nginx config backup is under `/root/nginx-config-backups/qorium-marketing.conf.codex-bhima-chatbot-20260602T033900Z.bak` on the active origin.
 
+Active-origin marketing release as of 2026-06-02T13:41Z: branch `codex/saml-live-active-origin-20260602`, SHA `031883a26b9d2ddce41a1711340b095d4bc1d9dc`, release `/opt/apps/qorium-marketing/releases/031883a26b9d`. Public SAML metadata is HTTP 200 XML, SAML login is HTTP 302 to SAMLtest IdP, and the four honest legacy aliases `/product/jd-forge`, `/product/ai-grading`, `/product/assessment-builder`, and `/product/anti-cheating` are HTTP 301 redirects to canonical live pages.
+
 API health-path truth as of 2026-06-02T13:39Z: `https://api.qorium.online/healthz` and `https://api.qorium.online/health` return HTTP 200. `https://api.qorium.online/v1/healthz` and `/v1/health` return HTTP 404 and must not be used by watchdogs until N11 intentionally ships versioned health aliases.
 
 OpenAPI edge resolved: `https://qorium.online/openapi.json` returns HTTP 200 JSON publicly as of 2026-06-02T04:00Z. Cloudflare cache purge still requires a purge-capable token; the available certbot token can find the zone but `purge_cache` returns auth error `10000`.
