@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { TrustPageView, TrustTrackedLink } from '@/components/marketing/TrustTelemetry';
 import {
   trustHub,
   trustNavigation,
@@ -162,7 +163,11 @@ function ControlTable({ page }: { page: TrustPageContent }) {
         <h2 className="mt-3 text-3xl font-semibold">{page.rowsHeading}</h2>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{page.rowsDescription}</p>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
+      <div
+        aria-label={`${page.rowsHeading} evidence table`}
+        className="overflow-x-auto rounded-lg border border-border bg-card"
+        tabIndex={0}
+      >
         <table className="w-full min-w-[64rem] text-left text-sm">
           <thead className="bg-muted">
             <tr className="border-b border-border">
@@ -274,13 +279,15 @@ function CitationStrip({ citations }: { citations: readonly Citation[] }) {
             </span>
             <span> - {citation.detail}</span>
             {citation.href ? (
-              <Link
+              <TrustTrackedLink
                 href={citation.href}
                 className="ml-2 inline-flex items-center gap-1 font-semibold text-secondary"
+                event="trust_evidence_clicked"
+                label={citation.label}
               >
                 Open
                 <ArrowRight className="size-3" />
-              </Link>
+              </TrustTrackedLink>
             ) : null}
           </li>
         ))}
@@ -292,6 +299,7 @@ function CitationStrip({ citations }: { citations: readonly Citation[] }) {
 export function TrustHubPage() {
   return (
     <>
+      <TrustPageView page="trust" />
       <TrustHero
         eyebrow={trustHub.eyebrow}
         title={trustHub.title}
@@ -351,6 +359,7 @@ export function TrustDetailPage({ page }: { page: TrustPageContent }) {
 
   return (
     <>
+      <TrustPageView page={page.slug} />
       <TrustHero
         eyebrow={page.eyebrow}
         title={page.title}
@@ -377,13 +386,28 @@ export function TrustDetailPage({ page }: { page: TrustPageContent }) {
                   masquerade as live product.
                 </p>
               </div>
-              <Link
-                href="/demo"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Request review pack
-                <Sparkles className="size-4" />
-              </Link>
+              <div className="flex flex-col gap-3 md:items-end">
+                <TrustTrackedLink
+                  href="/demo"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                  event="trust_demo_cta_click"
+                  label={`${page.slug} review pack`}
+                >
+                  Request review pack
+                  <Sparkles className="size-4" />
+                </TrustTrackedLink>
+                {page.slug === 'compliance-dpdp' ? (
+                  <TrustTrackedLink
+                    href="/demo?asset=dpdp-dpia-template"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-secondary/60"
+                    event="dpia_download_attempt"
+                    label="DPDP DPIA template"
+                  >
+                    Request DPIA template
+                    <FileText className="size-4" />
+                  </TrustTrackedLink>
+                ) : null}
+              </div>
             </div>
             <ControlTable page={page} />
             <DetailSections page={page} />

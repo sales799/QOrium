@@ -188,3 +188,14 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 ---
 
 *End of Phase 0 + Phase 1 punchlist. The work has begun.*
+
+---
+
+## Session Closeout Evidence - 2026-06-02
+
+- [DONE] Keeper/ops guardrails durable on active branch: commit `e0ce866` on `codex/qorium-programmatic-seo-factory-phase1` adds `qorium-keeper`, PM2 config, C3 topology docs, C8/C11 health/rate-limit evidence.
+- [DONE] Duplicate blanket marketing rate limit removed from deploy template: commit `ecb7253` keeps Cloudflare as public rate-limit boundary.
+- [DONE] Safe checks passed: marketing lint, typecheck, 55 Vitest tests, production build with 1,195 static pages; keeper build and 3 decision-tree tests passed.
+- [DONE] Existing deploy pipeline passed: `/usr/local/bin/safe-deploy qorium-marketing` built all packages, reloaded PM2, saved PM2, and smoked QOrium health endpoints.
+- [DONE] Live verification passed: `qorium.online/healthz`, `/research/plagiarism-benchmark`, `/library/javascript`, `/sitemap.xml`, API/JDF/SV/admin health all returned HTTP 200 with security headers after Nginx health-header patch/reload.
+- [BLOCKED] GitHub push from VPS remains blocked by deploy-key permission on `sales799/QOrium.git`; owner: founder/GitHub admin to authorize deploy key or provide PAT/credential helper.

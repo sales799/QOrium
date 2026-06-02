@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { GradedAnswerViewer } from '@/components/interactive-proof/GradedAnswerViewer';
 import { CardGrid, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { ArticleJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { MaxWidth } from '@/components/site/MaxWidth';
@@ -145,6 +146,15 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
             </SurfaceCard>
           ))}
         </CardGrid>
+      </SectionBand>
+      <SectionBand title="Graded-answer proof">
+        <div className="mb-6 max-w-2xl">
+          <p className="text-sm leading-6 text-muted-foreground">
+            Matching exemplars are filtered by skill when QOrium has one; otherwise the viewer shows
+            the closest public audit fixtures.
+          </p>
+        </div>
+        <GradedAnswerViewer skillFilter={skill.name} embedded />
       </SectionBand>
     </>
   );

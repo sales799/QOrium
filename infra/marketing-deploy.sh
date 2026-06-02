@@ -414,9 +414,8 @@ server {
     gzip_min_length 256;
 
     client_max_body_size 5M;
-    limit_req zone=talpro_global burst=30 nodelay;
-    limit_req_status 429;
-    add_header X-RateLimit-Policy "10r/s + 30 burst per IP" always;
+ # Cloudflare owns public rate limiting; keep Nginx limits only on documented expensive routes.
+ # Avoid blanket duplicate limits here to prevent false 429s on health and marketing traffic.
 
     # ── IA legacy-path 301s (2026-06-02) — only redirect paths whose target FEATURE is live.
     # Spec-only modules (M3 job-simulations, M8 interview-scheduling, M10 reference-checking) stay 404
