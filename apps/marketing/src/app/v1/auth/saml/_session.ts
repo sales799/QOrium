@@ -26,6 +26,8 @@ export interface CreateSamlSessionInput {
   tenant: SamlProofTenant;
   assertion: ParsedSamlAssertion;
   email: string;
+  recruiterId?: string;
+  authSource?: SamlSessionPayload['authSource'];
   now?: Date;
   secret?: string;
 }
@@ -42,10 +44,10 @@ export function createSamlSession(input: CreateSamlSessionInput): {
     sid: randomUUID(),
     tenant: input.tenant.slug,
     tenantId: input.tenant.config.tenantId,
-    recruiterId: `saml:${input.tenant.slug}:${input.email}`,
+    recruiterId: input.recruiterId ?? `saml:${input.tenant.slug}:${input.email}`,
     email: input.email,
     roles: sessionRoles(input.assertion),
-    authSource: 'saml-jit',
+    authSource: input.authSource ?? 'saml-jit',
     iat: nowMs,
     exp: nowMs + SESSION_TTL_SECONDS * 1000,
   };

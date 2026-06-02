@@ -22,6 +22,18 @@ ALTER TABLE app.recruiters
   ALTER COLUMN password_hash DROP NOT NULL,
   ADD COLUMN IF NOT EXISTS external_sso_id VARCHAR(256);
 
+ALTER TABLE app.recruiters DROP CONSTRAINT IF EXISTS recruiters_password_required_when_active;
+ALTER TABLE app.recruiters ADD CONSTRAINT recruiters_password_required_when_active
+  CHECK (
+    (status = 'pending' AND password_hash IS NULL)
+    OR (status IN ('active', 'disabled') AND password_hash IS NOT NULL)
+    OR (
+      status IN ('active', 'disabled')
+      AND password_hash IS NULL
+      AND auth_source IN ('saml-jit', 'saml-claim', 'scim')
+    )
+  );
+
 CREATE INDEX IF NOT EXISTS recruiters_external_sso_id_idx
   ON app.recruiters (tenant_id, external_sso_id)
   WHERE external_sso_id IS NOT NULL;
