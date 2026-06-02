@@ -20,19 +20,21 @@
 `9194eed8` (started 2026-05-31) — full lifecycle of the Mega Build
 
 ## PM2 ground truth (2026-06-02)
-Current public routing is intentionally dual-origin per CEO `KEEP NOW` decision on 2026-06-02. Use SSH alias `qorium-active-origin` for `187.127.155.150`; use SSH alias `talpro-vps` for `147.93.103.194`. Public apex `qorium.online` is served from the old origin, public API `api.qorium.online` is served from the active origin, and public admin traffic can reach the old origin. Both origins are now hardened for QOrium API/admin headers and `security.txt`.
+Current production routing is consolidated to active origin `187.127.155.150` for `qorium.online` and `api.qorium.online`; old origin `147.93.103.194` is retained as manual rollback standby. Use SSH alias `qorium-active-origin` for active production and `talpro-vps` for rollback/legacy fleet inspection. Both origins are hardened for QOrium API/admin headers and `security.txt`.
 
-Active-origin PM2 snapshot from `qorium-active-origin` at 2026-06-02T04:04Z: 12 `qorium-*` processes online, 0 errored, 36 aggregate restarts. Processes: `qorium-api` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-admin` x2, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`, and `qorium-marketing`.
+Active-origin PM2 snapshot from `qorium-active-origin` at 2026-06-02T13:39Z: 12 `qorium-*` processes online, 0 errored, 0 unstable restarts. Processes: `qorium-api` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-admin` x2, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`, and `qorium-marketing`.
 
-Old-origin PM2 snapshot from `talpro-vps` at 2026-06-02T04:04Z: 38 `qorium-*` processes online, 0 errored, 58 aggregate restarts. This remains part of the live route while `KEEP NOW` is in effect.
+Old-origin PM2 snapshot from `talpro-vps` at 2026-06-02T13:40Z: 38 `qorium-*` processes online, 0 errored, 0 unstable restarts. Named services include `qorium-api`, `qorium-jd-forge`, `qorium-stack-vault`, `qorium-leak-crawler`, `qorium-irt-calibration`, `qorium-webhooks`, `qorium-sso`, `qorium-audit-log`, `qorium-uptime-monitor`, `qorium-web-v2-preview`, `qorium-admin`, `qorium-billing`, `qorium-api-key-mgmt`, `qorium-secret-rotation`, `qorium-webhooks-delivery-worker`, `qorium-setu`, `qorium-ai-pair-coding-orchestrator`, `qorium-ats-bridge`, `qorium-docs`, `qorium-candidate-portal`, `qorium-leak-rotation`, `qorium-my`, `qorium-chatbot`, and `qorium-marketing` (some run clustered/multiple instances).
 
 Active-origin route fix: `https://api.qorium.online/chatbot/v1/healthz` now returns HTTP 200 through Cloudflare and proxies to `qorium-chatbot` on port 5122. The nginx config backup is under `/root/nginx-config-backups/qorium-marketing.conf.codex-bhima-chatbot-20260602T033900Z.bak` on the active origin.
+
+API health-path truth as of 2026-06-02T13:39Z: `https://api.qorium.online/healthz` and `https://api.qorium.online/health` return HTTP 200. `https://api.qorium.online/v1/healthz` and `/v1/health` return HTTP 404 and must not be used by watchdogs until N11 intentionally ships versioned health aliases.
 
 OpenAPI edge resolved: `https://qorium.online/openapi.json` returns HTTP 200 JSON publicly as of 2026-06-02T04:00Z. Cloudflare cache purge still requires a purge-capable token; the available certbot token can find the zone but `purge_cache` returns auth error `10000`.
 
 Latest Rakshak certification: `rakshak-qorium_online-mpw46c2z-7bd0` GO 94/100, `rakshak-api_qorium_online-mpw46c77-a38a` GO 89/100, `rakshak-admin_qorium_online-mpw46ca2-ceb6` GO 88/100. Reports live under `/opt/apps/rakshak-runs/<run-id>/{ceo.md,cto.md}` on `qorium-active-origin`.
 
-**Monitoring gap (open):** MCP `talpro_pm2_list` and any `talpro_qorium_fleet_status`-style registry may show a filtered/shadow fleet that differs from raw PM2 on the origin. Raw PM2 on `qorium-active-origin` is canonical.
+**Fleet discovery rule:** run `apps/scripts/qorium-fleet-snapshot.sh` before relying on stale fleet counts. It queries both `qorium-active-origin` and `talpro-vps`, filters raw PM2 names with `^qorium-`, and prints the canonical live fleet. MCP `talpro_pm2_list` and any `talpro_qorium_fleet_status`-style registry can lag or filter namespaces; raw PM2 across both origins is canonical until the registry implementation is patched.
 
 ## Phase order (no calendar — exit-criteria gated)
 1. Foundation lock (this doc set + CEO ratify)

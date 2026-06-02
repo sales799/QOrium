@@ -3,7 +3,34 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #39 (State Correction Wave-2 SC-1/SC-2/SC-4)
+**Last touched:** 2026-06-02 — Codex Run #40 (SAML + legacy redirect active-origin deploy proof)
+
+---
+
+## RUN #40 — SAML + Legacy Redirect Active-Origin Deploy Proof (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Deployed current SAML/redirect branch to active production origin** — active origin `qorium-active-origin` is on branch `codex/saml-live-active-origin-20260602` at `031883a26b9d2ddce41a1711340b095d4bc1d9dc`; atomic deploy staged release `/opt/apps/qorium-marketing/releases/031883a26b9d` and flipped `/opt/apps/qorium-marketing/current` to that release.
+- [2026-06-02] **Verified build and release pipeline** — deploy built workspace SAML/DB/auth packages, Next.js marketing app, and chatbot service; local deploy probes returned `:5110` HTTP `200` and `:5122/v1/chatbot/health` HTTP `200`; nginx config test passed and nginx reloaded.
+- [2026-06-02] **Verified public SAML proof** — `https://qorium.online/v1/auth/saml/metadata?tenant=acme` returned HTTP `200` with `application/samlmetadata+xml`; `https://qorium.online/v1/auth/saml/login?tenant=acme` returned HTTP `302` to `https://www.samltest.dev/...` with an `x-qorium-saml-request-id`.
+- [2026-06-02] **Verified honest legacy redirect aliases** — `/product/jd-forge` redirects `301` to `/features/jd-forge`; `/product/ai-grading` redirects `301` to `/method`; `/product/assessment-builder` redirects `301` to `/features/readybank`; `/product/anti-cheating` redirects `301` to `/anti-leak`.
+- [2026-06-02] **Verified health and runtime after deploy** — `https://qorium.online/healthz` returned HTTP `200` with hardened no-store/security headers; PM2 `qorium-marketing` and `qorium-chatbot` are online with unstable restarts `0`.
+
+### EVIDENCE
+
+- Branch: `codex/saml-live-active-origin-20260602`.
+- Current code SHA: `031883a26b9d2ddce41a1711340b095d4bc1d9dc` (`infra(nginx): 301 4 honest legacy /product/* paths to live canonical targets`).
+- Current release: `/opt/apps/qorium-marketing/releases/031883a26b9d`.
+- PR: `https://github.com/sales799/QOrium/pull/88` remains open/mergeable; latest migration-numbering check succeeded.
+- Live headers sampled 2026-06-02: `/healthz` HTTP `200`; SAML metadata HTTP `200`; SAML login HTTP `302`; four legacy redirect aliases HTTP `301`.
+- Deliberate caveat: `/product/readybank` remains HTTP `404` because it is not one of the four declared honest legacy aliases in this patch.
+
+### REMAINING FOLLOW-UP
+
+- [BLOCKED] **Real Sentry event capture** — still waits on founder/Sentry admin to provide QOrium DSN/client key or a Sentry token with permission to create/read the `qorium-marketing` project client key.
+- [BLOCKED] **PR #88 merge to main** — current branch is author-owned and must receive non-author review/merge before main parity. Production is already deployed from the branch.
+- [EXTERNAL] **`qorium.in` redirect vhost** — active origin skipped the redirect vhost because `qorium.in` DNS still resolves to `147.93.103.194`, not `187.127.155.150`; rerun deploy after DNS points to active origin.
 
 ---
 
