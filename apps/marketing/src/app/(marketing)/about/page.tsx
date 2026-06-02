@@ -104,7 +104,7 @@ export default function AboutPage() {
         <MaxWidth as="div" className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-4">
             <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-signal-300">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-secondary">
                 Founder note
               </p>
               <h2 className="mt-3 text-2xl font-semibold text-foreground">Bhaskar Anand · CEO</h2>

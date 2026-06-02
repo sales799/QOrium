@@ -154,7 +154,7 @@ export default function ProductPage() {
                     <td className="px-4 py-4 align-top text-right">
                       <Link
                         href={r.href}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-signal-300 hover:text-signal-500"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-secondary hover:text-signal-600"
                       >
                         Explore <ArrowRight className="size-4" />
                       </Link>

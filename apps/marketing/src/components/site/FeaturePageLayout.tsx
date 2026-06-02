@@ -13,6 +13,12 @@ interface Props {
   hereVisual?: React.ReactNode;
 }
 
+const tabValue = (label: string) =>
+  label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 export function FeaturePageLayout({ copy, hereVisual }: Props) {
   return (
     <>
@@ -69,7 +75,7 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
             {copy.steps.map((s, i) => (
               <StaggerItem key={s.title}>
                 <div className="flex h-full flex-col gap-3 rounded-lg border border-border bg-surface-1 p-6">
-                  <span className="font-mono text-xs uppercase tracking-[0.18em] text-signal-300">
+                  <span className="font-mono text-xs uppercase tracking-[0.18em] text-secondary">
                     Step {String(i + 1).padStart(2, '0')}
                   </span>
                   <h3 className="text-lg font-semibold text-foreground">{s.title}</h3>
@@ -88,16 +94,16 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
             <SectionHeading eyebrow="What's included" title="Everything you need to ship." />
           </Reveal>
           <BlurFade className="mt-10">
-            <Tabs defaultValue={copy.includes[0]?.tab ?? ''}>
+            <Tabs defaultValue={tabValue(copy.includes[0]?.tab ?? '')}>
               <TabsList>
                 {copy.includes.map((it) => (
-                  <TabsTrigger key={it.tab} value={it.tab}>
+                  <TabsTrigger key={it.tab} value={tabValue(it.tab)}>
                     {it.tab}
                   </TabsTrigger>
                 ))}
               </TabsList>
               {copy.includes.map((it) => (
-                <TabsContent key={it.tab} value={it.tab}>
+                <TabsContent key={it.tab} value={tabValue(it.tab)}>
                   <ul className="grid gap-2 rounded-lg border border-border bg-background p-6 font-mono text-sm">
                     {it.lines.map((line) => (
                       <li
@@ -119,7 +125,7 @@ export function FeaturePageLayout({ copy, hereVisual }: Props) {
       <section className="border-t border-border/60 bg-background py-24">
         <MaxWidth as="div" className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-signal-300">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-secondary">
               {copy.useCase.who}
             </p>
             <blockquote className="mt-6 font-serif text-2xl leading-relaxed text-foreground text-balance">

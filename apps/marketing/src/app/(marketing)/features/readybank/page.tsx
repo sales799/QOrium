@@ -49,7 +49,11 @@ export default function ReadyBankPage() {
                 POST /v1/packs/generate
               </span>
             </div>
-            <pre className="mt-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-foreground/85">
+            <pre
+              className="mt-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-foreground/85"
+              tabIndex={0}
+              aria-label="Sample ReadyBank API response"
+            >
               {SAMPLE_RESPONSE}
             </pre>
           </div>
