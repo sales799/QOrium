@@ -12,14 +12,14 @@
 ### COMPLETED
 
 - [2026-06-02] **Hardened QOrium marketing health route headers** — code commits `18110f1f5653` and `cf717778541b` add security headers to `/health` and `/healthz` GET/HEAD responses.
-- [2026-06-02] **Deployed final active-origin release** — active origin `qorium-active-origin` is now checked out at `cf717778541b`; current release is `/opt/apps/qorium-marketing/releases/cf717778541b`; PM2 save completed.
+- [2026-06-02] **Deployed final active-origin release** — active origin `qorium-active-origin` now points `current` at `/opt/apps/qorium-marketing/releases/cf717778541b`; the repo checkout later advanced to docs SHA `4999d3a`; PM2 save completed.
 - [2026-06-02] **Fixed live nginx health-location drift** — `/etc/nginx/conf.d/qorium-marketing.conf` exact health locations were bypassing app headers; applied backed-up CSP hotfix and reloaded nginx after `nginx -t`.
 - [2026-06-02] **Re-ran verification gates** — marketing tests, typecheck, lint, build, and secret scan passed after the final health HEAD handler.
 
 ### EVIDENCE
 
 - Local gates: Vitest `11` files / `55` tests pass; typecheck pass; lint pass; build pass with `1195/1195` static pages; `pnpm secrets:scan` no leaks.
-- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/cf717778541b`; `qorium-marketing` and `qorium-chatbot` online; QOrium PM2 count `12`; offline list empty.
+- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/cf717778541b`; repo checkout head `4999d3a`; `qorium-marketing`, `qorium-chatbot`, and `qorium-leak-crawler` online with unstable restarts `0`.
 - Cloudflare purge: targeted purge returned `cloudflare_purge_success=true`.
 - Live route headers: `/`, `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200` with page security headers. `/health` and `/healthz` returned HTTP `200` with HSTS, `X-Content-Type-Options`, `X-Frame-Options`, Referrer-Policy, Permissions-Policy, and CSP.
 - Accessibility sample: axe-core `4.11.4` found `0` violations on `/library/java-security`, `/try/jd-forge`, and `/resources/sample-packs`.
@@ -37,7 +37,7 @@
 
 ### COMPLETED
 
-- [2026-06-02] **Verified Phase 4 Sentry observability plumbing is present on the active production origin** — active origin `qorium-active-origin` is checked out at `18110f1f5653` on `codex/qorium-programmatic-seo-factory-phase1`, and the built route table includes dynamic route `/v1/observability/sentry`.
+- [2026-06-02] **Verified Phase 4 Sentry observability plumbing is present on the active production origin** — the active release lineage includes the Sentry route; public `/v1/observability/sentry` returns HTTP `200`.
 - [2026-06-02] **Verified public and forced-origin status responses** — `https://qorium.online/v1/observability/sentry?verify=active-20260602` and forced active-origin `--resolve qorium.online:443:187.127.155.150` both returned JSON `{"provider":"sentry","enabled":false,"environment":"production","dsnConfigured":false}`.
 - [2026-06-02] **Confirmed Sentry code lineage and deployment safety** — current active release contains the Sentry route, instrumentation files, `global-error.tsx`, and CSP Sentry ingest hosts; original Sentry instrumentation commit `0c342be37f62` remains pushed on `codex/qorium-marketing-phase4-main`.
 - [2026-06-02] **Ran fresh active-origin gates** — `pnpm --filter @qorium/marketing typecheck`, `test`, `build`, and `pnpm secrets:scan` passed on active origin; marketing tests passed `11` files / `55` tests; build generated `1195/1195` pages; gitleaks scanned `162` commits and found no leaks.
@@ -45,7 +45,7 @@
 
 ### EVIDENCE
 
-- Active production origin: SSH alias `qorium-active-origin` (`187.127.155.150`), checkout `18110f1f5653`, branch `codex/qorium-programmatic-seo-factory-phase1`, PM2 `qorium-marketing` online with unstable restarts `0`.
+- Active production origin: SSH alias `qorium-active-origin` (`187.127.155.150`), current release symlink `cf717778541b`, repo checkout head `4999d3a`, branch `codex/qorium-programmatic-seo-factory-phase1`, PM2 `qorium-marketing` online with unstable restarts `0`.
 - Phase branch proof: remote `codex/qorium-marketing-phase4-main` head `c2ea0a225bfe`; original instrumentation commit `0c342be37f62` (`feat(marketing): activate sentry observability`) is in that branch's history.
 - Live Sentry status: public and forced-origin responses returned HTTP `200` JSON with `enabled:false` and `dsnConfigured:false`.
 - Live route matrix: `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`.
@@ -73,7 +73,7 @@
 - Local smoke: `Smoke OK: stats, library, assessment, grading, audit, JS/Python/Java sandbox.`
 - Local e2e: `1 passed (10.7s)` for `tests/e2e/builder-candidate-result.spec.ts`.
 - Live HTTP sampled at `2026-06-02T08:49:56Z`: apex, OpenAPI, marketing health, API health, chatbot health, admin health, and chatbot session all HTTP `200`.
-- Direct active-origin SSH proof completed in the closeout pass: `/opt/apps/qorium-marketing` is on branch `codex/qorium-programmatic-seo-factory-phase1` at `18110f1`; PM2 shows `qorium-leak-crawler` online with unstable restarts `0`.
+- Direct active-origin SSH proof completed in the closeout pass: `/opt/apps/qorium-marketing` is on branch `codex/qorium-programmatic-seo-factory-phase1`; current release symlink is `cf717778541b`, repo checkout head is `4999d3a`, and PM2 shows `qorium-leak-crawler` online with unstable restarts `0`.
 - Existing unrelated workspace changes and untracked generated/business documents were left unstaged. The only app-file diff included in the closeout is the verified lint-gate repair in `qorium-app/apps/web/package.json`, changing the removed `next lint || true` path to `tsc -p tsconfig.json --noEmit`.
 
 ### REMAINING FOLLOW-UP
