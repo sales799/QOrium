@@ -8,6 +8,7 @@
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Live SAML production closeout | DONE | Branch `codex/saml-live-active-origin-20260602`, PR #88, head `17c81283417f`; active release `/opt/apps/qorium-marketing/releases/17c81283417f`; public SAML metadata HTTP `200 application/samlmetadata+xml`; public SAML login HTTP `302` to SAML test IdP | Non-author review/merge of PR #88 |
 | Programmatic SEO Factory Phase 1 | DONE | Branch `codex/qorium-programmatic-seo-factory-phase1`; SEO commit `84d90456d03e`; final active release `17c81283417f`; `/library/java-security` HTTP `200` with JSON-LD | None |
 | Health route security headers | DONE | Final active release `17c81283417f`; `/health` and `/healthz` HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, CSP | Track duplicate nginx vhost cleanup |
 | API health path ambiguity | DONE | Correct paths: `https://api.qorium.online/health` and `/healthz` HTTP `200`; `/api/health*` and `/v1/health*` are wrong paths | None |
@@ -26,6 +27,7 @@
 - `pnpm run build:packages`: pass.
 - `pnpm --filter @qorium/marketing build`: pass, `1195/1195` static pages.
 - `pnpm secrets:scan`: pass, `164` commits scanned, no leaks found.
+- Live SAML branch gates: migration numbering pass; `pnpm --filter @qorium/saml test` pass (`5` files / `39` tests); full tests pass including marketing `13` files / `60` tests and chatbot `8` files / `40` tests; full build pass with `1195/1195` static pages and SAML routes listed.
 - axe-core `4.11.4`: `0` violations on `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`.
 
 ## Live Evidence
@@ -35,6 +37,7 @@
 - PM2: `qorium-marketing` online, `qorium-chatbot` online, QOrium PM2 count `12`, offline list empty.
 - Cloudflare purge: `cloudflare_purge_success=true`.
 - Live routes: `/`, `/health`, `/healthz`, `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, `/compliance-dpdp` returned HTTP `200`.
+- Live SAML: `https://qorium.online/v1/auth/saml/metadata?tenant=acme` returned HTTP `200` with `application/samlmetadata+xml`; `https://qorium.online/v1/auth/saml/login?tenant=acme` returned HTTP `302` to `https://www.samltest.dev/...` with `x-qorium-saml-request-id`.
 - Health headers: `/health` and `/healthz` return HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP.
 - Page headers: sampled HTML pages return HSTS, XCTO, XFO, and CSP.
 - Nginx hotfix backup: `/tmp/qorium-marketing.conf.before-health-csp-20260602T085949Z`.

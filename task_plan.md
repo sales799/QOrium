@@ -1,9 +1,13 @@
 # QOrium Session Task Plan
 
-Last updated: 2026-06-02 — Codex final health-header closeout
+Last updated: 2026-06-02 — Codex live SAML production closeout
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Port SAML to active production branch | DONE | Branch `codex/saml-live-active-origin-20260602` and PR #88 add SAML metadata/login/ACS/session persistence to active branch `codex/qorium-programmatic-seo-factory-phase1`; head SHA `17c81283417f889fad9c06867b7aa9ad48d7e387`. | Non-author review/merge; author must not self-approve. |
+| Deploy and verify public SAML | DONE | Active origin release `/opt/apps/qorium-marketing/releases/17c81283417f`; public metadata returns HTTP `200 application/samlmetadata+xml`; public login returns HTTP `302` to SAML test IdP with `x-qorium-saml-request-id`. | Keep current active release. |
+| Verify live SAML gates | DONE | Frozen install, migration numbering, lint, secrets scan, `git diff --check`, package build, SAML tests `5/39`, typecheck, full tests, and full build passed; marketing tests `13/60`; build `1195/1195` pages. | Re-run after review merge or code/env change. |
+| Verify watchdog coverage | DONE | Talpro watchdog re-registered `qorium-marketing` every 5 minutes to `https://qorium.online/healthz`; list confirms marketing and chatbot watchdogs. | Continue watchdog monitoring. |
 | Recap every requested/started session item | DONE | This plan plus `_shared/QUEUE.md` and `QUEUE-QOrium.md` Run #37 record prove/commit/push/deploy/start requests with evidence. | Include final BALI Phase 4 recap. |
 | Verify commit/push proof | DONE | Remote `codex/qorium-marketing-phase4-main` is at `c2ea0a225bfe`; Sentry instrumentation commit `0c342be37f62` remains in branch history. | Non-author review/merge for `main` parity. |
 | Verify active deployment | DONE | Active origin `qorium-active-origin` (`187.127.155.150`) serves `/v1/observability/sentry` with HTTP `200` JSON; current release symlink and repo checkout head are `17c81283417f` on `codex/saml-live-active-origin-20260602`. | Keep current active release; do not downgrade to older phase branch. |

@@ -1,11 +1,15 @@
-# Shared Queue — QOrium Phase 4 Proof Closeout
+# Shared Queue — QOrium Live SAML Closeout
 
-Last touched: 2026-06-02 — Codex Run #38
+Last touched: 2026-06-02 — Codex Run #39
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Port SAML to active production branch | DONE | Branch `codex/saml-live-active-origin-20260602` adds live-branch SAML metadata/login/ACS/session persistence and migration `0019_saml_sessions.sql`; PR #88 is open/mergeable with head `17c81283417f889fad9c06867b7aa9ad48d7e387`. | Non-author review/merge; author must not self-approve. |
+| Deploy/verify live SAML | DONE | Active origin `qorium-active-origin` serves release `/opt/apps/qorium-marketing/releases/17c81283417f`; public metadata `https://qorium.online/v1/auth/saml/metadata?tenant=acme` returns `200 application/samlmetadata+xml`; login returns `302` to SAML test IdP with `x-qorium-saml-request-id`. | Keep active release; do not roll back to older production branch. |
+| Verify SAML live-branch gates | DONE | `pnpm install --frozen-lockfile`, migration numbering, lint, secrets scan, whitespace check, package build, SAML tests `5/39`, typecheck, full tests, and full build all passed; marketing tests `13/60`, chatbot tests `8/40`, build `1195/1195` pages. | Re-run after review merge or code/env change. |
+| Verify watchdog coverage | DONE | `talpro_watchdog_add` re-registered `qorium-marketing` every 5 minutes to `https://qorium.online/healthz`; watchdog list confirms `qorium-marketing` and `qorium-chatbot`. | Continue watchdog monitoring. |
 | Recap every requested item this session | DONE | User asked: prove, commit Phase 4 proof, push Phase 4 proof, deploy Phase 4 proof, then START walkthroughs. This closeout reconciled build/push/deploy/live state and recorded Run #37 in `QUEUE-QOrium.md`. | Include final BALI recap. |
 | Commit/push Phase 4 Sentry proof code | DONE | Original instrumentation commit `0c342be37f62` is pushed; remote phase branch `codex/qorium-marketing-phase4-main` is at `c2ea0a225bfe` and contains the Sentry route/instrumentation history. | Non-author review/merge if `main` parity is required. |
 | Deploy/verify Phase 4 observability route | DONE | Active production origin `qorium-active-origin` (`187.127.155.150`) serves `/v1/observability/sentry` with HTTP `200` JSON; current release symlink and repo checkout head are `17c81283417f` on `codex/saml-live-active-origin-20260602`. | Keep the newer active-origin release; do not roll back to older phase branch. |
