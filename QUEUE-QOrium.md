@@ -3,7 +3,40 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #23 (active-origin chatbot health route fixed)
+**Last touched:** 2026-06-02 — Codex Run #24 (Cloudflare OpenAPI route restored)
+
+---
+
+## RUN #24 — Codex PROVE CLOUDFLARE PURGE / OpenAPI Route Restore (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Re-tested the Cloudflare purge symptom** — public `https://qorium.online/openapi.json` initially returned HTTP 404 HTML, while active-origin `187.127.155.150` returned HTTP 200 JSON after redeploy to `3256dd5`.
+- [2026-06-02] **Found the real Cloudflare root cause** — Cloudflare DNS A records showed `api.qorium.online -> 187.127.155.150` but apex `qorium.online -> 147.93.103.194`; public apex traffic was hitting the old origin, not the active-origin deploy.
+- [2026-06-02] **Avoided autonomous DNS mutation** — no Cloudflare DNS record was changed. Instead, the old origin that Cloudflare already routed to was brought up to the pushed marketing tip.
+- [2026-06-02] **Old origin redeployed safely** — on `talpro-vps` / `147.93.103.194`, backed up current `main`, switched `/opt/apps/qorium-marketing` to `codex/qorium-marketing-phase4-main` at `6ac741c`, ran frozen install, 50 marketing tests, typecheck, lint, and production build.
+- [2026-06-02] **Reloaded only `qorium-marketing` PM2 on old origin** — local old-origin probes for `/openapi.json`, `/resources/docs`, and `/healthz` returned HTTP 200.
+- [2026-06-02] **Verified public Cloudflare route fixed** — `https://qorium.online/openapi.json` now returns HTTP 200 `application/json`; `https://qorium.online/resources/docs` returns HTTP 200 HTML and contains `/openapi.json` links.
+
+### EVIDENCE
+
+- Cloudflare DNS A records at diagnosis: `api.qorium.online` content `187.127.155.150`, proxied true; `qorium.online` content `147.93.103.194`, proxied true.
+- Active origin: branch `codex/prod-merge-3256dd5`, HEAD `3256dd5`; `/openapi.json` origin-bypass returned HTTP 200 JSON.
+- Old origin: branch `codex/qorium-marketing-phase4-main`, HEAD `6ac741c`; PM2 `qorium-marketing` online after reload; PM2 `qorium-chatbot` online.
+- Old-origin verification: `pnpm install --frozen-lockfile --prefer-offline` passed; `pnpm --filter @qorium/marketing test -- api-docs chatbot-proxy` passed 50 tests; typecheck passed; lint passed; build generated `/openapi.json` and 1,195 routes.
+- Public verification: `https://qorium.online/openapi.json` → HTTP 200 `application/json`, OpenAPI `3.1.0`, title `QOrium Public Proof API`, server `https://qorium.online/v1`, 12 paths.
+- Public docs verification: `https://qorium.online/resources/docs` → HTTP 200 `text/html`, 6 `/openapi.json` links, public-preview copy present.
+- Chatbot smoke: `POST https://qorium.online/api/chatbot/session` → HTTP 200 JSON.
+
+### REMAINING FOLLOW-UP
+
+- [MEDIUM] Cloudflare purge-capable token is still unavailable; purge endpoint still returns auth error `10000`. The public issue is fixed by origin refresh, but future manual edge purge still needs a `Zone.Cache Purge` token.
+- [MEDIUM] Apex and API are currently split across old/new origins (`qorium.online` on `147.93.103.194`, `api.qorium.online` on `187.127.155.150`). This is now operationally consistent for the tested public routes, but infra should decide whether to keep dual-origin or move apex back to `187.127.155.150`.
+
+### FOUNDER / INFRA ACTION REQUIRED
+
+- [MEDIUM] Decide whether Cloudflare apex `qorium.online` should remain on `147.93.103.194` or move back to `187.127.155.150`; Codex did not mutate DNS in Run #24.
+- [LOW] Provide a Cloudflare token with `Zone.Cache Purge` permission for future purge-only repairs.
 
 ---
 

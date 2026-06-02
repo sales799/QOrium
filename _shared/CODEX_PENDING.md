@@ -75,10 +75,13 @@ Source of truth for Codex execution order in this workspace.
 
 ## P3 — Current Live Route Blockers
 
-- [ ] Restore public chatbot health and session routes on the Cloudflare-routed origin.
-  - Current proof from 2026-06-02: `https://api.qorium.online/chatbot/v1/healthz` returns `404`, while forced old-origin `147.93.103.194` returns `200`.
-  - Blocker: SSH to active origin `187.127.155.150:2244` still rejects the available key.
+- [x] Restore public chatbot health and session routes on the Cloudflare-routed origin.
+  - Shipped: active-origin SSH alias `qorium-active-origin` now reaches `187.127.155.150`; active-origin PM2/nginx route repair restored `api.qorium.online/chatbot/v1/healthz`; old-origin marketing rebuild restored public apex chatbot session proxy.
+  - Public proof from 2026-06-02: `https://api.qorium.online/chatbot/v1/healthz` returns HTTP `200` chatbot JSON, and `POST https://qorium.online/api/chatbot/session` returns HTTP `200` JSON with a session greeting.
+  - Recorded in: `QUEUE-QOrium.md` Run #23 and Run #24.
 
-- [ ] Restore public OpenAPI JSON at `https://qorium.online/openapi.json`.
-  - Current proof from 2026-06-02: public path returns `404` HTML with `x-nextjs-cache: HIT`; forced-origin probes to both `187.127.155.150` and `147.93.103.194` also return `404` from this workstation.
-  - Blocker: needs active-origin deploy/routing access and, after origin repair, a Cloudflare purge-capable token if the stale edge object persists.
+- [x] Restore public OpenAPI JSON at `https://qorium.online/openapi.json`.
+  - Shipped: active origin `187.127.155.150` serves `/openapi.json` from deployed merge `3256dd5`; old origin `147.93.103.194` was rebuilt/reloaded at marketing branch `codex/qorium-marketing-phase4-main` HEAD `6ac741c` because Cloudflare apex `qorium.online` routes there.
+  - Public proof from 2026-06-02: `https://qorium.online/openapi.json` returns HTTP `200` `application/json` with OpenAPI `3.1.0` and title `QOrium Public Proof API`.
+  - Remaining infra note: Cloudflare purge-capable token is still unavailable for future purge-only repairs; current route is fixed by origin refresh.
+  - Recorded in: `QUEUE-QOrium.md` Run #24.
