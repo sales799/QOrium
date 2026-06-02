@@ -31,7 +31,7 @@ export const siteConfig = {
           {
             label: 'API access',
             href: '/product/api',
-            description: 'API docs are in beta; request access.',
+            description: 'API docs are available by request.',
           },
           {
             label: 'LLM info',

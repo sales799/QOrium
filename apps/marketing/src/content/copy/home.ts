@@ -43,7 +43,7 @@ export const homeCopy = {
         title: 'JD-Forge',
         href: '/features/jd-forge' as const,
         description:
-          'The wedge: paste a JD, draft a structured assessment, then review before publishing. Public copy stays beta until backend proof lands.',
+          'Paste a JD, draft a structured assessment, then review before publishing. Public copy stays pilot-scoped until backend proof lands.',
         accent: 'For role-specific assessment drafts',
       },
       {
@@ -125,7 +125,7 @@ export const homeCopy = {
       },
       {
         q: 'How fast is JD-Forge?',
-        a: 'JD-Forge is treated as a beta wedge on public pages until the backend milestone proves the timing and quality bar.',
+        a: 'JD-Forge is treated as a pilot-scoped workflow on public pages until the backend milestone proves the timing and quality bar.',
       },
       {
         q: 'Where do you stand on bias and validation?',

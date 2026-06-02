@@ -37,7 +37,7 @@ export const publicApiGroups: PublicApiGroup[] = [
   },
   {
     name: 'Sample packs',
-    description: 'Expose preview packs and capture buyer-qualified unlocks.',
+    description: 'Expose preview packs and capture buyer-qualified full-pack requests.',
     endpoints: [
       {
         method: 'GET',
@@ -54,7 +54,7 @@ export const publicApiGroups: PublicApiGroup[] = [
       {
         method: 'POST',
         path: '/sample-packs/{slug}/unlock',
-        summary: 'Unlock gated pack items for a work email, company, and buyer role.',
+        summary: 'Release gated pack items for a work email, company, and buyer role.',
         availability: 'Lead gated',
       },
     ],
@@ -226,7 +226,7 @@ export const publicOpenApiSpec = {
     '/sample-packs/{slug}/unlock': {
       post: {
         tags: ['Sample packs'],
-        summary: 'Unlock a public sample pack',
+        summary: 'Release a public sample pack',
         operationId: 'unlockSamplePack',
         'x-qorium-stage': 'lead-gated',
         parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string' } }],
@@ -238,7 +238,7 @@ export const publicOpenApiSpec = {
             },
           },
         },
-        responses: { '200': okResponse('Unlocked sample pack.'), '400': standardErrorResponse },
+        responses: { '200': okResponse('Released sample pack.'), '400': standardErrorResponse },
       },
     },
     '/grader/exemplars': {

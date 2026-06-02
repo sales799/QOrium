@@ -326,7 +326,7 @@ export const megaMenuPanels: MegaMenuPanel[] = [
           {
             label: 'Responsible AI',
             href: '/responsible-ai',
-            description: 'What is shipped, what is beta, and what remains roadmap.',
+            description: 'What is live, what is pilot, and what remains roadmap.',
             icon: 'method',
           },
         ],

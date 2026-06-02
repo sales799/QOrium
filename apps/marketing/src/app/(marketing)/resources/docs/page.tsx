@@ -29,7 +29,7 @@ export default function ApiDocsPage() {
         <PageHero
           eyebrow="API documentation"
           title="QOrium API contracts are public-preview ready."
-          description="OpenAPI 3.1 docs expose the buyer-facing public proof contracts for JD-Forge, sample packs, grader exemplars, and trust evidence. Customer APIs stay out of this page until their public routes are live."
+          description="OpenAPI 3.1 docs expose the buyer-facing public proof contracts for JD-Forge, sample packs, grader exemplars, and trust evidence. Customer APIs stay out of public docs until their routes are live."
           cta={{ label: 'Open OpenAPI JSON', href: '/openapi.json' }}
         />
 

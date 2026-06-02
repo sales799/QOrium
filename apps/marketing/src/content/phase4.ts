@@ -33,7 +33,7 @@ export const phase4Faqs: Faq[] = [
   {
     question: 'Can QOrium grade candidates automatically today?',
     answer:
-      'Public pages only claim automation where the product surface has evidence. Advanced AI grading and IRT reporting are described as beta, roadmap, or evidence-pending until backend proof is live.',
+      'Public pages only claim automation where the product surface has evidence. Advanced AI grading and IRT reporting are described as pilot, roadmap, or evidence-pending until backend proof is live.',
   },
   {
     question: 'Is QOrium built for India DPDP Act readiness?',

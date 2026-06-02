@@ -78,7 +78,7 @@ export default async function RolePage({ params }: Props) {
             One scenario mirrors the hiring team workflow.
           </SurfaceCard>
           <SurfaceCard title="Calibration badge">
-            Public report shows whether items are IRT-calibrated, beta, or authored.
+            Public report shows whether items are IRT-calibrated, pilot, or authored.
           </SurfaceCard>
           <SurfaceCard title="ReadyBank CTA" href="/platform/readybank">
             Convert this role into a reusable ReadyBank pack.
