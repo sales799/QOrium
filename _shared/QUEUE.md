@@ -1,11 +1,13 @@
-# Shared Queue — QOrium Trust Shell Closeout
+# Shared Queue — QOrium Interactive Proof Closeout
 
-Last touched: 2026-06-02 — Codex Run #41
+Last touched: 2026-06-02 — Codex Run #42
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Harden/deploy Interactive Proof | DONE | Branch `codex/qorium-active-proof-merge-20260602` final head `8317edbf4eeb` is live at `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; widgets emit proof telemetry and graded-answer embeds are on `/method` and `/library/[slug]`. | Non-author review before main merge. |
+| Verify Interactive Proof live evidence | DONE | Proof pages/APIs returned HTTP `200`/`202`; SAML metadata stayed `200`; axe-core found `0` violations across six proof pages; Lighthouse samples: home 90, JD-Forge 100, graded-answer 97, sample-packs 91 performance with accessibility/SEO 100. | Re-run after proof copy/code changes. |
 | Harden/deploy Trust Shell telemetry | DONE | Commit `ff491c51b565` on `codex/qorium-programmatic-seo-factory-phase1` adds Trust Shell page/evidence/CTA telemetry and keyboard-focusable evidence ledgers; active origin serves release `/opt/apps/qorium-marketing/releases/ff491c51b565`; Cloudflare purge succeeded. | Execute Interactive Proof shard next. |
 | Verify Trust Shell live evidence | DONE | `/trust`, `/security`, `/compliance-dpdp`, `/responsible-ai`, `/science`, `/method`, `/anti-leak`, `/authoring`, and four `/v1` trust/science endpoints returned HTTP `200`; axe-core found `0` violations across six Trust Shell pages; Lighthouse `/trust` scored 86/100/92/100. | Re-run after any trust copy/code change. |
 | Stabilize/push/deploy SAML proof branch | DONE | Commit `a929cb1ee69a` fixes the SAML session expiry regression, is pushed to branch `codex/saml-live-active-origin-20260602`, and is live on active origin release `/opt/apps/qorium-marketing/releases/a929cb1ee69a` (`current` HEAD `a929cb1ee69a`). | Non-author review/merge; author must not self-approve. |
@@ -31,4 +33,4 @@ Last touched: 2026-06-02 — Codex Run #41
 
 ## ARCHIVE CERTIFICATION
 
-Trust Shell hardening is archive-ready with code, deploy, HTTP, JSON-LD, axe, CWV, Cloudflare purge, and PM2 evidence. Overall QOrium session is not archive-ready as a fully complete Sentry activation; real capture waits on the DSN/permission blocker. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched.
+Trust Shell and Interactive Proof hardening are archive-ready with code, deploy, HTTP/API, JSON-LD, axe, CWV, Cloudflare purge, SAML-preservation, and PM2 evidence. Overall QOrium session is not archive-ready as a fully complete Sentry activation; real capture waits on the DSN/permission blocker. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched.

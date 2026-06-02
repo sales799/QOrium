@@ -3,7 +3,34 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #41 (Trust Shell hardening)
+**Last touched:** 2026-06-02 — Codex Run #42 (Interactive Proof hardening)
+
+---
+
+## RUN #42 — Interactive Proof Hardening (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Merged proof hardening into active SAML production lineage** — branch `codex/qorium-active-proof-merge-20260602` preserves SAML while adding Trust Shell and Interactive Proof hardening.
+- [2026-06-02] **Hardened Interactive Proof widgets** — JD-Forge, graded-answer, and sample-pack widgets now emit proof telemetry; graded-answer proof is embedded on `/method` and `/library/[slug]`.
+- [2026-06-02] **Fixed live accessibility regressions** — removed nested main landmarks from `/try/graded-answer` and per-pack pages after axe found duplicate-main violations.
+- [2026-06-02] **Deployed final release** — active origin serves `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; PM2 reload/save completed and Cloudflare purge succeeded.
+
+### EVIDENCE
+
+- Branch/commits: `codex/qorium-active-proof-merge-20260602`; final head `8317edbf4eeb`; includes `8e95c04773f6` Interactive Proof telemetry and final landmark fix.
+- Local gates: `pnpm run build:packages` pass; marketing Vitest `13` files / `60` tests pass; typecheck pass; lint pass; `pnpm secrets:scan` pass; Next build `1195/1195` pass.
+- Live proof routes/APIs: `/try/jd-forge`, `/try/graded-answer`, `/resources/sample-packs`, `/resources/sample-packs/senior-java`, `/platform/jd-forge`, `/method`, `/library/java`, and proof APIs returned HTTP `200`/`202` with expected payloads.
+- SAML preserved: `/v1/auth/saml/metadata?tenant=acme` returned HTTP `200 application/samlmetadata+xml`.
+- Accessibility: axe-core `4.11.4` with `--load-delay 5000` found `0` violations across six proof pages.
+- Lighthouse/CWV: homepage `90/100/92/100`; `/try/jd-forge` `100/100/92/100`; `/try/graded-answer` `97/100/92/100`; `/resources/sample-packs` `91/100/92/100`; CLS `0` on all samples.
+- Quality gate/Rakshak: `/v1/science/quality-gate` returned `92/92`; latest saved Rakshak remains GO `94/100`, `17/17`; fresh Rakshak MCP runner was not callable here.
+- API/fleet: `api.qorium.online/health` and `/healthz` returned `200`; `/api/health` is the wrong path and returns `404`; PM2 default namespace lists `12/12` QOrium processes online.
+
+### REMAINING FOLLOW-UP
+
+- [BLOCKED] Real Sentry capture still needs QOrium Sentry DSN/client-key credentials.
+- [REVIEW] Non-author review is still required before any branch merge to `main`.
 
 ---
 

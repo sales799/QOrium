@@ -1,9 +1,11 @@
 # QOrium Session Task Plan
 
-Last updated: 2026-06-02 — Codex Trust Shell hardening
+Last updated: 2026-06-02 — Codex Interactive Proof hardening
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Harden and deploy Interactive Proof | DONE | Branch `codex/qorium-active-proof-merge-20260602` final head `8317edbf4eeb` is live at `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; proof telemetry, method/library graded-answer embeds, and landmark fixes shipped without dropping SAML. | Non-author review before main merge. |
+| Verify Interactive Proof live gates | DONE | Package build, marketing tests `13/60`, typecheck, lint, secret scan, and build `1195/1195` passed; proof pages/APIs returned HTTP `200`/`202`; axe-core found `0` violations across six proof pages; Lighthouse samples scored accessibility/SEO `100`. | Re-run after proof copy/code changes. |
 | Harden and deploy Trust Shell | DONE | Commit `ff491c51b565` on `codex/qorium-programmatic-seo-factory-phase1` adds trust page/evidence/CTA telemetry and keyboard-focusable evidence ledgers; active origin release `/opt/apps/qorium-marketing/releases/ff491c51b565` is live; Cloudflare purge succeeded. | Execute Interactive Proof shard next. |
 | Verify Trust Shell live gates | DONE | Marketing tests `11/55`, typecheck, lint, secret scan, and build `1195/1195` passed; live trust routes/endpoints returned HTTP `200`; axe-core found `0` violations across six Trust Shell pages; Lighthouse `/trust` scores 86/100/92/100 with CLS `0`. | Re-run after trust copy/code changes. |
 | Clarify API health and PM2 fleet status | DONE | `https://api.qorium.online/health` and `/healthz` return HTTP `200`; `/api/health` is the wrong path and returns `404`; PM2 default namespace lists `12/12` QOrium processes online and the MCP source filters `pm2 jlist` by `^qorium-`. | Keep using `/health` or `/healthz`; no code patch required for fleet registry on active MCP. |
