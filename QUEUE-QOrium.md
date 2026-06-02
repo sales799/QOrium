@@ -3,7 +3,31 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #29 (Marketing Redesign Phase 1 deploy)
+**Last touched:** 2026-06-02 — Codex Run #30 (Full-auto NIRANTAR + QOrium proof)
+
+---
+
+## RUN #30 — Full-auto NIRANTAR + QOrium Proof (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Registered and verified NIRANTAR monitoring** — active watchdog source `/etc/talpro-watchdogs.source` now includes `watchdog:nirantar`; live `https://nirantar.talpro.in/api/health` returned HTTP `200`.
+- [2026-06-02] **Explained NIRANTAR uptime reset** — restart was deploy/reload-driven, not crash-driven; PM2 `restart_time`/unstable restarts remain `0`, with live head `1a5d009`.
+- [2026-06-02] **Investigated `qorium-leak-crawler` flapping** — all three PM2 entries are online, cron restart is `0 2 * * *`, unstable restarts are `0`, and `pm2 logs --lines 50 --nostream` was empty.
+- [2026-06-02] **Closed QOrium live WCAG/axe gaps** — commit `8fb0553` fixes light-surface contrast, scrollable `<pre>` keyboard access, and invalid Radix tab ARIA values.
+- [2026-06-02] **Deployed QOrium accessibility fix** — live checkout `/opt/apps/qorium-marketing` is clean at `8fb0553`; PM2 restart/save completed and public `/healthz` returned HTTP `200`.
+
+### EVIDENCE
+
+- NIRANTAR: cwd `/opt/apps/nirantar/current`, branch `main`, remote `https://github.com/sales799/nirantar.git`, last commit `1a5d009`, version `0.8.4`, PM2 online, unstable restarts `0`, health `200`.
+- QOrium: branch `codex/qorium-marketing-phase4-main`, commit `8fb0553`, build ID `6FRsP8jNvX7hmX25ZxWEM`, PM2 `qorium-marketing` online, unstable restarts `0`, health `200`.
+- QOrium gates on exact committed head: `pnpm run lint`, `pnpm run typecheck`, `pnpm run test`, `pnpm run secrets:scan`, and clean `pnpm run build` all passed.
+- Live axe WCAG 2.1 A/AA pass at `2026-06-02T05:14:20Z`: `/`, `/product`, `/pricing`, `/features/readybank`, `/features/jd-forge`, `/features/stack-vault`, `/security`, `/about`, `/contact` all had `0` violations.
+- Live mega-menu/evidence-gate pass at `2026-06-02T05:14:57Z`: desktop and mobile Platform/Solutions nav passed; Case Studies and Customer Stories stayed hidden while flags remain false.
+
+### ARCHIVE STATUS
+
+- Archive-ready. No `.env` or secret files were committed; historical gitleaks allowlist was extended only for a redacted README fingerprint.
 
 ---
 
