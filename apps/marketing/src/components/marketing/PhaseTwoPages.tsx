@@ -148,30 +148,6 @@ function SectionIntro({
   );
 }
 
-function EvidenceLedger() {
-  return (
-    <div className="mt-8 overflow-hidden rounded-lg border border-white/12 bg-white/[0.045]">
-      <div className="grid min-w-[38rem] grid-cols-[1fr_1fr_1fr] text-sm">
-        {homeV2.ledgerRows.flatMap((row, rowIndex) =>
-          row.map((cell, cellIndex) => (
-            <div
-              key={`${rowIndex}-${cellIndex}`}
-              className={cn(
-                'border-b border-r border-white/10 px-4 py-3 last:border-r-0',
-                rowIndex === 0
-                  ? 'font-mono text-xs font-semibold uppercase text-signal-300'
-                  : 'text-shell-muted',
-              )}
-            >
-              {cell}
-            </div>
-          )),
-        )}
-      </div>
-    </div>
-  );
-}
-
 function ProductGlyph({ accent }: { accent: ProductAccent }) {
   const style = accentStyles[accent];
   const Icon = style.icon;
@@ -278,11 +254,6 @@ export function HomeV2Page() {
               </div>
             </div>
           </Reveal>
-          <Reveal delay={0.15}>
-            <div className="max-w-4xl overflow-x-auto">
-              <EvidenceLedger />
-            </div>
-          </Reveal>
         </MaxWidth>
       </section>
 
@@ -340,9 +311,9 @@ export function HomeV2Page() {
       <section className="border-b border-border bg-background py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
-            eyebrow="Eight-dimension moat"
-            title="The moat is visible when the lifecycle is visible."
-            description="The redesign turns QOrium's content lifecycle into a scannable proof system instead of burying it in back-office language."
+            eyebrow="Why it holds up"
+            title="Eight things that keep your tests honest."
+            description="Most vendors cover one or two. You get freshness, calibration, rotation, watermarking, and delivery formats working together."
           />
           <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {homeV2.moat.map((dimension, index) => (
@@ -376,9 +347,9 @@ export function HomeV2Page() {
       <section className="surface-india border-b border-border py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
-            eyebrow="Buyer routing"
-            title="Different buyers need different proof paths."
-            description="The homepage now routes platform leaders, GCC teams, and staffing firms into distinct conversion stories."
+            eyebrow="Three ways to buy"
+            title="Choose the path that matches your hiring problem."
+            description="Platforms need content supply. GCCs need private stack depth. Staffing firms need a cleaner shortlist signal."
           />
           <Stagger className="grid gap-4 lg:grid-cols-3">
             {homeV2.buyers.map((buyer) => (
@@ -405,8 +376,8 @@ export function HomeV2Page() {
         <MaxWidth as="div">
           <SectionIntro
             eyebrow="Evidence-gated trust"
-            title="Proof modules render only when proof exists."
-            description="This strip names the trust posture without showing logo rails, case studies, or outcome numbers ahead of evidence."
+            title="Every number here, we can put in front of your auditor."
+            description="If we can't prove it, we don't print it. No borrowed logos, no invented win rates, no badge we haven't earned."
           />
           <Reveal>
             <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
@@ -414,7 +385,7 @@ export function HomeV2Page() {
                 <ShieldCheck className="size-6 text-secondary" />
                 <h3 className="mt-4 text-xl font-semibold">We show our work.</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  QOrium keeps trust claims behind source, flag, and feature-state checks.
+                  You see the evidence we have, and you never see proof we have not earned.
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-card p-5">
@@ -523,7 +494,7 @@ export function PlatformProductPage({ product }: { product: PlatformProduct }) {
           <SectionIntro
             eyebrow="How it works"
             title={`${product.name} pipeline`}
-            description="Each product page shows the buyer path from problem to package to CTA."
+            description="Each step keeps the buyer close to the content, ownership model, and delivery format."
           />
           <Stagger className="grid gap-4 md:grid-cols-3">
             {product.workflow.map((step, index) => (
@@ -545,17 +516,16 @@ export function PlatformProductPage({ product }: { product: PlatformProduct }) {
         <MaxWidth as="div">
           <SectionIntro
             eyebrow="Proof posture"
-            title="What this page can claim today"
-            description="The page uses SKU and pricing copy, but evidence-gated proof modules stay hidden until the backing flag exists."
+            title="What you can verify today"
+            description="The claims stay narrow: product scope, pricing shape, delivery format, and the proof we can stand behind."
           />
           <Reveal>
             <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
               <div className="rounded-lg border border-border bg-card p-5">
                 <BadgeCheck className="size-6 text-secondary" />
-                <h3 className="mt-4 text-xl font-semibold">Evidence-gated selling</h3>
+                <h3 className="mt-4 text-xl font-semibold">No borrowed proof</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  No customer badges, logos, or outcome numbers render from these product pages
-                  without a live flag.
+                  No customer badges, logos, or outcome numbers appear unless the source is real.
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-card p-5">
@@ -717,10 +687,7 @@ export function BuyerSolutionPage({ solution }: { solution: BuyerSolution }) {
 
       <section className="surface-product border-b border-border py-16 md:py-20">
         <MaxWidth as="div">
-          <SectionIntro
-            eyebrow="Matched SKU"
-            title="Route the buyer to the product that matches ownership and urgency."
-          />
+          <SectionIntro eyebrow="Matched SKU" title="Match the product to ownership and urgency." />
           <Stagger className="grid gap-4 lg:grid-cols-3">
             {solution.matchedSkus.map((sku) => (
               <StaggerItem key={sku.href}>
@@ -747,7 +714,7 @@ export function BuyerSolutionPage({ solution }: { solution: BuyerSolution }) {
           <SectionIntro
             eyebrow="Workflow"
             title="From buyer pain to commercial motion"
-            description="Each solution page keeps the CTA specific to the buyer's operating model."
+            description="Each step keeps the commercial path tied to the buyer's operating model."
           />
           <Stagger className="grid gap-4 md:grid-cols-3">
             {solution.workflow.map((step, index) => (
@@ -788,7 +755,7 @@ export function BuyerSolutionPage({ solution }: { solution: BuyerSolution }) {
           <Reveal>
             <div>
               <p className="font-mono text-xs font-semibold uppercase text-signal-300">
-                Buyer route
+                Buyer path
               </p>
               <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">
                 Continue with the product path for this buyer.

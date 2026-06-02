@@ -97,8 +97,8 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
           <div className="mb-8 max-w-2xl">
             <h2 className="text-3xl font-semibold tracking-normal">Sample question explorer</h2>
             <p className="mt-3 text-muted-foreground">
-              One set of examples is unlocked publicly. Production packs keep full item banks gated
-              to reduce harvesting risk.
+              One set of examples is open publicly. Production packs keep full item banks gated to
+              reduce harvesting risk.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">

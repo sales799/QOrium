@@ -91,7 +91,7 @@ test.describe('Critical-route smoke', () => {
     await expect(page.getByText(/promptHash/i)).toBeVisible();
   });
 
-  test('/resources/sample-packs/senior-java — gated unlock reveals pack items', async ({
+  test('/resources/sample-packs/senior-java — gated request reveals pack items', async ({
     page,
   }) => {
     await page.goto('/resources/sample-packs/senior-java');
@@ -108,12 +108,12 @@ test.describe('Critical-route smoke', () => {
           response.request().method() === 'POST' &&
           response.url().includes('/v1/sample-packs/senior-java/unlock'),
       ),
-      page.getByRole('button', { name: /unlock full pack/i }).click(),
+      page.getByRole('button', { name: /get full pack/i }).click(),
     ]);
 
     expect(unlockResponse.status()).toBe(200);
 
-    await expect(page.getByText(/Unlocked pack items/i)).toBeVisible();
+    await expect(page.getByText(/Full pack items/i)).toBeVisible();
     await expect(page.getByText(/PDF delivery has been queued/i)).toBeVisible();
   });
 

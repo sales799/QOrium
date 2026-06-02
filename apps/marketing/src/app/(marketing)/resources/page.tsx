@@ -27,7 +27,7 @@ export default function ResourcesPage() {
             Public benchmark method and evidence status for QOrium anti-plagiarism claims.
           </SurfaceCard>
           <SurfaceCard title="Sample Packs" href="/resources/sample-packs">
-            Preview 13 authored packs and unlock deeper PDFs through email capture.
+            Preview 13 authored packs and request deeper PDFs through email capture.
           </SurfaceCard>
         </CardGrid>
       </SectionBand>

@@ -72,24 +72,18 @@ export type BuyerSolution = {
 // 03-Gap-Analysis.md §6; 05-QOrium-Three-Use-Cases-SKU-Architecture.md §1.
 export const homeV2 = {
   hero: {
-    eyebrow: 'Trust infrastructure for skills hiring',
+    eyebrow: 'Skills assessment, built in India',
     title: 'Skills assessments you can defend in an audit.',
     description:
-      'QOrium packages India-built assessment content, JD-specific authoring, and private stack libraries inside an evidence-first trust shell.',
+      'Hire on evidence, not on a question bank that leaked six months ago. Calibrated content, JD-specific packs, and private stack libraries - every score you can stand behind.',
     primaryCta: { label: 'Book a 20-min walkthrough', href: '/demo' },
     secondaryCta: { label: 'Explore the library', href: '/product/assessment-library' },
   },
-  ledgerRows: [
-    ['Claim', 'Evidence status', 'Public behavior'],
-    ['Customer logos', 'Flag off', 'Module hidden'],
-    ['Outcome stats', 'Flag off', 'Module hidden'],
-    ['Talpro Customer Zero', 'Evidence held', 'Shown plainly'],
-  ],
   villain: {
     eyebrow: 'The leak timeline',
-    title: 'Question banks rot faster than hiring teams can refresh them.',
+    title: "Your question bank is rotting. You just can't see it yet.",
     description:
-      'A fresh question can be reconstructed, indexed by prep communities, and lose signal inside the same hiring year. The site now turns that risk into the lead story instead of hiding it in a feature list.',
+      'A fresh question can be reconstructed, indexed by prep communities, and lose signal inside the same hiring year. QOrium treats freshness as the product, not as an afterthought.',
     timeline: [
       {
         label: 'Week 1-4',
@@ -113,36 +107,36 @@ export const homeV2 = {
       name: 'ReadyBank',
       href: '/platform/readybank',
       accent: 'readybank' as const,
-      line: 'Shared skill-wise library for platforms, recruiters, and hiring teams.',
+      line: 'Shared skill-wise packs with rotation, watermarking, and export-ready metadata.',
     },
     {
       name: 'JD-Forge',
       href: '/platform/jd-forge',
       accent: 'jd-forge' as const,
-      line: 'Turn a real job description into a role-shaped assessment pack.',
+      line: 'Turn a real job description into a role-shaped assessment pack you can review.',
     },
     {
       name: 'Stack-Vault',
       href: '/platform/stack-vault',
       accent: 'stack-vault' as const,
-      line: 'Private, customer-exclusive libraries mapped to enterprise stacks.',
+      line: 'Private, customer-exclusive libraries mapped to your enterprise stack.',
     },
   ],
   moat: [
-    'AI-authored pipeline',
-    'I/O-psych validation path',
-    'Anti-leak rotation',
-    'Multi-format export',
+    'Fresh items on demand',
+    'Scores a manager can defend',
+    'Questions that retire before they leak',
+    'Exports that fit your workflow',
     'India-stack depth',
-    'Role-graph organization',
-    'Per-client watermarking',
-    'Content API first',
+    'Role maps that match the JD',
+    'Every leak traces back',
+    'Content your platform can call by API',
   ],
   proofZone: {
     eyebrow: 'Proof of work',
     title: 'A question is only useful when its source, fit, and lifecycle are visible.',
     description:
-      'The sample viewer keeps the proof concrete without rendering unavailable capture or widget flows.',
+      'Paste a JD and see the role, skill weights, and assessment plan form from the same role map used in QOrium.',
     sampleQuestion:
       'A senior backend API intermittently double-charges users during retry storms. Which idempotency design would you test first, and why?',
     rubric: [
@@ -169,13 +163,13 @@ export const homeV2 = {
     },
   ],
   trust: [
-    'No customer logo rail without a live evidence flag',
-    'No unsupported outcome statistics',
+    'No logo wall until a named customer approves it',
+    'No outcome number without evidence',
     'Talpro India identified as Customer Zero',
-    'Trust pages name shipped, beta, and roadmap states',
+    'Every AI capability is labeled by what is actually live',
   ],
   finalCta: {
-    title: 'Walk through the library, the leak model, and the buyer route.',
+    title: 'Bring us one JD. Leave with a test plan.',
     description:
       'A founder-led demo maps your hiring volume to ReadyBank, JD-Forge, or Stack-Vault.',
     primaryCta: { label: 'Book a demo', href: '/demo' },
@@ -191,9 +185,9 @@ export const readybankProduct: PlatformProduct = {
   eyebrow: 'Platform / ReadyBank',
   title: "A library that doesn't leak.",
   description:
-    "ReadyBank is QOrium's shared question library for technical assessments: skill-wise, role-mapped, and packaged for API, export, and recruiter subscription workflows.",
+    'ReadyBank gives you skill-wise assessment packs through API, export, and recruiter workflows without hiring a large authoring team.',
   primaryCta: { label: 'Book a 30-min library walkthrough', href: '/demo' },
-  secondaryCta: { label: 'Download a sample pack', href: '/sample-pack', flag: 'samplePack' },
+  secondaryCta: { label: 'View sample packs', href: '/resources/sample-packs', flag: 'samplePack' },
   problem: {
     title: 'Shared banks fail when every buyer sees the same stale item.',
     body: 'Assessment platforms need a content layer. Staffing firms need fresh questions. Both lose trust when the bank is copied into prep channels.',
@@ -220,7 +214,7 @@ export const readybankProduct: PlatformProduct = {
   proof: [
     'REST API plus JSON bulk export are the primary platform motions.',
     'Recruiter tiers include web portal, candidate links, and bulk export.',
-    'Download capture surfaces render only after the backing evidence flag is enabled.',
+    'Public sample packs show the format before you commit to a library license.',
   ],
   pricingIntro:
     'ReadyBank splits pricing by buyer: assessment platforms buy annual API access; recruiters and staffing teams buy monthly subscriptions.',
@@ -276,7 +270,7 @@ export const jdForgeProduct: PlatformProduct = {
   title: 'From JD to assessment in 2 hours. Or 24. Or 5 days.',
   description:
     'JD-Forge takes a job description and produces a custom-fitted technical assessment shaped by role, seniority, stack, and delivery tier.',
-  primaryCta: { label: 'Generate a sample', href: '/demo' },
+  primaryCta: { label: 'Try a JD live', href: '/try/jd-forge' },
   problem: {
     title: 'A real role rarely matches a generic Senior Java template.',
     body: 'Hiring managers need assessments that reflect the actual JD, not a generic skill label. JD-Forge turns the job spec into the assessment spec.',
@@ -473,7 +467,7 @@ export const solutionBuyerPages: Record<BuyerSolution['slug'], BuyerSolution> = 
     indiaProof: [
       'India stack depth for SAP, Oracle, Salesforce, ServiceNow, embedded, mainframe, and BFSI.',
       'DPDP-aligned contract language for India-led platform delivery.',
-      'No partner logo rail renders before the evidence flag is live.',
+      'Partner proof appears only when the named source is approved.',
     ],
     primaryCta: { label: 'Talk to API sales', href: '/demo' },
     secondaryCta: { label: 'View ReadyBank', href: '/platform/readybank' },
@@ -484,7 +478,7 @@ export const solutionBuyerPages: Record<BuyerSolution['slug'], BuyerSolution> = 
     eyebrow: 'Solutions / Enterprises and GCCs',
     title: 'Build a private assessment vault for the stack your teams actually use.',
     description:
-      'For enterprise and GCC buyers, QOrium routes toward Stack-Vault: exclusive role graphs, India stack depth, DPA support, and leak-accountable libraries.',
+      'For enterprise and GCC buyers, QOrium centers Stack-Vault: exclusive role maps, India stack depth, DPA support, and leak-accountable libraries.',
     pain: {
       title: 'Generic public banks do not mirror enterprise stack depth.',
       body: 'GCC and enterprise roles often mix proprietary services, legacy systems, regional delivery context, and high-volume hiring pressure.',
@@ -528,7 +522,7 @@ export const solutionBuyerPages: Record<BuyerSolution['slug'], BuyerSolution> = 
     indiaProof: [
       'Built for GCC-heavy hiring patterns in India.',
       'Regional stack depth includes enterprise systems that generic coding-only tools under-serve.',
-      'Evidence modules stay factual until procurement proof, logos, and outcomes exist.',
+      'Procurement proof, logos, and outcomes stay narrow until the source exists.',
     ],
     primaryCta: { label: 'Scope a Stack-Vault', href: '/demo' },
     secondaryCta: { label: 'View Stack-Vault', href: '/platform/stack-vault' },

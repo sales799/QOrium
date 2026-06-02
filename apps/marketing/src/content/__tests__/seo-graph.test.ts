@@ -40,7 +40,7 @@ describe('programmatic SEO role graph', () => {
   });
 
   it('keeps calibration honest on every library page', () => {
-    const allowed = new Set(['IRT-calibrated', 'Beta', 'Authored']);
+    const allowed = new Set(['IRT-calibrated', 'Pilot', 'Authored']);
 
     for (const skill of librarySkills) {
       expect(allowed.has(skill.calibration.status)).toBe(true);
