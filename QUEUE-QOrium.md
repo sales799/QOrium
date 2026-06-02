@@ -39,7 +39,7 @@
 - [2026-06-02] **Fixed the expiring SAML session proof test** — `apps/marketing/src/app/v1/__tests__/saml-session.test.ts` now freezes the Vitest clock around the fixed assertion window, so `verifySessionToken` no longer fails after the historical proof timestamp expires.
 - [2026-06-02] **Committed and pushed the proof fix** — branch `codex/saml-live-active-origin-20260602` is pushed at `a929cb1ee69a8c172b1fb181da4c3222290f2843` (`Stabilize SAML session expiry test`).
 - [2026-06-02] **Verified the full safe gate** — clean worktree `/tmp/qorium-saml-test-fix` passed `pnpm run build:packages`, marketing typecheck, marketing Vitest `13` files / `60` tests, Next production build `1195/1195` pages, `pnpm secrets:scan`, `git diff --check`, and a post-commit focused SAML session test `2/2`.
-- [2026-06-02] **Verified deployment on active origin** — `/opt/apps/qorium-marketing/current` points to `/opt/apps/qorium-marketing/releases/ff491c51b565`, whose git HEAD is `a929cb1ee69a`; PM2 lists `12` QOrium processes online and `0` offline.
+- [2026-06-02] **Verified deployment on active origin** — `/opt/apps/qorium-marketing/current` points to `/opt/apps/qorium-marketing/releases/a929cb1ee69a`, whose git HEAD is `a929cb1ee69a`; PM2 lists `12` QOrium processes online and `0` offline.
 - [2026-06-02] **Verified public production proof** — `https://qorium.online/healthz` returns HTTP `200` with HSTS, content-type, frame, referrer, permissions, and CSP headers; `/v1/observability/sentry` returns HTTP `200` and reports `enabled:false`, `dsnConfigured:false`.
 - [2026-06-02] **Verified honest legacy product redirects** — public `/product/jd-forge`, `/product/ai-grading`, `/product/assessment-builder`, and `/product/anti-cheating` return HTTP `301` to `/features/jd-forge`, `/method`, `/features/readybank`, and `/anti-leak`; `/product/not-real-phase4-proof` remains HTTP `404`.
 
@@ -47,7 +47,7 @@
 
 - Branch/PR: `codex/saml-live-active-origin-20260602`; PR #88 `https://github.com/sales799/QOrium/pull/88`; head SHA `a929cb1ee69a8c172b1fb181da4c3222290f2843`; PR is `MERGEABLE` and `CLEAN`; migration-numbering check passed.
 - Commit: `a929cb1ee69a` (`Stabilize SAML session expiry test`).
-- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/ff491c51b565`; release git HEAD `a929cb1ee69a`; local active-origin `/healthz` returned HTTP `200`.
+- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/a929cb1ee69a`; release git HEAD `a929cb1ee69a`; local active-origin `/healthz` returned HTTP `200`.
 - Live Sentry status: public `https://qorium.online/v1/observability/sentry` returned `{"ok":true,"data":{"provider":"sentry","enabled":false,"environment":"production","dsnConfigured":false}}`.
 - Runtime: active origin `kvm2-prod`; PM2 QOrium count `12`, offline `[]`; `qorium-marketing` script path `/opt/apps/qorium-marketing/current/apps/marketing/.pm2-start.sh`.
 
