@@ -17,7 +17,7 @@ describe('SAML session cookie', () => {
       tenant,
       email: 'qorium-saml-sandbox@example.com',
       secret: 'test-secret',
-      now: new Date('2026-06-02T04:00:00.000Z'),
+      now: new Date(),
       assertion: {
         id: 'assertion-1',
         issuer: tenant.config.idpEntityId ?? '',
@@ -49,7 +49,7 @@ describe('SAML session cookie', () => {
       tenant,
       email: 'qorium-saml-sandbox@example.com',
       secret: 'test-secret',
-      now: new Date('2026-06-02T04:00:00.000Z'),
+      now: new Date(),
       assertion: {
         id: 'assertion-1',
         issuer: tenant.config.idpEntityId ?? '',
