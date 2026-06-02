@@ -6,7 +6,7 @@ Guardrail: no invented secrets, no third-party account ownership bypass, no fina
 
 ## Result
 
-Remote-safe prep is complete. Four items are ready as draft/default inputs, and five are genuinely blocked on credentials, account permissions, payment, or legal/business send authority.
+Remote-safe prep is complete. Pricing, JD seeds, and GitHub push proof are done. The remaining items are genuinely blocked on credentials, account permissions, payment, or legal/business send authority.
 
 | # | CEO item | Remote-auto status | Evidence | Next exact step |
 |---|---|---|---|---|
@@ -17,7 +17,7 @@ Remote-safe prep is complete. Four items are ready as draft/default inputs, and 
 | 5 | JD seed list | DONE as draft/default. | Existing seeded JDs: `jds/C1-Senior-Engineer-JD.md`, `jds/C2-SME-Content-Lead-JD.md`, `jds/C3-AE-Enterprise-JD.md`, `jds/C4-BD-Platforms-JD.md`. | Use the four seed JDs for JD-Forge demos; expand after first customer-zero feedback. |
 | 6 | K&S send | BLOCKED on legal/business send action; draft evidence exists. | `QORIUM-UPDATED-HANDOFF-v2-NO-HUMAN-TOUCH 3.md` records a queued K&S Partners draft in Bhaskar's Drafts folder. | CEO or legal owner sends/reviews the legal-counsel engagement email. |
 | 7 | BP-08 distro | BLOCKED on account/payment and distribution channel; prompt is ready. | `BROWSER-PROMPTS-LIBRARY-EXTENSION-BP-07-09.md` contains BP-08 MSG91 OTP + WhatsApp Business API setup. | Run BP-08 in an authenticated MSG91/browser session; pause before any wallet funding/payment. |
-| 8 | GitHub push credentials | BLOCKED on GitHub auth. | Remote is `https://github.com/sales799/QOrium.git`; push requires valid GitHub credentials/token. | Configure `gh auth login` or a scoped repo token for `sales799/QOrium`. |
+| 8 | GitHub push credentials | DONE for this repo/branch. | `git push qorium codex/qorium-closeout-lint-gate` succeeded, publishing commit `269f327` to `https://github.com/sales799/QOrium.git`. | Keep this credential path active for future QOrium pushes; cross-account review still required before merge. |
 | 9 | QOrium Sentry DSN/token | BLOCKED on Sentry client key/token permission. | `_shared/QUEUE.md` already records `enabled:false`, `dsnConfigured:false`, and prior token HTTP 403 for project/client-key creation. | Provide QOrium Sentry DSN/client key or a token with create/read client-key permission. |
 
 ## Remote Defaults Ready To Use
