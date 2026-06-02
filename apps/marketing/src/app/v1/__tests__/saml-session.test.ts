@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getSamlProofTenant } from '../auth/saml/_config';
 import {
@@ -9,6 +9,17 @@ import {
 } from '../auth/saml/_session';
 
 describe('SAML session cookie', () => {
+  const now = new Date('2026-06-02T04:00:00.000Z');
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('signs a recruiter session and serializes an httpOnly cookie', () => {
     const tenant = getSamlProofTenant('acme');
     if (!tenant) throw new Error('missing acme tenant');
@@ -17,14 +28,14 @@ describe('SAML session cookie', () => {
       tenant,
       email: 'qorium-saml-sandbox@example.com',
       secret: 'test-secret',
-      now: new Date('2026-06-02T04:00:00.000Z'),
+      now,
       assertion: {
         id: 'assertion-1',
         issuer: tenant.config.idpEntityId ?? '',
         nameId: 'qorium-saml-sandbox@example.com',
         nameIdFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
         audience: tenant.spEntityId,
-        notBefore: new Date('2026-06-02T04:00:00.000Z'),
+        notBefore: now,
         notOnOrAfter: new Date('2026-06-02T05:00:00.000Z'),
         recipient: tenant.spAcsUrl,
         attributes: { qorium_roles: ['admin', 'recruiter'] },
@@ -49,14 +60,14 @@ describe('SAML session cookie', () => {
       tenant,
       email: 'qorium-saml-sandbox@example.com',
       secret: 'test-secret',
-      now: new Date('2026-06-02T04:00:00.000Z'),
+      now,
       assertion: {
         id: 'assertion-1',
         issuer: tenant.config.idpEntityId ?? '',
         nameId: 'qorium-saml-sandbox@example.com',
         nameIdFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
         audience: tenant.spEntityId,
-        notBefore: new Date('2026-06-02T04:00:00.000Z'),
+        notBefore: now,
         notOnOrAfter: new Date('2026-06-02T05:00:00.000Z'),
         recipient: tenant.spAcsUrl,
         attributes: {},
