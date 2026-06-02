@@ -1,4 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -22,7 +23,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com",
       "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://plausible.io https://api.resend.com https://calendly.com",
+      "connect-src 'self' https://plausible.io https://api.resend.com https://calendly.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io",
       "frame-src 'self' https://calendly.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
@@ -66,4 +67,17 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+const analyzedConfig = withBundleAnalyzer(nextConfig);
+
+export default withSentryConfig(analyzedConfig, {
+  org: process.env.SENTRY_ORG ?? 'qorium',
+  project: process.env.SENTRY_PROJECT ?? 'qorium-marketing',
+  silent: !process.env.CI,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: Boolean(process.env.SENTRY_AUTH_TOKEN),
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
+});

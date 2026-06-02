@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/site/Logo';
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { captureException } from '@/lib/sentry';
 
 export default function Error({
   error,
@@ -15,6 +16,11 @@ export default function Error({
   reset: () => void;
 }) {
   React.useEffect(() => {
+    void captureException(error, {
+      digest: error.digest,
+      surface: 'app-error-boundary',
+    });
+
     if (process.env.NODE_ENV !== 'production') {
       console.error('Marketing site error:', error);
     }
