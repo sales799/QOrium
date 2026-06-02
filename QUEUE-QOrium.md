@@ -3,7 +3,33 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #37 (Phase 4 Sentry Observability Proof)
+**Last touched:** 2026-06-02 — Codex Run #38 (Final health-header closeout)
+
+---
+
+## RUN #38 — Final Health-Header Closeout (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Hardened QOrium marketing health route headers** — code commits `18110f1f5653` and `cf717778541b` add security headers to `/health` and `/healthz` GET/HEAD responses.
+- [2026-06-02] **Deployed final active-origin release** — active origin `qorium-active-origin` is now checked out at `cf717778541b`; current release is `/opt/apps/qorium-marketing/releases/cf717778541b`; PM2 save completed.
+- [2026-06-02] **Fixed live nginx health-location drift** — `/etc/nginx/conf.d/qorium-marketing.conf` exact health locations were bypassing app headers; applied backed-up CSP hotfix and reloaded nginx after `nginx -t`.
+- [2026-06-02] **Re-ran verification gates** — marketing tests, typecheck, lint, build, and secret scan passed after the final health HEAD handler.
+
+### EVIDENCE
+
+- Local gates: Vitest `11` files / `55` tests pass; typecheck pass; lint pass; build pass with `1195/1195` static pages; `pnpm secrets:scan` no leaks.
+- Deploy: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/cf717778541b`; `qorium-marketing` and `qorium-chatbot` online; QOrium PM2 count `12`; offline list empty.
+- Cloudflare purge: targeted purge returned `cloudflare_purge_success=true`.
+- Live route headers: `/`, `/library/java-security`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200` with page security headers. `/health` and `/healthz` returned HTTP `200` with HSTS, `X-Content-Type-Options`, `X-Frame-Options`, Referrer-Policy, Permissions-Policy, and CSP.
+- Accessibility sample: axe-core `4.11.4` found `0` violations on `/library/java-security`, `/try/jd-forge`, and `/resources/sample-packs`.
+- Nginx backup: `/tmp/qorium-marketing.conf.before-health-csp-20260602T085949Z`.
+
+### REMAINING FOLLOW-UP
+
+- [LOW] Clean duplicate nginx vhost drift later: `/etc/nginx/conf.d/qorium-marketing.conf` still coexists with the deploy-script managed `/etc/nginx/sites-available/qorium-marketing.conf`.
+- [READY] Content recreation remains ready after CEO voice lock.
+- [PENDING] Trust Shell and Interactive Proof shards remain unstarted.
 
 ---
 
