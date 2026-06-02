@@ -3,7 +3,31 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #35 (Programmatic SEO Factory Phase 1)
+**Last touched:** 2026-06-02 — Codex Run #36 (Full-auto Closeout + Content Voice Lock)
+
+---
+
+## RUN #36 — Full-auto Closeout + Content Voice Lock (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Closed the CEO voice-lock blocker for content recreation** — `QORIUM_CONTENT_360_AUDIT_AND_RECREATION_PROMPT_v1.md` now records that the voice charter and three-buyer lines were locked by CEO instruction; `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md` is flipped from BLOCKED to READY.
+- [2026-06-02] **Re-ran safe local QOrium app gates** — `pnpm install --frozen-lockfile` passed; `pnpm run ci` passed seed, secret scan, typecheck, and build before hitting a local Docker socket issue in smoke; after Colima was confirmed running, `pnpm smoke` passed including stats, library, assessment, grading, audit, JS/Python/Java sandbox; `QORIUM_E2E_API_PORT=4220 QORIUM_E2E_WEB_PORT=3220 pnpm e2e` passed (`1` Playwright test).
+- [2026-06-02] **Fresh public production verification passed** — `https://qorium.online/`, `/openapi.json`, `/healthz`, `https://api.qorium.online/healthz`, `https://api.qorium.online/chatbot/v1/healthz`, `https://admin.qorium.online/api/health`, and `POST https://qorium.online/api/chatbot/session` all returned HTTP `200`.
+- [2026-06-02] **Verified public security headers** — sampled apex/OpenAPI/API responses included HSTS, CSP, frame protection, content-type protection, referrer policy, and permissions policy headers.
+
+### EVIDENCE
+
+- Local smoke: `Smoke OK: stats, library, assessment, grading, audit, JS/Python/Java sandbox.`
+- Local e2e: `1 passed (10.7s)` for `tests/e2e/builder-candidate-result.spec.ts`.
+- Live HTTP sampled at `2026-06-02T08:49:56Z`: apex, OpenAPI, marketing health, API health, chatbot health, admin health, and chatbot session all HTTP `200`.
+- Direct active-origin SSH check was not available from this workstation: `root@187.127.155.150:2244` returned `Permission denied (publickey)`. Public HTTPS verification was used for this closeout; no new deploy was required or claimed.
+- Existing unrelated workspace changes and untracked generated/business documents were left unstaged. The only app-file diff included in the closeout is the verified lint-gate repair in `qorium-app/apps/web/package.json`, changing the removed `next lint || true` path to `tsc -p tsconfig.json --noEmit`.
+
+### REMAINING FOLLOW-UP
+
+- [READY] **Lane B content recreation build** — run `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md`: recopy the marketing pages from the locked master prompt, wire the banned-words CI gate, preserve evidence-gating, then test/build/deploy.
+- [LOW] Restore or provide active-origin SSH access for direct PM2/git release proof on `187.127.155.150:2244`.
 
 ---
 
@@ -1031,7 +1055,7 @@ User directive: "Let CEO ie Manthan take ownership, plan, get CTO approval, impl
 - [DONE 2026-05-02] **CTO: E1 Bosch warm-intro email (3 versions)** — `sales/E1-Bosch-GCC-Warm-Intro-Email.docx` (pre-send checklist + follow-up cadence)
 - [DONE 2026-05-02] **CTO: E2 Bosch GCC stack research** — `sales/E2-Bosch-GCC-Stack-Research.docx` (org map; top 10 roles; 12-week sales motion)
 - [DONE 2026-06-01] **CTO: Content 360 audit + recreation master prompt** — `QORIUM_CONTENT_360_AUDIT_AND_RECREATION_PROMPT_v1.md`. Diagnosed live site "build-voice" (spec-shipped-as-copy; content score ~3.9/10); full banned-words rule set, buyer-first architecture, copy-paste master prompt + golden before/after. Codex brief staged.
-- [BLOCKED 2026-06-01] **Lane B (ARJUN): QOrium content recreation build** — `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md`. Owner: Codex ARJUN. Unblock = CEO locks voice charter (Part 2.1) + three-buyer lines (Part 2.5). Then recopy all marketing pages + wire banned-words CI gate.
+- [READY 2026-06-02] **Lane B (ARJUN): QOrium content recreation build** — `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md`. Owner: Codex ARJUN. CEO locked voice charter + three-buyer lines 2026-06-02 ("lock voice"). RUN: recopy all marketing pages per master prompt + wire banned-words CI gate; preserve evidence-gating. DoD in brief.
 
 ---
 

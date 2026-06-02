@@ -2,8 +2,8 @@
 
 **Lane:** B (marketing site, `qorium-marketing`) — ARJUN (Mac Mini, `bhaskar@talproindia.com`)
 **Author of spec:** Claude (Super Brain). **Executor:** Codex ARJUN. Do NOT route this code build to Claude.
-**Status:** 🔒 BLOCKED — gated on CEO locking voice charter (Part 2.1) + three-buyer lines (Part 2.5).
-**Date staged:** 2026-06-01
+**Status:** ✅ READY — CEO locked voice charter (Part 2.1) + three-buyer lines (Part 2.5) on 2026-06-02 ("lock voice"). Run now.
+**Date staged:** 2026-06-01 · **Unblocked:** 2026-06-02
 
 ## Source of truth
 `QORIUM_CONTENT_360_AUDIT_AND_RECREATION_PROMPT_v1.md` — read in full. Part 3 is the master prompt; run it to generate copy. Part 2.2 is the BANNED list. Part 3.1 is the golden before/after sample (the bar to match).
@@ -39,4 +39,4 @@ No invented customer/logo/stat/badge. Gate by NOT rendering — never by narrati
 - Change-log: old line → new line for the 8 audited homepage failures.
 
 ## Unblock trigger
-CEO confirms voice charter + three-buyer lines → flip status to READY and run.
+~~CEO confirms voice charter + three-buyer lines → flip status to READY and run.~~ ✅ DONE 2026-06-02. RUN NOW.
