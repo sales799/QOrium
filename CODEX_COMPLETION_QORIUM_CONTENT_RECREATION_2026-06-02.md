@@ -24,6 +24,7 @@ Completed and deployed.
 - Local gates: `pnpm run build:packages`, marketing typecheck, marketing Vitest `13` files / `60` tests, explicit lint, marketing build, and Playwright smoke `10/10` passed.
 - Copy gate: local and origin builds passed rendered-copy scan across `1168` HTML files.
 - Deploy: active origin built release `c96e1ee2119b`, flipped `current`, reloaded `qorium-chatbot` and `qorium-marketing`, saved PM2, and local probes returned HTTP `200`.
+- Cloudflare purge: targeted purge for the shipped Content Recreation route set returned `success:true` with no errors.
 - Live routes: shard route matrix returned HTTP `200 text/html`; `/api/health`, `/health`, `/healthz`, `api.qorium.online/`, `api.qorium.online/health`, and `api.qorium.online/healthz` returned HTTP `200`.
 - JSON-LD: sampled `/`, `/trust`, `/compliance-dpdp`, `/try/jd-forge`, `/resources/sample-packs`, `/platform/readybank`, `/library/javascript`, and `/vs/vervoe` contained HTML plus JSON-LD.
 - Accessibility/CWV: axe-core found `0` WCAG A/AA violations across `17` sampled routes; FCP sample range `252ms`-`1052ms`.
