@@ -1,11 +1,13 @@
-# Shared Queue — QOrium Live SAML Closeout
+# Shared Queue — QOrium Trust Shell Closeout
 
-Last touched: 2026-06-02 — Codex Run #40
+Last touched: 2026-06-02 — Codex Run #41
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Harden/deploy Trust Shell telemetry | DONE | Commit `ff491c51b565` on `codex/qorium-programmatic-seo-factory-phase1` adds Trust Shell page/evidence/CTA telemetry and keyboard-focusable evidence ledgers; active origin serves release `/opt/apps/qorium-marketing/releases/ff491c51b565`; Cloudflare purge succeeded. | Execute Interactive Proof shard next. |
+| Verify Trust Shell live evidence | DONE | `/trust`, `/security`, `/compliance-dpdp`, `/responsible-ai`, `/science`, `/method`, `/anti-leak`, `/authoring`, and four `/v1` trust/science endpoints returned HTTP `200`; axe-core found `0` violations across six Trust Shell pages; Lighthouse `/trust` scored 86/100/92/100. | Re-run after any trust copy/code change. |
 | Stabilize/push/deploy SAML proof branch | DONE | Commit `a929cb1ee69a` fixes the SAML session expiry regression, is pushed to branch `codex/saml-live-active-origin-20260602`, and is live on active origin release `/opt/apps/qorium-marketing/releases/ff491c51b565` (`current` HEAD `a929cb1ee69a`). | Non-author review/merge; author must not self-approve. |
 | Port SAML to active production branch | DONE | Branch `codex/saml-live-active-origin-20260602` adds live-branch SAML metadata/login/ACS/session persistence and migration `0019_saml_sessions.sql`; PR #88 is open/mergeable with head `a929cb1ee69a8c172b1fb181da4c3222290f2843`. | Non-author review/merge; author must not self-approve. |
 | Deploy/verify live SAML | DONE | Active origin `qorium-active-origin` serves release `/opt/apps/qorium-marketing/releases/ff491c51b565` at commit `a929cb1ee69a`; public metadata `https://qorium.online/v1/auth/saml/metadata?tenant=acme` returns `200 application/samlmetadata+xml`; login returns `302` to SAML test IdP with `x-qorium-saml-request-id`. | Keep active release; do not roll back to older production branch. |
@@ -29,4 +31,4 @@ Last touched: 2026-06-02 — Codex Run #40
 
 ## ARCHIVE CERTIFICATION
 
-Not archive-ready as a fully complete Sentry activation. Code/deploy proof is archive-ready; real capture waits on the DSN/permission blocker. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched.
+Trust Shell hardening is archive-ready with code, deploy, HTTP, JSON-LD, axe, CWV, Cloudflare purge, and PM2 evidence. Overall QOrium session is not archive-ready as a fully complete Sentry activation; real capture waits on the DSN/permission blocker. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched.

@@ -1,9 +1,12 @@
 # QOrium Session Task Plan
 
-Last updated: 2026-06-02 — Codex Phase 4 proof deploy closeout
+Last updated: 2026-06-02 — Codex Trust Shell hardening
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Harden and deploy Trust Shell | DONE | Commit `ff491c51b565` on `codex/qorium-programmatic-seo-factory-phase1` adds trust page/evidence/CTA telemetry and keyboard-focusable evidence ledgers; active origin release `/opt/apps/qorium-marketing/releases/ff491c51b565` is live; Cloudflare purge succeeded. | Execute Interactive Proof shard next. |
+| Verify Trust Shell live gates | DONE | Marketing tests `11/55`, typecheck, lint, secret scan, and build `1195/1195` passed; live trust routes/endpoints returned HTTP `200`; axe-core found `0` violations across six Trust Shell pages; Lighthouse `/trust` scores 86/100/92/100 with CLS `0`. | Re-run after trust copy/code changes. |
+| Clarify API health and PM2 fleet status | DONE | `https://api.qorium.online/health` and `/healthz` return HTTP `200`; `/api/health` is the wrong path and returns `404`; PM2 default namespace lists `12/12` QOrium processes online and the MCP source filters `pm2 jlist` by `^qorium-`. | Keep using `/health` or `/healthz`; no code patch required for fleet registry on active MCP. |
 | Stabilize expiring SAML proof test | DONE | Commit `a929cb1ee69a` freezes the Vitest clock around the fixed SAML assertion window; focused post-commit test passed `2/2`. | Non-author review/merge; author must not self-approve. |
 | Port SAML to active production branch | DONE | Branch `codex/saml-live-active-origin-20260602` and PR #88 add SAML metadata/login/ACS/session persistence to active branch `codex/qorium-programmatic-seo-factory-phase1`; head SHA `a929cb1ee69a8c172b1fb181da4c3222290f2843`. | Non-author review/merge; author must not self-approve. |
 | Deploy and verify public SAML | DONE | Active origin release `/opt/apps/qorium-marketing/releases/ff491c51b565` is at git HEAD `a929cb1ee69a`; public metadata returns HTTP `200 application/samlmetadata+xml`; public login returns HTTP `302` to SAML test IdP with `x-qorium-saml-request-id`. | Keep current active release. |

@@ -3,7 +3,32 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #40 (Phase 4 proof deploy closeout)
+**Last touched:** 2026-06-02 — Codex Run #41 (Trust Shell hardening)
+
+---
+
+## RUN #41 — Trust Shell Hardening (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Hardened the Trust Shell telemetry and WCAG surface** — added Plausible-backed trust page view, evidence click, demo CTA, and DPDP DPIA template events; evidence ledger tables are keyboard-focusable for horizontal scrolling.
+- [2026-06-02] **Committed, pushed, deployed, and purged Trust Shell work** — code branch `codex/qorium-programmatic-seo-factory-phase1` is pushed at `ff491c51b565`; active origin release is `/opt/apps/qorium-marketing/releases/ff491c51b565`; Cloudflare purge succeeded for trust pages and JSON endpoints.
+- [2026-06-02] **Verified live trust routes and endpoints** — `/trust`, `/security`, `/compliance-dpdp`, `/responsible-ai`, `/science`, `/method`, `/anti-leak`, `/authoring`, plus the four `/v1` trust/science endpoints returned HTTP `200`.
+
+### EVIDENCE
+
+- Local gates: marketing Vitest `11` files / `55` tests, typecheck, lint, secrets scan, and Next build `1195/1195` pages all passed.
+- Live JSON-LD: `/trust` has `Organization`, `AboutPage`, `ItemList`; `/security`, `/compliance-dpdp`, `/responsible-ai` have `WebPage`; `/science` and `/method` have `TechArticle`.
+- Accessibility: axe-core `4.11.4` with `--load-delay 5000` found `0` violations across `/trust`, `/security`, `/compliance-dpdp`, `/responsible-ai`, `/science`, and `/method`.
+- CWV/Lighthouse sample: `/trust` performance `86`, accessibility `100`, best practices `92`, SEO `100`; LCP `3569ms`, FCP `1990ms`, TBT `106ms`, CLS `0`.
+- Rakshak floor: latest same-day saved certification remains `qorium.online` GO `94/100`, `17/17`; fresh Rakshak MCP runner was not callable in this Codex session.
+- API health: correct public paths are `https://api.qorium.online/health` and `/healthz`; `/api/health` is the wrong path and returns nginx `404`.
+- Fleet status: PM2 default namespace lists `12/12` QOrium processes online across `8` service names; MCP source already filters `pm2 jlist` by `^qorium-`.
+
+### REMAINING FOLLOW-UP
+
+- [PENDING] Execute the Interactive Proof shard next.
+- [BLOCKED] Real Sentry event capture still needs QOrium Sentry DSN/client-key credentials.
 
 ---
 
