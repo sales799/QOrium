@@ -3,7 +3,30 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #42 (Interactive Proof hardening)
+**Last touched:** 2026-06-02 — Codex Run #43 (Sentry activation closeout)
+
+---
+
+## RUN #43 — Sentry Activation Closeout (2026-06-02)
+
+### COMPLETED
+
+- [2026-06-02] **Created/recovered QOrium Sentry client key** — Sentry project `talpro/qorium-marketing` exists and the project client key was read through the Sentry API.
+- [2026-06-02] **Activated production Sentry env** — active origin shared env now has `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ENV`, and `NEXT_PUBLIC_SENTRY_ENV`; backup `.env.production.bak-sentry-20260602T172359Z` was created first.
+- [2026-06-02] **Reloaded and saved production PM2** — `pm2 reload qorium-marketing --update-env` and `pm2 save` completed; `qorium-marketing` remains `online`.
+- [2026-06-02] **Verified real event capture** — synthetic event `f0bef06e3c104948ac66c51119131b69` returned Sentry ingest HTTP `200` and was read back from the Sentry API.
+
+### EVIDENCE
+
+- Live status: public `https://qorium.online/v1/observability/sentry?verify=sentry-dsn-20260602T1724Z` returned HTTP `200` with `enabled:true`, `dsnConfigured:true`.
+- Origin-local status: `http://127.0.0.1:5110/v1/observability/sentry?verify=sentry-dsn-20260602T1730Z` returned HTTP `200` with `enabled:true`, `dsnConfigured:true`.
+- Security headers: public `/healthz?verify=sentry-dsn-20260602T1724Z` returned HTTP `200` with HSTS, content-type, frame, referrer, permissions, and CSP headers.
+- Runtime: active release symlink is `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; PM2 `qorium-marketing` is `online`.
+
+### REMAINING FOLLOW-UP
+
+- [REVIEW] Non-author review is still required before any author-owned branch merge to `main`.
+- [MONITOR] Watch Sentry issues/alerts after organic traffic; no founder DSN action remains.
 
 ---
 
@@ -29,7 +52,7 @@
 
 ### REMAINING FOLLOW-UP
 
-- [BLOCKED] Real Sentry capture still needs QOrium Sentry DSN/client-key credentials.
+- [RESOLVED in Run #43] Real Sentry capture now has a QOrium client key and live proof.
 - [REVIEW] Non-author review is still required before any branch merge to `main`.
 
 ---
@@ -54,8 +77,8 @@
 
 ### REMAINING FOLLOW-UP
 
-- [PENDING] Execute the Interactive Proof shard next.
-- [BLOCKED] Real Sentry event capture still needs QOrium Sentry DSN/client-key credentials.
+- [DONE in Run #42] Execute the Interactive Proof shard next.
+- [RESOLVED in Run #43] Real Sentry event capture now has a QOrium client key and live proof.
 
 ---
 
@@ -67,7 +90,7 @@
 - [2026-06-02] **Committed and pushed the proof fix** — branch `codex/saml-live-active-origin-20260602` is pushed at `a929cb1ee69a8c172b1fb181da4c3222290f2843` (`Stabilize SAML session expiry test`).
 - [2026-06-02] **Verified the full safe gate** — clean worktree `/tmp/qorium-saml-test-fix` passed `pnpm run build:packages`, marketing typecheck, marketing Vitest `13` files / `60` tests, Next production build `1195/1195` pages, `pnpm secrets:scan`, `git diff --check`, and a post-commit focused SAML session test `2/2`.
 - [2026-06-02] **Verified deployment on active origin** — `/opt/apps/qorium-marketing/current` points to `/opt/apps/qorium-marketing/releases/a929cb1ee69a`, whose git HEAD is `a929cb1ee69a`; PM2 lists `12` QOrium processes online and `0` offline.
-- [2026-06-02] **Verified public production proof** — `https://qorium.online/healthz` returns HTTP `200` with HSTS, content-type, frame, referrer, permissions, and CSP headers; `/v1/observability/sentry` returns HTTP `200` and reports `enabled:false`, `dsnConfigured:false`.
+- [2026-06-02] **Verified public production proof** — `https://qorium.online/healthz` returns HTTP `200` with HSTS, content-type, frame, referrer, permissions, and CSP headers; `/v1/observability/sentry` returned HTTP `200` before activation and is superseded by Run #43's enabled Sentry proof.
 - [2026-06-02] **Verified honest legacy product redirects** — public `/product/jd-forge`, `/product/ai-grading`, `/product/assessment-builder`, and `/product/anti-cheating` return HTTP `301` to `/features/jd-forge`, `/method`, `/features/readybank`, and `/anti-leak`; `/product/not-real-phase4-proof` remains HTTP `404`.
 
 ### EVIDENCE
@@ -80,7 +103,7 @@
 
 ### REMAINING FOLLOW-UP
 
-- [BLOCKED] Real Sentry event capture still needs a QOrium Sentry DSN/client key, or a Sentry token with project-create/client-key permission; current status is `enabled:false` and `dsnConfigured:false`.
+- [RESOLVED in Run #43] Real Sentry event capture now has a QOrium client key and live proof.
 - [REVIEW] PR #88 still needs non-author review/merge. Author must not approve their own merge.
 - [LOW] Clean duplicate nginx vhost drift later: `/etc/nginx/conf.d/qorium-marketing.conf` coexists with deploy-script managed nginx state.
 
@@ -154,14 +177,14 @@
 
 - Active production origin: SSH alias `qorium-active-origin` (`187.127.155.150`), current release symlink `17c81283417f`, repo checkout head `17c81283417f`, branch `codex/saml-live-active-origin-20260602`, PM2 `qorium-marketing` online with unstable restarts `0`.
 - Phase branch proof: remote `codex/qorium-marketing-phase4-main` head `c2ea0a225bfe`; original instrumentation commit `0c342be37f62` (`feat(marketing): activate sentry observability`) is in that branch's history.
-- Live Sentry status: public and forced-origin responses returned HTTP `200` JSON with `enabled:false` and `dsnConfigured:false`.
+- Live Sentry status: public and forced-origin responses returned HTTP `200` pre-activation JSON; superseded by Run #43's enabled Sentry proof.
 - Live route matrix: `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`.
 - Active-origin gates: typecheck pass; Vitest `11` files / `55` tests pass; Next build pass with `1195/1195` static pages and `/v1/observability/sentry` listed; `gitleaks` no leaks found.
 - Old-origin caveat: SSH alias `talpro-vps` points to standby/old origin `147.93.103.194`, where the Sentry route returned `404`; this is not current Cloudflare production origin.
 
 ### BLOCKED / FOUNDER ACTION REQUIRED
 
-- [BLOCKED] **Real Sentry event capture remains disabled** — active production status reports `enabled:false` and `dsnConfigured:false`. Owner: Founder/Sentry admin. Unblock by provisioning a QOrium-specific `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN`, or by providing a Sentry token with permission to create/read the `qorium-marketing` project client key. Previous token could list projects/teams but project creation returned HTTP `403`.
+- [RESOLVED in Run #43] **Real Sentry event capture is enabled** — production status now reports `enabled:true` and `dsnConfigured:true`; synthetic event `f0bef06e3c104948ac66c51119131b69` was accepted and read back by Sentry API.
 - [BLOCKED] **Cross-account merge remains required before author-owned branch can be considered landed on `main`** — current production is safe because a newer active release includes the observability route, but the phase branch itself should still be reviewed/merged by a non-author account if `main` parity is required.
 
 ---

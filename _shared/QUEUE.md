@@ -1,6 +1,6 @@
 # Shared Queue — QOrium Interactive Proof Closeout
 
-Last touched: 2026-06-02 — Codex Run #42
+Last touched: 2026-06-02 — Codex Run #43
 
 ## DONE
 
@@ -18,19 +18,19 @@ Last touched: 2026-06-02 — Codex Run #42
 | Verify watchdog coverage | DONE | `talpro_watchdog_add` re-registered `qorium-marketing` every 5 minutes to `https://qorium.online/healthz`; watchdog list confirms `qorium-marketing` and `qorium-chatbot`. | Continue watchdog monitoring. |
 | Recap every requested item this session | DONE | User asked: prove, commit Phase 4 proof, push Phase 4 proof, deploy Phase 4 proof, then START walkthroughs. This closeout reconciled build/push/deploy/live state and recorded Run #40 in `QUEUE-QOrium.md`. | Include final BALI recap. |
 | Commit/push Phase 4 Sentry proof code | DONE | Original instrumentation commit `0c342be37f62` is pushed; remote phase branch `codex/qorium-marketing-phase4-main` is at `c2ea0a225bfe` and contains the Sentry route/instrumentation history. | Non-author review/merge if `main` parity is required. |
-| Deploy/verify Phase 4 observability route | DONE | Active production origin `qorium-active-origin` (`187.127.155.150`) serves `/v1/observability/sentry` with HTTP `200` JSON; current release symlink is `/opt/apps/qorium-marketing/releases/a929cb1ee69a` and current HEAD is `a929cb1ee69a` on `codex/saml-live-active-origin-20260602`. | Keep the newer active-origin release; do not roll back to older phase branch. |
+| Deploy/verify Phase 4 observability route | DONE | Active production origin `qorium-active-origin` (`187.127.155.150`) serves `/v1/observability/sentry` with HTTP `200` JSON; current release symlink is `/opt/apps/qorium-marketing/releases/8317edbf4eeb` and `qorium-marketing` is online in PM2. | Keep the newer active-origin release; do not roll back to older phase branch. |
+| Enable real Sentry event capture | DONE | Sentry project `talpro/qorium-marketing` exists; client key was recovered through the Sentry API; production shared env now has `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ENV`, and `NEXT_PUBLIC_SENTRY_ENV`; PM2 reload/save succeeded; public and origin-local `/v1/observability/sentry` return `enabled:true`, `dsnConfigured:true`; synthetic event `f0bef06e3c104948ac66c51119131b69` was accepted by Sentry and read back by API. | Monitor Sentry issues/alerts; no founder DSN action remains. |
 | Run safe checks on active production checkout | DONE | On `qorium-active-origin`: marketing typecheck pass; Vitest `11` files / `55` tests pass; frozen install pass; workspace package build pass; Next build pass with `1195/1195` pages; `gitleaks` scanned `164` commits and found no leaks. | Re-run after any code/env change. |
 | Verify production routes/security headers | DONE | Public `/`, `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`; root headers include HSTS, CSP, frame, content-type, referrer, and permissions policies. | Continue watchdog monitoring. |
-| Final QOrium health-header closeout | DONE | Active origin is now commit `a929cb1ee69a`; release `/opt/apps/qorium-marketing/releases/a929cb1ee69a`; `/healthz` returns HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP; four honest legacy `/product/*` paths return public HTTP `301`, while fake product paths remain `404`. | Track duplicate nginx vhost cleanup as low-priority infra debt. |
+| Final QOrium health-header closeout | DONE | Active origin now serves release `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; `/healthz` returns HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP; four honest legacy `/product/*` paths returned public HTTP `301`, while fake product paths remained `404` in prior proof. | Track duplicate nginx vhost cleanup as low-priority infra debt. |
 | Update local state and handoff | DONE | Updated `QUEUE-QOrium.md`, `_shared/QUEUE.md`, and `task_plan.md`; Talpro MCP `session_save_state` / `manthan_save` tools were not callable in this Codex session (`tool_search` returned `0`). | Run MCP session/MANTHAN save from a Talpro-tool-enabled session if archive tooling requires it. |
 
 ## BLOCKED
 
 | Task | Status | Owner | Evidence | Next |
 | --- | --- | --- | --- | --- |
-| Enable real Sentry event capture | BLOCKED | Founder/Sentry admin | Live status JSON says `enabled:false` and `dsnConfigured:false`; production env grep found only commented DSN examples; prior Sentry token could list projects/teams but project creation returned HTTP `403`. | Provide QOrium Sentry DSN/client key or a Sentry token with project-create/client-key permission. |
 | Merge author-owned phase branch to `main` | BLOCKED | Non-author reviewer | Current production includes the route via newer active release, but branch `codex/qorium-marketing-phase4-main` still needs cross-account review/merge for `main` parity. | Have another account review/merge; author must not approve own merge. |
 
 ## ARCHIVE CERTIFICATION
 
-Trust Shell and Interactive Proof hardening are archive-ready with code, deploy, HTTP/API, JSON-LD, axe, CWV, Cloudflare purge, SAML-preservation, and PM2 evidence. Overall QOrium session is not archive-ready as a fully complete Sentry activation; real capture waits on the DSN/permission blocker. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched.
+Trust Shell, Interactive Proof hardening, SAML preservation, and Phase 4 Sentry activation are archive-ready with code, deploy, HTTP/API, JSON-LD, axe, CWV, Cloudflare purge, PM2, live Sentry status, and synthetic event evidence. No `.env` or secret files were staged by this closeout. Existing unrelated workspace modifications were left untouched. Main-branch parity still needs non-author review before merge.

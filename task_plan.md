@@ -1,6 +1,6 @@
 # QOrium Session Task Plan
 
-Last updated: 2026-06-02 — Codex Interactive Proof hardening
+Last updated: 2026-06-02 — Codex Sentry activation closeout
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
@@ -17,15 +17,15 @@ Last updated: 2026-06-02 — Codex Interactive Proof hardening
 | Verify watchdog coverage | DONE | Talpro watchdog re-registered `qorium-marketing` every 5 minutes to `https://qorium.online/healthz`; list confirms marketing and chatbot watchdogs. | Continue watchdog monitoring. |
 | Recap every requested/started session item | DONE | This plan plus `_shared/QUEUE.md` and `QUEUE-QOrium.md` Run #40 record prove/commit/push/deploy/start requests with evidence. | Include final BALI Phase 4 recap. |
 | Verify commit/push proof | DONE | Remote `codex/qorium-marketing-phase4-main` is at `c2ea0a225bfe`; Sentry instrumentation commit `0c342be37f62` remains in branch history. | Non-author review/merge for `main` parity. |
-| Verify active deployment | DONE | Active origin `qorium-active-origin` (`187.127.155.150`) serves `/v1/observability/sentry` with HTTP `200` JSON; current release symlink is `/opt/apps/qorium-marketing/releases/a929cb1ee69a` and repo checkout head is `a929cb1ee69a` on `codex/saml-live-active-origin-20260602`. | Keep current active release; do not downgrade to older phase branch. |
+| Verify active deployment | DONE | Active origin `qorium-active-origin` (`187.127.155.150`) serves `/v1/observability/sentry` with HTTP `200` JSON; current release symlink is `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; `qorium-marketing` is online in PM2. | Keep current active release; do not downgrade to older phase branch. |
 | Run safe checks | DONE | Active origin marketing typecheck passed; Vitest `11` files / `55` tests passed; frozen install passed; workspace package build passed; Next build generated `1195/1195` pages; `gitleaks` scanned `164` commits and found no leaks. | Re-run after DSN/env landing or code change. |
 | Verify live routes and headers | DONE | Public `/`, `/healthz`, `/try/jd-forge`, `/resources/sample-packs`, `/trust`, and `/compliance-dpdp` returned HTTP `200`; root headers include HSTS, CSP, frame, content-type, referrer, and permissions policies. | Continue watchdog monitoring. |
-| Final health-header and redirect proof | DONE | Active release `/opt/apps/qorium-marketing/releases/a929cb1ee69a`; `/healthz` returns HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP; four legacy `/product/*` paths return HTTP `301`; fake product path remains `404`. | Clean duplicate nginx vhost drift later. |
+| Final health-header and redirect proof | DONE | Active release `/opt/apps/qorium-marketing/releases/8317edbf4eeb`; `/healthz` returns HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP; four legacy `/product/*` paths returned HTTP `301` and fake product path remained `404` in prior proof. | Clean duplicate nginx vhost drift later. |
 | Update queue/state | DONE | Updated `QUEUE-QOrium.md`, `_shared/QUEUE.md`, and `task_plan.md` with Run #40 evidence. | Commit state files by name only. |
 | Save session/MANTHAN state | BLOCKED | Talpro MCP `session_save_state` / `manthan_save` tools were not callable in this Codex session (`tool_search` returned `0` tools); local state files were updated instead. | Re-run session/MANTHAN save from a Talpro-tool-enabled session if archive tooling requires it. |
-| Enable real Sentry capture | BLOCKED | Live status JSON says `enabled:false` and `dsnConfigured:false`; production env has no QOrium DSN; previous Sentry token could list but could not create project/client key (`403`). | Founder/Sentry admin must provide QOrium DSN or a token with project-create/client-key permission. |
-| Close CEO remote-auto pending list | PARTIAL | `CODEX_COMPLETION_QORIUM_CEO_REMOTE_AUTO_PENDING_CLOSEOUT_2026-06-02.md` records the 9-item closeout: pricing and JD seeds are draft-ready; GitHub push succeeded at `269f327`; ATS/Serper/DB/K&S/BP-08/Sentry require secrets, account auth, payment, or legal/business send authority. | Await/provision the six true external blockers through approved secret/account/legal/payment channels. |
+| Enable real Sentry capture | DONE | Sentry project `talpro/qorium-marketing` exists; client key was recovered through the Sentry API; production shared env now has `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ENV`, and `NEXT_PUBLIC_SENTRY_ENV`; PM2 reload/save succeeded; public and origin-local `/v1/observability/sentry` return `enabled:true`, `dsnConfigured:true`; synthetic event `f0bef06e3c104948ac66c51119131b69` was accepted by Sentry and read back by API. | Monitor Sentry issues/alerts; no founder DSN action remains. |
+| Close CEO remote-auto pending list | PARTIAL | `CODEX_COMPLETION_QORIUM_CEO_REMOTE_AUTO_PENDING_CLOSEOUT_2026-06-02.md` records the 9-item closeout: pricing, JD seeds, GitHub push, and Sentry activation are done; ATS/Serper/DB/K&S/BP-08 require secrets, account auth, payment, or legal/business send authority. | Await/provision the remaining true external blockers through approved secret/account/legal/payment channels. |
 
 ## Founder Action Required
 
-Provide a QOrium-specific Sentry DSN/client key, or a Sentry token with permission to create/read the `qorium-marketing` project client key.
+No Sentry founder action remains. The remaining founder/external blockers are ATS/vendor credentials, live anti-leak provider key, DB secret material, legal/business sends, payment/distribution account steps, and non-author review before author-owned branch merge.

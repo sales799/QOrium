@@ -6,7 +6,7 @@ Guardrail: no invented secrets, no third-party account ownership bypass, no fina
 
 ## Result
 
-Remote-safe prep is complete. Pricing, JD seeds, and GitHub push proof are done. The remaining items are genuinely blocked on credentials, account permissions, payment, or legal/business send authority.
+Remote-safe prep is complete. Pricing, JD seeds, GitHub push proof, and QOrium Sentry activation are done. The remaining items are genuinely blocked on credentials, account permissions, payment, or legal/business send authority.
 
 | # | CEO item | Remote-auto status | Evidence | Next exact step |
 |---|---|---|---|---|
@@ -18,7 +18,7 @@ Remote-safe prep is complete. Pricing, JD seeds, and GitHub push proof are done.
 | 6 | K&S send | BLOCKED on legal/business send action; draft evidence exists. | `QORIUM-UPDATED-HANDOFF-v2-NO-HUMAN-TOUCH 3.md` records a queued K&S Partners draft in Bhaskar's Drafts folder. | CEO or legal owner sends/reviews the legal-counsel engagement email. |
 | 7 | BP-08 distro | BLOCKED on account/payment and distribution channel; prompt is ready. | `BROWSER-PROMPTS-LIBRARY-EXTENSION-BP-07-09.md` contains BP-08 MSG91 OTP + WhatsApp Business API setup. | Run BP-08 in an authenticated MSG91/browser session; pause before any wallet funding/payment. |
 | 8 | GitHub push credentials | DONE for this repo/branch. | `git push qorium codex/qorium-closeout-lint-gate` succeeded, publishing commit `269f327` to `https://github.com/sales799/QOrium.git`. | Keep this credential path active for future QOrium pushes; cross-account review still required before merge. |
-| 9 | QOrium Sentry DSN/token | BLOCKED on Sentry client key/token permission. | `_shared/QUEUE.md` already records `enabled:false`, `dsnConfigured:false`, and prior token HTTP 403 for project/client-key creation. | Provide QOrium Sentry DSN/client key or a token with create/read client-key permission. |
+| 9 | QOrium Sentry DSN/token | DONE. | Sentry project `talpro/qorium-marketing` exists; production shared env was updated with Sentry DSN/env keys; PM2 reload/save completed; public and origin-local `/v1/observability/sentry` return `enabled:true`, `dsnConfigured:true`; Sentry event `f0bef06e3c104948ac66c51119131b69` was ingested and read back by API. | Monitor Sentry issues/alerts; no founder Sentry DSN action remains. |
 
 ## Remote Defaults Ready To Use
 
@@ -56,4 +56,4 @@ BP-08 is ready as a browser prompt for MSG91 OTP + WhatsApp Business API setup. 
 
 ## Certification
 
-No secrets were written. No production repos were touched. No production code was executed. This file is safe to commit as evidence, and the keeper can process it as a partial/blocked completion shard.
+No secrets were committed. Production env was updated only with the QOrium Sentry client DSN requested by the founder, after creating a timestamped backup. This file is safe to commit as evidence, and the keeper can process it as a partial/blocked completion shard for the remaining non-Sentry external blockers.
