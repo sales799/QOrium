@@ -7,15 +7,18 @@ export interface BuildLoggerOptions {
 }
 
 export function buildLogger(opts: BuildLoggerOptions = {}): Logger {
-  return pino({
-    level: opts.level ?? process.env.LOG_LEVEL ?? 'info',
-    base: {
-      service: opts.serviceName ?? 'qorium-irt-calibration',
-      git_sha: opts.gitSha ?? process.env.GIT_SHA,
+  return pino(
+    {
+      level: opts.level ?? process.env.LOG_LEVEL ?? 'info',
+      base: {
+        service: opts.serviceName ?? 'qorium-irt-calibration',
+        git_sha: opts.gitSha ?? process.env.GIT_SHA,
+      },
+      redact: {
+        paths: ['DATABASE_URL', 'REDIS_URL', 'ANTHROPIC_API_KEY'],
+        remove: true,
+      },
     },
-    redact: {
-      paths: ['DATABASE_URL', 'REDIS_URL', 'ANTHROPIC_API_KEY'],
-      remove: true,
-    },
-  });
+    pino.destination({ dest: 1, sync: true }),
+  );
 }
