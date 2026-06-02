@@ -87,6 +87,7 @@ command pnpm install --frozen-lockfile --prefer-offline 2>&1 | tail -20
 ok "deps installed"
 
 log "Building marketing app (Next.js 15)"
+command pnpm run build:packages 2>&1 | tail -25
 command pnpm --filter @qorium/marketing build 2>&1 | tail -25
 [[ -d "$APP_DIR/apps/marketing/.next" ]] || die "build did not produce .next/ — check log above"
 ok "build complete · $(du -sh "$APP_DIR/apps/marketing/.next" | cut -f1)"
