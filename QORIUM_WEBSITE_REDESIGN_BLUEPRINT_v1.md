@@ -150,24 +150,28 @@ Evidence-gated items render only when their evidence is live — and the copy **
 
 ---
 
-## 4. Design system (global)
+## 4. Design system (global) — **PRESERVE THE LIVE LOOK & FEEL**
 
-### 4.1 Color tokens (from brand spec — locked)
-- **Navy** `#0A1F3D` (primary text, dark shells, logo) · **Cyan** `#00B3C7` (CTAs, accents, focus) · **Gold** `#D4A85A` (premium/Stack-Vault accent only).
-- Charcoal `#2C3E50` (body) · Slate `#64748B` (secondary) · Fog `#E2E8F0` (borders) · Cloud `#F8FAFC` (cards/bg).
-- Semantic: Success `#10B981` · Warning `#F59E0B` · Error/leak `#EF4444` · Info `#3B82F6`.
+> **CEO directive 2026-06-03:** the live visual system is approved and stays. This redesign is **structural + content only** — applied *in-place* on the existing design. Do **not** introduce new fonts, colors, or a new visual language. The font-conflict from the brand spec is therefore moot: the **live `globals.css` token system is authoritative.** (The brand-spec navy/cyan/Inter and any "Space Grotesk" idea are superseded by what is shipped and loved.)
 
-### 4.2 Typography — **conflict resolved**
-The brand spec mandates Inter; the redesign doctrine bans Inter-as-primary. **Resolution (decisive): use distinctive Grotesk faces, keep brand sizes.** This satisfies "not generic Inter" while staying enterprise-credible.
-- **Display:** `Space Grotesk` (600/700) — H1 48px, H2 36px, H3 28px.
-- **Body:** `Inter Tight` (400/500/600), 16px/1.6 (distinct from default Inter; on Google Fonts).
-- **Code/data:** `JetBrains Mono` 400/13px — used for the "evidence ledger" motif, item IDs, IRT values.
-- (If brand later insists on Inter, body falls back to Inter — colors and layout unchanged.)
+### 4.1 Authoritative tokens (read live from `apps/web/src/app/globals.css` — do not change)
+- **Ink** `#11130f` (near-black, primary text + dark surfaces) · **Ink-2** `#20261f` · **Shell** `#0b3027` (deep-green dark panels).
+- **Paper** `#f6f8f4` (cream page bg) · **Paper-2/Product** `#e7eee9` (pale-green section surfaces) · **Line** `#d6ddd6` (borders) · **Muted** `#636d67`.
+- **Green** `#0d4c3a` / **Green-2** `#0f6a4c` (primary CTA, positive) · **Saffron** `#d4892f` (eyebrows, accents, premium/Stack-Vault) · **Cyan/teal** `#187a86` · **Rose** `#9b3f4a` (warnings/leak).
+- Shadow `0 24px 70px rgba(17,19,15,.16)`.
 
-### 4.3 Three contextual surface treatments (A+B+C, one token system)
-- **A — Trust Infrastructure** (dark navy shell, restrained motion, "evidence ledger" data-viz motif): owns global chrome, `/science` `/method` `/anti-leak` `/trust` `/security` `/compliance-dpdp` `/responsible-ai`.
-- **B — Skills, Shown** (bright Cloud surfaces, interactive JD→test + graded-answer player): owns homepage proof band, `/platform/*`, `/library/*`.
-- **C — India-Built Enterprise** (gold accents, GCC stack-depth, regional credibility band): threads `/solutions/*`, Stack-Vault, enterprise paths.
+### 4.2 Typography (live — keep)
+- **Display = serif:** `ui-serif, Georgia, Cambria, "Times New Roman", serif` (headlines, weight 600). The editorial serif headline IS the brand signature — keep it.
+- **UI/body = sans:** `ui-sans-serif, system-ui, sans-serif` (nav, body, buttons, cards).
+- **Mono:** `ui-monospace, SFMono-Regular, Menlo, Consolas` — eyebrows (saffron, 11px, weight 900, uppercase), evidence-ledger, item IDs/IRT values.
+
+### 4.3 Signature surface treatments (already in the live system — reuse, don't reinvent)
+- **Grid-paper texture** on cream `--paper` (44px) is the global canvas — keep.
+- **Dark sticky header** (`rgba(17,19,15,.94)`, blur 18px) with **mega-panels** (`rgba(15,18,13,.98)`, saffron mono column labels, 150ms hover-intent) — keep; only the *links/content* change per §3.2.
+- **A — Trust Infrastructure:** ink→shell dark heroes + evidence-ledger motif → `/science` `/method` `/anti-leak` `/trust` `/security` `/compliance-dpdp` `/responsible-ai` + homepage hero.
+- **B — Skills, Shown:** cream/paper-2 surfaces + interactive JD→test + graded-answer player → homepage proof band, `/platform/*`, `/library/*`.
+- **C — India-Built Enterprise:** saffron/green accents, GCC stack-depth → `/solutions/*`, Stack-Vault.
+These map onto the existing component styles; the work is swapping copy/sections into them, not restyling.
 
 ### 4.4 Components & motion
 shadcn/ui + Tailwind v4 (structure) · Aceternity/Magic UI (effects, used sparingly) · Motion v12 (engine). Cards: Cloud bg, 1px Fog border, 8px radius, shadow `0 2px 8px rgba(0,0,0,.08)`. Inputs: 2px cyan focus. Every section gets a quiet entrance animation (fade/translate ≤16px, 150ms hover-intent on nav). Signature motif: the **evidence ledger** — a monospace mini-table showing item → IRT difficulty/discrimination → leak-status freshness → last-rotated date. Reused across science, library, anti-leak.
