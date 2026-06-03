@@ -18,7 +18,7 @@ test.describe('Critical-route smoke', () => {
     await expect(cta).toHaveAttribute('href', /\/demo/);
   });
 
-  test('/pricing — four plan columns + honest paid-tier posture', async ({ page }) => {
+  test('/pricing — four plan columns + transparent INR posture', async ({ page }) => {
     await page.goto('/pricing');
 
     await expect(page.getByText(/Customer-Zero/i).first()).toBeVisible();
@@ -26,17 +26,25 @@ test.describe('Critical-route smoke', () => {
     await expect(page.getByText(/Scale/i).first()).toBeVisible();
     await expect(page.getByText(/Enterprise/i).first()).toBeVisible();
 
+    // RATIFIED 2026-06-03: public INR pricing (no "talk to sales" gate on paid tiers).
     const body = page.locator('body');
-    await expect(body).toContainText(/Paid tier numbers are not public/i);
-    await expect(body).toContainText(/Talk to sales/i);
+    await expect(body).toContainText(/Transparent INR pricing/i);
+    await expect(body).toContainText(/₹4,999/);
+    await expect(body).toContainText(/₹19,999/);
   });
 
-  test('/features/readybank — JSON response demo renders', async ({ page }) => {
-    await page.goto('/features/readybank');
+  test('/platform/readybank — canonical pillar page renders (features collapsed in)', async ({
+    page,
+  }) => {
+    await page.goto('/platform/readybank');
 
-    // Sample JSON response references rb_pkg_ pack id.
-    await expect(page.locator('body')).toContainText(/rb_pkg_/);
-    await expect(page.locator('body')).toContainText(/anti_leak_scan/);
+    await expect(page.getByRole('heading', { name: /ReadyBank/i }).first()).toBeVisible();
+    await expect(page.locator('body')).toContainText(/doesn.t leak/i);
+  });
+
+  test('/features 301s to the canonical /platform surface', async ({ page }) => {
+    await page.goto('/features/readybank');
+    await expect(page).toHaveURL(/\/platform\/readybank/);
   });
 
   test('/security — control ledger renders with no SOC 2 false claim', async ({ page }) => {
