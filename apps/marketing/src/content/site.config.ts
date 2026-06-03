@@ -52,7 +52,7 @@ export const siteConfig = {
           {
             label: 'For enterprises & GCCs',
             href: '/solutions/enterprises',
-            description: 'Stack-Vault for Bosch, TCS, BFSI majors.',
+            description: 'Stack-Vault for enterprises, GCCs, and BFSI majors.',
           },
           {
             label: 'For staffing firms',

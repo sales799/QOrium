@@ -98,7 +98,7 @@ It's tempting to assume the role-graph is just an internal taxonomy. It isn't �
 
 - **ReadyBank API** uses it to route customer queries into the right subtree. A platform integration can request "Senior Spring backend questions, band 4-5, 30 items" and the API walks the graph deterministically. No fuzzy LLM tagging in the request path; that's the point.
 - **JD-Forge** uses it to do parse-then-traverse on uploaded JDs. The 30-second SLA is graph-mechanical: parse → walk → AI-draft only against leaves needing rotation → SME-validate → ship.
-- **Stack-Vault** customers get a _private overlay_ — their own subtree forks where the customer's tech stack diverges from canonical (e.g., Bosch's embedded automotive stack adds nodes that aren't in the shared graph). The overlay is exclusive per Constitution SO-10; it doesn't appear in any other Stack-Vault or in shared ReadyBank.
+- **Stack-Vault** customers get a _private overlay_ — their own subtree forks where the customer's tech stack diverges from canonical (e.g., an automotive customer's embedded stack adds nodes that aren't in the shared graph). The overlay is exclusive per Constitution SO-10; it doesn't appear in any other Stack-Vault or in shared ReadyBank.
 
 Without a single normalized graph, you'd build three different content models — one per SKU — and they'd drift. The graph is the unifier.
 

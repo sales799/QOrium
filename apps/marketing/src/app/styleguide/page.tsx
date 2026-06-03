@@ -224,14 +224,16 @@ export default function StyleguidePage() {
             </div>
           </div>
           <Marquee className="[--duration:30s]">
-            {['Talpro India', 'Bosch GCC (in talks)', 'Wave 1 SMEs', 'Wave 2 SMEs'].map((label) => (
-              <span
-                key={label}
-                className="rounded-md border border-border bg-surface-1 px-4 py-2 font-mono text-sm text-muted-foreground"
-              >
-                {label}
-              </span>
-            ))}
+            {['Talpro India', 'Enterprise GCC (in discovery)', 'Wave 1 SMEs', 'Wave 2 SMEs'].map(
+              (label) => (
+                <span
+                  key={label}
+                  className="rounded-md border border-border bg-surface-1 px-4 py-2 font-mono text-sm text-muted-foreground"
+                >
+                  {label}
+                </span>
+              ),
+            )}
           </Marquee>
         </section>
 

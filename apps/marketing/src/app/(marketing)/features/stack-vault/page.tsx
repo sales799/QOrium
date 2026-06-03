@@ -27,7 +27,7 @@ export default function StackVaultPage() {
             <div className="flex items-center gap-2 border-b border-border-subtle pb-3">
               <ShieldCheck className="size-4 text-signal-500" />
               <span className="font-mono text-xs text-muted-foreground">
-                Private namespace · /sv/bosch-india
+                Private namespace · /sv/your-company
               </span>
             </div>
             <div className="grid gap-2 font-mono text-xs">
@@ -36,7 +36,7 @@ export default function StackVaultPage() {
                   <Lock className="size-3 text-positive" /> Watermark verified
                 </p>
                 <p className="mt-1 text-muted-foreground">
-                  customer_id=bosch-india · candidate_id=c_29F1A · issued=2026-04-30T11:21Z
+                  customer_id=your-company · candidate_id=c_29F1A · issued=2026-04-30T11:21Z
                 </p>
               </div>
               <div className="rounded border border-border-subtle bg-background/40 p-3">
