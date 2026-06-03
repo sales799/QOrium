@@ -3,7 +3,21 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #52 (PROVE PORT active-origin PR proof)
+**Last touched:** 2026-06-03 — Codex Run #53 (active-origin apex deploy blocked by guardrail)
+
+---
+
+## RUN #53 — Active-Origin Apex Content Deploy Attempt (2026-06-03, Codex/BHIMA)
+
+### BLOCKED
+- [2026-06-03] **Stopped before active-origin deploy per guardrail** — SSH to `qorium-active-origin` succeeded and `origin/main` fetched to `c436ac3ae904127a784e5da1bd0f34f8fd5236c0` (`content(marketing): rewrite home build-voice to buyer-POV; design unchanged`), but `/opt/apps/qorium-marketing` is not on `main` and is not clean. Server branch is `codex/qorium-pr94-active-origin-port-20260603`, HEAD `9d619944fda6905af4b8a8af89f81e7b7d46fb6e`, with untracked deploy/runtime paths: `apps/marketing/.env.production`, `current`, `releases/`, and `shared/`. Because the pending brief explicitly says to stop if the active-origin worktree is not on `main` or dirty, no `safe-deploy qorium-marketing`, git reset, PM2 reload, or Cloudflare purge was run.
+
+### EVIDENCE
+- Active-origin PM2 `qorium-marketing` is still `online`; `current -> /opt/apps/qorium-marketing/releases/9d619944fda6`.
+- Live edge is still stale: `curl -s https://qorium.online/` does **not** contain `Three ways to buy` and still contains old copy markers `Eight-dimension` / `buying motions`.
+
+### REQUIRED NEXT STEP
+- [BLOCKED] Production owner must either make `/opt/apps/qorium-marketing` safe for the approved deploy path (on `main`, clean, with runtime/release paths ignored or moved outside tracked status) or authorize an explicit override procedure. Until then, do not force-reset this production worktree.
 
 ---
 
