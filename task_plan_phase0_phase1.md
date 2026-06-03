@@ -199,3 +199,13 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 - [DONE] Existing deploy pipeline passed: `/usr/local/bin/safe-deploy qorium-marketing` built all packages, reloaded PM2, saved PM2, and smoked QOrium health endpoints.
 - [DONE] Live verification passed: `qorium.online/healthz`, `/research/plagiarism-benchmark`, `/library/javascript`, `/sitemap.xml`, API/JDF/SV/admin health all returned HTTP 200 with security headers after Nginx health-header patch/reload.
 - [BLOCKED] GitHub push from VPS remains blocked by deploy-key permission on `sales799/QOrium.git`; owner: founder/GitHub admin to authorize deploy key or provide PAT/credential helper.
+
+## Session Closeout Evidence - 2026-06-03
+
+- [DONE] PR #94 conflict resolved by replacement PR #100: `https://github.com/sales799/QOrium/pull/100`. PR #94 was closed as superseded because it targeted the older `qorium-app/apps/web` shell and conflicted against `specs`.
+- [DONE] SEO shell proof assets ported into the active production marketing tree: commit `317edfec374aba638c880e346437172531f82ef1` adds `apps/marketing/public/assets/qorium-home-current.png`, `qorium-library-current.png`, and `qorium-pricing-current.png`.
+- [DONE] Homepage proof surface wired in `apps/marketing/src/components/marketing/PhaseTwoPages.tsx` with live preview copy and `next/image`.
+- [DONE] Local gates passed: `pnpm install --frozen-lockfile`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run test`, `pnpm run build`, and `pnpm run secrets:scan`.
+- [DONE] Existing marketing deploy pipeline passed for release `317edfec374a`: `BRANCH=codex/qorium-seo-marketing-port-20260603 TALPRO_GBS_RAW_DEPLOY=1 bash infra/marketing-deploy.sh`, PM2 reloaded `qorium-marketing` and `qorium-chatbot`, `pm2 save` ran, and local probes returned HTTP 200.
+- [DONE] Live verification passed: `https://qorium.online/`, `/sitemap.xml`, `/assets/qorium-home-current.png`, and `/BingSiteAuth.xml` all returned HTTP 200 with HSTS, nosniff, frame, referrer, permissions, CSP, and rate-limit headers; sitemap had 1,192 `<loc>` entries.
+- [BLOCKED] `qorium.in` redirect remains DNS-blocked: deploy script reported `qorium.in` resolves to `147.93.103.194` while this active server is `187.127.155.150`; owner: founder/DNS admin.
