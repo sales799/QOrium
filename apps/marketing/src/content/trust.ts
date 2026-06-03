@@ -381,9 +381,9 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
     description:
       'QOrium maps data handling to DPDP principles and keeps implementation caveats visible for enterprise reviewers.',
     facts: [
-      { label: 'Primary stance', value: 'India-first handling language' },
+      { label: 'Data residency', value: 'India-resident — Mumbai region (verified)' },
       { label: 'Rights workflow', value: 'Access, correction, erasure, grievance' },
-      { label: 'Residency claim', value: 'No overclaim beyond configured services' },
+      { label: 'Grievance officer', value: 'Bhaskar Anand · bhaskar@talpro.in' },
     ],
     rowsHeading: 'DPDP control map',
     rowsDescription:
@@ -414,6 +414,22 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
         owner: 'Legal',
       },
       {
+        label: 'Data residency (India)',
+        status: 'shipped',
+        evidence:
+          'Candidate data-at-rest is in India: Postgres on Hostinger KVM, Mumbai (AS47583), data dir /var/lib/postgresql/16/main. No out-of-India candidate object storage exists. Verified 2026-06-03.',
+        lastVerified: '2026-06-03',
+        owner: 'CTO',
+        evidenceUrl: '/trust/security',
+      },
+      {
+        label: 'Grievance officer (DPDP)',
+        status: 'shipped',
+        evidence: 'Grievance officer appointed and published: Bhaskar Anand, bhaskar@talpro.in.',
+        lastVerified: '2026-06-03',
+        owner: 'CEO',
+      },
+      {
         label: 'Security safeguards',
         status: 'shipped',
         evidence:
@@ -427,6 +443,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
         evidence: 'Sub-processor rows identify AI, email, billing, hosting, and region posture.',
         lastVerified: '2026-06-01',
         owner: 'Legal + CTO',
+        evidenceUrl: '/trust/sub-processors',
       },
       {
         label: 'Significant Data Fiduciary readiness',
