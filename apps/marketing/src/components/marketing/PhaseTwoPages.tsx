@@ -313,7 +313,7 @@ export function HomeV2Page() {
         <MaxWidth as="div">
           <SectionIntro
             eyebrow="Three products"
-            title="One content engine, three buying motions."
+            title="One content engine. Three ways to buy."
             description="ReadyBank, JD-Forge, and Stack-Vault cover the path from shared library to JD-specific pack to private enterprise vault."
           />
           <Stagger className="grid gap-4 lg:grid-cols-3">
@@ -340,9 +340,9 @@ export function HomeV2Page() {
       <section className="border-b border-border bg-background py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
-            eyebrow="Eight-dimension moat"
-            title="The moat is visible when the lifecycle is visible."
-            description="The redesign turns QOrium's content lifecycle into a scannable proof system instead of burying it in back-office language."
+            eyebrow="Why QOrium"
+            title="What you get that no one else gives you."
+            description="Most tools hand you a test. QOrium hands you a score you can defend - fresh, calibrated, and built for the stack you actually run."
           />
           <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {homeV2.moat.map((dimension, index) => (
@@ -394,8 +394,8 @@ export function HomeV2Page() {
         <MaxWidth as="div">
           <SectionIntro
             eyebrow="Buyer routing"
-            title="Different buyers need different proof paths."
-            description="The homepage now routes platform leaders, GCC teams, and staffing firms into distinct conversion stories."
+            title="Find the path that fits your team."
+            description="Whether you license content, build a private bank, or screen candidates for clients, there is a path built for you."
           />
           <Stagger className="grid gap-4 lg:grid-cols-3">
             {homeV2.buyers.map((buyer) => (
@@ -421,9 +421,9 @@ export function HomeV2Page() {
       <section className="border-b border-border bg-background py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
-            eyebrow="Evidence-gated trust"
-            title="Proof modules render only when proof exists."
-            description="This strip names the trust posture without showing logo rails, case studies, or outcome numbers ahead of evidence."
+            eyebrow="How we earn trust"
+            title="We only publish what we can prove."
+            description="No logo we do not have, no number we did not measure, no certification we have not earned."
           />
           <Reveal>
             <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
@@ -431,7 +431,8 @@ export function HomeV2Page() {
                 <ShieldCheck className="size-6 text-secondary" />
                 <h3 className="mt-4 text-xl font-semibold">We show our work.</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  QOrium keeps trust claims behind source, flag, and feature-state checks.
+                  Every public claim is backed by a source - and stays off the page until that
+                  source exists.
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-card p-5">
@@ -645,7 +646,7 @@ export function PlatformOverviewPage() {
           <Reveal>
             <p className="font-mono text-xs font-semibold uppercase text-signal-300">Platform</p>
             <h1 className="mt-4 max-w-5xl text-balance text-5xl font-semibold text-white md:text-7xl">
-              Three product motions, one evidence-first content engine.
+              One calibrated content engine. Three ways to buy.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-shell-muted">
               ReadyBank, JD-Forge, and Stack-Vault map QOrium from shared content to custom JD packs
