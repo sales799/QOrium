@@ -3,7 +3,103 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #56 (Codex-Pro question authoring proof + scale started)
+**Last touched:** 2026-06-03 — Codex Run #64 (session closeout + batch009 fix loaded)
+
+---
+
+## RUN #64 — Session Closeout + Batch009 Fix Loaded (2026-06-03, Codex/BHIMA)
+
+### COMPLETED
+- [2026-06-03] **Closed QOrium round-2 deploy verification** — public `/`, `/platform/stack-vault`, `/features/stack-vault`, `/solutions/staffing`, `/solutions/platforms`, `/platform/readybank`, `/platform/jd-forge`, `/styleguide`, `/healthz`, and `/sitemap.xml` returned HTTP `200` or expected redirect-followed `200`; sampled bad markers remain absent (`Bosch`, `TCS`, `render only after`, `evidence flag`, `Proof posture`, `Evidence-gated selling`, `Buyer route`, `buying motions`, `Eight-dimension`).
+- [2026-06-03] **Completed targeted Codex-Pro batch009 ingest** — cron-loaded `qorium-codexpro-20260603-batch009.jsonl` at `LOADED=54 SKIPPED=3 DUP=0`; the three rejected rows were repaired in `qorium-codexpro-20260603-batch009-fix01.jsonl`, manually loaded with `LOADED=3 SKIPPED=0 DUP=0`, then moved to `content-inbound/loaded/`. Live DB proof: `source_corpus='codex-pro'` now reports `released|417`; target skills are `Salesforce Developer Senior|released|30` and `Senior Sql|released|27`.
+- [2026-06-03] **Verified closeout tool boundaries** — local Codex context and active-origin shell still lack `session_save_state`, `manthan_save`, `talpro_rakshak`, `rakshak_consolidate`, `talpro_prahari`, `prahari_status`, and `talpro_watchdog_add`; saved Rakshak floor remains the last available audit evidence.
+
+### BLOCKED
+- [DEPLOY] **Current-main wrapper deploy is blocked by concurrent assessment migration branch state** — during closeout, active origin moved to `codex/qorium-assessment-br1-db-migration-20260603` at `2bc946bdd243422f058eee5d21edd2e5092ad137` (`Add assessment delivery migration`), which is one local commit ahead of `origin/main` `c6fa2f3f0f1adf0952bcf912e599e0b70e3a248d`. The commit touches `infra/B7-postgres-migrations/0021_assessment_delivery.sql` and `infra/B7-postgres-migrations/RESERVED.md`. Because author-owned/unmerged branch work must not be deployed or force-switched during closeout, no further `safe-deploy qorium-marketing` was run after this branch appeared. The previous live marketing/content routes remain healthy.
+
+---
+
+## RUN #63 — Round-2 Inner-Page Content Deploy Completed (2026-06-03, Codex/BHIMA)
+
+### COMPLETED
+- [2026-06-03] **Deployed latest active-origin main content** — active origin `/opt/apps/qorium-marketing` was verified on `main`, tracked-clean, then fast-forwarded from `c436ac3ae904127a784e5da1bd0f34f8fd5236c0` to `cafe5edb307de03b45a471e998f46c4c7fef1c50` (`content(marketing): remove Bosch/TCS as named customers from stack-vault mock, nav config, styleguide, blog (evidence-gating)`). The first `safe-deploy qorium-marketing` run only rebuilt the old checkout because the wrapper does not fetch/reset; after a clean `git pull --ff-only origin main`, the corrected wrapper run built the `cafe5ed` checkout and completed successfully.
+- [2026-06-03] **Verified build and deploy wrapper smokes** — marketing Next build generated `1223/1223` pages; package/service builds completed; wrapper health probes returned HTTP `200` for `https://qorium.online/healthz`, `https://api.qorium.online/healthz`, `https://api.qorium.online/jdf/v1/health`, `https://api.qorium.online/sv/v1/health`, and `https://admin.qorium.online/api/health`.
+- [2026-06-03] **Verified public inner-page content** — sampled live routes `/platform/stack-vault`, `/features/stack-vault`, `/solutions/staffing`, `/solutions/platforms`, `/platform/readybank`, `/platform/jd-forge`, and `/styleguide` returned HTTP `200` with `cf-cache-status: DYNAMIC`; probes found no `Bosch`, no `TCS`, and no sampled evidence-gating/build-voice markers (`render only after`, `evidence flag`, `Proof posture`, `Evidence-gated selling`, `Buyer route`). `/features/stack-vault` now shows `your-company`.
+- [2026-06-03] **Verified homepage and PM2 health after round 2** — homepage still contains `Three ways to buy` and does not contain `buying motions` or `Eight-dimension`; active-origin readback is `HEAD == origin/main == cafe5edb307de03b45a471e998f46c4c7fef1c50`, `tracked_dirty_count=0`, QOrium PM2 fleet `12/12` online, `0` errored, and `qorium-marketing` online.
+- [2026-06-03] **Captured visual sanity screenshots** — `/tmp/qorium-round2-cafe5ed-platform-stack-vault.png` and `/tmp/qorium-round2-cafe5ed-features-stack-vault.png` render the existing layouts cleanly; DOM checks show `hasBosch=false`, `hasTcs=false`, and `hasFlagTerms=false` on both pages.
+
+### REMAINING FOLLOW-UP
+- [TOOLING] Fresh Rakshak still requires a Talpro MCP/tool-enabled session; local shell and active-origin shell both lack `talpro_rakshak`, `rakshak_consolidate`, `talpro_prahari`, and `prahari_status`. Saved Rakshak floor remains healthy.
+
+---
+
+## RUN #62 — Targeted Codex-Pro Batch009 Uploaded for Auto-Ingest (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Authored the requested two-skill-only JSONL file** — `qorium-codexpro-20260603-batch009.jsonl` contains `57` rows total: `Salesforce Developer Senior=30` and `Senior Sql=27`; all rows use exact keys `skill_name`, `format`, `stem`, `options`, `answer_index`, `difficulty`, `explanation`; all rows are `format='mcq'` with exactly four distinct options.
+- [2026-06-03] **Validated locally before upload** — `wc -l` returned `57`; `jq -c .` parsed all lines; Node validation confirmed exact skill counts, only the two requested canonical skill names, valid difficulty values, valid answer indexes, and no all/none-of-the-above options.
+- [2026-06-03] **Uploaded without manual loader execution** — `scp` placed the file at `talpro-vps:/opt/qorium/content-inbound/qorium-codexpro-20260603-batch009.jsonl`; server `ls -l` confirms size `47220` bytes and timestamp `Jun 3 05:50`. Per CEO instruction, no loader was run from the authoring session.
+- [2026-06-03] **Closeout update** — cron loaded `54/57`; closeout loaded the 3-row fix file with `LOADED=3 SKIPPED=0 DUP=0`. Final DB proof: `Salesforce Developer Senior=30`, `Senior Sql=27`, and `source_corpus='codex-pro' released=417`.
+
+### REMAINING FOLLOW-UP
+- [DONE] Batch009 and its fix file are loaded and moved to `content-inbound/loaded/`.
+
+---
+
+## RUN #61 — Codex-Pro Question Authoring Batch008 (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Loaded batch008 cleanly** — `qorium-codexpro-20260603-batch008.jsonl` covered `Senior Devops 038` through `Senior Devops 088`; local JSON/key/option/loader-wording validation passed, then VPS loader returned `LOADED=50 SKIPPED=0`.
+- [2026-06-03] **Verified live DB count after batch008** — `content.questions` now reports total released `1348`; `source_corpus='codex-pro'` reports `released|360`; remaining skills below 10 questions: `496`. Note: total released rose by 52 while Codex-Pro rose by 50, so the background/free pipeline appears to have released 2 additional questions in parallel.
+
+### REMAINING FOLLOW-UP
+- [IN PROGRESS] Continue batch009 from the live under-covered list. The next DB sample starts at `Senior Devops 089`.
+
+---
+
+## RUN #60 — Codex-Pro Question Authoring Batch007 (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Loaded batch007 cleanly** — `qorium-codexpro-20260603-batch007.jsonl` covered `Senior Aws 071` through `Senior Devops 037`; local JSON/key/option/loader-wording validation passed, then VPS loader returned `LOADED=50 SKIPPED=0`.
+- [2026-06-03] **Verified live DB count after batch007** — `content.questions` now reports total released `1296`; `source_corpus='codex-pro'` reports `released|310`; remaining skills below 10 questions: `496`.
+
+### REMAINING FOLLOW-UP
+- [IN PROGRESS] Continue batch008 from the live under-covered list. The next DB sample starts at `Senior Devops 038`.
+
+---
+
+## RUN #59 — Cloudflare HTML Cache Bypass Verified (2026-06-03, Codex + CEO)
+
+### COMPLETED
+- [2026-06-03] **CEO deployed the Cloudflare cache rule and purged edge cache** — rule name `Bypass HTML cache for QOrium pages`; expression `(http.host eq "qorium.online" and (http.request.uri.path eq "/" or not (http.request.uri.path contains ".")))`; action `Bypass cache`; Cloudflare accepted the rule and reported `Purge request successfully received`.
+- [2026-06-03] **Verified public edge behavior after purge** — `https://qorium.online/`, `/try`, `/research`, and `/pricing` returned HTTP `200` HTML with `cf-cache-status: DYNAMIC` despite origin HTML still advertising `cache-control: s-maxage=31536000`, confirming Cloudflare is no longer edge-caching the matched HTML pages.
+- [2026-06-03] **Reverified apex content after cache fix** — public homepage still contains `Three ways to buy` and does not contain old sampled markers `buying motions` or `Eight-dimension`.
+
+### REMAINING FOLLOW-UP
+- [TOOLING] Fresh Rakshak still requires a Talpro MCP/tool-enabled session; saved Rakshak floor remains healthy.
+
+---
+
+## RUN #58 — Codex-Pro Question Authoring Batch006 (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Loaded batch006 cleanly** — `qorium-codexpro-20260603-batch006.jsonl` covered `Senior Aws 021` through `Senior Aws 070`; local JSON/key/option/loader-wording validation passed, then VPS loader returned `LOADED=50 SKIPPED=0`.
+- [2026-06-03] **Verified live DB count after batch006** — `content.questions` now reports total released `1246`; `source_corpus='codex-pro'` reports `released|260`; remaining skills below 10 questions: `496`.
+
+### REMAINING FOLLOW-UP
+- [IN PROGRESS] Continue batch007 from the live under-covered list. The next DB sample starts at `Senior Aws 071`.
+
+---
+
+## RUN #57 — Codex-Pro Question Authoring Continued (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Loaded batch004 cleanly** — `qorium-codexpro-20260603-batch004.jsonl` covered `Senior Devops 050` through `Senior Java 011`; local JSON/key/option/loader-wording validation passed, then VPS loader returned `LOADED=50 SKIPPED=0`.
+- [2026-06-03] **Loaded batch005 cleanly** — `qorium-codexpro-20260603-batch005.jsonl` covered `Senior Java 013` through `Senior Python 026`; local JSON/key/option/loader-wording validation passed, then VPS loader returned `LOADED=50 SKIPPED=0`.
+- [2026-06-03] **Verified live DB count after continuation** — `content.questions` now reports total released `1196`; `source_corpus='codex-pro'` reports `released|210`; remaining skills below 10 questions: `496`.
+
+### REMAINING FOLLOW-UP
+- [IN PROGRESS] Continue batch006 from the live under-covered list. The next DB sample starts again at `Senior Aws 021`, meaning the work is now cycling through already-started skills and raising them toward the 10-question floor.
 
 ---
 
@@ -133,6 +229,7 @@
 ## ⭐ NEXT-UP (HIGH, dispatched 2026-06-03) — Customer-Zero Candidate Flow (IRT calibration unlock)
 **Shard:** `CODEX_PENDING_QORIUM_CUSTOMER_ZERO_CANDIDATE_FLOW_2026-06-03.md` · **Branch:** `codex/qorium-customer-zero-flow` · **Lane:** KARYA/BHIMA
 **Why:** take-assessment loop NOT wired (`content.responses=1`, `/my` 404, no composed-assessment tables) → 0/986 can be IRT-calibrated. Build: compose test from released Qs → invite link → candidate takes → log to `content.responses` → feed `qorium-irt-calibration`.
+**Dispatch hygiene (2026-06-03):** corrected Lane B BR-2 brief from stale `assess.assessment_questions` to canonical `content.assessment_questions`; verified no remaining stale reference in the assessment spec/brief/migration/DAG set and DAG JSON parses.
 **Founder/business action:** after loop proof, Talpro Delivery routes a real hiring drive's 100+ candidates through the QOrium link (CEO → Delivery Head instruction). This is the SO-1 Customer-Zero lever; only Talpro ops can do it.
 
 ---
