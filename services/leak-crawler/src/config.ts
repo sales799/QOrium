@@ -7,7 +7,12 @@
 export interface LeakCrawlerConfig {
   nodeEnv: 'development' | 'test' | 'staging' | 'production';
   databaseUrl: string | undefined;
+  searchProvider: 'serper' | 'apify' | 'stub' | undefined;
   serperApiKey: string | undefined;
+  apifyToken: string | undefined;
+  apifyActorId: string;
+  apifyCountryCode: string | undefined;
+  apifyLanguageCode: string | undefined;
   anthropicApiKey: string | undefined;
   /** Maximum questions scanned per crawl pass. Per spec §10 v0 default is 5,000. */
   maxQuestions: number;
@@ -17,6 +22,8 @@ export interface LeakCrawlerConfig {
   queriesPerMinute: number;
   /** Maximum results per query to scrape (spec §2.1: top 3). */
   resultsPerQuery: number;
+  /** Hard provider-query cap per run. Keeps paid providers canary-safe. */
+  maxQueriesPerRun: number;
   /** Lexical-only short-circuit: don't even score below this. */
   minLexicalToScore: number;
 }
@@ -35,17 +42,33 @@ function parseFraction(raw: string | undefined, fallback: number): number {
   return n;
 }
 
+function parseProvider(
+  raw: string | undefined,
+  env: NodeJS.ProcessEnv,
+): LeakCrawlerConfig['searchProvider'] {
+  if (raw === 'serper' || raw === 'apify' || raw === 'stub') return raw;
+  if (env.SERPER_API_KEY) return 'serper';
+  if (env.APIFY_TOKEN || env.APIFY_API_TOKEN) return 'apify';
+  return undefined;
+}
+
 export function loadConfig(): LeakCrawlerConfig {
   const nodeEnv = (process.env.NODE_ENV ?? 'development') as LeakCrawlerConfig['nodeEnv'];
   return {
     nodeEnv,
     databaseUrl: process.env.DATABASE_URL || undefined,
+    searchProvider: parseProvider(process.env.LEAK_CRAWLER_PROVIDER, process.env),
     serperApiKey: process.env.SERPER_API_KEY || undefined,
+    apifyToken: process.env.APIFY_TOKEN || process.env.APIFY_API_TOKEN || undefined,
+    apifyActorId: process.env.APIFY_ACTOR_ID || 'apify/google-search-scraper',
+    apifyCountryCode: process.env.APIFY_COUNTRY_CODE || undefined,
+    apifyLanguageCode: process.env.APIFY_LANGUAGE_CODE || undefined,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || undefined,
     maxQuestions: parsePositiveInt(process.env.LEAK_CRAWLER_MAX_QUESTIONS, 5_000),
     ngramsPerQuestion: parsePositiveInt(process.env.LEAK_CRAWLER_NGRAMS_PER_QUESTION, 5),
     queriesPerMinute: parsePositiveInt(process.env.LEAK_CRAWLER_QPM, 60),
     resultsPerQuery: parsePositiveInt(process.env.LEAK_CRAWLER_RESULTS_PER_QUERY, 3),
+    maxQueriesPerRun: parsePositiveInt(process.env.LEAK_CRAWLER_MAX_QUERIES_PER_RUN, 25),
     minLexicalToScore: parseFraction(process.env.LEAK_CRAWLER_MIN_LEXICAL, 0.6),
   };
 }
