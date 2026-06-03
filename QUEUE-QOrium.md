@@ -3,7 +3,7 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #66 (Phase G RLS app-wiring locally verified)
+**Last touched:** 2026-06-04 — Phase E PR #115 replacement conflict resolution
 
 ---
 
