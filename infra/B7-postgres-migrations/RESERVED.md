@@ -44,8 +44,11 @@ For long-lived feature work that won't merge for weeks, **reserve** a slot by ad
 | 0015   | `0015_outcome_metrics_views.sql`            | applied  | (pre-history)                               |
 | 0016   | `0016_programmatic_seo_role_graph.sql`      | applied  | codex/qorium-marketing-phase5-programmatic-seo |
 | 0017   | `0017_saml_sessions.sql`                    | applied  | codex/saml-session-main-20260602            |
+| 0018   | `0018_irt_lifecycle_calibrating.sql`        | pending  | codex/qorium-bhima-phase-a-d-g-drafts-20260603 (BHIMA) |
+| 0019   | `0019_grade_decisions.sql`                  | pending  | codex/qorium-bhima-phase-a-d-g-drafts-20260603 (BHIMA) |
+| 0020   | `0020_rls_tenant_isolation_DRAFT.sql`       | DRAFT    | codex/qorium-bhima-phase-a-d-g-drafts-20260603 (BHIMA — DO NOT APPLY, needs app SET LOCAL wiring + staging verify) |
 
-**Next available number: 0018.**
+**Next available number: 0021.**
 
 ## Documented gaps (CI ignores these)
 
