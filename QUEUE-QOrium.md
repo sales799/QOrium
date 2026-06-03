@@ -3,7 +3,35 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #50 (review-gate proof + Sentry restore)
+**Last touched:** 2026-06-03 — Codex Run #51 (Rakshak tooling closeout + live proof)
+
+---
+
+## RUN #51 — Rakshak Tooling Closeout + Live Proof (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Confirmed fresh Rakshak cannot run from this session** — `tool_search` returned `0` tools for `rakshak_consolidate` / `talpro_rakshak` / `talpro_notify`; local shell and `qorium-active-origin` both returned `NOT_FOUND` for `rakshak_consolidate`, `talpro_rakshak`, `talpro_notify`, and `talpro_watchdog_add`.
+- [2026-06-03] **Reproved local gates** — `pnpm scan:secrets` passed; `pnpm --filter @qorium/web typecheck` passed; `pnpm --filter @qorium/web build` passed with Next `16.2.6` and generated `1199/1199` pages; `pnpm test` passed `4` files / `5` tests; `pnpm lint` passed `8/8` packages; `pnpm smoke` passed API/library/assessment/grading/audit/sandbox checks.
+- [2026-06-03] **Reverified live production** — `https://qorium.online/`, `/try`, `/research`, `/openapi.json`, `/sitemap.xml`, `https://api.qorium.online/chatbot/v1/healthz`, `https://api.qorium.online/healthz`, `https://admin.qorium.online/api/health`, `/v1/observability/sentry`, and `/healthz` returned HTTP `200` with security headers where applicable; Sentry reports `enabled:true`, `dsnConfigured:true`.
+- [2026-06-03] **Verified active-origin fleet and archive evidence** — active origin is at SHA `5e3e7996430507834ecbcd3bd64dc1381a308ea7` with `tracked_dirty_count=0`; QOrium PM2 fleet is `12/12` online, `0` errored, `0` unstable; saved Rakshak reports remain GO: `qorium.online` `94/100`, `api.qorium.online` `89/100`, `admin.qorium.online` `88/100`.
+- [2026-06-03] **Verified PR #94 boundary** — PR #94 is `CLOSED` unmerged at head `1b64c6150b573311307851ac439e1d600630b00c`, with no reviews and `mergeStateStatus=DIRTY`; active-origin benchmark navigation honesty fix is deployed separately at SHA `5e3e7996430507834ecbcd3bd64dc1381a308ea7`.
+
+### REMAINING FOLLOW-UP
+- [BLOCKED] Fresh `rakshak_consolidate` still requires a Talpro MCP/tool-enabled session; this session cannot execute that command.
+- [REVIEW] Non-author review remains required before future author-owned branch merges. PR #94 itself is closed unmerged, so no merge action remains on that PR.
+
+---
+
+## RUN #52 — Web Build/Start Proof + Deploy Boundary (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Fixed the local Next 16 production-start blocker** — removed unstable root overrides from `qorium-app/apps/web/next.config.ts` and moved `security.txt` from an app route to `qorium-app/apps/web/public/.well-known/security.txt`, avoiding the missing trace/manifests seen during production start.
+- [2026-06-03] **Reproved local web gates** — fresh `rm -rf apps/web/.next`; `pnpm --filter @qorium/web build` passed with Next `16.2.6` and generated `1198/1198` pages; `pnpm --filter @qorium/web typecheck` passed; `PORT=3123 pnpm --filter @qorium/web start` stayed ready; local smoke returned HTTP `200` for `/`, `/vs/codesignal`, `/sitemap.xml`, and `/.well-known/security.txt`.
+- [2026-06-03] **Reverified live production health before deploy decision** — `https://qorium.online/`, `/healthz`, `/vs/codesignal`, and `/.well-known/security.txt` returned HTTP `200` with HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, and CSP where applicable.
+
+### REMAINING FOLLOW-UP
+- [BLOCKED] Do not deploy `qorium-app/apps/web` through the active-origin `apps/marketing` pipeline: the production worktree is a separate app/tree. Port the verified change into `/Users/talprouniversepro/Documents/Claude/Projects/_worktrees/qorium-marketing-active/apps/marketing` only if product parity is required, then deploy from that active-origin tree.
+- [REVIEW] Non-author review remains required before merging author-owned branch work.
 
 ---
 
