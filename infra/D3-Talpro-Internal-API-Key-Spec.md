@@ -175,7 +175,7 @@ Talpro Delivery Head receives this 1-page integration guide alongside the API ke
 ```bash
 #!/bin/bash
 
-API_KEY="qor_internal_talind001_a7f3b2c1e8d4f9a6b2c5e1d8a9f3b2c1"
+API_KEY="REDACTED_EXAMPLE_API_KEY"
 BASE_URL="https://api.qorium.online"
 
 # List all questions for "Senior Java" role

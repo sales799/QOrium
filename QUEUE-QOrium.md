@@ -3,7 +3,7 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #48 (Bing success + local web closeout)
+**Last touched:** 2026-06-03 — Codex Run #48 (local app closeout committed)
 
 ---
 
@@ -12,19 +12,22 @@
 ### COMPLETED
 - [2026-06-03] **Cleared the Bing sitemap processing blocker** — Bing Webmaster API `GetFeedDetails` for `https://qorium.online/sitemap.xml` returned `Status: Success`, `Submitted: 2026-06-02T17:07:41.418Z`, `LastCrawled: 2026-06-02T18:39:16.000Z`, `UrlCount: 1191`, `FileSize: 213251`, and `Type: Sitemap`.
 - [2026-06-03] **Reverified public SEO and health endpoints** — `https://qorium.online/BingSiteAuth.xml`, `/sitemap.xml`, `/sitemap-library.xml`, `/healthz`, `https://api.qorium.online/healthz`, and `https://admin.qorium.online/api/health` returned HTTP `200`; sampled headers include HSTS, CSP, XFO, XCTO, referrer, and permissions policies where applicable.
-- [2026-06-03] **Verified local QOrium app gates** — `pnpm install --frozen-lockfile`, lint, typecheck, tests (`4` files / `5` tests), build (`1196/1196`), secret scan (`234` tracked/untracked text files OK), smoke, and E2E (`1/1`) passed.
+- [2026-06-03] **Verified local QOrium app gates** — `pnpm install --frozen-lockfile`, lint, typecheck, tests (`4` files / `5` tests), final focused build (`1199/1199`), secret scan (`195` tracked/untracked text files OK in this closeout), smoke, and E2E (`1/1`) passed.
 - [2026-06-03] **Verified local production web rendering** — local `next start` served `/`, `/platform/readybank`, `/library/javascript`, `/robots.txt`, and `/sitemap.xml` with HTTP `200`; Playwright desktop/mobile screenshots captured the homepage and found the expected H1 with no application-error text.
+- [2026-06-03] **Committed the verified local app shell** — branch `codex/qorium-closeout-lint-gate`, commit `71678ab73d2bf040bdaac64bfba4ecb7b32cb896`; web build now uses `next build --webpack` so production `next start` has the required manifest.
 - [2026-06-03] **Captured current Codex PROVE revalidation commits** — marketing shell commit `71678ab` landed the local app shell; build-gate fix commit `85f4169` restored `next build`, broadened duplicate-artifact ignore coverage, and hardened sandbox child-process error handling. Final focused web build passed with `1199/1199` generated pages, and `/library/javascript` now renders `JavaScript assessment library route`.
 
 ### EVIDENCE
 - Bing API: `Status=Success`, `LastCrawled=2026-06-02T18:39:16.000Z`, `UrlCount=1191`.
 - Live URLs: `https://qorium.online/BingSiteAuth.xml`, `https://qorium.online/sitemap.xml`, `https://qorium.online/sitemap-library.xml`, `https://qorium.online/healthz`, `https://api.qorium.online/healthz`, and `https://admin.qorium.online/api/health`.
 - Local screenshots: `/tmp/qorium-web-home-20260603-webpack.png` and `/tmp/qorium-web-home-mobile-20260603-webpack.png`.
+- Committed screenshots: `audits/post-deploy-qa/screenshots/qorium-local-closeout-desktop.png` and `audits/post-deploy-qa/screenshots/qorium-local-closeout-mobile.png`.
 - Current commit evidence: `71678ab` and `85f4169`; local Playwright screenshot after capitalization fix: `/tmp/qorium-desktop-library-javascript-fixed.png`.
 
 ### REMAINING FOLLOW-UP
 - [OPTIONAL] Rotate the Bing Webmaster API key because it was pasted into chat for this verification run.
 - [REVIEW] Non-author review is still required before merging author-owned branches to `main`.
+- [BLOCKED] Local app commit `71678ab73d2bf040bdaac64bfba4ecb7b32cb896` is not deployed to active production from this workspace; use the approved active-origin deploy pipeline/worktree before claiming live parity for this SHA.
 
 ---
 
@@ -322,7 +325,7 @@
 ### REMAINING FOLLOW-UP
 
 - [READY] **Lane B content recreation build** — run `CODEX_PENDING_QORIUM_CONTENT_RECREATION_v1_LANE_B_ARJUN.md`: recopy the marketing pages from the locked master prompt, wire the banned-words CI gate, preserve evidence-gating, then test/build/deploy.
-- [IN PROGRESS] **Bing sitemap processing** — Bing Webmaster Tools still shows sitemap status `Processing`; no code/founder action is required while Bing ingests.
+- [SUPERSEDED] **Bing sitemap processing** — this earlier Bing UI `Processing` state is cleared by Run #48: Bing Webmaster API now reports the sitemap `Success` with `1191` URLs.
 
 ---
 

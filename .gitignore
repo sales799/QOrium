@@ -37,3 +37,4 @@ qorium-app/test-results/
 * [0-9].*
 *.bak
 *.append-*
+_shared/.qorium-keeper.lock/

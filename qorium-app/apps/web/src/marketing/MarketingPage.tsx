@@ -13,7 +13,8 @@ import {
   Network,
   ShieldCheck,
   Sparkles,
-  Workflow
+  Workflow,
+  type LucideIcon
 } from "lucide-react";
 import {
   additionalStaticPages,
@@ -25,48 +26,190 @@ import {
   type MarketingPageData
 } from "./data";
 
-const navGroups = [
+const evidenceFlags = {
+  caseStudies: false,
+  customerStories: false,
+  benchmarks: false
+};
+
+type MegaItem = {
+  label: string;
+  href: string;
+  body: string;
+  icon: LucideIcon;
+  gatedFlag?: keyof typeof evidenceFlags;
+};
+
+type MegaGroup = {
+  label: string;
+  href: string;
+  columns: Array<{
+    title: string;
+    items: MegaItem[];
+  }>;
+  promo: {
+    title: string;
+    body: string;
+    href: string;
+    cta: string;
+    icon: LucideIcon;
+  };
+};
+
+const navGroups: MegaGroup[] = [
   {
     label: "Platform",
     href: "/platform",
-    items: [
-      ["ReadyBank", "/platform/readybank", "Calibrated skill libraries"],
-      ["JD-Forge", "/platform/jd-forge", "JD to assessment workflow"],
-      ["Stack-Vault", "/platform/stack-vault", "Private enterprise banks"],
-      ["API", "/product/api", "Delivery and licensing"]
-    ]
+    columns: [
+      {
+        title: "Products",
+        items: [
+          { label: "ReadyBank", href: "/platform/readybank", body: "Calibrated skill-wise library", icon: BookOpenCheck },
+          { label: "JD-Forge", href: "/platform/jd-forge", body: "Paste a JD, get a structured assessment", icon: Workflow },
+          { label: "Stack-Vault", href: "/platform/stack-vault", body: "Private, watermarked enterprise banks", icon: LockKeyhole }
+        ]
+      },
+      {
+        title: "The Engine",
+        items: [
+          { label: "Anti-Leak Rotation", href: "/anti-leak", body: "Scan, retire, regenerate, revalidate", icon: ShieldCheck },
+          { label: "IRT Calibration", href: "/science", body: "Difficulty buyers can defend", icon: BarChart3 },
+          { label: "Role-Graph", href: "/method", body: "Role x skill x difficulty taxonomy", icon: Network }
+        ]
+      },
+      {
+        title: "Delivery",
+        items: [
+          { label: "REST API", href: "/product/api", body: "Programmatic content access", icon: Layers3 },
+          { label: "Bulk Export", href: "/resources/docs", body: "CSV and JSON delivery paths", icon: FileText },
+          { label: "Embedded Widget", href: "/try/jd-forge", body: "Drop-in assessment workflow", icon: Boxes }
+        ]
+      }
+    ],
+    promo: {
+      title: "The Assessment Library",
+      body: "Browse seeded skill pages with calibration posture and guarded previews.",
+      href: "/product/assessment-library",
+      cta: "See it live",
+      icon: BookOpenCheck
+    }
   },
   {
     label: "Solutions",
     href: "/solutions/enterprises-gcc",
-    items: [
-      ["Assessment platforms", "/solutions/assessment-platforms", "License content faster"],
-      ["Enterprises and GCCs", "/solutions/enterprises-gcc", "Private stack depth"],
-      ["Staffing firms", "/solutions/staffing-firms", "Client-ready shortlist proof"],
-      ["Stacks", "/solutions/stack/sap-abap", "India-heavy role coverage"]
-    ]
+    columns: [
+      {
+        title: "By buyer",
+        items: [
+          { label: "Assessment Platforms", href: "/solutions/assessment-platforms", body: "License content via API", icon: Layers3 },
+          { label: "Enterprises and GCCs", href: "/solutions/enterprises-gcc", body: "Exclusive Stack-Vault depth", icon: ShieldCheck },
+          { label: "IT Staffing Firms", href: "/solutions/staffing-firms", body: "ReadyBank plus JD-Forge subscriptions", icon: Workflow }
+        ]
+      },
+      {
+        title: "By role hired",
+        items: [
+          { label: "Software Engineering", href: "/solutions/role/react-developer", body: "Coding, debugging, architecture", icon: Boxes },
+          { label: "Data, ML, Analytics", href: "/solutions/role/data-engineer", body: "Practical data work evidence", icon: BarChart3 },
+          { label: "DevOps and Cloud", href: "/solutions/role/devops-engineer", body: "SRE, infra, cloud judgement", icon: Network }
+        ]
+      },
+      {
+        title: "India stack edge",
+        items: [
+          { label: "SAP ABAP", href: "/solutions/stack/sap-abap", body: "Enterprise implementation depth", icon: Sparkles },
+          { label: "Oracle HCM", href: "/solutions/stack/oracle", body: "Cloud and EBS role coverage", icon: Sparkles },
+          { label: "BFSI Systems", href: "/solutions/stack/bfsi", body: "Core banking and regulated workflows", icon: LockKeyhole }
+        ]
+      }
+    ],
+    promo: {
+      title: "Talpro is Customer Zero",
+      body: "Internal dogfooding keeps the product grounded before external claims scale.",
+      href: "/customer/talpro-india",
+      cta: "Read the story",
+      icon: ShieldCheck
+    }
   },
   {
     label: "Why QOrium",
     href: "/method",
-    items: [
-      ["Method", "/method", "Author, validate, rotate"],
-      ["Science", "/science", "IRT and validity"],
-      ["Anti-leak", "/anti-leak", "Question-bank lifecycle"],
-      ["Trust", "/trust", "Security and compliance"]
-    ]
+    columns: [
+      {
+        title: "The Method",
+        items: [
+          { label: "The QOrium Method", href: "/method", body: "Author, validate, rotate", icon: Workflow },
+          { label: "Assessment Science", href: "/science", body: "IRT, validity, bias posture", icon: BarChart3 },
+          { label: "Anti-Leak Explained", href: "/anti-leak", body: "Why banks decay and how we respond", icon: ShieldCheck }
+        ]
+      },
+      {
+        title: "Trust and compliance",
+        items: [
+          { label: "Trust Center", href: "/trust", body: "Security posture and proof boundaries", icon: LockKeyhole },
+          { label: "DPDP Handling", href: "/compliance-dpdp", body: "India-first data handling", icon: FileText },
+          { label: "Responsible AI", href: "/responsible-ai", body: "Shipped, beta, roadmap states", icon: Sparkles }
+        ]
+      },
+      {
+        title: "Compare",
+        items: [
+          { label: "vs Vervoe", href: "/vs/vervoe", body: "Real-work assessment framing", icon: Network },
+          { label: "vs HackerRank", href: "/vs/hackerrank", body: "Technical screening authority", icon: Network },
+          { label: "vs Mercer Mettl", href: "/vs/mercer-mettl", body: "India enterprise comparison", icon: Network }
+        ]
+      }
+    ],
+    promo: {
+      title: "We show our work.",
+      body: "The evidence-gating manifesto: no logo, stat, or badge renders without proof.",
+      href: "/trust",
+      cta: "Open the proof model",
+      icon: CheckCircle2
+    }
   },
   {
     label: "Resources",
     href: "/resources",
-    items: [
-      ["Guides", "/resources/guides", "Buyer education"],
-      ["Sample packs", "/resources/sample-packs", "Controlled previews"],
-      ["Job descriptions", "/resources/job-descriptions", "Role to test routes"],
-      ["Blog", "/blog", "Market POV"]
-    ]
+    columns: [
+      {
+        title: "Learn",
+        items: [
+          { label: "Guides and Playbooks", href: "/resources/guides", body: "Buyer education", icon: BookOpenCheck },
+          { label: "Blog and Research", href: "/blog", body: "Market POV", icon: FileText },
+          { label: "Skills Glossary", href: "/library/javascript", body: "Taxonomy-backed library entry", icon: Layers3 }
+        ]
+      },
+      {
+        title: "Proof",
+        items: [
+          { label: "Sample Packs", href: "/resources/sample-packs", body: "Controlled previews", icon: Sparkles },
+          { label: "Case Studies", href: "/customers", body: "Hidden until evidence lands", icon: ShieldCheck, gatedFlag: "caseStudies" },
+          { label: "Benchmarks", href: "/research/plagiarism-benchmark", body: "Hidden until verified", icon: BarChart3, gatedFlag: "benchmarks" }
+        ]
+      },
+      {
+        title: "Build",
+        items: [
+          { label: "API Documentation", href: "/resources/docs", body: "Implementation notes", icon: FileText },
+          { label: "Changelog", href: "/changelog", body: "What shipped", icon: CheckCircle2 },
+          { label: "Job Descriptions", href: "/resources/job-descriptions", body: "Role to test routes", icon: Workflow }
+        ]
+      }
+    ],
+    promo: {
+      title: "Sample Pack",
+      body: "Download a controlled question-pack preview without exposing the full bank.",
+      href: "/resources/sample-packs",
+      cta: "Request a pack",
+      icon: Sparkles
+    }
   }
 ];
+
+function visibleMegaItems(items: MegaItem[]) {
+  return items.filter((item) => !item.gatedFlag || evidenceFlags[item.gatedFlag]);
+}
 
 const stats = [
   ["1,193", "generated public routes", "from the current route inventory"],
@@ -110,40 +253,78 @@ function Header() {
       <nav className="desktop-nav" aria-label="Primary navigation">
         {navGroups.map((group) => (
           <div className="nav-cluster" key={group.label}>
-            <a href={group.href}>{group.label}</a>
-            <div className="mega-panel">
-              {group.items.map(([label, href, body]) => (
-                <a className="mega-link" href={href} key={href}>
-                  <span>{label}</span>
-                  <small>{body}</small>
+            <a href={group.href} aria-haspopup="true">
+              {group.label}
+            </a>
+            <div className="mega-panel" role="group" aria-label={`${group.label} menu`}>
+              <div className="mega-inner">
+                <div className="mega-columns">
+                  {group.columns.map((column) => (
+                    <div className="mega-column" key={column.title}>
+                      <p>{column.title}</p>
+                      {visibleMegaItems(column.items).map((item) => (
+                        <a className="mega-link" href={item.href} key={item.href}>
+                          <item.icon size={18} />
+                          <span>
+                            <strong>{item.label}</strong>
+                            <small>{item.body}</small>
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <a className="mega-promo" href={group.promo.href}>
+                  <group.promo.icon size={22} />
+                  <span>Featured</span>
+                  <strong>{group.promo.title}</strong>
+                  <small>{group.promo.body}</small>
+                  <em>
+                    {group.promo.cta}
+                    <ArrowRight size={15} />
+                  </em>
                 </a>
-              ))}
+              </div>
             </div>
           </div>
         ))}
         <a href="/pricing">Pricing</a>
       </nav>
       <div className="header-actions">
-        <a className="ghost-button" href="/signin">
-          <KeyRound size={16} />
-          Sign in
-        </a>
         <a className="primary-button" href="/demo">
           Book demo
           <ArrowRight size={16} />
+        </a>
+        <a className="ghost-button" href="/signin">
+          <KeyRound size={16} />
+          Sign in
         </a>
         <details className="mobile-menu">
           <summary aria-label="Open menu">
             <Menu size={20} />
           </summary>
-          <div>
-            {navGroups.flatMap((group) => group.items).map(([label, href]) => (
-              <a href={href} key={href}>
-                {label}
-              </a>
+          <div className="mobile-menu-panel">
+            {navGroups.map((group) => (
+              <details className="mobile-nav-group" key={group.label}>
+                <summary>{group.label}</summary>
+                {group.columns.map((column) => (
+                  <div className="mobile-nav-column" key={column.title}>
+                    <p>{column.title}</p>
+                    {visibleMegaItems(column.items).map((item) => (
+                      <a href={item.href} key={item.href}>
+                        {item.label}
+                      </a>
+                    ))}
+                  </div>
+                ))}
+                <a className="mobile-promo-link" href={group.promo.href}>
+                  {group.promo.title}
+                </a>
+              </details>
             ))}
             <a href="/pricing">Pricing</a>
             <a href="/demo">Book demo</a>
+            <a href="/signin">Sign in</a>
           </div>
         </details>
       </div>
