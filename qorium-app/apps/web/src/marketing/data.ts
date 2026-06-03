@@ -49,28 +49,28 @@ export const corePages: MarketingPageData[] = [
     primaryCta: "Book a 20-min walkthrough",
     secondaryCta: "Explore the assessment library",
     proof: [
-      "1,000 live library routes across technical, cloud, data, enterprise, BFSI, and hiring operations skills",
-      "Evidence-gated public claims: no logo, statistic, or certification renders without proof",
-      "Three product routes for ReadyBank, JD-Forge, and Stack-Vault"
+      "Calibrated tests across technical, cloud, data, BFSI, and enterprise skills",
+      "Anti-leak rotation retires questions before they spread",
+      "Dogfooded every day by Talpro India, our Customer Zero"
     ],
     sections: [
       {
-        title: "The problem is not testing. It is question-bank decay.",
+        title: "Your question bank is rotting. You just can't see it yet.",
         body:
-          "Most hiring teams discover too late that their assessment bank has leaked, become searchable, or drifted away from the real job. QOrium treats the bank as living infrastructure: scanned, rotated, versioned, and tied back to role evidence.",
-        points: ["Leak-aware rotation", "Difficulty and discrimination posture", "Watermark-ready item lineage"]
+          "Tests leak. Within months, the prep market has your questions and scores drift up while real skill stays flat. QOrium retires questions before they spread, measures the difficulty of every item, and ties each score back to the role you are hiring for.",
+        points: ["Questions retire before they leak", "Every score carries measured difficulty", "Every item is watermarked to the candidate"]
       },
       {
-        title: "Three buying paths, one defensible content system.",
+        title: "Three teams. Three paths. One defensible engine.",
         body:
-          "Assessment platforms license content, GCCs build private stack libraries, and staffing firms convert JDs into client-ready shortlists. Each path needs different proof, pricing, and implementation depth.",
-        points: ["Platforms: API and export", "Enterprises and GCCs: Stack-Vault", "Staffing: ReadyBank plus JD-Forge"]
+          "Assessment platforms license calibrated content through one API. Enterprises and GCCs build a private, watermarked library for their exact stack. Staffing firms turn a client JD into a shortlist the client actually trusts. Same engine, the proof each buyer needs.",
+        points: ["Platforms: license content via API", "Enterprises and GCCs: a private Stack-Vault", "Staffing: ReadyBank plus JD-Forge"]
       },
       {
-        title: "Built to sell with honesty.",
+        title: "We only publish what we can prove.",
         body:
-          "The public website is designed around proof slots. Customer logos, outcome stats, case studies, and compliance badges stay hidden until evidence exists, so sales never has to walk back the website.",
-        points: ["Founder-safe claims", "Trust center routing", "Audit-facing copy"]
+          "You will never see a logo we don't have or a number we didn't measure. When the evidence lands, it shows up here — so the score you act on is one you can stand behind in a hiring review or a tribunal.",
+        points: ["No unproven claims", "Every score is explainable", "Defensible in an audit"]
       }
     ]
   },
@@ -78,24 +78,24 @@ export const corePages: MarketingPageData[] = [
     path: "/platform",
     kind: "platform",
     kicker: "Platform overview",
-    title: "A skills content operating system for high-stakes hiring.",
+    title: "One calibrated engine. Three ways to buy.",
     summary:
-      "QOrium connects item authoring, role-graph mapping, anti-leak governance, delivery APIs, and buyer-ready proof pages into one enterprise content layer.",
-    primaryCta: "Map your hiring flow",
-    secondaryCta: "Open product routes",
-    proof: ["ReadyBank for breadth", "JD-Forge for speed", "Stack-Vault for exclusivity"],
+      "From the first item to an explainable score, every step is built so the hiring decision you make holds up later: fresh questions, measured difficulty, anti-leak rotation, and delivery that fits how you work.",
+    primaryCta: "Book a demo",
+    secondaryCta: "See pricing",
+    proof: ["ReadyBank for breadth", "JD-Forge for speed", "Stack-Vault for your private stack"],
     sections: [
       {
-        title: "Content is the product.",
+        title: "Questions you can trust, kept fresh.",
         body:
-          "The platform positions assessment content as managed infrastructure, not a one-time test template. Every SKU explains how banks are selected, refreshed, and defended.",
-        points: ["Skill taxonomy", "Role graph", "Item lifecycle"]
+          "Your tests stay calibrated and leak-resistant instead of going stale. Each item is authored, measured for difficulty, mapped to the role, and rotated out before it can spread.",
+        points: ["Mapped to the role you hire", "Measured difficulty per item", "Rotated before it leaks"]
       },
       {
-        title: "Delivery adapts to the buyer.",
+        title: "Use the score the way you work.",
         body:
-          "Teams can browse libraries, export packs, run JD-to-test workflows, or license content through APIs depending on maturity and volume.",
-        points: ["Browser workflow", "CSV and JSON export", "API landing route"]
+          "Browse the library, export packs, turn a JD into a test, or license content through one API — whatever fits your team's volume and maturity.",
+        points: ["Browse and run in-app", "Export to CSV or JSON", "License through the API"]
       }
     ]
   },
@@ -108,19 +108,19 @@ export const corePages: MarketingPageData[] = [
       "ReadyBank packages skill-wise question packs with explicit difficulty, format, and calibration posture so hiring teams can launch faster without starting from a blank test.",
     primaryCta: "Browse library",
     secondaryCta: "Request sample pack",
-    proof: ["25 flagship skill pages", "1,000 long-tail library pages", "Sample-pack routes for priority stacks"],
+    proof: ["Calibrated coverage across 1,000+ skills", "India-heavy stacks: SAP, Oracle, BFSI", "Sample packs for priority roles"],
     sections: [
       {
-        title: "Breadth without commodity positioning.",
+        title: "Coverage you can launch with today.",
         body:
-          "ReadyBank covers mainstream and India-heavy stacks while keeping the language focused on defensibility instead of raw question count.",
+          "ReadyBank spans mainstream and India-heavy stacks, so you can start screening for the role in front of you without building a test from scratch.",
         points: ["Programming", "Cloud and data", "BFSI and enterprise stacks"]
       },
       {
-        title: "Previewable, controlled, and sales-ready.",
+        title: "Preview the quality before you commit.",
         body:
-          "Public pages show enough to demonstrate quality while limiting harvestable question exposure. The lead path routes high-intent buyers into a sample pack or walkthrough.",
-        points: ["Three-question public previews", "Calibration status", "Buyer CTA"]
+          "See sample questions and calibration on every skill so you know what you are getting — without exposing enough for candidates to harvest the bank.",
+        points: ["Public sample questions", "Calibration shown", "Request a full sample pack"]
       }
     ]
   },
@@ -167,10 +167,10 @@ export const corePages: MarketingPageData[] = [
         points: ["Exclusive item lineage", "Domain SME review", "Stack-specific scoring"]
       },
       {
-        title: "Built for regulated buyer confidence.",
+        title: "Built for regulated hiring.",
         body:
-          "The page routes enterprise stakeholders to security, DPDP, responsible AI, and method pages before asking them to book a sales conversation.",
-        points: ["Trust center", "Security route", "Compliance route"]
+          "Score candidates on your real stack with data that stays in India, items watermarked to each person, and an audit trail your security and compliance teams can sign off on.",
+        points: ["India data residency (DPDP)", "Watermarked to every candidate", "Audit-ready evidence"]
       }
     ]
   },
@@ -205,10 +205,10 @@ export const corePages: MarketingPageData[] = [
     proof: ["25 seed skill pages", "1,000 library long-tail pages", "Role and stack cross-links"],
     sections: [
       {
-        title: "Designed for discovery and buyer confidence.",
+        title: "Find the right test fast.",
         body:
-          "The library is no longer a static catalog. It is an SEO and sales surface that proves QOrium understands mainstream and India-specific hiring demand.",
-        points: ["Skill cards", "Calibration language", "Related roles"]
+          "Browse by skill, role, or stack and see calibration up front — covering mainstream technologies and the India-specific stacks most catalogs miss.",
+        points: ["Browse by skill", "Calibration shown", "Jump to related roles"]
       }
     ]
   },
@@ -235,17 +235,17 @@ export const corePages: MarketingPageData[] = [
     path: "/features",
     kind: "feature",
     kicker: "Feature map",
-    title: "The feature set is organized around defensible signal.",
+    title: "Everything works together to give you a score you can defend.",
     summary:
-      "ReadyBank, JD-Forge, Stack-Vault, anti-leak controls, role graph, and trust pages work together as a single assessment content machine.",
-    primaryCta: "Compare feature paths",
-    secondaryCta: "Open pricing",
-    proof: ["Feature routes by SKU", "Trust routes by claim", "Resources by buyer stage"],
+      "ReadyBank, JD-Forge, Stack-Vault, anti-leak rotation, the role-graph, and trust pages work as one system — so you get a fresh, calibrated, explainable assessment, not a pile of features.",
+    primaryCta: "Book a demo",
+    secondaryCta: "See pricing",
+    proof: ["Fresh, calibrated questions", "Mapped to the role", "Explainable, audit-ready scores"],
     sections: [
       {
-        title: "Features that explain the business model.",
+        title: "Each capability solves a real hiring pain.",
         body:
-          "Instead of a generic checklist, the site ties each feature to a buyer pain: speed, depth, leakage, auditability, or integration.",
+          "Speed when you need a test today, depth for the stack you actually run, protection against leaked questions, and an audit trail when a decision is challenged.",
         points: ["Speed", "Depth", "Auditability"]
       }
     ]
@@ -254,17 +254,17 @@ export const corePages: MarketingPageData[] = [
     path: "/pricing",
     kind: "pricing",
     kicker: "Pricing",
-    title: "Start with the workflow. Price the trust layer around it.",
+    title: "Start free. Pay for the trust layer when you're ready.",
     summary:
-      "Pricing is framed by buyer motion: Customer-Zero trials, ReadyBank subscriptions, JD-Forge workflow access, Stack-Vault private libraries, and API licensing.",
-    primaryCta: "Talk to sales",
-    secondaryCta: "Compare plans",
-    proof: ["Founder-locked paid numbers", "Customer-Zero path", "Enterprise custom path"],
+      "Begin on a free Customer-Zero plan, grow into ReadyBank and JD-Forge as your volume grows, and scope a private Stack-Vault or API license when you need it.",
+    primaryCta: "Start free",
+    secondaryCta: "Book a demo",
+    proof: ["Free Customer-Zero plan", "Transparent, INR-native tiers", "Custom enterprise scoping"],
     sections: [
       {
-        title: "No fake precision before numbers are locked.",
+        title: "A plan for every stage of hiring.",
         body:
-          "Paid tier amounts stay founder-locked until approved. The redesigned page still gives buyers the confidence structure they expect: plan logic, included capabilities, and enterprise routing.",
+          "Start free to try it on a real role, move to Growth and Scale as your hiring volume grows, and talk to us for a private Stack-Vault, SSO, and India data residency on Enterprise.",
         points: ["Customer-Zero", "Growth", "Scale", "Enterprise"]
       }
     ]
@@ -283,21 +283,21 @@ const routePageFactory = (
   kicker,
   title,
   summary,
-  primaryCta: "Book a walkthrough",
-  secondaryCta: "Explore the platform",
-  proof: ["Connected to the sitemap", "Customer-centered buyer path", "Evidence-gated claims"],
+  primaryCta: "Book a demo",
+  secondaryCta: "Browse the library",
+  proof: ["Calibrated, leak-resistant questions", "Mapped to the role you hire", "Explainable, audit-ready scores"],
   sections: [
     {
-      title: "What the buyer needs to know",
+      title: "Hire on proof, not guesswork",
       body:
-        "This page explains the problem, the QOrium answer, the proof standard, and the next best action without forcing buyers to decode internal product language.",
-      points: ["Problem clarity", "Product fit", "Proof and next step"]
+        "Test candidates on the skills the job actually needs, with questions that stay fresh and a score a hiring manager can trust — instead of a résumé and a hunch.",
+      points: ["The skills the job needs", "Questions that don't leak", "A score you can act on"]
     },
     {
-      title: "How QOrium makes the claim defensible",
+      title: "A score you can stand behind",
       body:
-        "The page routes readers toward method, science, security, DPDP, and responsible AI pages when a claim needs deeper enterprise validation.",
-      points: ["Method", "Trust", "Implementation"]
+        "Every result is calibrated for difficulty, watermarked to the candidate, and backed by an audit trail — so the decision holds up in a hiring review or a tribunal.",
+      points: ["Measured difficulty", "Watermarked items", "Audit-ready evidence"]
     }
   ]
 });

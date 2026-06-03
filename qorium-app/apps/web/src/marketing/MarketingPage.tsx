@@ -212,19 +212,19 @@ function visibleMegaItems(items: MegaItem[]) {
 }
 
 const stats = [
-  ["1,193", "generated public routes", "from the current route inventory"],
-  ["1,000", "library pages", "skill plus scenario SEO coverage"],
-  ["3", "product SKUs", "ReadyBank, JD-Forge, Stack-Vault"],
-  ["0", "unsupported claims", "proof slots stay gated"]
+  ["1,000+", "skills covered", "technical, cloud, data, BFSI, and enterprise"],
+  ["3", "ways to buy", "ReadyBank, JD-Forge, Stack-Vault"],
+  ["Daily", "used by Talpro India", "our Customer Zero, every working day"],
+  ["0", "unproven claims", "we publish only what we can measure"]
 ];
 
 const competitorSignals = [
-  ["Vervoe", "Strong explainable AI and real-work assessment storytelling"],
-  ["TestGorilla", "Broad library, pricing clarity, and high-scale skills-test SEO"],
-  ["HackerRank", "Enterprise technical-screening authority and AI feature depth"],
-  ["CodeSignal", "Certified assessments, validated scoring, and research-led trust"],
-  ["iMocha", "Skills intelligence framing beyond point-in-time tests"],
-  ["Mercer Mettl", "India enterprise reach, proctoring, and large assessment operations"]
+  ["Fresh on demand", "AI-authored, human-validated items — never a stale bank"],
+  ["Validated, not just written", "Every item carries a measured difficulty"],
+  ["Retires before it leaks", "Anti-leak rotation pre-empts the prep market"],
+  ["Tests your real stack", "SAP, Oracle, ABAP, Finacle, and BFSI depth"],
+  ["Every leak traces back", "Per-candidate watermarking on every item served"],
+  ["Built to plug in", "License calibrated content through one API"]
 ];
 
 export function MarketingPage({ path = "/" }: { path?: string }) {
@@ -339,18 +339,18 @@ function HomePage({ page }: { page: MarketingPageData }) {
       <StatsBand />
       <section className="section light-section">
         <SectionIntro
-          kicker="Sitemap created from the live site"
-          title="The rebuild covers the complete public website surface."
-          body="The live sitemap is now represented as a route system: core enterprise pages, product and solution pages, trust pages, resources, comparison pages, skills, roles, stacks, and the 1,000-page assessment library."
+          kicker="Explore QOrium"
+          title="Everything you need to hire on proof, in one place."
+          body="Browse the products and engine, find your path by team and stack, dig into the calibrated library, or check the trust and science behind every score."
         />
         <div className="sitemap-grid">
           {[
-            ["Platform", "4 pages", "/platform", "Products and engine"],
-            ["Solutions", "63 pages", "/solutions/enterprises-gcc", "Buyer, role, and stack routing"],
-            ["Library", "1,000 pages", "/library/javascript", "Skill plus scenario routes"],
-            ["Resources", "44 pages", "/resources", "Guides, jobs, sample packs, docs"],
-            ["Trust", "8 pages", "/trust", "Security, DPDP, AI, science"],
-            ["Compare", "15 pages", "/vs/vervoe", "Competitor and migration pages"]
+            ["Platform", "Products", "/platform", "ReadyBank, JD-Forge, Stack-Vault and the engine"],
+            ["Solutions", "By team", "/solutions/enterprises-gcc", "Staffing, enterprises and GCCs, platforms"],
+            ["Library", "Browse", "/library/javascript", "Calibrated tests by skill and role"],
+            ["Resources", "Guides", "/resources", "Guides, job descriptions, sample packs, docs"],
+            ["Trust", "Proof", "/trust", "Security, DPDP, responsible AI, science"],
+            ["Compare", "Decide", "/vs/vervoe", "How QOrium compares, fairly"]
           ].map(([title, count, href, body]) => (
             <a className="sitemap-card" href={href} key={title}>
               <span>{count}</span>
@@ -363,18 +363,18 @@ function HomePage({ page }: { page: MarketingPageData }) {
       <section className="section product-section">
         <div className="split">
           <SectionIntro
-            kicker="Product marketing spine"
-            title="A buyer can now understand QOrium in one pass."
-            body="The page journey moves from leak risk to product proof to enterprise trust, then routes each buyer to the right product, resource, or demo path."
+            kicker="See it work"
+            title="Paste a job description. Watch the test build itself."
+            body="JD-Forge turns role text into a calibrated assessment — skills, difficulty bands, and a rubric — in minutes, so you can screen on the work instead of the résumé."
           />
           <ProductConsole />
         </div>
       </section>
       <section className="section light-section">
         <SectionIntro
-          kicker="Competitor and global benchmark audit"
-          title="The gap is no longer information. The gap is proof architecture."
-          body="Vervoe shows capability, TestGorilla shows breadth, HackerRank and CodeSignal show enterprise credibility, iMocha reframes the market as skills intelligence, and Mettl owns India enterprise familiarity. QOrium's strongest lane is defensible content infrastructure."
+          kicker="Why QOrium"
+          title="What you get that no one else gives you."
+          body="Most tools give you a test. QOrium gives you a score you can defend: fresh, calibrated questions that retire before they leak, built for the stack you actually run."
         />
         <div className="competitor-grid">
           {competitorSignals.map(([name, signal]) => (
@@ -387,9 +387,9 @@ function HomePage({ page }: { page: MarketingPageData }) {
       </section>
       <section className="section dark-section">
         <SectionIntro
-          kicker="Gap analysis"
-          title="From MVP website to enterprise product marketing system."
-          body="The redesign closes six buyer-facing gaps: navigation depth, moat clarity, product demonstration, buyer segmentation, trust center readiness, and programmatic SEO."
+          kicker="How it holds up"
+          title="A score you can stand behind in any hiring review."
+          body="Every result is calibrated for difficulty, watermarked to the candidate, explainable to a hiring manager, and backed by an audit trail — defensible in a review or a tribunal."
           inverted
         />
         <GapGrid />
@@ -429,7 +429,7 @@ function Hero({ page }: { page: MarketingPageData }) {
         <img src="/assets/qorium-home-current.png" alt="QOrium product marketing website preview" />
         <div className="ledger-panel">
           <span>Evidence ledger</span>
-          <strong>Claim status: gated until proof exists</strong>
+          <strong>Every score traces back to a measured item</strong>
           <div className="ledger-bars">
             <i />
             <i />
@@ -513,15 +513,20 @@ function RouteSpecificSection({ page }: { page: MarketingPageData }) {
     return (
       <section className="section product-section">
         <SectionIntro
-          kicker="Comparison framework"
-          title="Fair competitor pages sell QOrium without smearing the market."
-          body="Each comparison route names the competitor strength, then shows where QOrium differs: India-stack depth, private vaults, anti-leak lifecycle, and evidence-gated trust."
+          kicker="A fair comparison"
+          title="Where QOrium is genuinely different."
+          body="We won't smear the market. Here's where QOrium gives you something the alternatives don't: private depth for your stack, questions that retire before they leak, and scores you can defend."
         />
         <div className="comparison-table" role="table" aria-label="QOrium comparison framework">
-          {["Library breadth", "Private stack depth", "Anti-leak lifecycle", "Evidence-gated trust"].map((row) => (
+          {[
+            ["Private stack depth", "A library for SAP, Oracle, BFSI — not just generic coding"],
+            ["Anti-leak lifecycle", "Questions rotate out before the prep market catches up"],
+            ["Defensible scoring", "Every score has measured difficulty and an audit trail"],
+            ["India-built trust", "DPDP compliance and data that stays in India"]
+          ].map(([row, edge]) => (
             <div role="row" key={row}>
               <span role="cell">{row}</span>
-              <strong role="cell">QOrium position: explicit and buyer-facing</strong>
+              <strong role="cell">{edge}</strong>
             </div>
           ))}
         </div>
@@ -534,9 +539,9 @@ function RouteSpecificSection({ page }: { page: MarketingPageData }) {
       <div className="split reverse">
         <ProductConsole compact />
         <SectionIntro
-          kicker="Connected buyer journey"
-          title="Every page now has a next step and a proof path."
-          body="The route links the buyer to product proof, trust documentation, sample material, or a walkthrough instead of ending in generic brochure copy."
+          kicker="Your next step"
+          title="See how this works on your roles."
+          body="Book a 20-minute walkthrough, browse the calibrated library, or request a sample pack — whichever helps you decide faster."
         />
       </div>
     </section>
@@ -607,12 +612,12 @@ function StatsBand() {
 
 function GapGrid() {
   const gaps = [
-    ["IA", "Mega-menu plus sitemap families"],
-    ["Moat", "Anti-leak, IRT, role graph, Stack-Vault"],
-    ["Proof", "Product console and sample-pack routing"],
-    ["Trust", "Security, DPDP, science, responsible AI"],
-    ["SEO", "Skills, library, jobs, roles, stacks"],
-    ["Conversion", "Demo, sample, API, pricing paths"]
+    ["Fresh", "Questions authored and validated, never stale"],
+    ["Calibrated", "Measured difficulty on every item"],
+    ["Leak-resistant", "Rotation retires questions before they spread"],
+    ["Watermarked", "Every item traces back to the candidate"],
+    ["Explainable", "A score a hiring manager can read"],
+    ["Audit-ready", "Evidence that holds up in a review"]
   ];
 
   return (

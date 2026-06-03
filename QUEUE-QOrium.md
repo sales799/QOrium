@@ -7,6 +7,21 @@
 
 ---
 
+## ✅ LIVE (2026-06-03) — Free-LLM Draft Factory (built by CTO, no paid models)
+**Built & running — not delegated to paid Codex/Claude per CEO directive.**
+- Generator: `/opt/qorium/scripts/free-draft-factory.py` (Python, psycopg2 + requests). Calls free `llm-mini` `qwen2.5-coder:7b`. Writes `status='draft'` ONLY (986 released untouched).
+- **CRON installed** (root crontab): `*/10 * * * *` → 4 drafts/run, flock-guarded, runs as postgres, logs `/var/log/qorium/draft-factory.log`. Cron daemon active.
+- **Self-limiting:** worklist only picks skills with <10 questions → naturally stops at the 10/skill floor (~4,513 target = 986→~5,000+).
+- **Proof:** manual batch inserted 4/5 drafts (1 auto-rejected for malformed JSON = quality guard working); each 3–10s. Sample = coherent Fibonacci-memoization MCQ.
+- **Open (separate, not auto-run):** self-critique + anti-leak pass on drafts; the draft→released validation gate (CEO earlier approved cheap-paid-frontier on survivors). These are NOT live yet — drafts accumulate until validated.
+
+## ⭐ NEXT-UP (HIGH, dispatched 2026-06-03) — Customer-Zero Candidate Flow (IRT calibration unlock)
+**Shard:** `CODEX_PENDING_QORIUM_CUSTOMER_ZERO_CANDIDATE_FLOW_2026-06-03.md` · **Branch:** `codex/qorium-customer-zero-flow` · **Lane:** KARYA/BHIMA
+**Why:** take-assessment loop NOT wired (`content.responses=1`, `/my` 404, no composed-assessment tables) → 0/986 can be IRT-calibrated. Build: compose test from released Qs → invite link → candidate takes → log to `content.responses` → feed `qorium-irt-calibration`.
+**Founder/business action:** after loop proof, Talpro Delivery routes a real hiring drive's 100+ candidates through the QOrium link (CEO → Delivery Head instruction). This is the SO-1 Customer-Zero lever; only Talpro ops can do it.
+
+---
+
 ## RUN #49 — Active `/try` + `/research` Hub Route Deploy (2026-06-03, Codex)
 
 ### COMPLETED
