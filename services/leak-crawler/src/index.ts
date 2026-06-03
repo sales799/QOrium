@@ -13,6 +13,7 @@ import { buildLogger } from './logger.js';
 import { runCrawl, type CrawlReport } from './orchestrator.js';
 import { recordAlertIfNew } from './repositories/alerts.js';
 import { listReleasedQuestions } from './repositories/questions.js';
+import { ApifyPoller } from './sources/apify.js';
 import { SerperPoller } from './sources/serper.js';
 import { StubPoller } from './sources/stub.js';
 import type { SourcePoller } from './sources/types.js';
@@ -184,14 +185,30 @@ export async function runOnce(
   const databaseUrl = config.databaseUrl ?? resolveOptionalDatabaseUrl();
 
   const pollers: SourcePoller[] = [];
-  if (config.serperApiKey) {
+  if (config.searchProvider === 'serper' && config.serperApiKey) {
     pollers.push(new SerperPoller({ apiKey: config.serperApiKey }));
     logger.info('serper poller enabled');
-  } else if (config.nodeEnv !== 'production') {
+  } else if (config.searchProvider === 'apify' && config.apifyToken) {
+    pollers.push(
+      new ApifyPoller({
+        token: config.apifyToken,
+        actorId: config.apifyActorId,
+        countryCode: config.apifyCountryCode,
+        languageCode: config.apifyLanguageCode,
+      }),
+    );
+    logger.info({ actorId: config.apifyActorId }, 'apify poller enabled');
+  } else if (config.searchProvider === 'stub' && config.nodeEnv !== 'production') {
     pollers.push(new StubPoller());
-    logger.info('SERPER_API_KEY unset — using stub poller (dev/test only)');
+    logger.info('stub poller enabled');
+  } else if (!config.searchProvider && config.nodeEnv !== 'production') {
+    pollers.push(new StubPoller());
+    logger.info('search provider unset — using stub poller (dev/test only)');
   } else {
-    logger.warn('SERPER_API_KEY unset in production; crawl will be a no-op');
+    logger.warn(
+      { provider: config.searchProvider ?? 'unset' },
+      'live search provider is not configured; crawl will be a no-op',
+    );
   }
 
   if (!databaseUrl) {
@@ -223,6 +240,7 @@ export async function runOnce(
       logger,
       ngramsPerQuestion: config.ngramsPerQuestion,
       resultsPerQuery: config.resultsPerQuery,
+      maxQueriesPerRun: config.maxQueriesPerRun,
     });
   } finally {
     await pool.end();

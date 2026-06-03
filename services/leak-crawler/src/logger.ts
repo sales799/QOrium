@@ -15,7 +15,14 @@ export function buildLogger(opts: BuildLoggerOptions = {}): Logger {
         git_sha: opts.gitSha ?? process.env.GIT_SHA,
       },
       redact: {
-        paths: ['SERPER_API_KEY', 'ANTHROPIC_API_KEY', 'DATABASE_URL', 'REDIS_URL'],
+        paths: [
+          'SERPER_API_KEY',
+          'APIFY_TOKEN',
+          'APIFY_API_TOKEN',
+          'ANTHROPIC_API_KEY',
+          'DATABASE_URL',
+          'REDIS_URL',
+        ],
         remove: true,
       },
     },

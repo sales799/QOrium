@@ -5,6 +5,7 @@
 
 export type SourceType =
   | 'serper'
+  | 'apify'
   | 'gfg'
   | 'leetcode-discuss'
   | 'github'
