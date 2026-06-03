@@ -29,9 +29,13 @@ interface ServerQuestion {
 async function fetchQuestion(token: string): Promise<ServerQuestion | null> {
   const apiBase = process.env.QORIUM_API_BASE_URL ?? 'http://127.0.0.1:5101';
   const url = `${apiBase.replace(/\/+$/, '')}/a4/question?token=${encodeURIComponent(token)}`;
-  const r = await fetch(url, { cache: 'no-store' });
-  if (!r.ok) return null;
-  return (await r.json()) as ServerQuestion;
+  try {
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) return null;
+    return (await r.json()) as ServerQuestion;
+  } catch {
+    return null;
+  }
 }
 
 function renderOptions(body: ServerQuestion['question']['body']): string[] {
@@ -60,9 +64,7 @@ export default async function AssessmentPage({ params }: { params: Promise<{ tok
   const startedAt = new Date().toISOString();
 
   return (
-    <main
-      style={{ maxWidth: 720, margin: '32px auto', padding: '0 16px', fontFamily: 'system-ui' }}
-    >
+    <main style={{ maxWidth: 720, margin: '32px auto', padding: '0 16px' }}>
       <p style={{ color: '#475569', fontSize: 12, marginBottom: 4 }}>
         QOrium · India-resident assessment · model-estimated scoring
       </p>
