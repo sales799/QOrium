@@ -12,6 +12,7 @@ import { notFound, problemHandler } from './middleware/problem.js';
 import { healthRouter } from './routes/health.js';
 import { questionsRouter } from './routes/questions.js';
 import { packsRouter } from './routes/packs.js';
+import { a4Router } from './routes/a4.js';
 import type { Logger } from 'pino';
 
 export interface ServerDeps {
@@ -57,6 +58,13 @@ export function createServer(deps: ServerDeps): ServerHandle {
 
   // Health endpoints are unauthenticated (PM2 / load balancer probes).
   app.use(healthRouter({ config: deps.config, pool: deps.pool }));
+
+  // /a4/* is the candidate-side assessment flow. Authenticated by an HMAC
+  // token in the request body / query, not by an API key — candidates have
+  // no key. Mounted BEFORE /v1 so the api-key middleware does not intercept.
+  if (deps.pool && deps.config.a4TokenSecret) {
+    app.use(a4Router({ pool: deps.pool, tokenSecret: deps.config.a4TokenSecret }));
+  }
 
   // /v1/* requires API key auth + per-key rate limiting.
   // Auth + repository routes are skipped when no pool is configured (dev /

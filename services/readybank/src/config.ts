@@ -17,6 +17,8 @@ export interface Config {
   apiKeyPepper: string | undefined;
   /** Redis connection URL. Required to enable rate limiting. */
   redisUrl: string | undefined;
+  /** A4 candidate-flow HMAC secret. Required to enable /a4/* routes. */
+  a4TokenSecret: string | undefined;
 }
 
 function getEnv(name: string, fallback?: string): string {
@@ -57,5 +59,6 @@ export function loadConfig(): Config {
     sentryDsn: process.env.SENTRY_DSN,
     apiKeyPepper: process.env.API_KEY_PEPPER,
     redisUrl: process.env.REDIS_URL,
+    a4TokenSecret: process.env.A4_TOKEN_SECRET,
   };
 }
