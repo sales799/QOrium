@@ -303,7 +303,7 @@ module.exports = {
 
       // Critical: Keep autorestart enabled between cron cycles
       autorestart: true,
-      max_restarts: 10,
+      max_restarts: 25,
       min_uptime: '30s',
 
       env: {
