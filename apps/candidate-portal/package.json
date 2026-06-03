@@ -1,0 +1,27 @@
+{
+  "name": "@qorium/candidate-portal",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QOrium candidate portal (Wave 3 AI pair-coding UX). Listens on :5116. Per infra/Wave-3-AI-Pair-Coding-Format-Prototype-Spec-v0.md §2.1 + §2.2.",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --port 5116",
+    "start": "next start --port 5116",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "next": "^15.5.18",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.12",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
