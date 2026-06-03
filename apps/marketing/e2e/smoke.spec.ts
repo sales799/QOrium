@@ -71,6 +71,35 @@ test.describe('Critical-route smoke', () => {
     );
   });
 
+  test('/try — proof hub links to public demo surfaces', async ({ page }) => {
+    await page.goto('/try');
+
+    await expect(
+      page.getByRole('heading', { name: /proof routes you can inspect/i }),
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: /jd-forge demo/i })).toHaveAttribute(
+      'href',
+      '/try/jd-forge',
+    );
+    await expect(page.getByRole('link', { name: /graded-answer viewer/i })).toHaveAttribute(
+      'href',
+      '/try/graded-answer',
+    );
+  });
+
+  test('/research — research hub links to benchmark and method surfaces', async ({ page }) => {
+    await page.goto('/research');
+
+    await expect(page.getByRole('heading', { name: /benchmark and method routes/i })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /ai plagiarism benchmark protocol/i }),
+    ).toHaveAttribute('href', '/research/plagiarism-benchmark');
+    await expect(page.getByRole('link', { name: /science and calibration/i })).toHaveAttribute(
+      'href',
+      '/science',
+    );
+  });
+
   test('/try/jd-forge — live JD demo returns an assessment plan', async ({ page }) => {
     await page.goto('/try/jd-forge');
 

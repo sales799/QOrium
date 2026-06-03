@@ -408,6 +408,12 @@ export const megaMenuPanels: MegaMenuPanel[] = [
             icon: 'forge',
           },
           {
+            label: 'Try QOrium',
+            href: '/try',
+            description: 'All public proof surfaces in one hub.',
+            icon: 'method',
+          },
+          {
             label: 'Graded Answer Viewer',
             href: '/try/graded-answer',
             description: 'Inspect a rubric, score breakdown, and reasoning trace.',
@@ -523,8 +529,10 @@ export const footerSitemap: MegaMenuColumn[] = [
     links: [
       { label: 'Guides', href: '/resources/guides' },
       { label: 'Blog', href: '/blog' },
+      { label: 'Research', href: '/research' },
       { label: 'Glossary', href: '/glossary' },
       { label: 'Benchmarks', href: '/benchmarks' },
+      { label: 'Try QOrium', href: '/try' },
       { label: 'Try JD-Forge', href: '/try/jd-forge' },
       { label: 'Graded Answers', href: '/try/graded-answer' },
       { label: 'Changelog', href: '/changelog' },
