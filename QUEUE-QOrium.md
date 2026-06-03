@@ -313,7 +313,7 @@
 
 ### REMAINING FOLLOW-UP
 - [VERIFY] Natural IRT cron proof is still pending until its `0 3 * * *` UTC cycle runs; current pre-cron live state is `online`, `unstable_restarts=0`, `max_restarts=25`, and PM2 out log is non-empty with boot heartbeats.
-- [RESOLVED] Active-origin deploy key could not push, so the equivalent source-control correction was committed from the credentialed local checkout and pushed as `ed405c278f0431a8c2fcc508e3b230e7819b65b0`.
+- [REVIEW] Active-origin deploy-key blocker was bypassed through credentialed local Git paths: source-control parity commit `ed405c278f0431a8c2fcc508e3b230e7819b65b0` is pushed to `codex/qorium-active-proof-merge-20260602`, and PR #97 publishes equivalent `main` config parity at commit `0257ccf`. GitHub `lint`, `secret-scan`, and `security-audit` passed for PR #97; `typecheck` and `test` were still pending at `2026-06-03 02:24 UTC`. Non-author review is still required before merge.
 - [EXTERNAL SECRET] Old-origin leak crawler warns `SERPER_API_KEY unset in production; crawl will be a no-op`; boot resilience is fixed, but anti-leak crawling needs the approved provider key to do real crawl work.
 
 ---
