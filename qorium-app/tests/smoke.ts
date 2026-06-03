@@ -60,6 +60,12 @@ const created = JSON.parse(assessment.body) as { token: string; assessment: { qu
 
 const readback = await api.inject({ method: "GET", url: `/api/v1/assessments/by-token?token=${encodeURIComponent(created.token)}` });
 assertEqual(readback.statusCode, 200, "assessment token readback");
+const candidateReadback = JSON.parse(readback.body) as { assessment: { questions: Array<Record<string, unknown>> } };
+for (const question of candidateReadback.assessment.questions) {
+  for (const forbidden of ["correctAnswer", "explanation", "irt", "rubric", "tags", "testExpectation"]) {
+    if (forbidden in question) throw new Error(`Candidate payload leaked ${forbidden}`);
+  }
+}
 
 const submit = await api.inject({
   method: "POST",
