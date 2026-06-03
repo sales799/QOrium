@@ -35,5 +35,5 @@ Both services: `unstable_restarts=0`, nightly `total_restarts` ≤ 3, non-empty 
 
 ### Remaining proof/watch items
 - Natural IRT cron proof remains pending until its `0 3 * * *` UTC cycle runs. Pre-cron state is already live-safe: `online`, `unstable_restarts=0`, `max_restarts=25`, non-empty boot logs.
-- Active-origin file commit `55975cd` (`Fix active anti-leak PM2 headroom`) is server-local because `git push origin HEAD` failed with `Permission to sales799/QOrium.git denied to deploy key`.
+- Active-origin file commit `55975cd` (`Fix active anti-leak PM2 headroom`) is still server-local, but the blocker has been bypassed through the local credentialed Git path: PR #97 publishes the equivalent mainline config parity at commit `0257ccf`. Non-author review and remaining GitHub checks are still required before merge.
 - Leak-crawler boot resilience is fixed, but the crawler currently logs `SERPER_API_KEY unset in production; crawl will be a no-op`; real provider crawling needs the approved provider key through the secret channel.
