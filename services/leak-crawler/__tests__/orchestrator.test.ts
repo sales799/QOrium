@@ -134,6 +134,7 @@ describe('runCrawl', () => {
     });
 
     expect(report.errors).toBeGreaterThan(0);
+    expect(report.queriesIssued).toBe(2);
     expect(report.alertsCreated).toBe(0);
   });
 

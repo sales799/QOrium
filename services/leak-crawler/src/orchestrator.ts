@@ -121,8 +121,8 @@ export async function runCrawl(pipeline: CrawlPipeline): Promise<CrawlReport> {
             maxResults: pipeline.resultsPerQuery,
           };
           if (pipeline.signal !== undefined) opts.signal = pipeline.signal;
-          results = await poller.poll(query, opts);
           report.queriesIssued++;
+          results = await poller.poll(query, opts);
         } catch (err) {
           pipeline.logger.warn(
             { err, query, poller: poller.id },
