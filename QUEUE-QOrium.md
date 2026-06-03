@@ -3,7 +3,20 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #65 (Phase E M23 GTM packet + candidate payload safety)
+**Last touched:** 2026-06-03 — Codex Run #66 (Phase G RLS app-wiring locally verified)
+
+---
+
+## RUN #66 — Phase G RLS App-Wiring Locally Verified (2026-06-03, Codex/BHIMA)
+
+### COMPLETED
+- [2026-06-03] **Implemented local Phase G tenant app-wiring** — recruiter-created assessments now persist recruiter `orgId`; signed candidate assessment links carry `orgId`; candidate assessment/result reads require signed tenant context; audit rows write the active tenant; Postgres tenant-scoped operations run inside transactions that set `app.current_tenant_id`.
+- [2026-06-03] **Added RLS migration and staging verification artifacts** — `qorium-app/packages/migrations/0003_tenant_rls.sql` enables local app-table RLS; `qorium-app/infra/sql/enterprise-rls.sql` applies tenant RLS to the Phase G production/staging tables; `qorium-app/infra/sql/verify-enterprise-rls-cross-tenant.sql` asserts tenant A cannot read tenant B rows for runtime-role staging proof.
+- [2026-06-03] **Verified local gates** — focused tenant tests passed `5/5`; direct `@qorium/auth`, `@qorium/api`, and `@qorium/web` typechecks passed; full `pnpm typecheck`, `pnpm test` (`5` files / `9` tests), `pnpm scan:secrets` (`268` tracked/untracked text files), `pnpm lint` (`8/8`), `pnpm build` (`1198/1198`), `pnpm smoke`, and `git diff --check` passed.
+
+### BLOCKED
+- [STAGING] **Staging cross-tenant DB execution needs a real staging runtime DB URL and tenant UUIDs** — local environment has no `DATABASE_URL_STAGING_RUNTIME`, `DATABASE_URL_STAGING`, `QORIUM_DATABASE_URL_STAGING`, or `DATABASE_URL`. SSH to `qorium-active-origin` is reachable, but RLS must not be applied to production before staging runtime-role verification passes.
+- [CERTIFICATION] **ISO 27001 / SOC 2 Type II certified is post-revenue external auditor work** — QOrium can claim implemented/aligned controls after technical proof, not certification, until an accredited auditor/certification body completes the formal process.
 
 ---
 
@@ -24,7 +37,7 @@
 
 ### COMPLETED
 - [2026-06-03] **Closed QOrium round-2 deploy verification** — public `/`, `/platform/stack-vault`, `/features/stack-vault`, `/solutions/staffing`, `/solutions/platforms`, `/platform/readybank`, `/platform/jd-forge`, `/styleguide`, `/healthz`, and `/sitemap.xml` returned HTTP `200` or expected redirect-followed `200`; sampled bad markers remain absent (`Bosch`, `TCS`, `render only after`, `evidence flag`, `Proof posture`, `Evidence-gated selling`, `Buyer route`, `buying motions`, `Eight-dimension`).
-- [2026-06-03] **Completed targeted Codex-Pro batch009 ingest** — cron-loaded `qorium-codexpro-20260603-batch009.jsonl` at `LOADED=54 SKIPPED=3 DUP=0`; the three rejected rows were repaired in `qorium-codexpro-20260603-batch009-fix01.jsonl`, manually loaded with `LOADED=3 SKIPPED=0 DUP=0`, then moved to `content-inbound/loaded/`. Live DB proof: `source_corpus='codex-pro'` now reports `released|417`; target skills are `Salesforce Developer Senior|released|30` and `Senior Sql|released|27`.
+- [2026-06-03] **Completed targeted Codex-Pro batch009 ingest** — cron-loaded `qorium-codexpro-20260603-batch009.jsonl` at `LOADED=54 SKIPPED=3 DUP=0`; the three rejected rows were repaired in `qorium-codexpro-20260603-batch009-fix01.jsonl`, uploaded without running the loader manually, then auto-ingest moved the fix file to `content-inbound/loaded/`. Live DB proof: `source_corpus='codex-pro'` now reports `released|417`; target skills are `Salesforce Developer Senior|released|30` and `Senior Sql|released|27`.
 - [2026-06-03] **Verified closeout tool boundaries** — local Codex context and active-origin shell still lack `session_save_state`, `manthan_save`, `talpro_rakshak`, `rakshak_consolidate`, `talpro_prahari`, `prahari_status`, and `talpro_watchdog_add`; saved Rakshak floor remains the last available audit evidence.
 
 ### BLOCKED
@@ -52,7 +65,7 @@
 - [2026-06-03] **Authored the requested two-skill-only JSONL file** — `qorium-codexpro-20260603-batch009.jsonl` contains `57` rows total: `Salesforce Developer Senior=30` and `Senior Sql=27`; all rows use exact keys `skill_name`, `format`, `stem`, `options`, `answer_index`, `difficulty`, `explanation`; all rows are `format='mcq'` with exactly four distinct options.
 - [2026-06-03] **Validated locally before upload** — `wc -l` returned `57`; `jq -c .` parsed all lines; Node validation confirmed exact skill counts, only the two requested canonical skill names, valid difficulty values, valid answer indexes, and no all/none-of-the-above options.
 - [2026-06-03] **Uploaded without manual loader execution** — `scp` placed the file at `talpro-vps:/opt/qorium/content-inbound/qorium-codexpro-20260603-batch009.jsonl`; server `ls -l` confirms size `47220` bytes and timestamp `Jun 3 05:50`. Per CEO instruction, no loader was run from the authoring session.
-- [2026-06-03] **Closeout update** — cron loaded `54/57`; closeout loaded the 3-row fix file with `LOADED=3 SKIPPED=0 DUP=0`. Final DB proof: `Salesforce Developer Senior=30`, `Senior Sql=27`, and `source_corpus='codex-pro' released=417`.
+- [2026-06-03] **Closeout update** — cron loaded `54/57`; closeout uploaded the 3-row fix file, auto-ingest consumed it, and DB verification proved the final target counts. Final DB proof: `Salesforce Developer Senior=30`, `Senior Sql=27`, and `source_corpus='codex-pro' released=417`. No manual loader run was performed for batch009 or its fix.
 
 ### REMAINING FOLLOW-UP
 - [DONE] Batch009 and its fix file are loaded and moved to `content-inbound/loaded/`.
