@@ -9,6 +9,8 @@ import { cn } from '@/lib/cn';
 const Sheet = DialogPrimitive.Root;
 const SheetTrigger = DialogPrimitive.Trigger;
 const SheetClose = DialogPrimitive.Close;
+const SheetTitle = DialogPrimitive.Title;
+const SheetDescription = DialogPrimitive.Description;
 const SheetPortal = DialogPrimitive.Portal;
 
 const SheetOverlay = React.forwardRef<
@@ -66,4 +68,4 @@ const SheetContent = React.forwardRef<
 });
 SheetContent.displayName = 'SheetContent';
 
-export { Sheet, SheetTrigger, SheetClose, SheetContent };
+export { Sheet, SheetTrigger, SheetClose, SheetContent, SheetTitle, SheetDescription };

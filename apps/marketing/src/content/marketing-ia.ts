@@ -1,4 +1,5 @@
 export type EvidenceFlag =
+  | 'benchmarks'
   | 'caseStudies'
   | 'customerStories'
   | 'externalLogoRail'
@@ -7,6 +8,7 @@ export type EvidenceFlag =
   | 'workspaceSignIn';
 
 export const evidenceFlags: Record<EvidenceFlag, boolean> = {
+  benchmarks: false,
   caseStudies: false,
   customerStories: false,
   externalLogoRail: false,
@@ -432,6 +434,7 @@ export const megaMenuPanels: MegaMenuPanel[] = [
             href: '/benchmarks',
             description: 'Published measurement reports and methodology notes.',
             icon: 'benchmarks',
+            flag: 'benchmarks',
           },
         ],
       },
@@ -524,7 +527,7 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Guides', href: '/resources/guides' },
       { label: 'Blog', href: '/blog' },
       { label: 'Glossary', href: '/glossary' },
-      { label: 'Benchmarks', href: '/benchmarks' },
+      { label: 'Benchmarks', href: '/benchmarks', flag: 'benchmarks' },
       { label: 'Try JD-Forge', href: '/try/jd-forge' },
       { label: 'Graded Answers', href: '/try/graded-answer' },
       { label: 'Changelog', href: '/changelog' },

@@ -13,6 +13,7 @@ import ResearchHubPage from '@/app/(marketing)/research/page';
 import StackVaultPage from '@/app/(marketing)/platform/stack-vault/page';
 import TryHubPage from '@/app/(marketing)/try/page';
 import TryJdForgePage from '@/app/(marketing)/try/jd-forge/page';
+import { evidenceFlags, footerSitemap, megaMenuPanels, visibleLinks } from '@/content/marketing-ia';
 import { platformProducts, solutionBuyerPages } from '@/content/copy/phase2';
 
 Object.assign(globalThis, { React });
@@ -96,5 +97,17 @@ describe('phase two marketing pages', () => {
     expect(jsonLdTypesFor(ResearchHubPage)).toEqual(
       expect.arrayContaining(['BreadcrumbList', 'WebPage', 'ItemList']),
     );
+  });
+
+  it('hides benchmark navigation until evidence is released', () => {
+    expect(evidenceFlags.benchmarks).toBe(false);
+
+    const visibleMenuLinks = megaMenuPanels.flatMap((panel) =>
+      panel.columns.flatMap((column) => visibleLinks(column.links)),
+    );
+    const visibleFooterLinks = footerSitemap.flatMap((column) => visibleLinks(column.links));
+
+    expect(visibleMenuLinks.some((link) => link.label.match(/benchmark/i))).toBe(false);
+    expect(visibleFooterLinks.some((link) => link.label.match(/benchmark/i))).toBe(false);
   });
 });

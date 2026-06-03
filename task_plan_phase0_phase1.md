@@ -199,3 +199,16 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 - [DONE] Existing deploy pipeline passed: `/usr/local/bin/safe-deploy qorium-marketing` built all packages, reloaded PM2, saved PM2, and smoked QOrium health endpoints.
 - [DONE] Live verification passed: `qorium.online/healthz`, `/research/plagiarism-benchmark`, `/library/javascript`, `/sitemap.xml`, API/JDF/SV/admin health all returned HTTP 200 with security headers after Nginx health-header patch/reload.
 - [BLOCKED] GitHub push from VPS remains blocked by deploy-key permission on `sales799/QOrium.git`; owner: founder/GitHub admin to authorize deploy key or provide PAT/credential helper.
+
+## Session Closeout Evidence - 2026-06-03 PR #94 Active-Origin Port
+
+- [DONE] Active-origin-compatible PR #94 delta identified: production `apps/marketing` already had Tailwind v4 tokens, full Lucide mega-menu, mobile accordion/sheet navigation, and evidence-gated case/customer links; the missing PR #94 honesty gate was the benchmark navigation flag.
+- [DONE] Port branch: `codex/qorium-pr94-active-origin-port-20260603`.
+- [DONE] Code patch: `apps/marketing/src/content/marketing-ia.ts` adds the `benchmarks` evidence flag with default `false`, hides `Benchmarks & Reports` in the mega-menu, and hides footer `Benchmarks` until evidence is released.
+- [DONE] Regression proof: `apps/marketing/src/content/__tests__/phase-two-marketing.test.ts` asserts benchmark navigation is absent while `evidenceFlags.benchmarks` is false.
+- [DONE] Verification before commit: `pnpm install --frozen-lockfile --prefer-offline`, `pnpm --filter @qorium/marketing typecheck`, `lint`, `test` (`61/61`), `build` (`1197/1197` pages), `test:e2e` (`10/10`), `git diff --check`, and `pnpm run secrets:scan` all passed.
+- [DONE] Branch push: `codex/qorium-pr94-active-origin-port-20260603` on `sales799/QOrium` includes commit `5e3e799` for benchmark evidence-gating.
+- [DONE] Active-origin raw atomic deploy created release `/opt/apps/qorium-marketing/releases/5e3e79964305`, flipped `current`, reloaded `qorium-marketing`/`qorium-chatbot`, saved PM2, and smoke-tested `https://qorium.online/`, `/product`, `/pricing`, `/security`, `/blog`, and chatbot health as HTTP 200.
+- [DONE] Live verification: `https://qorium.online/`, `/healthz`, `https://api.qorium.online/healthz`, and `/sitemap.xml` returned HTTP 200 with security headers; `/v1/science/quality-gate` returned `92/92`.
+- [DONE] Accessibility follow-up: mobile Sheet navigation now includes hidden DialogTitle and DialogDescription text so Radix emits no missing-title or missing-description warning during mobile menu QA.
+- [DONE] Final accessibility follow-up is queued in this active-origin port commit; the session CTO report records the final pushed SHA, PR link, redeploy release, and browser re-proof.
