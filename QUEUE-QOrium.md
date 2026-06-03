@@ -3,7 +3,35 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #40 (SAML + legacy redirect active-origin deploy proof)
+**Last touched:** 2026-06-03 — Codex Run #41 (active-proof deploy + Sentry live closeout)
+
+---
+
+## RUN #41 — Active-Proof Deploy + Sentry Live Closeout (2026-06-03)
+
+### COMPLETED
+
+- [2026-06-03] **Deployed latest active-proof branch to production** — active origin `qorium-active-origin` is on branch `codex/qorium-active-proof-merge-20260602` at `8317edbf4eebdd56d80c8352703a1dff4b84c7f9`; atomic deploy reused built release `/opt/apps/qorium-marketing/releases/8317edbf4eeb` and flipped `/opt/apps/qorium-marketing/current` to that release.
+- [2026-06-03] **Verified production runtime after deploy** — PM2 `qorium-marketing` and `qorium-chatbot` are online with unstable restarts `0`; `pm2 save` succeeded; deploy smoke tests returned HTTP `200` for `/`, `/product`, `/pricing`, `/security`, `/blog`, and local chatbot health.
+- [2026-06-03] **Closed real Sentry capture blocker** — `https://qorium.online/v1/observability/sentry?verify=20260603-postdeploy` returned HTTP `200` JSON `enabled:true`, `dsnConfigured:true`.
+- [2026-06-03] **Reverified public SAML, Bing, and legacy redirects** — `/healthz` HTTP `200` with hardened no-store/security headers; `BingSiteAuth.xml` HTTP `200`; SAML metadata HTTP `200`; SAML login HTTP `302`; the four honest legacy `/product/*` aliases return HTTP `301`.
+- [2026-06-03] **Ran safe local gates on active branch** — `pnpm --filter @qorium/marketing typecheck` passed; `pnpm --filter @qorium/marketing test` passed `13` files / `60` tests; `pnpm --filter @qorium/marketing build` passed with `1195/1195` static pages.
+
+### EVIDENCE
+
+- Branch: `codex/qorium-active-proof-merge-20260602`.
+- Current code SHA: `8317edbf4eebdd56d80c8352703a1dff4b84c7f9` (`Fix proof page landmarks`).
+- Current release: `/opt/apps/qorium-marketing/releases/8317edbf4eeb`.
+- Live URL: `https://qorium.online`.
+- Live Sentry status: `{"ok":true,"data":{"provider":"sentry","enabled":true,"environment":"production","dsnConfigured":true}}`.
+- Deliberate caveat: `/product/readybank` remains HTTP `404` because it is not one of the declared honest legacy aliases.
+
+### REMAINING FOLLOW-UP
+
+- [BLOCKED] **Main parity / review** — PR #88 remains open and author-owned; cross-account review/merge is required if main parity is required. Author must not approve own merge.
+- [EXTERNAL] **`qorium.in` redirect vhost** — active origin skipped the redirect vhost because `qorium.in` DNS still resolves to `147.93.103.194`, not `187.127.155.150`; rerun deploy after DNS points to active origin.
+- [IN PROGRESS] **Bing sitemap processing** — public sitemap and verifier are healthy, but authenticated Bing/Webmaster processing status remains external.
+- [BLOCKED] **NIRANTAR final sunset decision** — CEO/CTO decision still required after 360-audit.
 
 ---
 

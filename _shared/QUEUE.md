@@ -1,11 +1,15 @@
 # Shared Queue — QOrium PROVE Archive Reverification
 
-Last touched: 2026-06-02 — Codex Run #40
+Last touched: 2026-06-03 — Codex Run #41
 
 ## DONE
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Deploy active-proof release to production | DONE | Active origin `qorium-active-origin` is on `codex/qorium-active-proof-merge-20260602` at `8317edbf4eebdd56d80c8352703a1dff4b84c7f9`; `current -> /opt/apps/qorium-marketing/releases/8317edbf4eeb`; PM2 `qorium-marketing` and `qorium-chatbot` are online with unstable restarts `0`; `pm2 save` succeeded. | Keep release live. |
+| Verify real Sentry capture config | DONE | `https://qorium.online/v1/observability/sentry?verify=20260603-postdeploy` returned HTTP `200` JSON with `enabled:true`, `dsnConfigured:true`. | Monitor Sentry events in Sentry UI when needed. |
+| Verify 2026-06-03 route matrix | DONE | `/healthz` HTTP `200`; `BingSiteAuth.xml` HTTP `200`; SAML metadata HTTP `200`; SAML login HTTP `302`; four honest legacy aliases HTTP `301`; `/product/readybank` intentionally HTTP `404`. | Continue watchdog monitoring. |
+| Run active-branch gates | DONE | `pnpm --filter @qorium/marketing typecheck` passed; `pnpm --filter @qorium/marketing test` passed `13` files / `60` tests; `pnpm --filter @qorium/marketing build` passed with `1195/1195` static pages. | Re-run after code/env changes. |
 | Deploy SAML + legacy redirect release to active origin | DONE | Active origin `qorium-active-origin` is on `codex/saml-live-active-origin-20260602` at `a929cb1ee69a8c172b1fb181da4c3222290f2843`; `current -> /opt/apps/qorium-marketing/releases/a929cb1ee69a`; PM2 `qorium-marketing` and `qorium-chatbot` are online with unstable restarts `0`. | Keep release live; merge PR #88 only by non-author review. |
 | Verify public SAML and Bing endpoints | DONE | `https://qorium.online/BingSiteAuth.xml` returned HTTP `200` with `application/xml`; `https://qorium.online/v1/auth/saml/metadata?tenant=acme` returned HTTP `200` with `application/samlmetadata+xml`; login returned HTTP `302` to `https://www.samltest.dev/...`. | Configure real tenant IdPs when customer secrets/metadata arrive; submit Bing verifier if needed. |
 | Verify honest legacy `/product/*` redirects | DONE | `/product/jd-forge`, `/product/ai-grading`, `/product/assessment-builder`, and `/product/anti-cheating` returned HTTP `301` to `/features/jd-forge`, `/method`, `/features/readybank`, and `/anti-leak`. | Leave undeclared spec-only `/product/*` paths as 404 unless product owner asks for aliases. |
@@ -26,7 +30,6 @@ Last touched: 2026-06-02 — Codex Run #40
 
 | Task | Status | Owner | Evidence | Next |
 | --- | --- | --- | --- | --- |
-| Enable real Sentry event capture | BLOCKED | Founder/Sentry admin | Live status JSON says `enabled:false` and `dsnConfigured:false`; active-origin env has no `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, or `SENTRY_PROJECT`; prior Sentry token could list projects/teams but project creation returned HTTP `403`. | Provide QOrium Sentry DSN/client key or a Sentry token with project-create/client-key permission. |
 | Confirm Bing sitemap processing completion | IN PROGRESS | Bing / SEO operator | Public sitemap is healthy with `1190` URLs, but no Bing/Webmaster/IndexNow credential names are present locally or on active origin for authenticated Webmaster Tools status. | Re-check Bing Webmaster Tools later; no code action pending. |
 | Merge author-owned phase branch to `main` | BLOCKED | Non-author reviewer | Current production includes the route via newer active release, but branch `codex/qorium-marketing-phase4-main` still needs cross-account review/merge for `main` parity. | Have another account review/merge; author must not approve own merge. |
 | Merge SAML live branch PR #88 to `main` | BLOCKED | Non-author reviewer | PR #88 is open at `a929cb1ee69a8c172b1fb181da4c3222290f2843`; production is already deployed from that branch. | Have another account review/merge PR #88; author must not approve own merge. |
@@ -36,4 +39,4 @@ Last touched: 2026-06-02 — Codex Run #40
 
 ## ARCHIVE CERTIFICATION
 
-Not archive-ready as a fully complete Sentry activation, PR-main parity, or `qorium.in` redirect activation. Code/deploy proof is archive-ready for `qorium.online`; real Sentry capture waits on the DSN/permission blocker, PR merges require non-author review, and `qorium.in` redirect waits on DNS. No `.env` or secret files were staged by this closeout.
+Archive-ready for `qorium.online` production proof, including SAML, Bing verifier, Sentry enabled status, health headers, redirects, PM2, and active release evidence. Not archive-ready for `main` parity, `qorium.in` redirect activation, authenticated Bing processing certification, or NIRANTAR sunset decision. No `.env` or secret files were staged by this closeout.

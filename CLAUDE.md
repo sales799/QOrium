@@ -19,7 +19,7 @@
 ## MANTHAN session
 `9194eed8` (started 2026-05-31) — full lifecycle of the Mega Build
 
-## PM2 ground truth (2026-06-02)
+## PM2 ground truth (2026-06-03)
 Current production routing is consolidated to active origin `187.127.155.150` for `qorium.online` and `api.qorium.online`; old origin `147.93.103.194` is retained as manual rollback standby. Use SSH alias `qorium-active-origin` for active production and `talpro-vps` for rollback/legacy fleet inspection. Both origins are hardened for QOrium API/admin headers and `security.txt`.
 
 Active-origin PM2 snapshot from `qorium-active-origin` at 2026-06-02T13:39Z: 12 `qorium-*` processes online, 0 errored, 0 unstable restarts. Processes: `qorium-api` x2, `qorium-jd-forge` x2, `qorium-stack-vault` x2, `qorium-admin` x2, `qorium-chatbot`, `qorium-leak-crawler`, `qorium-keeper`, and `qorium-marketing`.
@@ -28,7 +28,7 @@ Old-origin PM2 snapshot from `talpro-vps` at 2026-06-02T13:40Z: 38 `qorium-*` pr
 
 Active-origin route fix: `https://api.qorium.online/chatbot/v1/healthz` now returns HTTP 200 through Cloudflare and proxies to `qorium-chatbot` on port 5122. The nginx config backup is under `/root/nginx-config-backups/qorium-marketing.conf.codex-bhima-chatbot-20260602T033900Z.bak` on the active origin.
 
-Active-origin marketing release as of 2026-06-02T13:49Z: branch `codex/saml-live-active-origin-20260602`, SHA `a929cb1ee69a8c172b1fb181da4c3222290f2843`, release `/opt/apps/qorium-marketing/releases/a929cb1ee69a`. Public `/healthz` is HTTP 200, `BingSiteAuth.xml` is HTTP 200 XML, SAML metadata is HTTP 200 XML, SAML login is HTTP 302 to SAMLtest IdP, and the four honest legacy aliases `/product/jd-forge`, `/product/ai-grading`, `/product/assessment-builder`, and `/product/anti-cheating` are HTTP 301 redirects to canonical live pages.
+Active-origin marketing release as of 2026-06-03T01:56Z: branch `codex/qorium-active-proof-merge-20260602`, SHA `8317edbf4eebdd56d80c8352703a1dff4b84c7f9`, release `/opt/apps/qorium-marketing/releases/8317edbf4eeb`. Public `/healthz` is HTTP 200, `BingSiteAuth.xml` is HTTP 200 XML, SAML metadata is HTTP 200 XML, SAML login is HTTP 302 to SAMLtest IdP, real Sentry status is HTTP 200 with `enabled:true` and `dsnConfigured:true`, and the four honest legacy aliases `/product/jd-forge`, `/product/ai-grading`, `/product/assessment-builder`, and `/product/anti-cheating` are HTTP 301 redirects to canonical live pages.
 
 API health-path truth as of 2026-06-02T13:39Z: `https://api.qorium.online/healthz` and `https://api.qorium.online/health` return HTTP 200. `https://api.qorium.online/v1/healthz` and `/v1/health` return HTTP 404 and must not be used by watchdogs until N11 intentionally ships versioned health aliases.
 
