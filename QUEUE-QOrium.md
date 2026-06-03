@@ -37,7 +37,7 @@
 
 ---
 
-## RUN #52 — Web Build/Start Proof + Deploy Boundary (2026-06-03, Codex)
+## RUN #51 — Web Build/Start Proof + Deploy Boundary (2026-06-03, Codex)
 
 ### COMPLETED
 - [2026-06-03] **Fixed the local Next 16 production-start blocker** — removed unstable root overrides from `qorium-app/apps/web/next.config.ts` and moved `security.txt` from an app route to `qorium-app/apps/web/public/.well-known/security.txt`, avoiding the missing trace/manifests seen during production start.
