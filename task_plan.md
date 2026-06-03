@@ -1,9 +1,10 @@
 # QOrium Session Task Plan
 
-Last updated: 2026-06-03 — Codex PROVE revalidation closeout + local app commit
+Last updated: 2026-06-03 — Codex active hub-route deploy closeout
 
 | Task | Status | Evidence | Next |
 | --- | --- | --- | --- |
+| Deploy `/try` and `/research` hub-route fix to active origin | DONE | Commit `4531629d5950e33c517441c9327e035f5025963f` is live on active origin and pushed to `codex/qorium-active-proof-merge-20260602`; live `/`, `/try`, `/research`, `/openapi.json`, `/sitemap.xml`, chatbot health, API health, and admin health all return HTTP `200` with HSTS/XCTO/XFO/CSP; sitemap contains `/try` and `/research`; PM2 QOrium fleet is `12/12` online, `0` errored, `0` unstable; tracked server tree clean after launcher/env cleanup. | Non-author review/merge before `main`; monitor watchdogs. |
 | Close local route parity and repo hygiene | DONE | Marketing shell commit `71678ab`; build-gate fix commit `85f4169`; `.gitignore` now ignores duplicate `* [0-9].*` artifacts; local `/library/javascript` renders `JavaScript`; `pnpm --filter @qorium/web typecheck`, `pnpm --filter @qorium/web build` (`1199/1199`), `pnpm scan:secrets`, `pnpm lint`, `pnpm test` (`4` files / `5` tests), and `pnpm smoke` passed; Playwright desktop/mobile route checks for `/`, `/platform`, `/library/javascript`, and `/pricing` returned HTTP `200`; live QOrium/API/admin sampled routes returned HTTP `200` with security headers. | Push branch; non-author review before main merge/deploy parity. |
 | Harden talpro-vps leak/IRT cron worker boot resilience | DONE | PR #93 merged at `cc253ac`; live talpro-vps branch also carries `abba78e`, `0ba60ef`, and `d97b19a`; both worker typechecks, builds, and tests passed (`leak-crawler` `47 passed / 2 skipped`, `irt-calibration` `64 passed`). | Keep live server branch `origin/codex/qorium-boot-resilience-20260602` available for reconciliation review against GitHub base. |
 | Reload and verify talpro-vps workers | DONE | Scoped PM2 reload with production env succeeded and `pm2 save` succeeded; at `2026-06-03T02:01:11Z`, ids `295`/`296` are `online`, `unstable_restarts=0`, `max_restarts=25`, restart counts `3`/`3`, DB+Redis env present, and PM2 out logs contain `{"ev":"boot","deps":"ok"}` with empty err logs. | Add live Serper/provider secrets through the approved secret channel if real crawler scans are required. |

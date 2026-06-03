@@ -3,7 +3,29 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #48 (local app closeout committed)
+**Last touched:** 2026-06-03 — Codex Run #49 (active hub-route deploy)
+
+---
+
+## RUN #49 — Active `/try` + `/research` Hub Route Deploy (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Closed live parent-route 404s** — added and deployed hub pages for `/try` and `/research`, while preserving existing child pages `/try/jd-forge`, `/try/graded-answer`, and `/research/plagiarism-benchmark`.
+- [2026-06-03] **Committed and pushed active branch fix** — commit `4531629d5950e33c517441c9327e035f5025963f` (`Add QOrium try and research hubs`) is pushed to `codex/qorium-active-hub-routes-20260603` and fast-forwarded onto `codex/qorium-active-proof-merge-20260602`.
+- [2026-06-03] **Verified gates before deploy** — in `/tmp/qorium-active-hub-routes`: `pnpm install --frozen-lockfile --prefer-offline`, `pnpm run build:packages`, marketing lint, marketing typecheck, marketing Vitest `13` files / `60` tests, marketing build, root `pnpm test`, root `pnpm run build`, `git diff --cached --check`, and `gitleaks protect --staged --redact` passed.
+- [2026-06-03] **Deployed active origin and repaired runtime launchers** — active origin now runs SHA `4531629d5950e33c517441c9327e035f5025963f`; restored tracked `apps/marketing/.pm2-start.sh`, recreated `current -> .` compatibility symlink, restored `shared/apps/marketing/.env.production` from the production env copy without printing secrets, created runtime chatbot launcher, reloaded `qorium-marketing` and `qorium-chatbot`, and ran `pm2 save --force`.
+- [2026-06-03] **Verified live routes and security headers** — `https://qorium.online/`, `/try`, `/research`, `/openapi.json`, `/sitemap.xml`, `https://api.qorium.online/chatbot/v1/healthz`, `https://api.qorium.online/healthz`, and `https://admin.qorium.online/api/health` returned HTTP `200` with HSTS, XCTO, XFO, and CSP.
+
+### EVIDENCE
+- Deployed SHA: `4531629d5950e33c517441c9327e035f5025963f`.
+- Live sitemap contains both `https://qorium.online/try` and `https://qorium.online/research`.
+- PM2: QOrium fleet `12/12` online, `0` errored, `0` unstable; `qorium-marketing` restart count `1`, `qorium-chatbot` restart count `35`; local probes `:5110/try`, `:5110/research`, and `:5122/v1/chatbot/health` returned HTTP `200`.
+- Nginx: `nginx -t` passed; warnings are deprecated `listen ... http2` syntax only.
+- Repo/server hygiene: active-origin tracked tree is clean; `shared_env=present`; `current=.` compatibility symlink is present for chatbot PM2 path.
+
+### REMAINING FOLLOW-UP
+- [REVIEW] Non-author review/merge remains required before author-owned branches are merged to `main`.
+- [LOW] `qorium.in` Let's Encrypt issuance failed during deploy because ACME HTTP challenge returned `404`; primary `qorium.online` is healthy. Fix the redirect/cert vhost only if `qorium.in` redirect is required.
 
 ---
 
