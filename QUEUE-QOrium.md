@@ -3,7 +3,19 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #55 (active-origin apex deploy completed)
+**Last touched:** 2026-06-03 — Codex Run #56 (Codex-Pro question authoring proof + scale started)
+
+---
+
+## RUN #56 — Codex-Pro Question Authoring Proof + Scale Started (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Ran Codex-Pro loader proof batch** — VPS sanity passed: `/opt/qorium/scripts/load-codex-questions.py` exists and the initial released question count was `986`. Proof file `qorium-codexpro-20260603-batch001.jsonl` was uploaded to `/opt/qorium/content-inbound/` and loaded with `LOADED=10 SKIPPED=0`.
+- [2026-06-03] **Started scale batches after proof passed** — `qorium-codexpro-20260603-batch002.jsonl` loaded `LOADED=50 SKIPPED=0`; `qorium-codexpro-20260603-batch003.jsonl` loaded `LOADED=49 SKIPPED=1`; skipped row was repaired in `qorium-codexpro-20260603-batch003-fix01.jsonl` and loaded `LOADED=1 SKIPPED=0`.
+- [2026-06-03] **Verified live DB count** — `content.questions` now reports total released `1096`; `source_corpus='codex-pro'` reports `released|110`. Codex thread/session for CTO tracking: `019e8ba3-64e4-74c0-a651-6f5a13a63c5a`.
+
+### REMAINING FOLLOW-UP
+- [IN PROGRESS] Continue in ~50-question batches from the live under-covered worklist until every skill has at least 10 released questions. Preserve proof-first loader discipline: every batch must report LOADED/SKIPPED, and any skipped row must be fixed before moving on.
 
 ---
 
@@ -13,15 +25,19 @@
 - [2026-06-03] **Deployed active-origin apex content through the approved wrapper** — `qorium-active-origin` is on `main` at `c436ac3ae904127a784e5da1bd0f34f8fd5236c0` (`content(marketing): rewrite home build-voice to buyer-POV; design unchanged`). First `safe-deploy qorium-marketing` failed before PM2 reload on a stale `.next` `pages-manifest.json` read; production stayed on the prior release. I then cleaned only the coordinator marketing build artifact (`pnpm --filter @qorium/marketing clean`), proved `pnpm --filter @qorium/marketing build` (`1223/1223`), reran `safe-deploy qorium-marketing`, and the wrapper completed successfully.
 - [2026-06-03] **Verified live production** — public `https://qorium.online/`, `/try`, `/research`, `/healthz`, and `/sitemap.xml` returned HTTP `200`; root/route headers include HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP; homepage HTML now contains `Three ways to buy` and no sampled old `buying motions` / `Eight-dimension` markers; sitemap contains `/try` and `/research`.
 - [2026-06-03] **Verified active-origin PM2** — QOrium fleet is `12/12` online, `0` errored, `0` unstable after deploy. Active-origin `current` compatibility symlink resolves to `/opt/apps/qorium-marketing` (`current -> .`), matching the existing launcher pattern.
+- [2026-06-03] **Verified design unchanged and cache state** — Playwright desktop screenshots were captured for live `c436ac3` and prior release `9d619944`; visual comparison shows the same nav, hero structure, proof table, spacing, and next-section layout, with content-only changes. Cloudflare edge already serves the fresh homepage, but purge with the available certbot token failed with Cloudflare auth error `10000` after successful zone lookup, so no purge-capable token is present in this session.
 
 ### EVIDENCE
 - Deployed checkout SHA: `c436ac3ae904127a784e5da1bd0f34f8fd5236c0`.
 - Build proof: marketing Next build generated `1223/1223` pages; approved wrapper smoke passed `https://qorium.online/healthz`, API health, JDF health, StackVault health, and admin health.
 - Live URL proof: `https://qorium.online/`, `/try`, `/research`, `/healthz`, `/sitemap.xml`.
+- Exact copy proof: `curl -s https://qorium.online/ | grep -o "Three ways to buy"` returns `Three ways to buy`; `curl -s https://qorium.online/ | grep -o "buying motions\|Eight-dimension"` returns empty.
+- Screenshot proof: `/tmp/qorium-apex-verify/live-c436ac3.png` (`fd02266b04f68c87abda9fd295153b375bdd49636a48ab9bac12005bed8d9f94`) and `/tmp/qorium-apex-verify/old-9d619944.png` (`f53a433774878fe6444bd72362907d6db0cd723896c979602e692581a7a280ab`).
 
 ### REMAINING FOLLOW-UP
 - [REVIEW] PR #99 / author-owned branch parity still needs non-author review if the branch must merge; production already serves the active-origin `main` deploy.
-- [TOOLING] Fresh Rakshak still requires a Talpro MCP/tool-enabled session; saved Rakshak floor remains healthy.
+- [TOOLING] Fresh Rakshak still requires a Talpro MCP/tool-enabled session; this Codex session has `0` callable Rakshak tools and active-origin shell lacks `rakshak_consolidate`, `talpro_rakshak`, `talpro_prahari`, and `prahari_status`. Saved Rakshak floor remains healthy.
+- [RECOMMENDED] Add a Cloudflare cache rule to bypass cache for HTML on `qorium.online` or lower document `s-maxage`; the homepage still emits `cache-control: s-maxage=31536000`.
 
 ---
 
