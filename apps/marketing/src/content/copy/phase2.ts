@@ -75,21 +75,21 @@ export const homeV2 = {
     eyebrow: 'Trust infrastructure for skills hiring',
     title: 'Skills assessments you can defend in an audit.',
     description:
-      'QOrium packages India-built assessment content, JD-specific authoring, and private stack libraries inside an evidence-first trust shell.',
+      'Move from resume-first shortlists to skills evidence you can defend: calibrated question libraries, tests shaped to a real job description, and private banks for your own stack.',
     primaryCta: { label: 'Book a 20-min walkthrough', href: '/demo' },
     secondaryCta: { label: 'Explore the library', href: '/product/assessment-library' },
   },
   ledgerRows: [
-    ['Claim', 'Evidence status', 'Public behavior'],
-    ['Customer logos', 'Flag off', 'Module hidden'],
-    ['Outcome stats', 'Flag off', 'Module hidden'],
-    ['Talpro Customer Zero', 'Evidence held', 'Shown plainly'],
+    ['Proof', 'Status', 'What you see'],
+    ['Customer logos', 'Only when signed', 'Shown when real'],
+    ['Outcome stats', 'Only when measured', 'Shown when proven'],
+    ['Talpro India', 'Customer Zero, live', 'Shown today'],
   ],
   villain: {
     eyebrow: 'The leak timeline',
     title: 'Question banks rot faster than hiring teams can refresh them.',
     description:
-      'A fresh question can be reconstructed, indexed by prep communities, and lose signal inside the same hiring year. The site now turns that risk into the lead story instead of hiding it in a feature list.',
+      'A fresh question gets screenshotted, indexed by prep communities, and loses its signal inside the same hiring year. QOrium retires questions before that happens.',
     timeline: [
       {
         label: 'Week 1-4',
@@ -129,20 +129,20 @@ export const homeV2 = {
     },
   ],
   moat: [
-    'AI-authored pipeline',
-    'I/O-psych validation path',
-    'Anti-leak rotation',
-    'Multi-format export',
-    'India-stack depth',
-    'Role-graph organization',
-    'Per-client watermarking',
-    'Content API first',
+    'Fresh questions on demand',
+    'Validated, not just written',
+    'Questions that retire before they leak',
+    'Use the score anywhere',
+    'Tests for the stack you run',
+    'Organised by the role you hire',
+    'Every leak traces back',
+    'Built to plug into your tools',
   ],
   proofZone: {
     eyebrow: 'Proof of work',
     title: 'A question is only useful when its source, fit, and lifecycle are visible.',
     description:
-      'The sample viewer keeps the proof concrete without rendering unavailable capture or widget flows.',
+      'See a real sample question and the rubric it is scored against - concrete proof, not a marketing claim.',
     sampleQuestion:
       'A senior backend API intermittently double-charges users during retry storms. Which idempotency design would you test first, and why?',
     rubric: [
@@ -169,13 +169,13 @@ export const homeV2 = {
     },
   ],
   trust: [
-    'No customer logo rail without a live evidence flag',
-    'No unsupported outcome statistics',
-    'Talpro India identified as Customer Zero',
-    'Trust pages name shipped, beta, and roadmap states',
+    'No customer logo we have not earned',
+    'No outcome number we did not measure',
+    'Talpro India is our Customer Zero',
+    'We say what is live, what is in beta, and what is still ahead',
   ],
   finalCta: {
-    title: 'Walk through the library, the leak model, and the buyer route.',
+    title: 'See the library, the anti-leak engine, and the right plan for your team.',
     description:
       'A founder-led demo maps your hiring volume to ReadyBank, JD-Forge, or Stack-Vault.',
     primaryCta: { label: 'Book a demo', href: '/demo' },
