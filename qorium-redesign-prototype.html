@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>QOrium — Redesign Prototype v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A1F3D; --navy2:#071630; --cyan:#00B3C7; --gold:#D4A85A;
+  --charcoal:#2C3E50; --slate:#64748B; --fog:#E2E8F0; --cloud:#F8FAFC;
+  --success:#10B981; --warn:#F59E0B; --error:#EF4444; --info:#3B82F6;
+  --shadow:0 2px 8px rgba(10,31,61,.08); --shadow-lg:0 18px 50px rgba(10,31,61,.18);
+  --disp:'Space Grotesk',system-ui,sans-serif; --body:'Inter Tight',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--charcoal);background:#fff;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--disp);color:var(--navy);line-height:1.12;letter-spacing:-.02em}
+h1{font-size:clamp(2.1rem,4.6vw,3.4rem);font-weight:700}
+h2{font-size:clamp(1.6rem,3vw,2.35rem);font-weight:600;margin-bottom:.5em}
+h3{font-size:1.3rem;font-weight:600}
+p{margin-bottom:.9rem}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;color:var(--cyan);font-weight:500;margin-bottom:1rem}
+.muted{color:var(--slate)}
+.center{text-align:center}
+section.band{padding:84px 0}
+section.band.tight{padding:56px 0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--body);font-weight:600;font-size:.96rem;padding:.8rem 1.45rem;border-radius:9px;border:1.5px solid transparent;cursor:pointer;transition:.18s;white-space:nowrap}
+.btn-primary{background:var(--cyan);color:#042b30}
+.btn-primary:hover{background:#03c7dd;transform:translateY(-1px)}
+.btn-ghost{background:transparent;border-color:rgba(255,255,255,.28);color:#fff}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-ghost.dark{border-color:var(--fog);color:var(--navy)}
+.btn-ghost.dark:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-gold{background:var(--gold);color:#3a2a08}
+.btn-gold:hover{filter:brightness(1.06);transform:translateY(-1px)}
+
+/* nav */
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--fog)}
+nav{display:flex;align-items:center;gap:28px;height:66px}
+.logo{font-family:var(--disp);font-weight:700;font-size:1.32rem;color:var(--navy);letter-spacing:-.03em;display:flex;align-items:center;gap:.5rem}
+.logo .dot{width:11px;height:11px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(0,179,199,.18)}
+.navlinks{display:flex;gap:4px;margin-left:8px}
+.navlinks a{font-size:.93rem;font-weight:500;color:var(--charcoal);padding:.5rem .7rem;border-radius:7px;cursor:pointer}
+.navlinks a:hover,.navlinks a.active{color:var(--navy);background:var(--cloud)}
+.navactions{margin-left:auto;display:flex;align-items:center;gap:12px}
+.navactions .signin{font-size:.92rem;font-weight:500;cursor:pointer}
+.navactions .signin:hover{color:var(--cyan)}
+@media(max-width:860px){.navlinks{display:none}.navactions .signin{display:none}}
+
+/* hero surfaces */
+.hero{position:relative;overflow:hidden}
+.hero.dark{background:linear-gradient(168deg,var(--navy),var(--navy2));color:#fff}
+.hero.dark h1,.hero.dark h2,.hero.dark h3{color:#fff}
+.hero.light{background:radial-gradient(900px 420px at 80% -10%,rgba(0,179,199,.10),transparent),var(--cloud)}
+.hero.gold{background:linear-gradient(168deg,var(--navy),#13243f);color:#fff}
+.hero.gold h1,.hero.gold h2{color:#fff}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:74px 0}
+.hero p.lede{font-size:1.18rem;max-width:38ch;margin:1.1rem 0 1.9rem}
+.hero.dark p.lede,.hero.gold p.lede{color:#c8d4e6}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:30px;padding:52px 0}}
+
+/* evidence ledger motif */
+.ledger{font-family:var(--mono);font-size:.82rem;background:#06122a;border:1px solid rgba(0,179,199,.25);border-radius:12px;color:#cfe;box-shadow:var(--shadow-lg);overflow:hidden}
+.ledger .lhead{display:flex;justify-content:space-between;padding:.7rem 1rem;background:rgba(0,179,199,.10);border-bottom:1px solid rgba(0,179,199,.2);color:#7fe6f3}
+.ledger .lrow{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.ledger .lrow span:first-child{color:#fff}
+.ledger .tag{font-size:.7rem;padding:.08rem .45rem;border-radius:5px}
+.tag.fresh{background:rgba(16,185,129,.18);color:#5eead4}
+.tag.rot{background:rgba(239,68,68,.18);color:#fca5a5}
+.tag.due{background:rgba(245,158,11,.18);color:#fcd34d}
+
+/* cards */
+.grid{display:grid;gap:22px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.g3,.g4,.g2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--fog);border-radius:13px;padding:26px;box-shadow:var(--shadow);transition:.18s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:rgba(0,179,199,.4)}
+.card .pill{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
+.card h3{margin:.5rem 0 .4rem}
+.card.dark{background:#0b1d3a;border-color:rgba(255,255,255,.08);color:#c8d4e6}
+.card.dark h3{color:#fff}
+.icon{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:rgba(0,179,199,.12);color:var(--cyan);font-size:1.2rem;margin-bottom:.4rem}
+
+/* trust strip */
+.strip{background:var(--navy);color:#aebfd6;padding:18px 0;font-size:.9rem}
+.strip .wrap{display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap}
+.tmark{font-family:var(--disp);font-weight:600;color:#fff;border:1px solid rgba(255,255,255,.2);padding:.3rem .7rem;border-radius:7px}
+
+/* stat band */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.stat{padding:26px;border:1px dashed var(--fog);border-radius:13px;background:var(--cloud)}
+.stat .num{font-family:var(--disp);font-size:2.1rem;font-weight:700;color:var(--navy)}
+.stat .targ{font-family:var(--mono);font-size:.66rem;color:var(--warn);text-transform:uppercase;letter-spacing:.08em}
+@media(max-width:900px){.stats{grid-template-columns:1fr}}
+
+/* timeline */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:t}
+.tl{padding:24px;border-radius:13px;background:#0b1d3a;border:1px solid rgba(255,255,255,.07);color:#c8d4e6}
+.tl .wk{font-family:var(--mono);font-size:.78rem;color:var(--gold)}
+.tl h4{color:#fff;margin:.3rem 0}
+@media(max-width:900px){.timeline{grid-template-columns:1fr}}
+
+/* pricing */
+.ptable{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.plan{border:1px solid var(--fog);border-radius:14px;padding:24px;background:#fff;display:flex;flex-direction:column}
+.plan.feat{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,179,199,.12)}
+.plan .pname{font-family:var(--disp);font-weight:600;color:var(--navy)}
+.plan .price{font-family:var(--disp);font-size:1.7rem;font-weight:700;color:var(--navy);margin:.4rem 0}
+.plan ul{list-style:none;font-size:.9rem;margin:.6rem 0 1.2rem;flex:1}
+.plan li{padding:.32rem 0;border-bottom:1px solid var(--cloud);display:flex;gap:.5rem}
+.plan li::before{content:"✓";color:var(--success);font-weight:700}
+@media(max-width:900px){.ptable{grid-template-columns:1fr}}
+
+/* compare matrix */
+table.cmp{width:100%;border-collapse:collapse;font-size:.93rem;background:#fff;border:1px solid var(--fog);border-radius:13px;overflow:hidden}
+table.cmp th,table.cmp td{padding:.85rem 1rem;text-align:left;border-bottom:1px solid var(--fog)}
+table.cmp thead th{background:var(--navy);color:#fff;font-family:var(--disp);font-weight:600}
+table.cmp tbody tr:nth-child(even){background:var(--cloud)}
+table.cmp td.q{color:var(--navy);font-weight:600}
+.yes{color:var(--success);font-weight:700}.no{color:var(--slate)}.part{color:var(--warn);font-weight:600}
+
+/* interactive jd */
+.jd{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+.jd textarea{width:100%;height:150px;font-family:var(--mono);font-size:.82rem;border:1px solid var(--fog);border-radius:11px;padding:14px;resize:vertical;color:var(--charcoal)}
+.jd textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,179,199,.15)}
+.packout{border:1px solid var(--fog);border-radius:11px;padding:16px;background:var(--cloud);min-height:150px;font-size:.88rem}
+.skillrow{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px dashed var(--fog)}
+.bar{height:7px;border-radius:4px;background:var(--fog);width:120px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--info))}
+@media(max-width:900px){.jd{grid-template-columns:1fr}}
+
+/* graded answer player */
+.player{background:#06122a;border:1px solid rgba(0,179,199,.25);border-radius:14px;padding:22px;color:#cfe;box-shadow:var(--shadow-lg)}
+.player .q{font-size:.95rem;color:#9fc7e6;margin-bottom:.6rem}
+.player .ans{font-family:var(--mono);font-size:.8rem;background:#0b1d3a;border-radius:9px;padding:12px;color:#bfe;border:1px solid rgba(255,255,255,.07)}
+.score{display:flex;align-items:center;gap:16px;margin-top:14px}
+.ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-family:var(--disp);font-weight:700;font-size:1.4rem;color:#fff;background:conic-gradient(var(--cyan) 0 78%,rgba(255,255,255,.12) 78% 100%)}
+.ring span{background:#06122a;width:58px;height:58px;border-radius:50%;display:grid;place-items:center}
+
+/* footer */
+footer{background:var(--navy);color:#9fb0c9;padding:56px 0 30px;font-size:.9rem}
+footer h5{font-family:var(--disp);color:#fff;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.8rem}
+.fgrid{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:28px}
+footer a{display:block;padding:.22rem 0;color:#9fb0c9;cursor:pointer}
+footer a:hover{color:var(--cyan)}
+.fbot{border-top:1px solid rgba(255,255,255,.1);margin-top:32px;padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.82rem}
+@media(max-width:900px){.fgrid{grid-template-columns:1fr 1fr}}
+
+.page{display:none}.page.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.proto-note{position:fixed;bottom:14px;right:14px;z-index:99;background:var(--navy);color:#cfe;font-family:var(--mono);font-size:.7rem;padding:.5rem .8rem;border-radius:8px;border:1px solid rgba(0,179,199,.3);max-width:280px;box-shadow:var(--shadow-lg)}
+.sub-nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.sub-nav button{font-family:var(--body);font-size:.82rem;background:#fff;border:1px solid var(--fog);border-radius:20px;padding:.4rem .9rem;cursor:pointer;color:var(--slate)}
+.sub-nav button:hover{border-color:var(--cyan);color:var(--navy)}
+.kicker-line{width:38px;height:3px;background:var(--cyan);border-radius:2px;margin-bottom:1rem}
+.lead-tabs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:30px}
+.lead-tabs button{font-family:var(--disp);font-weight:600;font-size:.9rem;padding:.6rem 1.2rem;border-radius:9px;border:1px solid var(--fog);background:#fff;cursor:pointer;color:var(--slate)}
+.lead-tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="wrap">
+  <nav>
+   <div class="logo" onclick="go('home')"><span class="dot"></span>QOrium</div>
+   <div class="navlinks">
+     <a onclick="go('platform')">Platform</a>
+     <a onclick="go('solutions')">Solutions</a>
+     <a onclick="go('science')">Why QOrium</a>
+     <a onclick="go('compare')">Compare</a>
+     <a onclick="go('pricing')">Pricing</a>
+   </div>
+   <div class="navactions">
+     <span class="signin">Sign in</span>
+     <button class="btn btn-primary" onclick="go('home')">Book a demo</button>
+   </div>
+  </nav>
+ </div>
+</header>
+
+<!-- ===================== HOME ===================== -->
+<div class="page active" id="home">
+ <div class="hero light">
+  <div class="wrap hero-grid">
+   <div>
+    <div class="kicker-line"></div>
+    <div class="eyebrow">Skills assessment, built in India</div>
+    <h1>Skills tests you can defend in an audit.</h1>
+    <p class="lede">AI-graded assessments that stay calibrated and leak-resistant — so the score a hiring manager acts on holds up months later, and in a tribunal.</p>
+    <div class="cta-row">
+      <button class="btn btn-primary" onclick="go('pricing')">Book a demo</button>
+      <button class="btn btn-ghost dark" onclick="go('science')">See how grading works →</button>
+    </div>
+   </div>
+   <div class="player">
+     <div class="q">Q · “Optimise this query that times out on a 40M-row table.”</div>
+     <div class="ans">SELECT o.id, o.total FROM orders o<br>JOIN users u ON u.id = o.user_id<br>WHERE u.region = 'IN' AND o.created_at > now() - interval '30d'<br>-- + composite index (region, created_at)</div>
+     <div class="score">
+       <div class="ring"><span>78</span></div>
+       <div style="font-size:.82rem">
+         <b style="color:#fff">Score band: Strong (IRT-calibrated)</b><br>
+         Correct index strategy · partial on partition pruning.<br>
+         <span style="color:#7fe6f3">Every grade traces to a measured item difficulty.</span>
+       </div>
+     </div>
+   </div>
+  </div>
+ </div>
+
+ <div class="strip"><div class="wrap">Dogfooded daily by <span class="tmark">Talpro India</span> — our Customer Zero. We don't show a logo we don't have.</div></div>
+
+ <section class="band">
+  <div class="wrap">
+   <div class="center" style="max-width:680px;margin:0 auto 40px">
+     <h2>Your question bank is rotting. You just can't see it yet.</h2>
+     <p class="muted">Every leaked item quietly destroys your signal. The decay is invisible — until a strong candidate scores high on a test the prep market already memorised.</p>
+   </div>
+   <div class="timeline">
+     <div class="tl"><div class="wk">Week 1–4</div><h4>First exposure</h4><p>Questions surface in candidate WhatsApp groups and prep forums.</p></div>
+     <div class="tl"><div class="wk">Month 2–6</div><h4>The prep market catches up</h4><p>Answer keys circulate. Scores drift up without skills drifting up.</p></div>
+     <div class="tl"><div class="wk">Month 6–9</div><h4>Signal collapse</h4><p>The test no longer separates strong from rehearsed. You don't know which hires it cost you.</p></div>
+   </div>
+   <p class="center" style="margin-top:26px;font-family:var(--disp);font-weight:600;color:var(--navy)">QOrium retires questions before they leak — automatically.</p>
+  </div>
+ </section>
+
+ <section class="band tight" style="background:var(--cloud)">
+  <div class="wrap">
+   <h2 class="center">One engine. Three ways to buy.</h2>
+   <div class="grid g3" style="margin-top:30px">
+     <div class="card"><div class="pill">ReadyBank</div><h3>Calibrated libraries, ready today</h3><p class="muted">A shared, anti-leak skill library indexed by the role you're hiring.</p><a class="signin" style="color:var(--cyan);font-weight:600" onclick="go('platform')">For platforms & mid-market →</a></div>
+     <div class="card"><div class="pill">JD-Forge</div><h3>Paste a JD → a calibrated test</h3><p class="muted">Turn any job description into a role-shaped assessment in minutes.</p><a class="signin" style="color:var(--cyan);font-weight:600" onclick="go('platform')">For staffing firms →</a></div>
+     <div class="card"><div class="pill">Stack-Vault</div><h3>A private bank for your stack</h3><p class="muted">Customer-exclusive, watermarked items for SAP, Oracle, BFSI & more.</p><a class="signin" style="color:var(--gold);font-weight:600" onclick="go('solutions')">For enterprises & GCCs →</a></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="band">
+  <div class="wrap">
+   <h2 class="center">What you get that no one else gives you</h2>
+   <div class="grid g4" style="margin-top:30px">
+     <div class="card"><div class="icon">⟳</div><h3>Fresh items on demand</h3><p class="muted">AI-authored, human-validated — never a stale bank.</p></div>
+     <div class="card"><div class="icon">✦</div><h3>Validated, not just written</h3><p class="muted">Each item carries measured difficulty & discrimination.</p></div>
+     <div class="card"><div class="icon">🛈</div><h3>Questions that retire before they leak</h3><p class="muted">Rotation pre-empts the decay timeline above.</p></div>
+     <div class="card"><div class="icon">⇲</div><h3>Use the score anywhere</h3><p class="muted">REST API, export, embed, or white-label.</p></div>
+     <div class="card"><div class="icon">▤</div><h3>Tests for the stack you run</h3><p class="muted">SAP, Oracle, ABAP, Finacle, BFSI depth.</p></div>
+     <div class="card"><div class="icon">◷</div><h3>Organised by the role</h3><p class="muted">A role-graph maps skills to the job you're filling.</p></div>
+     <div class="card"><div class="icon">⌗</div><h3>Every leak traces back</h3><p class="muted">Per-candidate watermarking on every item served.</p></div>
+     <div class="card"><div class="icon">{}</div><h3>Built to plug in</h3><p class="muted">Content-API-first, so it lives inside your flow.</p></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="band" style="background:var(--cloud)">
+  <div class="wrap">
+   <div class="center" style="max-width:640px;margin:0 auto 30px">
+     <div class="eyebrow center">Show, don't tell</div>
+     <h2>Paste a job description. Watch the test build itself.</h2>
+     <p class="muted">This is the real JD-Forge flow — skills, difficulty bands and a rubric, generated from role text.</p>
+   </div>
+   <div class="jd">
+     <div>
+       <textarea id="jdin">Senior Python Engineer — build and scale data pipelines (Airflow), optimise PostgreSQL, deploy on AWS (ECS), strong on testing and code review.</textarea>
+       <button class="btn btn-primary" style="margin-top:12px" onclick="forge()">⚡ Forge the assessment</button>
+     </div>
+     <div class="packout" id="packout">
+       <p class="muted" style="font-family:var(--mono);font-size:.8rem">↑ Edit the JD and press “Forge”. The calibrated pack appears here.</p>
+     </div>
+   </div>
+  </div>
+ </section>
+
+ <section class="band">
+  <div class="wrap">
+   <h2 class="center">Three teams. Three paths.</h2>
+   <div class="grid g3" style="margin-top:30px">
+     <div class="card"><div class="pill">Staffing firms</div><h3>Send a shortlist your client trusts</h3><p class="muted">Stop forwarding résumés. Forward evidence.</p><button class="btn btn-ghost dark" onclick="go('solutions')">Start a JD-Forge trial</button></div>
+     <div class="card"><div class="pill">Enterprises & GCCs</div><h3>Hire for your real stack</h3><p class="muted">Scores you can defend to legal — on SAP, Oracle, BFSI.</p><button class="btn btn-ghost dark" onclick="go('solutions')">Scope a Stack-Vault</button></div>
+     <div class="card"><div class="pill">Assessment platforms</div><h3>Stop authoring content that rots</h3><p class="muted">License calibrated content through one API.</p><button class="btn btn-ghost dark" onclick="go('platform')">Talk to API sales</button></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="band tight" style="background:var(--navy);color:#cfe">
+  <div class="wrap center" style="max-width:640px">
+   <h2 style="color:#fff">We only publish what we can prove.</h2>
+   <p style="color:#aebfd6">No logo we don't have. No number we didn't measure. No certification we haven't earned. When the proof lands, it shows up here — and not a day before.</p>
+  </div>
+ </section>
+
+ <section class="band">
+  <div class="wrap center">
+   <h2>See a defensible assessment in 20 minutes.</h2>
+   <div class="cta-row" style="justify-content:center;margin-top:18px">
+     <button class="btn btn-primary" onclick="go('pricing')">Book a demo</button>
+     <button class="btn btn-ghost dark" onclick="go('pricing')">See pricing</button>
+   </div>
+  </div>
+ </section>
+</div>
+
+<!-- ===================== PLATFORM ===================== -->
+<div class="page" id="platform">
+ <div class="hero light">
+  <div class="wrap" style="padding:64px 0">
+   <div class="kicker-line"></div>
+   <div class="eyebrow">Platform overview</div>
+   <h1>One calibrated content engine. Three ways to buy.</h1>
+   <p class="lede" style="max-width:54ch">From item authoring to an explainable score, every step is built so your hiring decision survives scrutiny.</p>
+   <div class="sub-nav">
+     <button onclick="go('platform')">ReadyBank</button><button onclick="go('platform')">JD-Forge</button>
+     <button onclick="go('solutions')">Stack-Vault</button><button onclick="go('platform')">API</button>
+   </div>
+  </div>
+ </div>
+ <section class="band tight">
+  <div class="wrap">
+   <h2 class="center">The defensibility pipeline</h2>
+   <div class="grid g4" style="margin-top:26px">
+     <div class="card dark"><div class="pill">01 · Author</div><h3>Fresh items</h3><p>AI-authored across 1,000+ skills, human-reviewed.</p></div>
+     <div class="card dark"><div class="pill">02 · Calibrate</div><h3>IRT difficulty</h3><p>Each item measured — not guessed.</p></div>
+     <div class="card dark"><div class="pill">03 · Rotate</div><h3>Anti-leak</h3><p>Items retire before exposure rots them.</p></div>
+     <div class="card dark"><div class="pill">04 · Deliver</div><h3>Anywhere</h3><p>API, export, embed, white-label.</p></div>
+   </div>
+   <div class="ledger" style="margin-top:26px">
+     <div class="lhead"><span>EVIDENCE LEDGER · live calibration</span><span>qorium.engine</span></div>
+     <div class="lrow"><span>item</span><span>difficulty (b)</span><span>discrim (a)</span><span>leak-status</span></div>
+     <div class="lrow"><span>PY-async-0421</span><span>+0.82</span><span>1.34</span><span class="tag fresh">fresh</span></div>
+     <div class="lrow"><span>SQL-window-0119</span><span>+0.15</span><span>1.02</span><span class="tag due">rotate soon</span></div>
+     <div class="lrow"><span>AWS-iam-0307</span><span>+1.21</span><span>0.91</span><span class="tag rot">retiring</span></div>
+   </div>
+  </div>
+ </section>
+ <section class="band tight" style="background:var(--cloud)">
+   <div class="wrap"><h2 class="center">Pick your motion</h2>
+   <div class="grid g3" style="margin-top:24px">
+     <div class="card"><div class="pill">ReadyBank</div><h3>Use a calibrated library today</h3><p class="muted">Breadth without commodity — indexed by role, refreshed by rotation.</p><button class="btn btn-ghost dark" onclick="go('platform')">Browse library</button></div>
+     <div class="card"><div class="pill">JD-Forge</div><h3>Paste a JD → a test that matches the work</h3><p class="muted">Role → skills → difficulty bands → rubric, in minutes.</p><button class="btn btn-ghost dark" onclick="go('home')">Try JD-Forge</button></div>
+     <div class="card"><div class="pill">Stack-Vault</div><h3>A private bank for your stack</h3><p class="muted">Watermarked, customer-exclusive, regulated-hiring ready.</p><button class="btn btn-gold" onclick="go('solutions')">Scope a Stack-Vault</button></div>
+   </div></div>
+ </section>
+ <section class="band"><div class="wrap center"><h2>See the engine on your roles.</h2>
+   <div class="cta-row" style="justify-content:center;margin-top:16px"><button class="btn btn-primary" onclick="go('pricing')">Book a demo</button><button class="btn btn-ghost dark" onclick="go('pricing')">See pricing</button></div></div></section>
+</div>
+
+<!-- ===================== SOLUTIONS ===================== -->
+<div class="page" id="solutions">
+ <div class="hero gold">
+  <div class="wrap" style="padding:64px 0">
+   <div class="kicker-line"></div>
+   <div class="eyebrow">Solutions</div>
+   <h1>The right proof for the team you run.</h1>
+   <p class="lede">Pick your path. Each one gets its own workflow, its own proof, and its own next step — not a generic page.</p>
+  </div>
+ </div>
+ <section class="band tight">
+  <div class="wrap">
+   <div class="lead-tabs">
+     <button class="on" onclick="leadtab(this,'staff')">Staffing firms</button>
+     <button onclick="leadtab(this,'ent')">Enterprises & GCCs</button>
+     <button onclick="leadtab(this,'plat')">Assessment platforms</button>
+   </div>
+   <div id="staff" class="leadpane">
+     <h2>Turn every client JD into a stronger shortlist signal.</h2>
+     <p class="muted" style="max-width:60ch">Move staffing conversations from résumé-forwarding to evidence-backed candidate proof — with JD-Forge and ReadyBank.</p>
+     <div class="grid g3" style="margin-top:22px">
+       <div class="card"><h3>1 · Client JD in</h3><p class="muted">Paste the role. JD-Forge builds the calibrated pack.</p></div>
+       <div class="card"><h3>2 · Candidates tested</h3><p class="muted">Leak-resistant items, watermarked per candidate.</p></div>
+       <div class="card"><h3>3 · Evidence out</h3><p class="muted">A shortlist with scores the client can act on.</p></div>
+     </div>
+     <div class="stats" style="margin-top:24px">
+       <div class="stat"><div class="num">— </div><div>Time-to-shortlist <span class="targ">target · instrumenting</span></div></div>
+       <div class="stat"><div class="num">— </div><div>Client-interview hours saved <span class="targ">target · instrumenting</span></div></div>
+       <div class="stat"><div class="num">Daily</div><div>Talpro India runs this workflow as Customer Zero</div></div>
+     </div>
+     <button class="btn btn-primary" style="margin-top:20px" onclick="go('pricing')">Start a JD-Forge trial</button>
+   </div>
+   <div id="ent" class="leadpane" style="display:none">
+     <h2>Hire for your real stack — with scores you can defend to legal.</h2>
+     <p class="muted" style="max-width:60ch">A private, watermarked library for SAP, Oracle, Finacle, BFSI and more — IRT-calibrated and DPDP-compliant, with data that stays in India.</p>
+     <div class="grid g3" style="margin-top:22px">
+       <div class="card"><div class="pill">Stack-Vault</div><h3>Private & watermarked</h3><p class="muted">Your exact stack. Every leak traces back.</p></div>
+       <div class="card"><div class="pill">Defensible</div><h3>IRT scoring</h3><p class="muted">Grades that survive an audit.</p></div>
+       <div class="card"><div class="pill">Compliant</div><h3>DPDP + residency</h3><p class="muted">Candidate data stays in India.</p></div>
+     </div>
+     <button class="btn btn-gold" style="margin-top:20px" onclick="go('pricing')">Scope a Stack-Vault</button>
+   </div>
+   <div id="plat" class="leadpane" style="display:none">
+     <h2>Stop authoring content that rots. License ours.</h2>
+     <p class="muted" style="max-width:60ch">Calibrated, anti-leak content delivered through one API — so your platform ships fresh assessments without an authoring team.</p>
+     <div class="ledger" style="margin-top:22px">
+       <div class="lhead"><span>POST /v1/assessments</span><span>200 OK · 240ms</span></div>
+       <div class="lrow" style="grid-template-columns:1fr"><span>{ "skill": "python", "difficulty": "senior", "items": 12, "watermark": "cand_8841" }</span></div>
+     </div>
+     <button class="btn btn-primary" style="margin-top:20px" onclick="go('platform')">Talk to API sales</button>
+   </div>
+  </div>
+ </section>
+</div>
+
+<!-- ===================== SCIENCE ===================== -->
+<div class="page" id="science">
+ <div class="hero dark">
+  <div class="wrap hero-grid">
+   <div>
+     <div class="kicker-line"></div>
+     <div class="eyebrow">The science</div>
+     <h1>How an AI grade earns the right to be trusted.</h1>
+     <p class="lede">Every QOrium score is calibrated with Item Response Theory — so difficulty and discrimination are measured, not guessed, and a hiring manager's decision survives scrutiny.</p>
+     <div class="cta-row"><button class="btn btn-primary" onclick="go('pricing')">Talk to our psychometrician</button><button class="btn btn-ghost" onclick="go('science')">See the math →</button></div>
+   </div>
+   <div class="ledger">
+     <div class="lhead"><span>IRT CALIBRATION · sample</span><span>n = 2,140 responses</span></div>
+     <div class="lrow"><span>item</span><span>b (difficulty)</span><span>a (discrim)</span><span>fit</span></div>
+     <div class="lrow"><span>JV-stream-0712</span><span>+0.41</span><span>1.28</span><span class="tag fresh">good</span></div>
+     <div class="lrow"><span>SQL-idx-0233</span><span>-0.18</span><span>1.05</span><span class="tag fresh">good</span></div>
+     <div class="lrow"><span>K8s-net-0590</span><span>+1.44</span><span>0.79</span><span class="tag due">review</span></div>
+   </div>
+  </div>
+ </div>
+ <section class="band">
+  <div class="wrap grid g3">
+    <div class="card"><h3>Difficulty, measured</h3><p class="muted">The <b>b</b> parameter says how hard an item really is — calibrated against real responses, not an author's hunch.</p></div>
+    <div class="card"><h3>Discrimination, measured</h3><p class="muted">The <b>a</b> parameter says how well an item separates strong candidates from rehearsed ones.</p></div>
+    <div class="card"><h3>Human in the loop</h3><p class="muted">An I/O-psychology review gates every item before it can score a candidate.</p></div>
+  </div>
+ </section>
+ <section class="band tight" style="background:var(--cloud)">
+  <div class="wrap">
+   <h2 class="center">The standard we hold to</h2>
+   <div class="stats" style="margin-top:24px">
+     <div class="stat"><div class="num">α ≥ 0.75</div><div>Reliability floor before a test publishes <span class="targ">commitment · per-test α shown when measured</span></div></div>
+     <div class="stat"><div class="num">Quarterly</div><div>Adverse-impact & bias review cadence</div></div>
+     <div class="stat"><div class="num">Audit-ready</div><div>Every score links to its item evidence</div></div>
+   </div>
+   <p class="center muted" style="margin-top:16px;max-width:60ch;margin-left:auto;margin-right:auto">We publish reliability and bias-audit results per test once they're measured. We'd rather show you the method now than a number we haven't earned.</p>
+  </div>
+ </section>
+</div>
+
+<!-- ===================== PRICING ===================== -->
+<div class="page" id="pricing">
+ <div class="hero light">
+  <div class="wrap" style="padding:60px 0">
+   <div class="kicker-line"></div>
+   <div class="eyebrow">Pricing</div>
+   <h1>Start free. Pay for the trust layer when you're ready.</h1>
+   <p class="lede" style="max-width:56ch">Transparent, INR-native pricing — no "contact us" wall to see where you stand.</p>
+  </div>
+ </div>
+ <section class="band tight">
+  <div class="wrap">
+   <div class="ptable">
+     <div class="plan"><div class="pname">Customer-Zero</div><div class="price">Free</div><p class="muted" style="font-size:.85rem">For trying it on real roles.</p><ul><li>10 assessments / mo</li><li>JD-Forge (Standard)</li><li>ReadyBank sampling</li><li>Anti-leak rotation</li></ul><button class="btn btn-ghost dark" onclick="go('pricing')">Start free</button></div>
+     <div class="plan feat"><div class="pname">Growth</div><div class="price">₹14,999<span style="font-size:.9rem;font-weight:400" class="muted">/mo</span></div><p class="muted" style="font-size:.85rem">For staffing & mid-market.</p><ul><li>Higher volume</li><li>JD-Forge (Reviewed)</li><li>Full ReadyBank</li><li>Watermarking</li><li>CSV/JSON export</li></ul><button class="btn btn-primary" onclick="go('pricing')">Start free trial</button></div>
+     <div class="plan"><div class="pname">Scale</div><div class="price">₹49,999<span style="font-size:.9rem;font-weight:400" class="muted">/mo</span></div><p class="muted" style="font-size:.85rem">For high-volume hiring.</p><ul><li>Team seats</li><li>API access</li><li>Priority support</li><li>Advanced analytics</li></ul><button class="btn btn-ghost dark" onclick="go('pricing')">Book a demo</button></div>
+     <div class="plan"><div class="pname">Enterprise</div><div class="price">Custom</div><p class="muted" style="font-size:.85rem">Stack-Vault, SSO, residency.</p><ul><li>Private Stack-Vault</li><li>SSO / SAML</li><li>India data residency</li><li>DPA + security review</li></ul><button class="btn btn-gold" onclick="go('solutions')">Scope a quote</button></div>
+   </div>
+   <p class="center muted" style="margin-top:14px;font-size:.82rem">Illustrative figures from the SKU architecture — CEO to ratify exact numbers before publish. The page always shows a committed structure, never "numbers not set."</p>
+  </div>
+ </section>
+ <section class="band tight" style="background:var(--cloud)">
+   <div class="wrap"><h2 class="center">By product</h2>
+   <div class="grid g3" style="margin-top:22px">
+     <div class="card"><div class="pill">JD-Forge</div><p style="margin:.4rem 0"><b>₹3,999</b> Standard · <b>₹15,999</b> Reviewed · <b>₹39,999</b> Enterprise</p><p class="muted" style="font-size:.86rem">Per pack. AI-only → AI+SME → IP-protected.</p></div>
+     <div class="card"><div class="pill">ReadyBank</div><p style="margin:.4rem 0"><b>₹4,999</b> · <b>₹14,999</b> · <b>₹49,999</b> /mo</p><p class="muted" style="font-size:.86rem">Recruiter tiers. Platform API priced separately.</p></div>
+     <div class="card"><div class="pill">Stack-Vault</div><p style="margin:.4rem 0">Department · Enterprise · Group</p><p class="muted" style="font-size:.86rem">Scoped to your stack — talk to sales for a quote.</p></div>
+   </div></div>
+ </section>
+ <section class="band tight"><div class="wrap" style="max-width:760px">
+   <h2 class="center">Pricing FAQ</h2>
+   <div class="card" style="margin-top:18px"><h3>What counts as an assessment?</h3><p class="muted">One candidate completing one test. Invites that aren't taken aren't charged.</p></div>
+   <div class="card" style="margin-top:12px"><h3>INR or USD?</h3><p class="muted">India-native pricing in INR; USD for international and platform deals.</p></div>
+   <div class="card" style="margin-top:12px"><h3>Is there an annual discount?</h3><p class="muted">Yes — annual plans are discounted vs monthly. Shown at checkout.</p></div>
+ </div></section>
+</div>
+
+<!-- ===================== COMPARE ===================== -->
+<div class="page" id="compare">
+ <div class="hero dark">
+  <div class="wrap" style="padding:60px 0">
+   <div class="kicker-line"></div>
+   <div class="eyebrow">Compare · QOrium vs HackerRank</div>
+   <h1>A fair comparison — anchored on what survives an audit.</h1>
+   <p class="lede">We won't smear the market. Here's where QOrium is genuinely different, row by row.</p>
+  </div>
+ </div>
+ <section class="band tight">
+  <div class="wrap">
+   <table class="cmp">
+     <thead><tr><th>Capability</th><th>QOrium</th><th>HackerRank</th></tr></thead>
+     <tbody>
+       <tr><td class="q">Anti-leak rotation lifecycle</td><td class="yes">Built-in, automatic</td><td class="part">Plagiarism detection</td></tr>
+       <tr><td class="q">IRT-defensible scoring</td><td class="yes">Per-item calibration</td><td class="no">Not published</td></tr>
+       <tr><td class="q">Private stack depth (SAP/Oracle/BFSI)</td><td class="yes">Stack-Vault</td><td class="part">General library</td></tr>
+       <tr><td class="q">Per-candidate watermarking</td><td class="yes">Every item</td><td class="no">—</td></tr>
+       <tr><td class="q">DPDP + India data residency</td><td class="yes">Native</td><td class="no">US-centric</td></tr>
+       <tr><td class="q">Pricing transparency</td><td class="yes">Published, INR-native</td><td class="part">Tiered, demo-led</td></tr>
+       <tr><td class="q">Developer ecosystem scale</td><td class="part">Growing</td><td class="yes">Very large</td></tr>
+     </tbody>
+   </table>
+   <p class="muted" style="font-size:.82rem;margin-top:12px">Competitor rows reflect public claims and will be sourced + dated on the live page. QOrium's "—/growing" rows are stated honestly, not hidden.</p>
+   <div class="grid g4" style="margin-top:30px">
+     <div class="card" onclick="go('compare')" style="cursor:pointer"><div class="pill">vs</div><h3>CodeSignal</h3></div>
+     <div class="card" onclick="go('compare')" style="cursor:pointer"><div class="pill">vs</div><h3>TestGorilla</h3></div>
+     <div class="card" onclick="go('compare')" style="cursor:pointer"><div class="pill">vs</div><h3>iMocha</h3></div>
+     <div class="card" onclick="go('compare')" style="cursor:pointer"><div class="pill">vs</div><h3>Mercer | Mettl</h3></div>
+   </div>
+   <div class="center" style="margin-top:30px"><button class="btn btn-primary" onclick="go('pricing')">See why teams switch</button></div>
+  </div>
+ </section>
+</div>
+
+<footer>
+ <div class="wrap">
+  <div class="fgrid">
+    <div>
+      <div class="logo" style="color:#fff"><span class="dot"></span>QOrium</div>
+      <p style="margin-top:.8rem;max-width:32ch">India-built assessment content infrastructure for hiring teams that need defensible skill evidence.</p>
+    </div>
+    <div><h5>Platform</h5><a onclick="go('platform')">ReadyBank</a><a onclick="go('platform')">JD-Forge</a><a onclick="go('solutions')">Stack-Vault</a><a onclick="go('platform')">API</a><a onclick="go('platform')">Library</a></div>
+    <div><h5>Solutions</h5><a onclick="go('solutions')">Staffing firms</a><a onclick="go('solutions')">Enterprises & GCC</a><a onclick="go('solutions')">Platforms</a></div>
+    <div><h5>Why QOrium</h5><a onclick="go('science')">Science</a><a onclick="go('science')">Anti-leak</a><a onclick="go('science')">Trust & security</a><a onclick="go('science')">DPDP</a><a onclick="go('compare')">Compare</a></div>
+    <div><h5>Company</h5><a onclick="go('home')">About</a><a onclick="go('home')">Customers</a><a onclick="go('home')">Contact</a><a onclick="go('home')">Changelog</a></div>
+  </div>
+  <div class="fbot">
+    <span>QOrium™ is a product of Talpro India Private Limited.</span>
+    <span>Privacy · Terms · DPA · Security · Responsible AI · security.txt</span>
+  </div>
+ </div>
+</footer>
+
+<div class="proto-note">PROTOTYPE · 6 flagship pages · brand tokens applied · ⟦target⟧ stats are placeholders pending instrumentation (evidence-gating)</div>
+
+<script>
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  var el=document.getElementById(id); if(el){el.classList.add('active');}
+  document.querySelectorAll('.navlinks a').forEach(a=>a.classList.remove('active'));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function leadtab(btn,id){
+  document.querySelectorAll('.lead-tabs button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.leadpane').forEach(p=>p.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+function forge(){
+  var jd=document.getElementById('jdin').value.toLowerCase();
+  var skills=[];
+  function add(name,lvl,w){skills.push({name,lvl,w});}
+  if(jd.includes('python'))add('Python — async & data structures','Senior',88);
+  if(jd.includes('postgres')||jd.includes('sql'))add('SQL — query optimisation & indexing','Senior',82);
+  if(jd.includes('airflow')||jd.includes('pipeline'))add('Data pipelines — orchestration','Mid',70);
+  if(jd.includes('aws')||jd.includes('ecs'))add('AWS — ECS & IAM','Mid',66);
+  if(jd.includes('test')||jd.includes('review'))add('Testing & code review','Mid',60);
+  if(jd.includes('react')||jd.includes('javascript'))add('JavaScript / React','Mid',64);
+  if(skills.length===0){add('Core role skill','Mid',60);add('Problem solving (cognitive)','Mid',55);}
+  var html='<div style="font-family:var(--mono);font-size:.72rem;color:var(--cyan);margin-bottom:8px">CALIBRATED PACK · '+skills.length+' skill areas · '+(skills.length*3)+' items · rubric attached</div>';
+  skills.forEach(s=>{html+='<div class="skillrow"><span><b>'+s.name+'</b><br><span class="muted" style="font-size:.75rem">'+s.lvl+' band · IRT-calibrated</span></span><span class="bar"><i style="width:'+s.w+'%"></i></span></div>';});
+  html+='<div style="margin-top:10px;font-size:.78rem" class="muted">Anti-leak rotation: ON · watermark: per-candidate · export: CSV/JSON/API</div>';
+  document.getElementById('packout').innerHTML=html;
+}
+</script>
+</body>
+</html>
