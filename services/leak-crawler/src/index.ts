@@ -195,9 +195,13 @@ export async function runOnce(
         actorId: config.apifyActorId,
         countryCode: config.apifyCountryCode,
         languageCode: config.apifyLanguageCode,
+        timeoutMs: config.apifyTimeoutMs,
       }),
     );
-    logger.info({ actorId: config.apifyActorId }, 'apify poller enabled');
+    logger.info(
+      { actorId: config.apifyActorId, timeoutMs: config.apifyTimeoutMs },
+      'apify poller enabled',
+    );
   } else if (config.searchProvider === 'stub' && config.nodeEnv !== 'production') {
     pollers.push(new StubPoller());
     logger.info('stub poller enabled');

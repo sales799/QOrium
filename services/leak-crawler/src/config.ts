@@ -13,6 +13,8 @@ export interface LeakCrawlerConfig {
   apifyActorId: string;
   apifyCountryCode: string | undefined;
   apifyLanguageCode: string | undefined;
+  /** Per-Apify request timeout. The sync actor endpoint can exceed 60s under load. */
+  apifyTimeoutMs: number;
   anthropicApiKey: string | undefined;
   /** Maximum questions scanned per crawl pass. Per spec §10 v0 default is 5,000. */
   maxQuestions: number;
@@ -63,6 +65,10 @@ export function loadConfig(): LeakCrawlerConfig {
     apifyActorId: process.env.APIFY_ACTOR_ID || 'apify/google-search-scraper',
     apifyCountryCode: process.env.APIFY_COUNTRY_CODE || undefined,
     apifyLanguageCode: process.env.APIFY_LANGUAGE_CODE || undefined,
+    apifyTimeoutMs: parsePositiveInt(
+      process.env.LEAK_CRAWLER_APIFY_TIMEOUT_MS || process.env.APIFY_TIMEOUT_MS,
+      120_000,
+    ),
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || undefined,
     maxQuestions: parsePositiveInt(process.env.LEAK_CRAWLER_MAX_QUESTIONS, 5_000),
     ngramsPerQuestion: parsePositiveInt(process.env.LEAK_CRAWLER_NGRAMS_PER_QUESTION, 5),
