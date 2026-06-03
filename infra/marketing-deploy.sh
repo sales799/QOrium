@@ -276,6 +276,13 @@ else
   )
   ok "deps installed"
 
+  log "Building workspace packages"
+  (
+    cd "$TMP_RELEASE"
+    command pnpm run build:packages 2>&1 | tail -25
+  )
+  ok "workspace packages built"
+
   log "Building marketing app (Next.js 15)"
   (
     cd "$TMP_RELEASE"
@@ -284,11 +291,6 @@ else
   [[ -d "$TMP_RELEASE/apps/marketing/.next" ]] || die "build did not produce .next/ — check log above"
   ok "build complete · $(du -sh "$TMP_RELEASE/apps/marketing/.next" | cut -f1)"
 
-  log "Building database workspace package"
-  (
-    cd "$TMP_RELEASE"
-    command pnpm --filter @qorium/db build 2>&1 | tail -20
-  )
   [[ -f "$TMP_RELEASE/packages/db/dist/index.js" ]] || die "database build did not produce dist/index.js — check log above"
   ok "database package build complete"
 
@@ -414,6 +416,14 @@ server {
     client_max_body_size 5M;
  # Cloudflare owns public rate limiting; keep Nginx limits only on documented expensive routes.
  # Avoid blanket duplicate limits here to prevent false 429s on health and marketing traffic.
+
+    # ── IA legacy-path 301s (2026-06-02) — only redirect paths whose target FEATURE is live.
+    # Spec-only modules (M3 job-simulations, M8 interview-scheduling, M10 reference-checking) stay 404
+    # per QOrium no-over-promise rule. Re-add destinations here ONLY when those modules ship.
+    location = /product/jd-forge          { return 301 https://qorium.online/features/jd-forge; }
+    location = /product/ai-grading        { return 301 https://qorium.online/method; }
+    location = /product/assessment-builder { return 301 https://qorium.online/features/readybank; }
+    location = /product/anti-cheating     { return 301 https://qorium.online/anti-leak; }
 
     location / {
         proxy_pass http://127.0.0.1:${APP_PORT};
