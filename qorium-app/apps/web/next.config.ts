@@ -6,6 +6,9 @@ const webDir = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: join(webDir, "../.."),
+  turbopack: {
+    root: join(webDir, "../..")
+  },
   transpilePackages: ["@qorium/ui"],
   async headers() {
     return [
