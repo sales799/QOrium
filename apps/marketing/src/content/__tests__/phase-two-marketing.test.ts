@@ -9,7 +9,9 @@ import StaffingFirmsPage from '@/app/(marketing)/solutions/staffing-firms/page';
 import JdForgePage from '@/app/(marketing)/platform/jd-forge/page';
 import SamplePacksPage from '@/app/(marketing)/resources/sample-packs/page';
 import ReadyBankPage from '@/app/(marketing)/platform/readybank/page';
+import ResearchHubPage from '@/app/(marketing)/research/page';
 import StackVaultPage from '@/app/(marketing)/platform/stack-vault/page';
+import TryHubPage from '@/app/(marketing)/try/page';
 import TryJdForgePage from '@/app/(marketing)/try/jd-forge/page';
 import { platformProducts, solutionBuyerPages } from '@/content/copy/phase2';
 
@@ -82,11 +84,17 @@ describe('phase two marketing pages', () => {
   });
 
   it('emits structured data on interactive proof surfaces', () => {
+    expect(jsonLdTypesFor(TryHubPage)).toEqual(
+      expect.arrayContaining(['BreadcrumbList', 'WebPage', 'ItemList']),
+    );
     expect(jsonLdTypesFor(TryJdForgePage)).toEqual(
       expect.arrayContaining(['WebPage', 'SoftwareApplication']),
     );
     expect(jsonLdTypesFor(SamplePacksPage)).toEqual(
       expect.arrayContaining(['CollectionPage', 'ItemList']),
+    );
+    expect(jsonLdTypesFor(ResearchHubPage)).toEqual(
+      expect.arrayContaining(['BreadcrumbList', 'WebPage', 'ItemList']),
     );
   });
 });
