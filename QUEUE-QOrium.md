@@ -3,7 +3,22 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #51 (Rakshak tooling closeout + live proof)
+**Last touched:** 2026-06-03 — Codex Run #52 (PROVE PORT active-origin PR proof)
+
+---
+
+## RUN #52 — PROVE PORT Active-Origin Hub PR Proof (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Ported local hub proof into the live production tree** — created/pushed branch `codex/qorium-port-try-research-hubs-20260603` at commit `9916126` (`Port QOrium proof hubs to active marketing`) instead of raw-deploying the incompatible `qorium-app/apps/web` tree from `dec4ad2` / PR #94.
+- [2026-06-03] **Opened active-origin PR #99** — `https://github.com/sales799/QOrium/pull/99` targets `codex/qorium-marketing-enterprise-redesign-20260602` and carries `/try`, `/research`, sitemap, IA, and Playwright smoke coverage in `apps/marketing`.
+- [2026-06-03] **Verified the port locally in the active worktree** — checks passed: `pnpm --filter @qorium/marketing typecheck`; `pnpm --filter @qorium/marketing build` (`1198/1198`, rendered-copy gate `1171` files); `pnpm --filter @qorium/marketing test` (`13` files / `60` tests); `pnpm lint`; `pnpm --filter @qorium/marketing test:e2e` (`12` passed).
+- [2026-06-03] **Kept production safe** — no production deploy was run during PROVE PORT because author-owned PR #99 still requires cross-account review/merge before the approved active-origin deploy pipeline can flip live traffic.
+
+### REMAINING FOLLOW-UP
+- [REVIEW] Non-author review/merge is required for PR #99; author must not self-approve.
+- [DEPLOY] After review/merge, deploy through the approved active-origin `safe-deploy qorium-marketing` / `infra/marketing-deploy.sh` path, then verify `https://qorium.online/`, `/try`, `/research`, `/healthz`, and `/sitemap.xml` with security headers.
+- [INFO] Active port worktree is otherwise clean except untracked `audits/`, left untouched.
 
 ---
 
@@ -55,7 +70,10 @@
 - **CRON installed** (root crontab): `*/10 * * * *` → 4 drafts/run, flock-guarded, runs as postgres, logs `/var/log/qorium/draft-factory.log`. Cron daemon active.
 - **Self-limiting:** worklist only picks skills with <10 questions → naturally stops at the 10/skill floor (~4,513 target = 986→~5,000+).
 - **Proof:** manual batch inserted 4/5 drafts (1 auto-rejected for malformed JSON = quality guard working); each 3–10s. Sample = coherent Fibonacci-memoization MCQ.
-- **Open (separate, not auto-run):** self-critique + anti-leak pass on drafts; the draft→released validation gate (CEO earlier approved cheap-paid-frontier on survivors). These are NOT live yet — drafts accumulate until validated.
+- **APPROVER LIVE (2026-06-03):** `/opt/qorium/scripts/free-approver.py` — deterministic checks + free-Qwen critic; PASS→`status='released'` (sme_validated_by NULL = AI-gate not human-SME, recorded in ai_critique_scores), FAIL→`status='deprecated'`. CRON `5,15,25,35,45,55 * * * *`, logs `/var/log/qorium/approver.log`. Proof: first run 6 released / 2 deprecated; released 986→992.
+- **MONITORING / CEO tab (2026-06-03):** (a) live dashboard artifact `qorium-question-bank-live` (queries DB fresh on open); (b) scheduled Telegram digest `qorium-questionbank-digest` 3×/day (09/15/21 IST).
+- **Honesty caveat (SO-8):** these 'released' are AI-validated, not human-SME — at least as validated as the original 986 (no SME either), actually more (passed an automated gate). Add human-SME/paid-frontier spot-check before enterprise deals.
+- **Open (deliberately not run):** anti-leak similarity pass on drafts; human-SME upgrade of the gate.
 
 ## ⭐ NEXT-UP (HIGH, dispatched 2026-06-03) — Customer-Zero Candidate Flow (IRT calibration unlock)
 **Shard:** `CODEX_PENDING_QORIUM_CUSTOMER_ZERO_CANDIDATE_FLOW_2026-06-03.md` · **Branch:** `codex/qorium-customer-zero-flow` · **Lane:** KARYA/BHIMA
