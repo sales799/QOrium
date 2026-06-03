@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -409,7 +410,7 @@ export function HomeV2Page() {
             description="This strip names the trust posture without showing logo rails, case studies, or outcome numbers ahead of evidence."
           />
           <Reveal>
-            <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
+            <div className="grid gap-4 lg:grid-cols-[0.85fr_1fr_1.15fr]">
               <div className="rounded-lg border border-border bg-card p-5">
                 <ShieldCheck className="size-6 text-secondary" />
                 <h3 className="mt-4 text-xl font-semibold">We show our work.</h3>
@@ -419,6 +420,24 @@ export function HomeV2Page() {
               </div>
               <div className="rounded-lg border border-border bg-card p-5">
                 <BulletList items={homeV2.trust} />
+              </div>
+              <div className="overflow-hidden rounded-lg border border-border bg-card">
+                <div className="relative aspect-[16/10] bg-muted">
+                  <Image
+                    src="/assets/qorium-home-current.png"
+                    alt="QOrium homepage proof surface preview"
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="object-cover object-top"
+                  />
+                </div>
+                <div className="border-t border-border p-4">
+                  <p className="text-sm font-semibold">Live proof surface preview</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Ported from PR #94 so reviewers can inspect the SEO shell evidence inside the
+                    production marketing app.
+                  </p>
+                </div>
               </div>
             </div>
           </Reveal>
