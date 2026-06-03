@@ -71,6 +71,8 @@ export function JdForgeDemo({
       trackProofEvent('jd_forge_demo_extracted', {
         skill_count: payload.data.skills.length,
         low_confidence: Boolean(payload.data.lowConfidenceReason),
+        accept_estimate: payload.data.audit.acceptEstimate,
+        seeded_role: payload.data.roleMatch.seededRole,
       });
       setStatus('idle');
     } catch {
@@ -278,6 +280,33 @@ export function JdForgeDemo({
           <div className="mt-4 rounded-md border border-product-500/30 bg-product-100 p-3 text-sm text-foreground">
             <ShieldCheck className="mb-2 size-4 text-product-500" />
             {result.assessment.coverageBadge}
+          </div>
+          <div
+            className={cn(
+              'mt-3 grid gap-2 rounded-md border p-3 text-sm',
+              dark ? 'border-white/10 bg-white/[0.04]' : 'border-border bg-background',
+            )}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span className={dark ? 'text-shell-muted' : 'text-muted-foreground'}>
+                Seeded role
+              </span>
+              <span className="text-right font-semibold">{result.roleMatch.seededRole}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className={dark ? 'text-shell-muted' : 'text-muted-foreground'}>
+                Human accept estimate
+              </span>
+              <span className="font-semibold">
+                {Math.round(result.audit.acceptEstimate * 100)}%
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className={dark ? 'text-shell-muted' : 'text-muted-foreground'}>
+                SLA target
+              </span>
+              <span className="font-semibold">{result.audit.slaSeconds}s draft</span>
+            </div>
           </div>
           <div className="mt-4 space-y-2">
             {result.assessment.formats.map((format) => (

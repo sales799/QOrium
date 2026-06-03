@@ -32,6 +32,9 @@ describe('interactive proof fixtures', () => {
     expect(demo.ok).toBe(true);
     expect(demo.skills.length).toBeGreaterThanOrEqual(5);
     expect(demo.assessment.itemCount).toBe(20);
+    expect(demo.audit.slaSeconds).toBe(60);
+    expect(demo.audit.acceptEstimate).toBeGreaterThanOrEqual(0.7);
+    expect(demo.roleMatch.seededRole).toBe('Senior Java Engineer');
     expect(demo.lowConfidenceReason).toBeUndefined();
     expect(demo.skills.every((skill) => skill.libraryHref.startsWith('/library/'))).toBe(true);
     for (const skill of demo.skills) {

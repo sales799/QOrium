@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { publicApiBaseUrl, publicApiGroups, publicOpenApiSpec } from '../api-docs';
+import {
+  postmanCollectionHref,
+  publicApiBaseUrl,
+  publicApiGroups,
+  publicOpenApiSpec,
+  publicSdkExamples,
+  webhookVerificationExample,
+} from '../api-docs';
 
 describe('public API docs', () => {
   it('publishes an OpenAPI 3.1 contract on the QOrium API host', () => {
@@ -27,5 +34,15 @@ describe('public API docs', () => {
     expect(publicOpenApiSpec.components.schemas.ApiError.required).toContain('message');
     expect(specText).toContain('live-public-proof');
     expect(specText).not.toMatch(/M20|TBD|wait for/i);
+  });
+
+  it('publishes SDK examples and a downloadable Postman collection link', () => {
+    expect(postmanCollectionHref).toBe('/docs/qorium-public-proof.postman_collection.json');
+    expect(publicSdkExamples.map((example) => example.language)).toEqual(['Node.js', 'Python']);
+    expect(publicSdkExamples.every((example) => example.code.includes('/jd-forge/demo'))).toBe(
+      true,
+    );
+    expect(webhookVerificationExample).toContain('timingSafeEqual');
+    expect(publicOpenApiSpec['x-qorium-postman-collection']).toBe(postmanCollectionHref);
   });
 });

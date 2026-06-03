@@ -1,10 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Braces, KeyRound, ShieldCheck, Webhook } from 'lucide-react';
+import { ArrowRight, Braces, Download, KeyRound, ShieldCheck, Webhook } from 'lucide-react';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
-import { publicApiBaseUrl, publicApiDocsUpdated, publicApiGroups } from '@/content/api-docs';
+import {
+  postmanCollectionHref,
+  publicApiBaseUrl,
+  publicApiDocsUpdated,
+  publicApiGroups,
+  publicSdkExamples,
+  webhookVerificationExample,
+} from '@/content/api-docs';
 import { phase4Faqs } from '@/content/phase4';
 
 export const metadata: Metadata = {
@@ -60,6 +67,13 @@ export default function ApiDocsPage() {
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link
+                  href={postmanCollectionHref}
+                  className="inline-flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm font-semibold"
+                >
+                  Download Postman collection
+                  <Download className="size-4" />
+                </Link>
+                <Link
                   href="/demo"
                   className="inline-flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm font-semibold"
                 >
@@ -68,6 +82,45 @@ export default function ApiDocsPage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </SectionBand>
+
+        <SectionBand
+          title="SDK examples"
+          description="Copy-ready examples for the public-preview proof API. Keep keys server-side and rotate them through your normal secret manager."
+        >
+          <div className="grid gap-5 lg:grid-cols-2">
+            {publicSdkExamples.map((example) => (
+              <div key={example.language} className="rounded-lg border border-border bg-card p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-xl font-semibold tracking-normal">{example.language}</h2>
+                  <span className="rounded-md border border-border bg-muted px-2 py-1 text-xs">
+                    {example.install}
+                  </span>
+                </div>
+                <pre className="mt-4 overflow-x-auto rounded-md border border-border bg-muted p-4 text-sm leading-6">
+                  <code>{example.code}</code>
+                </pre>
+              </div>
+            ))}
+          </div>
+        </SectionBand>
+
+        <SectionBand
+          title="Postman and webhooks"
+          description="The collection carries base and api_key variables. Webhook verification uses HMAC-SHA256 over the raw request body."
+        >
+          <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+            <SurfaceCard title="Postman collection" href={postmanCollectionHref}>
+              <span className="mb-3 inline-flex size-9 items-center justify-center rounded-md bg-muted text-secondary">
+                <Download className="size-4" />
+              </span>
+              Download the collection and set the base plus api_key variables before running
+              mutating requests.
+            </SurfaceCard>
+            <pre className="overflow-x-auto rounded-lg border border-border bg-card p-5 text-sm leading-6">
+              <code>{webhookVerificationExample}</code>
+            </pre>
           </div>
         </SectionBand>
 

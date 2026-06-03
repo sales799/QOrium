@@ -1,0 +1,156 @@
+{
+  "info": {
+    "name": "QOrium Public Proof API",
+    "description": "Public-preview QOrium requests for JD-Forge demo, sample packs, grader exemplars, and trust evidence.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base",
+      "value": "https://qorium.online/v1"
+    },
+    {
+      "key": "api_key",
+      "value": "qor_live_replace_me"
+    }
+  ],
+  "item": [
+    {
+      "name": "JD-Forge",
+      "item": [
+        {
+          "name": "Create demo plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/jd-forge/demo",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jd_text\": \"Senior Java Engineer needed for Java 21, Spring Boot 3, JVM performance, SQL, microservices, and AWS production systems.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Request plan PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/jd-forge/demo/plan-pdf",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"company\": \"Example Co\",\n  \"role\": \"Talent Platform Lead\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sample Packs",
+      "item": [
+        {
+          "name": "List sample packs",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/sample-packs"
+          }
+        },
+        {
+          "name": "Preview sample pack",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/sample-packs/senior-java/preview"
+          }
+        },
+        {
+          "name": "Unlock sample pack",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/sample-packs/senior-java/unlock",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"company\": \"Example Co\",\n  \"role\": \"Talent Platform Lead\",\n  \"need\": \"Evaluate a Java hiring drive\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Grader Exemplars",
+      "item": [
+        {
+          "name": "List exemplars",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/grader/exemplars"
+          }
+        },
+        {
+          "name": "Get exemplar",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/grader/exemplars/java-jmm-happens-before"
+          }
+        },
+        {
+          "name": "Submit feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/grader/exemplars/java-jmm-happens-before/feedback",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vote\": \"up\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trust Evidence",
+      "item": [
+        {
+          "name": "Pipeline stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/content/pipeline-stats"
+          }
+        },
+        {
+          "name": "Quality gate",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/science/quality-gate"
+          }
+        },
+        {
+          "name": "Responsible AI status",
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/responsible-ai/status"
+          }
+        }
+      ]
+    }
+  ]
+}

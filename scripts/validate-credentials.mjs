@@ -156,6 +156,7 @@ function checkSentry() {
 
 function checkAts() {
   missing(['GREENHOUSE_API_KEY'], 'ats:greenhouse');
+  missing(['LEVER_API_TOKEN'], 'ats:lever');
   missing(['ASHBY_API_KEY'], 'ats:ashby');
   missing(['WORKDAY_CLIENT_ID', 'WORKDAY_CLIENT_SECRET', 'WORKDAY_TENANT_URL'], 'ats:workday');
   missing(['DARWINBOX_API_KEY', 'DARWINBOX_BASE_URL'], 'ats:darwinbox');

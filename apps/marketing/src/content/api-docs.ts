@@ -13,8 +13,74 @@ export interface PublicApiGroup {
   endpoints: PublicApiEndpoint[];
 }
 
+export interface PublicSdkExample {
+  language: 'Node.js' | 'Python';
+  install: string;
+  code: string;
+}
+
 export const publicApiBaseUrl = 'https://qorium.online/v1';
-export const publicApiDocsUpdated = '2026-06-01';
+export const publicApiDocsUpdated = '2026-06-03';
+export const postmanCollectionHref = '/docs/qorium-public-proof.postman_collection.json';
+
+export const publicSdkExamples: PublicSdkExample[] = [
+  {
+    language: 'Node.js',
+    install: 'Uses native fetch in Node 20+',
+    code: `const QORIUM = 'https://qorium.online/v1';
+const headers = {
+  Authorization: \`Bearer \${process.env.QORIUM_API_KEY}\`,
+  'Content-Type': 'application/json',
+};
+
+const plan = await fetch(\`\${QORIUM}/jd-forge/demo\`, {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({
+    jd_text: 'Senior Java Engineer with Spring Boot, SQL, microservices, and AWS.',
+  }),
+}).then((res) => res.json());
+
+const packs = await fetch(\`\${QORIUM}/sample-packs\`, { headers }).then((res) => res.json());
+console.log(plan.data.planId, packs.data.length);`,
+  },
+  {
+    language: 'Python',
+    install: 'pip install requests',
+    code: `import os
+import requests
+
+BASE = "https://qorium.online/v1"
+HEADERS = {
+    "Authorization": f"Bearer {os.environ['QORIUM_API_KEY']}",
+    "Content-Type": "application/json",
+}
+
+plan = requests.post(
+    f"{BASE}/jd-forge/demo",
+    headers=HEADERS,
+    json={
+        "jd_text": "Senior Java Engineer with Spring Boot, SQL, microservices, and AWS."
+    },
+).json()
+
+packs = requests.get(f"{BASE}/sample-packs", headers=HEADERS).json()
+print(plan["data"]["planId"], len(packs["data"]))`,
+  },
+];
+
+export const webhookVerificationExample = `import crypto from 'node:crypto';
+
+function verifyQoriumWebhook(rawBody, signature, signingSecret) {
+  const expected = crypto
+    .createHmac('sha256', signingSecret)
+    .update(rawBody)
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(signature.replace('sha256=', ''), 'hex'),
+    Buffer.from(expected, 'hex'),
+  );
+}`;
 
 export const publicApiGroups: PublicApiGroup[] = [
   {
@@ -156,6 +222,12 @@ export const publicOpenApiSpec = {
     description:
       'QOrium publishes live public proof endpoints for JD-Forge, sample packs, grader exemplars, and trust evidence. Customer ReadyBank and Stack-Vault APIs remain early-access and are not represented as public live routes here.',
   },
+  externalDocs: {
+    description: 'SDK examples and Postman collection',
+    url: 'https://qorium.online/resources/docs',
+  },
+  'x-qorium-postman-collection': postmanCollectionHref,
+  'x-qorium-sdk-languages': publicSdkExamples.map((example) => example.language),
   servers: [
     {
       url: publicApiBaseUrl,

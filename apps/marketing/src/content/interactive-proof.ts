@@ -19,6 +19,11 @@ export type JdForgeDemoResult = {
   planId: string;
   inputHash: string;
   roleTitle: string;
+  roleMatch: {
+    seededRole: string;
+    confidence: number;
+    matchedRoleWeight: number;
+  };
   skills: ProofSkill[];
   assessment: {
     itemCount: number;
@@ -31,6 +36,8 @@ export type JdForgeDemoResult = {
     jdLength: number;
     skillCount: number;
     confidence: number;
+    acceptEstimate: number;
+    slaSeconds: number;
     generatedAt: string;
   };
   lowConfidenceReason?: string;
@@ -90,6 +97,7 @@ type SkillRule = {
   roleFamily: string;
   stackFamily: string;
   librarySlug: string;
+  seededRoles: string[];
   patterns: RegExp[];
 };
 
@@ -101,6 +109,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Software engineering',
     stackFamily: 'Java',
     librarySlug: 'java',
+    seededRoles: ['Senior Java Engineer', 'Backend Engineer'],
     patterns: [/\bjava\b/i, /\bvirtual threads?\b/i, /\bjvm\b/i],
   },
   {
@@ -108,6 +117,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Software engineering',
     stackFamily: 'Java',
     librarySlug: 'java',
+    seededRoles: ['Senior Java Engineer', 'Backend Engineer'],
     patterns: [/\bspring\s*boot\b/i, /\bspring framework\b/i],
   },
   {
@@ -115,6 +125,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Software engineering',
     stackFamily: 'Java',
     librarySlug: 'java',
+    seededRoles: ['Senior Java Engineer', 'Backend Engineer'],
     patterns: [/\bjpa\b/i, /\bhibernate\b/i, /\borg mapping\b/i],
   },
   {
@@ -122,6 +133,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Data',
     stackFamily: 'SQL',
     librarySlug: 'sql',
+    seededRoles: ['Senior SQL Data Engineer', 'Backend Engineer'],
     patterns: [/\bsql\b/i, /\bpostgres(ql)?\b/i, /\bquery plans?\b/i],
   },
   {
@@ -129,6 +141,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Software engineering',
     stackFamily: 'Architecture',
     librarySlug: 'java',
+    seededRoles: ['Senior Java Engineer', 'Backend Engineer'],
     patterns: [/\bmicroservices?\b/i, /\bcircuit breaker\b/i, /\bdistributed systems?\b/i],
   },
   {
@@ -136,6 +149,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Frontend engineering',
     stackFamily: 'React',
     librarySlug: 'react',
+    seededRoles: ['Senior React Engineer'],
     patterns: [/\breact\b/i, /\bcomponent architecture\b/i],
   },
   {
@@ -143,6 +157,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Frontend engineering',
     stackFamily: 'TypeScript',
     librarySlug: 'javascript',
+    seededRoles: ['Senior React Engineer'],
     patterns: [/\btypescript\b/i, /\btype-safe\b/i, /\bdiscriminated union\b/i],
   },
   {
@@ -150,6 +165,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Frontend engineering',
     stackFamily: 'Next.js',
     librarySlug: 'react',
+    seededRoles: ['Senior React Engineer'],
     patterns: [/\bnext\.?js\b/i, /\bapp router\b/i, /\bserver actions?\b/i],
   },
   {
@@ -157,6 +173,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Frontend engineering',
     stackFamily: 'React',
     librarySlug: 'react',
+    seededRoles: ['Senior React Engineer'],
     patterns: [/\bperformance\b/i, /\bprofiler\b/i, /\bmemo\b/i],
   },
   {
@@ -164,6 +181,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Cloud native',
     librarySlug: 'kubernetes',
+    seededRoles: ['DevOps / SRE Lead', 'Cloud Engineer'],
     patterns: [/\bkubernetes\b/i, /\bk8s\b/i, /\bstatefulset\b/i, /\bhpa\b/i],
   },
   {
@@ -171,6 +189,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Infrastructure as code',
     librarySlug: 'aws',
+    seededRoles: ['DevOps / SRE Lead', 'Cloud Engineer'],
     patterns: [/\bterraform\b/i, /\binfrastructure as code\b/i],
   },
   {
@@ -178,6 +197,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Reliability',
     librarySlug: 'devops-sre',
+    seededRoles: ['DevOps / SRE Lead'],
     patterns: [/\bobservability\b/i, /\bslo\b/i, /\bincident\b/i, /\bprometheus\b/i],
   },
   {
@@ -185,6 +205,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Cloud engineering',
     stackFamily: 'AWS',
     librarySlug: 'aws',
+    seededRoles: ['Cloud Engineer', 'DevOps / SRE Lead'],
     patterns: [/\baws\b/i, /\blambda\b/i, /\bs3\b/i, /\becs\b/i, /\beks\b/i],
   },
   {
@@ -192,6 +213,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
     librarySlug: 'salesforce',
+    seededRoles: ['Senior Salesforce Developer'],
     patterns: [/\bapex\b/i, /\bgovernor limits?\b/i],
   },
   {
@@ -199,6 +221,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
     librarySlug: 'salesforce',
+    seededRoles: ['Senior Salesforce Developer'],
     patterns: [/\blwc\b/i, /\blightning web components?\b/i],
   },
   {
@@ -206,6 +229,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
     librarySlug: 'salesforce',
+    seededRoles: ['Senior Salesforce Developer'],
     patterns: [/\bsoql\b/i, /\bselectivity\b/i],
   },
   {
@@ -213,6 +237,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Embedded engineering',
     stackFamily: 'Automotive',
     librarySlug: 'embedded-c',
+    seededRoles: ['Embedded C Automotive Engineer'],
     patterns: [/\bembedded c\b/i, /\brtos\b/i, /\bisr\b/i, /\bwatchdog\b/i],
   },
   {
@@ -220,6 +245,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Embedded engineering',
     stackFamily: 'Automotive',
     librarySlug: 'embedded-c',
+    seededRoles: ['Embedded C Automotive Engineer'],
     patterns: [/\bautosar\b/i, /\bswc\b/i, /\bsome\/ip\b/i],
   },
   {
@@ -227,6 +253,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Embedded engineering',
     stackFamily: 'Automotive',
     librarySlug: 'embedded-c',
+    seededRoles: ['Embedded C Automotive Engineer'],
     patterns: [/\bmisra\b/i, /\bfunctional safety\b/i],
   },
   {
@@ -234,6 +261,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'SAP',
     librarySlug: 'sap-abap',
+    seededRoles: ['SAP ABAP Senior Consultant'],
     patterns: [/\babap\b/i, /\bopen sql\b/i, /\balv\b/i],
   },
   {
@@ -241,6 +269,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'SAP',
     librarySlug: 'sap-abap',
+    seededRoles: ['SAP ABAP Senior Consultant'],
     patterns: [/\bcds\b/i, /\brap\b/i, /\bamdp\b/i],
   },
   {
@@ -248,6 +277,7 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'SAP',
     librarySlug: 'sap-abap',
+    seededRoles: ['SAP ABAP Senior Consultant'],
     patterns: [/\bidoc\b/i, /\bbapi\b/i, /\brfc\b/i, /\bfiori\b/i],
   },
 ];
@@ -321,6 +351,11 @@ function matchedPhrases(text: string, rule: SkillRule): string[] {
 function inferRoleTitle(text: string): string {
   const sample = sampleJds.find((jd) => jd.body === text);
   if (sample) return sample.title;
+  if (/senior\s+java\s+(engineer|developer)/i.test(text)) return 'Senior Java Engineer';
+  if (/senior\s+react\s+(engineer|developer)/i.test(text)) return 'Senior React Engineer';
+  if (/senior\s+salesforce\s+(engineer|developer)/i.test(text)) {
+    return 'Senior Salesforce Developer';
+  }
   if (/salesforce/i.test(text)) return 'Salesforce assessment';
   if (/react|frontend|next/i.test(text)) return 'Frontend assessment';
   if (/kubernetes|sre|devops/i.test(text)) return 'DevOps assessment';
@@ -359,6 +394,47 @@ function formatPlan(skills: ProofSkill[]): JdForgeDemoResult['assessment'] {
   };
 }
 
+function inferSeededRole(
+  skills: ProofSkill[],
+  inferredTitle: string,
+): JdForgeDemoResult['roleMatch'] {
+  const byRole = new Map<string, number>();
+  for (const skill of skills) {
+    const rule = skillRules.find((candidate) => candidate.name === skill.name);
+    for (const role of rule?.seededRoles ?? ['Custom role assessment']) {
+      byRole.set(role, (byRole.get(role) ?? 0) + skill.weight);
+    }
+  }
+  if (byRole.has(inferredTitle)) {
+    byRole.set(inferredTitle, (byRole.get(inferredTitle) ?? 0) + 1.5);
+  }
+
+  const [seededRole = 'Custom role assessment', matchedRoleWeight = 0] =
+    [...byRole.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+  const total = skills.reduce((sum, skill) => sum + skill.weight, 0);
+  const confidence = total > 0 ? Number((matchedRoleWeight / total).toFixed(2)) : 0;
+
+  return {
+    seededRole,
+    matchedRoleWeight: Number(matchedRoleWeight.toFixed(2)),
+    confidence,
+  };
+}
+
+function estimateAcceptRate(skills: ProofSkill[], roleConfidence: number): number {
+  const coverageScore = Math.min(1, skills.length / 6);
+  const phraseScore = Math.min(
+    1,
+    skills.reduce((sum, skill) => sum + skill.sourcePhrases.length, 0) / 10,
+  );
+  return Number(
+    Math.min(
+      0.91,
+      0.34 + coverageScore * 0.34 + roleConfidence * 0.18 + phraseScore * 0.12,
+    ).toFixed(2),
+  );
+}
+
 export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
   const normalized = jdText.trim();
   const skills = skillRules
@@ -378,6 +454,9 @@ export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
     .slice(0, 9);
 
   const confidence = Math.min(0.97, skills.length === 0 ? 0.18 : 0.48 + skills.length * 0.07);
+  const roleTitle = inferRoleTitle(normalized);
+  const roleMatch = inferSeededRole(skills, roleTitle);
+  const acceptEstimate = estimateAcceptRate(skills, roleMatch.confidence);
   const lowConfidenceReason =
     skills.length < 3
       ? 'JD-Forge could not extract enough mapped QOrium skills from this text. The public demo is showing the honest low-confidence state instead of padding the result.'
@@ -387,13 +466,16 @@ export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
     ok: true,
     planId: `jdplan_${stableHash(normalized).slice(0, 7)}`,
     inputHash: `sha256:${stableHash(normalized).repeat(8).slice(0, 64)}`,
-    roleTitle: inferRoleTitle(normalized),
+    roleTitle,
+    roleMatch,
     skills,
     assessment: formatPlan(skills),
     audit: {
       jdLength: normalized.length,
       skillCount: skills.length,
       confidence,
+      acceptEstimate,
+      slaSeconds: 60,
       generatedAt: GENERATED_AT,
     },
   };
