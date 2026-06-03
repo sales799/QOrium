@@ -29,6 +29,8 @@ export interface CrawlPipeline {
   ngramsPerQuestion: number;
   /** Max results scraped per query. */
   resultsPerQuery: number;
+  /** Hard provider-query cap per run. */
+  maxQueriesPerRun?: number | undefined;
   /** Optional cooperative cancel signal (e.g., SIGINT during a long crawl). */
   signal?: AbortSignal | undefined;
   /** Optional clock for tests. */
@@ -102,6 +104,17 @@ export async function runCrawl(pipeline: CrawlPipeline): Promise<CrawlReport> {
       if (pipeline.signal?.aborted) break;
       for (const poller of pipeline.pollers) {
         if (pipeline.signal?.aborted) break;
+        if (
+          pipeline.maxQueriesPerRun !== undefined &&
+          report.queriesIssued >= pipeline.maxQueriesPerRun
+        ) {
+          pipeline.logger.warn(
+            { maxQueriesPerRun: pipeline.maxQueriesPerRun },
+            'provider query cap reached; ending crawl pass',
+          );
+          report.finishedAt = now().toISOString();
+          return report;
+        }
         let results: PollResult[];
         try {
           const opts: { maxResults: number; signal?: AbortSignal } = {

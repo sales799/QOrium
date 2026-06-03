@@ -137,6 +137,27 @@ describe('runCrawl', () => {
     expect(report.alertsCreated).toBe(0);
   });
 
+  it('stops issuing provider calls at the maxQueriesPerRun cap', async () => {
+    const poll = vi.fn(async () => []);
+    const cappedPoller = {
+      id: 'apify' as const,
+      poll,
+    };
+
+    const report = await runCrawl({
+      listQuestions: async () => [QUESTION],
+      recordAlert: async () => ({ inserted: false, alertId: null }),
+      pollers: [cappedPoller],
+      logger: silentLogger,
+      ngramsPerQuestion: 5,
+      resultsPerQuery: 1,
+      maxQueriesPerRun: 2,
+    });
+
+    expect(report.queriesIssued).toBe(2);
+    expect(poll).toHaveBeenCalledTimes(2);
+  });
+
   it('respects an aborted signal mid-pass', async () => {
     const ctrl = new AbortController();
     const poller = new StubPoller({}, [
