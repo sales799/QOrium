@@ -10,14 +10,14 @@
 ## RUN #50 — Review-Gate Proof + Sentry Runtime Restore (2026-06-03, Codex)
 
 ### COMPLETED
-- [2026-06-03] **Proved PR #94 is not merge-ready** — `https://github.com/sales799/QOrium/pull/94` is open, authored by `sales799`, base `specs`, `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY`, `reviewDecision=""`, and `reviews=[]`; GitHub collaborators query returned only `sales799`, so no non-author reviewer is discoverable from this account.
-- [2026-06-03] **Blocked unsafe deploy of the local app branch** — did not merge or deploy PR #94 because the cross-account review gate failed and the PR is conflicting.
+- [2026-06-03] **Cleared the PR conflict gate** — old PR #94 was closed; new PR `https://github.com/sales799/QOrium/pull/101` is open to `specs`, `mergeable=MERGEABLE`, and `mergeStateStatus=UNSTABLE` while GitHub CI is running.
+- [2026-06-03] **Blocked unsafe merge/deploy on review gate** — did not merge or deploy PR #101 because `reviews=[]` and the author account is `sales799`; GitHub collaborators query returned only `sales799`, so no non-author reviewer is discoverable from this account.
 - [2026-06-03] **Restored active-origin Sentry runtime env** — public `/v1/observability/sentry` first returned `enabled:false`, `dsnConfigured:false`; active-origin env files were updated without printing secret values, `pm2 reload qorium-marketing --update-env` and `pm2 save --force` succeeded, and the public endpoint then returned `enabled:true`, `dsnConfigured:true`.
 - [2026-06-03] **Verified live health headers after restore** — `https://qorium.online/healthz?verify=after-env-restore-20260603` returned HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP.
 
 ### REMAINING FOLLOW-UP
-- [BLOCKED] Non-author review/merge remains required before PR #94 or any author-owned branch can merge.
-- [BLOCKED] PR #94 conflicts against `specs`; resolve conflicts or port the intended changes into the active production branch before deploy certification.
+- [BLOCKED] Non-author review/merge remains required before PR #101 or any author-owned branch can merge.
+- [WAIT] GitHub CI for PR #101 must finish green before merge/deploy certification.
 
 ---
 
