@@ -3,7 +3,20 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #64 (session closeout + batch009 fix loaded)
+**Last touched:** 2026-06-03 — Codex Run #65 (Phase E M23 GTM packet + candidate payload safety)
+
+---
+
+## RUN #65 — Phase E M23 GTM Packet + Candidate Payload Safety (2026-06-03, Codex/BHIMA)
+
+### COMPLETED
+- [2026-06-03] **Built the Phase E external-pilot execution packet** — `PHASE_E_M23_EXTERNAL_PILOT_EXECUTION_PACKET.md` now contains the M23 exit criteria, first-three logo slate (Quess Corp, Allegis Group India, HirePro; backups Adecco India and ManpowerGroup India), pilot offer, pilot tracker, staffing outreach email, WhatsApp/LinkedIn opener, discovery agenda, CTO onboarding checklist, onboarding email, Growth order-form skeleton, and M23 SLA addendum draft.
+- [2026-06-03] **Hardened local candidate-token payload safety** — `qorium-app/apps/api/src/server.ts` now sanitizes signed candidate-token assessment reads so candidate questions no longer expose `correctAnswer`, `explanation`, `irt`, `rubric`, `tags`, or `testExpectation`; `qorium-app/tests/smoke.ts` now fails if any of those fields leak.
+- [2026-06-03] **Verified local and live gates** — `pnpm --filter @qorium/api typecheck` passed; `pnpm scan:secrets` passed across 266 tracked/untracked text files; `pnpm smoke` passed the assessment create/read/submit/result flow plus the new candidate leak assertion; full `pnpm typecheck` passed `13/13` tasks; live `https://qorium.online/healthz` and `/` returned HTTP `200` with security headers.
+
+### BLOCKED
+- [PILOTS] **External pilot issuance remains blocked until production assessment delivery has GO evidence** — the local app has a prototype assessment loop and the candidate payload leak is fixed locally, but the locked PRAROOP spec still requires production BR-1 through BR-8 plus Prahari/Rakshak GO before any non-Talpro candidate login is issued.
+- [EXTERNAL] **M23 completion requires human/counterparty actions** — three external companies must accept the pilot, one customer must sign a paid contract, counsel must review the SLA/order form before third-party signature, and payment/signature authority must happen through the proper business channel.
 
 ---
 
@@ -230,6 +243,7 @@
 **Shard:** `CODEX_PENDING_QORIUM_CUSTOMER_ZERO_CANDIDATE_FLOW_2026-06-03.md` · **Branch:** `codex/qorium-customer-zero-flow` · **Lane:** KARYA/BHIMA
 **Why:** take-assessment loop NOT wired (`content.responses=1`, `/my` 404, no composed-assessment tables) → 0/986 can be IRT-calibrated. Build: compose test from released Qs → invite link → candidate takes → log to `content.responses` → feed `qorium-irt-calibration`.
 **Dispatch hygiene (2026-06-03):** corrected Lane B BR-2 brief from stale `assess.assessment_questions` to canonical `content.assessment_questions`; verified no remaining stale reference in the assessment spec/brief/migration/DAG set and DAG JSON parses.
+**BR-1 / BR-5 progress (2026-06-03):** opened BR-1 PR #113 (`codex/qorium-assessment-br1-db-migration-20260603`, rebased commit `3f24d50`) with assessment delivery migration renumbered to active-origin-safe `0021_assessment_delivery.sql`; opened BR-5 PR #114 (`codex/qorium-assessment-br5-candidate-runtime-20260603`, commit `d12c4fd`) to make `apps/candidate-portal` buildable/runnable on port `5116` with `/healthz` and PM2 config. Gates passed: migration numbering, gitleaks, candidate typecheck/build, B10 config parse, and local `5116` smoke. Both PRs were mergeable at last GitHub check; CI was still running.
 **Founder/business action:** after loop proof, Talpro Delivery routes a real hiring drive's 100+ candidates through the QOrium link (CEO → Delivery Head instruction). This is the SO-1 Customer-Zero lever; only Talpro ops can do it.
 
 ---

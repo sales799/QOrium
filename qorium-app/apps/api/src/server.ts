@@ -158,7 +158,7 @@ export function buildServer() {
       const payload = verifyAssessmentToken(token);
       const assessment = await repository.getAssessment(payload.assessmentId);
       if (!assessment) return reply.code(404).send({ error: "Assessment not found" });
-      return { assessment };
+      return { assessment: sanitizeAssessmentForCandidate(assessment) };
     } catch (error) {
       return reply.code(401).send({ error: error instanceof Error ? error.message : "Invalid token" });
     }
@@ -285,6 +285,24 @@ function bearerToken(value: string | undefined) {
 
 function recruiterCookieSecure() {
   return process.env.QORIUM_RECRUITER_COOKIE_SECURE !== "false";
+}
+
+function sanitizeAssessmentForCandidate(assessment: Assessment) {
+  return {
+    ...assessment,
+    questions: assessment.questions.map((question) => {
+      const {
+        correctAnswer: _correctAnswer,
+        explanation: _explanation,
+        irt: _irt,
+        rubric: _rubric,
+        tags: _tags,
+        testExpectation: _testExpectation,
+        ...candidateQuestion
+      } = question;
+      return candidateQuestion;
+    })
+  };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
