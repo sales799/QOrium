@@ -108,7 +108,7 @@ module.exports = {
 
       // Auto-restart policy
       autorestart: true,
-      max_restarts: 10,
+      max_restarts: 25,
       min_uptime: '10s',
     },
 
