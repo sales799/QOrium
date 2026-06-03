@@ -34,6 +34,6 @@ qorium-app/test-results/
 .DS_Store
 .idea/
 .vscode/
-* 2.*
+* [0-9].*
 *.bak
 *.append-*

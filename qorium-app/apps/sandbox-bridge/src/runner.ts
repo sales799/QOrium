@@ -79,8 +79,25 @@ function runProcess(command: string, args: string[], stdin: string, timeoutMs = 
   child.stderr.on("data", (chunk) => {
     stderr += chunk.toString();
   });
+  child.stdin.on("error", (err) => {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code !== "EPIPE") {
+      stderr += String(err);
+    }
+  });
   child.stdin.end(stdin);
   return new Promise((resolve) => {
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      resolve({
+        stdout,
+        stderr: `${stderr}${String(err)}`,
+        exitCode: 1,
+        durationMs: Date.now() - started,
+        timedOut,
+        memoryMb: 256
+      });
+    });
     child.on("close", (exitCode) => {
       clearTimeout(timer);
       resolve({
