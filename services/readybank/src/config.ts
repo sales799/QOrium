@@ -37,6 +37,8 @@ export interface Config {
   sesSecretAccessKey: string | undefined;
   /** SendGrid API key (mailerDriver=sendgrid). */
   sendgridApiKey: string | undefined;
+  /** A4 candidate-flow HMAC secret. Required to enable /a4/* routes. */
+  a4TokenSecret: string | undefined;
 }
 
 function getEnv(name: string, fallback?: string): string {
@@ -104,5 +106,6 @@ export function loadConfig(): Config {
     sesAccessKeyId: process.env.SES_ACCESS_KEY_ID,
     sesSecretAccessKey: process.env.SES_SECRET_ACCESS_KEY,
     sendgridApiKey: process.env.SENDGRID_API_KEY,
+    a4TokenSecret: process.env.A4_TOKEN_SECRET,
   };
 }
