@@ -210,5 +210,5 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 - [DONE] Branch push: `codex/qorium-pr94-active-origin-port-20260603` on `sales799/QOrium` includes commit `5e3e799` for benchmark evidence-gating.
 - [DONE] Active-origin raw atomic deploy created release `/opt/apps/qorium-marketing/releases/5e3e79964305`, flipped `current`, reloaded `qorium-marketing`/`qorium-chatbot`, saved PM2, and smoke-tested `https://qorium.online/`, `/product`, `/pricing`, `/security`, `/blog`, and chatbot health as HTTP 200.
 - [DONE] Live verification: `https://qorium.online/`, `/healthz`, `https://api.qorium.online/healthz`, and `/sitemap.xml` returned HTTP 200 with security headers; `/v1/science/quality-gate` returned `92/92`.
-- [DONE] Accessibility follow-up: mobile Sheet navigation now includes a hidden DialogTitle so Radix emits no missing-title warning during mobile menu QA.
+- [DONE] Accessibility follow-up: mobile Sheet navigation now includes hidden DialogTitle and DialogDescription text so Radix emits no missing-title or missing-description warning during mobile menu QA.
 - [DONE] Final accessibility follow-up is queued in this active-origin port commit; the session CTO report records the final pushed SHA, PR link, redeploy release, and browser re-proof.
