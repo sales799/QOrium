@@ -16,7 +16,7 @@
     "tailwindcss": "^4.1.17"
   },
   "scripts": {
-    "build": "next build",
+    "build": "next build --webpack",
     "dev": "next dev -p 3000",
     "start": "next start -p ${PORT:-3000}",
     "typecheck": "tsc -p tsconfig.json --noEmit",
