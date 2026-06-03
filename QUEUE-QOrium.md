@@ -3,7 +3,88 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-02 — Codex Run #44 (Content Recreation shard)
+**Last touched:** 2026-06-03 — Codex Run #48 (Bing success + local web closeout)
+
+---
+
+## RUN #48 — Bing Success + Local Web Closeout (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Cleared the Bing sitemap processing blocker** — Bing Webmaster API `GetFeedDetails` for `https://qorium.online/sitemap.xml` returned `Status: Success`, `Submitted: 2026-06-02T17:07:41.418Z`, `LastCrawled: 2026-06-02T18:39:16.000Z`, `UrlCount: 1191`, `FileSize: 213251`, and `Type: Sitemap`.
+- [2026-06-03] **Reverified public SEO and health endpoints** — `https://qorium.online/BingSiteAuth.xml`, `/sitemap.xml`, `/sitemap-library.xml`, `/healthz`, `https://api.qorium.online/healthz`, and `https://admin.qorium.online/api/health` returned HTTP `200`; sampled headers include HSTS, CSP, XFO, XCTO, referrer, and permissions policies where applicable.
+- [2026-06-03] **Verified local QOrium app gates** — `pnpm install --frozen-lockfile`, lint, typecheck, tests (`4` files / `5` tests), build (`1196/1196`), secret scan (`234` tracked/untracked text files OK), smoke, and E2E (`1/1`) passed.
+- [2026-06-03] **Verified local production web rendering** — local `next start` served `/`, `/platform/readybank`, `/library/javascript`, `/robots.txt`, and `/sitemap.xml` with HTTP `200`; Playwright desktop/mobile screenshots captured the homepage and found the expected H1 with no application-error text.
+- [2026-06-03] **Captured current Codex PROVE revalidation commits** — marketing shell commit `71678ab` landed the local app shell; build-gate fix commit `85f4169` restored `next build`, broadened duplicate-artifact ignore coverage, and hardened sandbox child-process error handling. Final focused web build passed with `1199/1199` generated pages, and `/library/javascript` now renders `JavaScript assessment library route`.
+
+### EVIDENCE
+- Bing API: `Status=Success`, `LastCrawled=2026-06-02T18:39:16.000Z`, `UrlCount=1191`.
+- Live URLs: `https://qorium.online/BingSiteAuth.xml`, `https://qorium.online/sitemap.xml`, `https://qorium.online/sitemap-library.xml`, `https://qorium.online/healthz`, `https://api.qorium.online/healthz`, and `https://admin.qorium.online/api/health`.
+- Local screenshots: `/tmp/qorium-web-home-20260603-webpack.png` and `/tmp/qorium-web-home-mobile-20260603-webpack.png`.
+- Current commit evidence: `71678ab` and `85f4169`; local Playwright screenshot after capitalization fix: `/tmp/qorium-desktop-library-javascript-fixed.png`.
+
+### REMAINING FOLLOW-UP
+- [OPTIONAL] Rotate the Bing Webmaster API key because it was pasted into chat for this verification run.
+- [REVIEW] Non-author review is still required before merging author-owned branches to `main`.
+
+---
+
+## RUN #47 — Local Route Parity + Repo Hygiene Closeout (2026-06-03, Codex)
+
+### COMPLETED
+- [2026-06-03] **Cleaned duplicate local artifact noise** — generalized `.gitignore` from `* 2.*` to `* [0-9].*`, so iCloud-style `name 3.ext` / `name 4.ext` / `name 5.ext` duplicates no longer pollute triage.
+- [2026-06-03] **Fixed local `/vs/codesignal` route parity** — added CodeSignal to the local marketing competitor inventory, matching the production route that already returns HTTP `200`.
+- [2026-06-03] **Verified local public route build** — `pnpm --filter @qorium/web build`, `pnpm --filter @qorium/web typecheck`, `pnpm run scan:secrets`, `pnpm run test`, and `pnpm run build` passed; local Next build generated `1199/1199` pages and local sitemap returned `1193` public URLs.
+- [2026-06-03] **Verified local production smoke** — `next start` on port `3123` returned HTTP `200` for `/`, `/platform`, `/solutions/role/react-developer`, `/solutions/stack/sap-abap`, `/resources/sample-packs/senior-java`, `/vs/codesignal`, `/trust`, `/security`, `/sitemap.xml`, and `/robots.txt`; local headers included `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff`.
+- [2026-06-03] **Verified live production route/header state** — `https://qorium.online/`, `/healthz`, `/library/javascript-debugging`, `/solutions/role/react-developer`, `/solutions/stack/sap-abap`, `/resources/sample-packs/senior-java`, `/vs/codesignal`, `/trust`, `/security`, `/sitemap.xml`, plus `https://api.qorium.online/health` and `/healthz` returned HTTP `200` with security headers.
+
+### REMAINING FOLLOW-UP
+- [REVIEW] Non-author review/merge remains required for author-owned branches before main parity.
+- [BLOCKED] Talpro MCP session/MANTHAN save remains unavailable in this Codex tool context; local state files carry the closeout evidence.
+
+---
+
+## RUN #46 — Boot-Resilience Proof Closeout (2026-06-03, Codex/BHIMA)
+
+### COMPLETED
+- [2026-06-03] **Old-origin worker boot resilience shipped live** — `qorium-leak-crawler` and `qorium-irt-calibration` now run via CLI watch mode on `talpro-vps` (`147.93.103.194`) with startup readiness waits, stdout boot heartbeats, Pino stdout flushing, and `max_restarts: 25`.
+- [2026-06-03] **Scoped PM2 apply/save completed** — old-origin PM2 has one live instance for each target worker: leak `id=295`, IRT `id=296`; both are `online`, `unstable_restarts=0`, `NODE_ENV=production`, and `pm2 save --force` persisted the process list.
+- [2026-06-03] **02:00 UTC crawler cron verified** — leak-crawler cron restarted once, stayed online, and wrote a PM2 boot heartbeat at `2026-06-03 02:00:06 +00:00` with `{"ev":"boot","svc":"qorium-leak-crawler","deps":"ok"}`.
+- [2026-06-03] **Active-origin crawler headroom mirrored live** — `qorium-active-origin` (`187.127.155.150`) has `qorium-leak-crawler` `online`, `unstable_restarts=0`, `max_restarts=25`, cron `0 2 * * *`, and saved PM2 state. Active-origin has no matching `qorium-irt-calibration` PM2 service to mirror.
+- [2026-06-03] **Build/config proof rerun** — on old-origin, `pnpm --filter @qorium/leak-crawler run build`, `pnpm --filter @qorium/irt-calibration run build`, and `node -e "require('./infra/B10-ecosystem.config.js'); require('./ecosystem.config.cjs')"` all passed.
+- [2026-06-03] **Public and origin health proof rerun** — `https://qorium.online/healthz` returned HTTP `200` with HSTS, CSP, frame, content-type, referrer, and permissions-policy headers; forced old-origin returned HTTP `200`; forced active-origin returned HTTP `200` when bypassing Cloudflare certificate validation for direct-origin inspection.
+
+### EVIDENCE
+- Old-origin pushed branch: `codex/qorium-boot-resilience-20260602` at `abba78e` (`Flush QOrium worker boot logs`), including prior commits `d97b19a` and `0ba60ef`.
+- Old-origin PM2 at `2026-06-03T02:00:48+00:00`: leak `restarts=3`, IRT `restarts=3`, both `max=25`, both `unstable=0`, scripts `/opt/qorium/services/*/dist/cli.js`, args `--watch --interval 86400`.
+- PM2 out logs: `/var/log/pm2/qorium-leak-crawler-out-295.log` and `/var/log/pm2/qorium-irt-calibration-out-296.log` are non-empty and contain boot/dependency-ready lines.
+- Active-origin local fix commit: `55975cd` (`Fix active anti-leak PM2 headroom`); source-control parity commit `ed405c278f0431a8c2fcc508e3b230e7819b65b0` is pushed to `codex/qorium-active-proof-merge-20260602`; config parses and crawler stanza reports `max_restarts=25`.
+
+### REMAINING FOLLOW-UP
+- [VERIFY] Natural IRT cron proof is still pending until its `0 3 * * *` UTC cycle runs; current pre-cron live state is `online`, `unstable_restarts=0`, `max_restarts=25`, and PM2 out log is non-empty with boot heartbeats.
+- [RESOLVED] Active-origin deploy key could not push, so the equivalent source-control correction was committed from the credentialed local checkout and pushed as `ed405c278f0431a8c2fcc508e3b230e7819b65b0`.
+- [EXTERNAL SECRET] Old-origin leak crawler warns `SERPER_API_KEY unset in production; crawl will be a no-op`; boot resilience is fixed, but anti-leak crawling needs the approved provider key to do real crawl work.
+
+---
+
+## RUN #45 — Marketing↔Backend Audit + Boot-Resilience (2026-06-02, CTO/Claude)
+
+### COMPLETED
+- [2026-06-02] **Marketing-promise → backend-module completeness audit** authored: `QORIUM-MARKETING-vs-BACKEND-AUDIT-2026-06-02.md` (supersedes the day-stale 06-01 missing-matrix). Live-probed qorium.online: 1,190-URL sitemap, 1,000 `/library` pages, 10 `/vs`, trust shell, `/try/jd-forge`+`/try/graded-answer` all live.
+- [2026-06-02] **Live fleet correction** — `talpro_qorium_fleet_status` = 24 services / 38 instances online, 0 errored (supersedes the 12-process CLAUDE.md snapshot). SSO, audit-log, webhooks, billing, candidate-portal, ats-bridge, irt-calibration confirmed live services. Audit + memory updated.
+- [2026-06-02] **"Flapping" services investigated & cleared** — leak-crawler/irt-calibration not flapping (designed nightly cron_restart, unstable_restarts=0, exp_backoff already on). Real gap = zero log output.
+- [2026-06-02] **Boot-resilience headroom shipped** — `infra/B10-ecosystem.config.js` `max_restarts: 10→25` for both workers; applied via scoped PM2 restart/reload, **live-verified `max_restarts=25` online**, orphan instances reconciled (leak 3→1, irt 2→1 = declared count), `pm2 save`. Follow-up proof closeout recorded in Run #46. Shard filed: `CODEX_PENDING_QORIUM_BOOT_RESILIENCE_2026-06-02.md`.
+
+### IN-PROGRESS (owned by BHIMA lane — do not sweep)
+- [RESOLVED in Run #46] Boot readiness + stdout boot-logging were completed, committed, pushed on old-origin, and verified live with non-empty PM2 boot logs.
+
+### EVIDENCE
+- Fleet: 35/35 online, 0 errored post-change; `high_restart` list now empty. Live `max_restarts=25` both (jq on `pm2 jlist`). `pm2 save` → `/root/.pm2/dump.pm2`.
+- Prod: `https://qorium.online/` 200, `https://api.qorium.online/healthz` 200.
+- Git: `0ba60ef` (max_restarts:25 committed; working tree clean for B10). Commits by HireIQ-Deployment lane today: `d97b19a`, `0ba60ef`.
+
+### BLOCKED (founder) — CORRECTED 2026-06-03
+- ~~DB-write creds for question-bank ingest~~ **STALE/RESOLVED.** QOrium DB = self-hosted Postgres on VPS (`127.0.0.1:5432`, shared instance, free, not Supabase). `qorium` DB already holds **986 questions (status=released), 511 skills, 881 sub_skills**. No founder password needed. Real gap = backend: IRT calibration (0/986, needs candidate responses; `responses`=1) + verify `/library` pages surface DB questions.
+- **Bias-audit auditor selection** (M16) — founder pick to publish a real `/responsible-ai` report. (Low urgency.)
 
 ---
 
