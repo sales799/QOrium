@@ -3,7 +3,19 @@
 **Lane:** BHIMA backend/app build (account: `bhaskar@talpro.in`, device: MacBook Air).
 **Briefs dispatched:** PHASE_A_PROOF_LOOP, PHASE_A_ENGINE_FINDINGS, PHASE_D_INTEGRATION, M5_M6_APTITUDE_VIDEO, PHASE_G_ENTERPRISE.
 **Branch:** `codex/qorium-bhima-phase-a-d-g-drafts-20260603` (branched from `qorium/main`).
-**Guardrail honoured:** cross-account review — this report and the three migrations are queued for ARJUN review. **Nothing has been merged or applied.**
+**Guardrail honoured:** cross-account review — this report and the migrations are queued for ARJUN review. **Nothing has been merged or applied.**
+
+---
+
+## 0. UPDATE after CTO review of PR #103 (2026-06-03)
+
+- **0018 (irt_lifecycle_calibrating): REJECTED → WITHDRAWN.** The CTO verified all 1,414 released questions have `calibration_n=0` AND every pack serves only `status='released'`. Bulk-moving them to `calibrating` would un-release the entire catalogue and empty every live assessment. The lifecycle fix is **already live + correct**: `/opt/qorium/scripts/calib-router.sql` (cron */20) flips `released`→`calibrating` only at ≥50 **real** responses; the IRT engine fits + promotes back. File removed from this branch; slot retired in `RESERVED.md`. **My error: I never verified the pack-serving invariant before proposing a destructive bulk status change — the cross-account review gate is exactly what caught it.**
+- **0019 (grade_decisions): APPROVED.** Verified net-new, matches A2/M21. Apply staging→prod via the runner.
+- **0020 (RLS DRAFT): APPROVED as reviewed.** Do-not-apply; needs app `SET LOCAL app.current_tenant_id` wiring + staging verify.
+- **HOST CORRECTION (root cause of my §1 wall):** the qorium source + DB live on **`talpro-vps` (147.93.103.194, Mumbai)**, NOT the 187.x `qorium-active-origin` I SSHed to. On `talpro-vps`: `/opt/apps/qorium-marketing` (live marketing monorepo), `/opt/qorium/services/*` (all backend), `/opt/qorium/apps/{candidate-portal,my,admin,docs}`, `/etc/nginx/sites-enabled/qorium.conf`. Blockers 3.1/3.2/3.3/3.5/3.6 in §3 are now **access-unblocked** — re-running the lane there.
+
+### Follow-on shipped this session (post-correction)
+- **`/openapi.json` regression FIXED on a branch (Phase D).** Root cause: the route handler `apps/marketing/src/app/openapi.json/route.ts` + its spec module `apps/marketing/src/content/api-docs.ts` (`publicOpenApiSpec`, OpenAPI 3.1.0, `0.1.0-preview`, honest evidence-gated) existed in commit `dba8fc7` but **never landed on `main`**, so prod 404s. Restored both verbatim; `tsc --noEmit` exit 0. Branch `codex/qorium-bhima-openapi-restore-20260603` (code repo `sales799/qorium`), SHA `3ea5340`, **PR #105**. **Not deployed** — `safe-deploy` does `git reset --hard origin/main`, so the prod restore requires PR #105 merged first (cross-account guardrail).
 
 ---
 
