@@ -53,7 +53,7 @@
 ## RUN #50 — Review-Gate Proof + Sentry Runtime Restore (2026-06-03, Codex)
 
 ### COMPLETED
-- [2026-06-03] **Cleared the PR conflict gate** — old PR #94 was closed; new PR `https://github.com/sales799/QOrium/pull/101` is open to `specs`, `mergeable=MERGEABLE`, `mergeStateStatus=CLEAN`, and CI check `Typecheck, build, smoke, and secret scan` passed.
+- [2026-06-03] **Cleared the PR conflict gate** — old PR #94 was closed; new PR `https://github.com/sales799/QOrium/pull/101` is open to `specs`, `mergeable=MERGEABLE`, and CI check `Typecheck, build, smoke, and secret scan` is currently `IN_PROGRESS`.
 - [2026-06-03] **Blocked unsafe merge/deploy on review gate** — did not merge or deploy PR #101 because `reviews=[]` and the author account is `sales799`; GitHub collaborators query returned only `sales799`, so no non-author reviewer is discoverable from this account.
 - [2026-06-03] **Restored active-origin Sentry runtime env** — public `/v1/observability/sentry` first returned `enabled:false`, `dsnConfigured:false`; active-origin env files were updated without printing secret values, `pm2 reload qorium-marketing --update-env` and `pm2 save --force` succeeded, and the public endpoint then returned `enabled:true`, `dsnConfigured:true`.
 - [2026-06-03] **Verified live health headers after restore** — `https://qorium.online/healthz?verify=after-env-restore-20260603` returned HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP.
