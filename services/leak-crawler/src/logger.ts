@@ -19,6 +19,6 @@ export function buildLogger(opts: BuildLoggerOptions = {}): Logger {
         remove: true,
       },
     },
-    pino.destination({ fd: 1, sync: false }),
+    pino.destination({ fd: 1, sync: true }),
   );
 }
