@@ -24,9 +24,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const page = getCompetitorPage(slug);
   if (!page) return {};
+  const fullDescription = `${page.summary} Review an honesty-led comparison with QOrium edges and visible competitor strengths.`;
+  const description =
+    fullDescription.length <= 160
+      ? fullDescription
+      : `${fullDescription.slice(0, 157).replace(/\s+\S*$/, '')}…`;
   return {
-    title: `QOrium vs ${page.competitor}`,
-    description: `${page.summary} Review an honesty-led comparison with QOrium edges and visible competitor strengths.`,
+    title: { absolute: `QOrium vs ${page.competitor}` },
+    description,
     alternates: { canonical: page.path },
   };
 }
