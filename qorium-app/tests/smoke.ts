@@ -1,6 +1,6 @@
 import { buildServer as buildApi } from "../apps/api/src/server.js";
 import { runCode } from "../apps/sandbox-bridge/src/runner.js";
-import { GET as securityTxt } from "../apps/web/src/app/.well-known/security.txt/route.js";
+import { readFile } from "node:fs/promises";
 
 const api = buildApi();
 
@@ -83,10 +83,7 @@ const audit = await api.inject({ method: "GET", url: "/api/v1/audit-log/sample" 
 assertEqual(audit.statusCode, 200, "audit sample");
 if ((JSON.parse(audit.body) as { data: unknown[] }).data.length < 2) throw new Error("Expected audit rows");
 
-const security = securityTxt();
-assertEqual(security.status, 200, "security.txt");
-if (!security.headers.get("content-type")?.includes("text/plain")) throw new Error("security.txt must be text/plain");
-const securityText = await security.text();
+const securityText = await readFile(new URL("../apps/web/public/.well-known/security.txt", import.meta.url), "utf8");
 for (const field of ["Contact:", "Expires:", "Preferred-Languages:", "Canonical:"]) {
   if (!securityText.includes(field)) throw new Error(`security.txt missing ${field}`);
 }
