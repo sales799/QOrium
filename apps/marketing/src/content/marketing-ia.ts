@@ -507,7 +507,9 @@ export const footerSitemap: MegaMenuColumn[] = [
       { label: 'Anti-Leak', href: '/anti-leak' },
       { label: 'Authoring', href: '/authoring' },
       { label: 'Trust Center', href: '/trust' },
-      { label: 'Security', href: '/security' },
+      { label: 'Security & Residency', href: '/trust/security' },
+      { label: 'Bias Audit', href: '/trust/bias-audit' },
+      { label: 'Sub-processors', href: '/trust/sub-processors' },
       { label: 'DPDP Compliance', href: '/compliance-dpdp' },
       { label: 'Responsible AI', href: '/responsible-ai' },
     ],
@@ -529,10 +531,10 @@ export const footerSitemap: MegaMenuColumn[] = [
     heading: 'Compare',
     links: [
       { label: 'Vervoe', href: '/vs/vervoe' },
-      { label: 'HackerRank', href: '/vs/hackerrank' },
       { label: 'Mercer Mettl', href: '/vs/mettl' },
       { label: 'iMocha', href: '/vs/imocha' },
-      { label: 'CoderByte', href: '/vs/coderbyte' },
+      { label: 'Coderbyte', href: '/vs/coderbyte' },
+      { label: 'TechCurators', href: '/vs/techcurators' },
     ],
   },
   {

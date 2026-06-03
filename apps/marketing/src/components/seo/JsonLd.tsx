@@ -219,3 +219,40 @@ export function SoftwareApplicationJsonLd({
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
+
+export function OfferCatalogJsonLd({
+  url,
+  offers,
+}: {
+  url: string;
+  offers: Array<{
+    name: string;
+    description: string;
+    price?: string;
+    priceCurrency?: string;
+  }>;
+}) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${siteConfig.name} Plans`,
+    description: 'QOrium skills-assessment plans with transparent INR pricing.',
+    url,
+    brand: { '@type': 'Brand', name: siteConfig.name },
+    offers: offers.map((offer) => ({
+      '@type': 'Offer',
+      name: offer.name,
+      description: offer.description,
+      url,
+      availability: 'https://schema.org/InStock',
+      priceCurrency: offer.priceCurrency ?? 'INR',
+      ...(offer.price !== undefined
+        ? { price: offer.price }
+        : { priceSpecification: { '@type': 'PriceSpecification', description: 'Custom quote' } }),
+      seller: { '@type': 'Organization', name: siteConfig.legalEntity },
+    })),
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+  );
+}

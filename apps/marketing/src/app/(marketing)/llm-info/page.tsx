@@ -40,16 +40,17 @@ export default function LlmInfoPage() {
         <SectionBand title="What QOrium does">
           <CardGrid>
             <SurfaceCard title="Assessment library">
-              Seeded skill pages for technical, data, sales, behavioural, cognitive, and
-              communication roles.
+              21 canonical skill assessments across tech, India-stack, AI-era, and aptitude — each
+              AI-graded with a reasoning trace and confidence band, not a black-box number.
             </SurfaceCard>
             <SurfaceCard title="JD-Forge posture">
               Job-description-to-assessment generation is positioned as a reviewed workflow, not an
               unsupported autonomous claim.
             </SurfaceCard>
             <SurfaceCard title="Trust posture">
-              DPDP-aligned handling, audit-forward scoring, and transparent evidence status for
-              certifications and badges.
+              India-resident data (Mumbai), DPDP-aligned handling. Item statistics are
+              model-estimated · calibrating with live use. Independent bias audit is scheduled, not
+              passed; security controls are implemented/aligned, not certified.
             </SurfaceCard>
           </CardGrid>
         </SectionBand>

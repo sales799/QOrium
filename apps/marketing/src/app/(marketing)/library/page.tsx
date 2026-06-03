@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, ItemListJsonLd, ProductJsonLd } from '@/components/seo/JsonLd';
-import { librarySkills } from '@/content/seo-graph';
+import { IRT_LABEL, librarySkills } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function LibraryHubPage() {
-  const featured = librarySkills.slice(0, 60);
+  const featured = librarySkills;
   const categories = [...new Set(librarySkills.map((skill) => skill.category))].sort();
 
   return (
@@ -26,7 +26,7 @@ export default function LibraryHubPage() {
       />
       <ProductJsonLd
         name="QOrium Assessment Library"
-        description="Programmatic skill assessment library with honesty-first calibration badges."
+        description="The 21 canonical QOrium skill assessments with an honest calibration label on every page."
         url={`${siteConfig.url}/library`}
       />
       <ItemListJsonLd
@@ -42,7 +42,7 @@ export default function LibraryHubPage() {
         <PageHero
           eyebrow="Assessment library"
           title="Skill pages with calibration shown in public"
-          description={`${librarySkills.length.toLocaleString('en-IN')} generated skill pages mapped to roles, stacks, related skills, and sample questions. Pages below the IRT threshold are marked as calibration in progress.`}
+          description={`${librarySkills.length} canonical skill assessments mapped to roles, stacks, related skills, and sample questions. Every page carries the same honest item-statistics label: ${IRT_LABEL}.`}
           cta={{ label: 'Book a library walkthrough', href: '/demo?surface=library' }}
         />
         <SectionBand title="Browse by category">
@@ -56,8 +56,8 @@ export default function LibraryHubPage() {
           </CardGrid>
         </SectionBand>
         <SectionBand
-          title="Seeded skill pages"
-          description="The first pages are hand-seeded from the current QOrium library and India-stack roadmap; the long tail renders as authored stubs until calibration data arrives."
+          title="Canonical skill assessments"
+          description="The consolidated QOrium library: 21 canonical skills across tech, India-stack, AI-era, and aptitude. Calibration status is shown honestly on every page."
         >
           <CardGrid>
             {featured.map((skill) => (

@@ -67,7 +67,7 @@ const nextConfig = {
         permanent: true,
       },
       { source: '/compare/:slug', destination: '/vs/:slug', permanent: true },
-      { source: '/skill/javascript', destination: '/library/javascript', permanent: true },
+      { source: '/skill/javascript', destination: '/library/react', permanent: true },
       { source: '/skill/reactjs', destination: '/library/react', permanent: true },
       { source: '/skill/java', destination: '/library/java', permanent: true },
       { source: '/skill/python', destination: '/library/python', permanent: true },
@@ -75,6 +75,27 @@ const nextConfig = {
       { source: '/skill/aws', destination: '/library/aws', permanent: true },
       { source: '/skill/devops', destination: '/library/devops-sre', permanent: true },
       { source: '/skill/:slug', destination: '/library/:slug', permanent: true },
+      // Phase B: collapse /features into /platform (single canonical pillar surface).
+      { source: '/features', destination: '/platform', permanent: true },
+      { source: '/features/:slug', destination: '/platform/:slug', permanent: true },
+      // Phase B: kill the legacy 1,000-page library fragment leak.
+      // Removed clean slugs map to their nearest canonical skill.
+      { source: '/library/javascript', destination: '/library/react', permanent: true },
+      { source: '/library/javascript-:n(\\d+)', destination: '/library/react', permanent: true },
+      { source: '/library/kubernetes', destination: '/library/devops-sre', permanent: true },
+      {
+        source: '/library/kubernetes-:n(\\d+)',
+        destination: '/library/devops-sre',
+        permanent: true,
+      },
+      // Old `/library/<seed>-<N>` fragments 301 to their canonical skill page.
+      // Longer bases listed first so path-to-regexp captures them before shorter prefixes.
+      {
+        source:
+          '/library/:base(salesforce-cpq|oracle-hcm-cloud|finacle-flexcube|ai-prompt-engineering|sap-abap|devops-sre|embedded-c|salesforce|python|java|react|sql|aws)-:n(\\d+)',
+        destination: '/library/:base',
+        permanent: true,
+      },
       { source: '/resources/docs', destination: '/product/api', permanent: false },
       { source: '/docs', destination: '/product/api', permanent: false },
       { source: '/glossary', destination: '/resources', permanent: false },
