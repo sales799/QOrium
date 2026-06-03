@@ -83,7 +83,11 @@ const nextConfig = {
       { source: '/library/javascript', destination: '/library/react', permanent: true },
       { source: '/library/javascript-:n(\\d+)', destination: '/library/react', permanent: true },
       { source: '/library/kubernetes', destination: '/library/devops-sre', permanent: true },
-      { source: '/library/kubernetes-:n(\\d+)', destination: '/library/devops-sre', permanent: true },
+      {
+        source: '/library/kubernetes-:n(\\d+)',
+        destination: '/library/devops-sre',
+        permanent: true,
+      },
       // Old `/library/<seed>-<N>` fragments 301 to their canonical skill page.
       // Longer bases listed first so path-to-regexp captures them before shorter prefixes.
       {

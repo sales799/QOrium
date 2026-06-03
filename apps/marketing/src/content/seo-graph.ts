@@ -817,12 +817,36 @@ const competitorOverrides: Record<string, CompetitorOverride> = {
       'Transparent INR pricing instead of "book a demo".',
     ],
     matrix: [
-      { dimension: 'Pricing', competitor: 'Enterprise-only, not public', qorium: 'Transparent INR, published' },
-      { dimension: 'Data residency', competitor: 'Generic "regional"', qorium: 'India-resident (Mumbai), DPDP-native' },
-      { dimension: 'Psychometric reliability', competitor: 'Not exposed', qorium: `Published: ${IRT_LABEL}` },
-      { dimension: 'Grading', competitor: 'AI, black-box', qorium: 'AI-graded with reasoning trace + confidence' },
-      { dimension: 'Bias audit', competitor: 'Yes (US-framed)', qorium: 'Methodology published; independent audit scheduled' },
-      { dimension: 'Content checks', competitor: '—', qorium: 'AI-verified (independent solve + key-match + leakage)' },
+      {
+        dimension: 'Pricing',
+        competitor: 'Enterprise-only, not public',
+        qorium: 'Transparent INR, published',
+      },
+      {
+        dimension: 'Data residency',
+        competitor: 'Generic "regional"',
+        qorium: 'India-resident (Mumbai), DPDP-native',
+      },
+      {
+        dimension: 'Psychometric reliability',
+        competitor: 'Not exposed',
+        qorium: `Published: ${IRT_LABEL}`,
+      },
+      {
+        dimension: 'Grading',
+        competitor: 'AI, black-box',
+        qorium: 'AI-graded with reasoning trace + confidence',
+      },
+      {
+        dimension: 'Bias audit',
+        competitor: 'Yes (US-framed)',
+        qorium: 'Methodology published; independent audit scheduled',
+      },
+      {
+        dimension: 'Content checks',
+        competitor: '—',
+        qorium: 'AI-verified (independent solve + key-match + leakage)',
+      },
     ].map((r) => ({
       ...r,
       competitorPosition: r.competitor,
@@ -845,10 +869,26 @@ const competitorOverrides: Record<string, CompetitorOverride> = {
       'Modern, India-native product without enterprise-only pricing.',
     ],
     matrix: [
-      { dimension: 'Pricing', competitor: 'Sales-led, not public', qorium: 'Transparent INR, published' },
-      { dimension: 'IRT / psychometrics', competitor: 'Asserted (concept), not buyer-exposed', qorium: `Published reliability: ${IRT_LABEL}` },
-      { dimension: 'Grading', competitor: 'Auto-grade, no trace', qorium: 'AI-graded with reasoning trace' },
-      { dimension: 'Buying motion', competitor: 'Demo + procurement', qorium: 'Self-serve, start in minutes' },
+      {
+        dimension: 'Pricing',
+        competitor: 'Sales-led, not public',
+        qorium: 'Transparent INR, published',
+      },
+      {
+        dimension: 'IRT / psychometrics',
+        competitor: 'Asserted (concept), not buyer-exposed',
+        qorium: `Published reliability: ${IRT_LABEL}`,
+      },
+      {
+        dimension: 'Grading',
+        competitor: 'Auto-grade, no trace',
+        qorium: 'AI-graded with reasoning trace',
+      },
+      {
+        dimension: 'Buying motion',
+        competitor: 'Demo + procurement',
+        qorium: 'Self-serve, start in minutes',
+      },
       { dimension: 'UX', competitor: 'Enterprise / legacy', qorium: 'Modern, India-built' },
     ].map((r) => ({
       ...r,
@@ -872,10 +912,26 @@ const competitorOverrides: Record<string, CompetitorOverride> = {
       'India-resident and INR-priced, built for Indian hiring law.',
     ],
     matrix: [
-      { dimension: 'Library', competitor: 'Very large (breadth)', qorium: `Focused, consolidated, published reliability (${IRT_LABEL})` },
-      { dimension: 'IRT / defensibility', competitor: 'Not surfaced', qorium: `Published: ${IRT_LABEL}` },
-      { dimension: 'Grading', competitor: 'AI-assisted, no trace', qorium: 'AI-graded with reasoning trace' },
-      { dimension: 'India residency / DPDP', competitor: 'Not surfaced', qorium: 'India-resident (Mumbai), DPDP-native' },
+      {
+        dimension: 'Library',
+        competitor: 'Very large (breadth)',
+        qorium: `Focused, consolidated, published reliability (${IRT_LABEL})`,
+      },
+      {
+        dimension: 'IRT / defensibility',
+        competitor: 'Not surfaced',
+        qorium: `Published: ${IRT_LABEL}`,
+      },
+      {
+        dimension: 'Grading',
+        competitor: 'AI-assisted, no trace',
+        qorium: 'AI-graded with reasoning trace',
+      },
+      {
+        dimension: 'India residency / DPDP',
+        competitor: 'Not surfaced',
+        qorium: 'India-resident (Mumbai), DPDP-native',
+      },
       { dimension: 'Pricing', competitor: 'From ~$400/mo (USD)', qorium: 'Transparent INR' },
     ].map((r) => ({
       ...r,
@@ -899,11 +955,27 @@ const competitorOverrides: Record<string, CompetitorOverride> = {
       'India-resident and DPDP-native.',
     ],
     matrix: [
-      { dimension: 'Scope', competitor: 'Coding only', qorium: 'Coding + role / behavioural / cognitive' },
-      { dimension: 'Psychometric defensibility', competitor: 'None', qorium: `Published, ${IRT_LABEL}` },
-      { dimension: 'Grading', competitor: 'Code auto-grade', qorium: 'AI-graded with reasoning trace' },
+      {
+        dimension: 'Scope',
+        competitor: 'Coding only',
+        qorium: 'Coding + role / behavioural / cognitive',
+      },
+      {
+        dimension: 'Psychometric defensibility',
+        competitor: 'None',
+        qorium: `Published, ${IRT_LABEL}`,
+      },
+      {
+        dimension: 'Grading',
+        competitor: 'Code auto-grade',
+        qorium: 'AI-graded with reasoning trace',
+      },
       { dimension: 'ATS', competitor: 'Paid add-on', qorium: 'Included path (ats-bridge)' },
-      { dimension: 'India residency', competitor: 'None', qorium: 'India-resident (Mumbai), DPDP-native' },
+      {
+        dimension: 'India residency',
+        competitor: 'None',
+        qorium: 'India-resident (Mumbai), DPDP-native',
+      },
     ].map((r) => ({
       ...r,
       competitorPosition: r.competitor,
@@ -926,10 +998,22 @@ const competitorOverrides: Record<string, CompetitorOverride> = {
       'Defensible AI grading at scale with the honest calibration label.',
     ],
     matrix: [
-      { dimension: 'Delivery', competitor: 'Services / custom, quote-based', qorium: 'Self-serve product, start in minutes' },
-      { dimension: 'Speed', competitor: 'Human turnaround', qorium: 'Instant assessment; JD → test in seconds (JD-Forge)' },
+      {
+        dimension: 'Delivery',
+        competitor: 'Services / custom, quote-based',
+        qorium: 'Self-serve product, start in minutes',
+      },
+      {
+        dimension: 'Speed',
+        competitor: 'Human turnaround',
+        qorium: 'Instant assessment; JD → test in seconds (JD-Forge)',
+      },
       { dimension: 'AI grading', competitor: '—', qorium: 'AI-graded with reasoning trace' },
-      { dimension: 'Proctoring / anti-leak', competitor: '—', qorium: 'Anti-leak + Gen-AI detection' },
+      {
+        dimension: 'Proctoring / anti-leak',
+        competitor: '—',
+        qorium: 'Anti-leak + Gen-AI detection',
+      },
       { dimension: 'ATS / API', competitor: '—', qorium: 'ats-bridge + public API' },
     ].map((r) => ({
       ...r,
@@ -971,7 +1055,8 @@ export const competitorPages: CompetitorPage[] = competitors.map(({ slug, compet
     matrix: comparisonDimensions.map((dimension, index) => ({
       dimension,
       competitor: index % 2 === 0 ? 'Strong established surface' : 'Category-recognized workflow',
-      qorium: index % 2 === 0 ? 'India-first audit posture' : 'Role-graph and evidence-gated claims',
+      qorium:
+        index % 2 === 0 ? 'India-first audit posture' : 'Role-graph and evidence-gated claims',
       competitorPosition:
         index % 2 === 0 ? 'Strong established surface' : 'Category-recognized workflow',
       qoriumPosition:
