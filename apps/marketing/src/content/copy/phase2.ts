@@ -220,7 +220,7 @@ export const readybankProduct: PlatformProduct = {
   proof: [
     'REST API plus JSON bulk export are the primary platform motions.',
     'Recruiter tiers include web portal, candidate links, and bulk export.',
-    'Download capture surfaces render only after the backing evidence flag is enabled.',
+    'Pull questions by skill, role, and difficulty, then export to the format your platform already uses.',
   ],
   pricingIntro:
     'ReadyBank splits pricing by buyer: assessment platforms buy annual API access; recruiters and staffing teams buy monthly subscriptions.',
@@ -376,7 +376,7 @@ export const stackVaultProduct: PlatformProduct = {
   proof: [
     'Tiering is anchored to Department, Enterprise, and Group scopes.',
     'Private-vault copy is explicit about MSA, DPA, and audit rights.',
-    'No external customer logo is shown unless a separate evidence flag exists.',
+    'You get audit rights and a signed DPA, and we name a customer only when they have agreed.',
   ],
   pricingIntro:
     'Stack-Vault is annual, enterprise-led, and scaled by stack coverage, library size, support level, and exclusivity scope.',
@@ -473,7 +473,7 @@ export const solutionBuyerPages: Record<BuyerSolution['slug'], BuyerSolution> = 
     indiaProof: [
       'India stack depth for SAP, Oracle, Salesforce, ServiceNow, embedded, mainframe, and BFSI.',
       'DPDP-aligned contract language for India-led platform delivery.',
-      'No partner logo rail renders before the evidence flag is live.',
+      'Built for India-led delivery, with DPDP-aligned contracts and data that stays in India.',
     ],
     primaryCta: { label: 'Talk to API sales', href: '/demo' },
     secondaryCta: { label: 'View ReadyBank', href: '/platform/readybank' },

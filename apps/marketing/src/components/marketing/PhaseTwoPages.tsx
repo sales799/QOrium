@@ -564,18 +564,18 @@ export function PlatformProductPage({ product }: { product: PlatformProduct }) {
       <section className="border-b border-border bg-background py-16 md:py-20">
         <MaxWidth as="div">
           <SectionIntro
-            eyebrow="Proof posture"
-            title="What this page can claim today"
-            description="The page uses SKU and pricing copy, but evidence-gated proof modules stay hidden until the backing flag exists."
+            eyebrow="How we earn trust"
+            title="We only show proof we can stand behind."
+            description="We name a customer only when they have agreed, and publish a number only when we have measured it."
           />
           <Reveal>
             <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
               <div className="rounded-lg border border-border bg-card p-5">
                 <BadgeCheck className="size-6 text-secondary" />
-                <h3 className="mt-4 text-xl font-semibold">Evidence-gated selling</h3>
+                <h3 className="mt-4 text-xl font-semibold">Proof you can trust</h3>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  No customer badges, logos, or outcome numbers render from these product pages
-                  without a live flag.
+                  No customer badge, logo, or outcome number appears here — only when it is real and
+                  verified.
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-card p-5">
@@ -812,10 +812,10 @@ export function BuyerSolutionPage({ solution }: { solution: BuyerSolution }) {
           <Reveal>
             <div>
               <p className="font-mono text-xs font-semibold uppercase text-signal-300">
-                Buyer route
+                Your next step
               </p>
               <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">
-                Continue with the product path for this buyer.
+                Keep exploring the product that fits you.
               </h2>
             </div>
           </Reveal>

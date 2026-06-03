@@ -276,9 +276,9 @@ export const stackvaultCopy: FeaturePageCopy = {
     },
   ],
   useCase: {
-    who: 'Bosch GCC Bengaluru — typical engagement',
+    who: 'A large engineering GCC — typical engagement',
     quote:
-      '"Your candidates have already seen the Mettl + HackerEarth banks. Your in-house TA team can\'t author 2,000 questions across your stack. Buy a Bosch-exclusive Stack-Vault: ₹40L/year, 2,000 questions covering every role you hire, refreshed quarterly, watermarked, contractually exclusive. Reuse infinitely across all your assessments."',
+      '"Your candidates have already seen the Mettl + HackerEarth banks. Your in-house TA team can\'t author 2,000 questions across your stack. Buy a stack-exclusive Stack-Vault: ₹40L/year, 2,000 questions covering every role you hire, refreshed quarterly, watermarked, contractually exclusive. Reuse infinitely across all your assessments."',
   },
   comparison: [
     {

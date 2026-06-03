@@ -47,7 +47,7 @@ export const platformsCopy: SolutionCopy = {
     },
   ],
   proof:
-    "Our 530-question seed library is calibrated against IRT, scanned weekly, and indexed in our role-graph. We're integrating with our first three platform partners now.",
+    'Every item is IRT-calibrated, scanned for leaks weekly, and indexed in a role-graph. Talpro India runs on it as our Customer Zero.',
   primarySku: { name: 'ReadyBank', href: '/features/readybank' },
   primaryCta: { label: 'See ReadyBank', href: '/features/readybank' },
 };
@@ -88,7 +88,7 @@ export const enterprisesCopy: SolutionCopy = {
     },
   ],
   proof:
-    'Our first GCC discovery call (Bosch Bengaluru) is queued. We expect 5 Stack-Vault logos in Y1 at an average ₹70L per logo.',
+    'Talpro India is our Customer Zero. We scope each Stack-Vault to your exact stack and roles before anything ships.',
   primarySku: { name: 'Stack-Vault', href: '/features/stack-vault' },
   primaryCta: { label: 'See Stack-Vault', href: '/features/stack-vault' },
 };
