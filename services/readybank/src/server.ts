@@ -17,6 +17,7 @@ import { adminRouter } from './routes/admin.js';
 import { auditRouter } from './routes/audit.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
 import { stackVaultRouter } from './routes/stack-vault.js';
+import { a4Router } from './routes/a4.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
 
@@ -68,6 +69,13 @@ export function createServer(deps: ServerDeps): ServerHandle {
   app.use(healthRouter({ config: deps.config, pool: deps.pool }));
   app.get('/admin', (_req, res) => res.redirect(302, '/admin/dashboard.html'));
   app.get('/admin/', (_req, res) => res.redirect(302, '/admin/dashboard.html'));
+
+  // /a4/* is the candidate-side assessment flow. Authenticated by an HMAC
+  // token in the request body / query, not by an API key — candidates have
+  // no key. Mounted BEFORE /v1 so the api-key middleware does not intercept.
+  if (deps.pool && deps.config.a4TokenSecret) {
+    app.use(a4Router({ pool: deps.pool, tokenSecret: deps.config.a4TokenSecret }));
+  }
 
   // /v1/* requires API key auth + per-key rate limiting.
   // Auth + repository routes are skipped when no pool is configured (dev /
