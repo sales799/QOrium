@@ -10,7 +10,7 @@
 ## RUN #50 — Review-Gate Proof + Sentry Runtime Restore (2026-06-03, Codex)
 
 ### COMPLETED
-- [2026-06-03] **Proved PR #94 is not merge-ready** — `https://github.com/sales799/QOrium/pull/94` is open at head `5c32986a0d45c1da85ed17703ea320be9586bda3`, authored by `sales799`, base `specs`, `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY`, `reviewDecision=""`, and `reviews=[]`; GitHub collaborators query returned only `sales799`, so no non-author reviewer is discoverable from this account.
+- [2026-06-03] **Proved PR #94 is not merge-ready** — `https://github.com/sales799/QOrium/pull/94` is open at head `637fec4f012bec9f2d23ee1ce3f6e8346847e5e7`, authored by `sales799`, base `specs`, `mergeable=CONFLICTING`, `mergeStateStatus=DIRTY`, `reviewDecision=""`, and `reviews=[]`; GitHub collaborators query returned only `sales799`, so no non-author reviewer is discoverable from this account.
 - [2026-06-03] **Blocked unsafe deploy of the local app branch** — did not merge or deploy PR #94 because the cross-account review gate failed and the PR is conflicting.
 - [2026-06-03] **Restored active-origin Sentry runtime env** — public `/v1/observability/sentry` first returned `enabled:false`, `dsnConfigured:false`; active-origin env files were updated without printing secret values, `pm2 reload qorium-marketing --update-env` and `pm2 save --force` succeeded, and the public endpoint then returned `enabled:true`, `dsnConfigured:true`.
 - [2026-06-03] **Verified live health headers after restore** — `https://qorium.online/healthz?verify=after-env-restore-20260603` returned HTTP `200` with HSTS, XCTO, XFO, Referrer-Policy, Permissions-Policy, and CSP.
