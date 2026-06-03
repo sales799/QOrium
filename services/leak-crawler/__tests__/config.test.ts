@@ -13,6 +13,7 @@ describe('loadConfig', () => {
     vi.stubEnv('APIFY_ACTOR_ID', 'owner/custom-actor');
     vi.stubEnv('APIFY_COUNTRY_CODE', 'in');
     vi.stubEnv('APIFY_LANGUAGE_CODE', 'en');
+    vi.stubEnv('LEAK_CRAWLER_APIFY_TIMEOUT_MS', '90000');
     vi.stubEnv('LEAK_CRAWLER_MAX_QUERIES_PER_RUN', '7');
 
     expect(loadConfig()).toMatchObject({
@@ -22,6 +23,7 @@ describe('loadConfig', () => {
       apifyActorId: 'owner/custom-actor',
       apifyCountryCode: 'in',
       apifyLanguageCode: 'en',
+      apifyTimeoutMs: 90_000,
       maxQueriesPerRun: 7,
     });
   });
@@ -40,7 +42,17 @@ describe('loadConfig', () => {
       searchProvider: 'apify',
       apifyToken: 'APIFY_TEST',
       apifyActorId: 'apify/google-search-scraper',
+      apifyTimeoutMs: 120_000,
       maxQueriesPerRun: 25,
+    });
+  });
+
+  it('accepts APIFY_TIMEOUT_MS as the shorter timeout alias', () => {
+    vi.stubEnv('APIFY_API_TOKEN', 'APIFY_TEST');
+    vi.stubEnv('APIFY_TIMEOUT_MS', '150000');
+    expect(loadConfig()).toMatchObject({
+      searchProvider: 'apify',
+      apifyTimeoutMs: 150_000,
     });
   });
 });
