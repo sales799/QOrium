@@ -529,10 +529,10 @@ export const footerSitemap: MegaMenuColumn[] = [
     heading: 'Compare',
     links: [
       { label: 'Vervoe', href: '/vs/vervoe' },
-      { label: 'HackerRank', href: '/vs/hackerrank' },
       { label: 'Mercer Mettl', href: '/vs/mettl' },
       { label: 'iMocha', href: '/vs/imocha' },
-      { label: 'CoderByte', href: '/vs/coderbyte' },
+      { label: 'Coderbyte', href: '/vs/coderbyte' },
+      { label: 'TechCurators', href: '/vs/techcurators' },
     ],
   },
   {

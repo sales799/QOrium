@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Github, Linkedin, ShieldCheck } from 'lucide-react';
 
 import { footerSitemap, visibleLinks } from '@/content/marketing-ia';
+import { IRT_LABEL } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
 import { Logo } from './Logo';
 import { MaxWidth } from './MaxWidth';
@@ -71,7 +72,18 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-2 border-t border-white/10 pt-6">
+        <div className="mt-10 border-t border-white/10 pt-6">
+          <p className="flex items-center gap-2 text-xs leading-5 text-shell-muted">
+            <ShieldCheck className="size-3.5 text-signal-300" />
+            <span>
+              Item statistics on every assessment are{' '}
+              <span className="font-medium text-white/80">{IRT_LABEL}</span>. QOrium does not claim
+              empirically-calibrated or certified scoring until live candidate data supports it.
+            </span>
+          </p>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-2">
           {BUILT_ON.map((item) => (
             <span
               key={item}

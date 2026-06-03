@@ -7,14 +7,19 @@ import {
   SectionBand,
   SurfaceCard,
 } from '@/components/phase4/MarketingSurface';
-import { BreadcrumbJsonLd, FAQPageJsonLd, ProductJsonLd } from '@/components/seo/JsonLd';
+import {
+  BreadcrumbJsonLd,
+  FAQPageJsonLd,
+  OfferCatalogJsonLd,
+  ProductJsonLd,
+} from '@/components/seo/JsonLd';
 import { phase4Faqs } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Pricing',
   description:
-    'QOrium pricing starts with a free Customer-Zero tier. Paid tier numbers are founder-locked and currently Talk to sales.',
+    'QOrium pricing: Customer-Zero free forever, Growth ₹4,999/mo, Scale ₹19,999/mo, Enterprise custom. Transparent INR pricing for India-first skills assessment.',
   alternates: { canonical: '/pricing' },
 };
 
@@ -23,27 +28,54 @@ const tiers = [
     'Customer-Zero',
     'Free forever',
     'Solo founders and talent ops teams experimenting with skills-first screening.',
-    '10 assessments per month|1 user seat|QOrium branding|No API access',
+    '10 assessments per month|1 user seat|QOrium branding|No JD-Forge / API',
   ],
   [
     'Growth',
-    'Talk to sales',
+    '₹4,999/mo',
     'SMB hiring teams that need repeatable shortlists.',
-    '500 assessments per month target|5 seats target|JD-Forge v1 when released|Email support',
+    '500 assessments per month|5 seats|JD-Forge v1|Email support',
   ],
   [
     'Scale',
-    'Talk to sales',
+    '₹19,999/mo',
     'Mid-market teams with larger hiring operations.',
-    '5,000 assessments per month target|20 seats target|IRT report exports when released|Priority support',
+    '5,000 assessments per month|20 seats|JD-Forge + IRT report exports|ATS · SSO · priority support',
   ],
   [
     'Enterprise',
     'Custom',
     'High-volume and regulated teams.',
-    'Custom limits|SLA and onboarding|SSO/API roadmap|Audit logs roadmap',
+    'Unlimited assessments|SLA + onboarding|Residency · audit logs · API|SSO + dedicated support',
   ],
 ] as const;
+
+// Product + Offer JSON-LD source (PHASE_B pack, RATIFIED 2026-06-03).
+const pricingOffers = [
+  {
+    name: 'Customer-Zero',
+    description: 'Free forever — 10 assessments/mo, 1 seat.',
+    price: '0',
+    priceCurrency: 'INR',
+  },
+  {
+    name: 'Growth',
+    description: '500 assessments/mo, 5 seats, JD-Forge v1.',
+    price: '4999',
+    priceCurrency: 'INR',
+  },
+  {
+    name: 'Scale',
+    description: '5,000 assessments/mo, 20 seats, IRT exports, ATS, SSO.',
+    price: '19999',
+    priceCurrency: 'INR',
+  },
+  {
+    name: 'Enterprise',
+    description: 'Custom limits, SLA, residency, audit logs, API.',
+    priceCurrency: 'INR',
+  },
+];
 
 export default function PricingPage() {
   return (
@@ -56,15 +88,16 @@ export default function PricingPage() {
       />
       <ProductJsonLd
         name="QOrium Pricing"
-        description="Free Customer-Zero tier and sales-led paid tiers for skills assessment hiring teams."
+        description="Transparent INR pricing: Customer-Zero free, Growth ₹4,999/mo, Scale ₹19,999/mo, Enterprise custom."
         url={`${siteConfig.url}/pricing`}
       />
+      <OfferCatalogJsonLd url={`${siteConfig.url}/pricing`} offers={pricingOffers} />
       <FAQPageJsonLd questions={phase4Faqs} />
       <main>
         <PageHero
           eyebrow="Pricing"
-          title="Start free. Move to paid tiers when your assessment volume is real."
-          description="Paid tier numbers are not public until founder approval. Until then, QOrium keeps the free Customer-Zero tier clear and routes Growth, Scale, and Enterprise to sales."
+          title="Transparent INR pricing. Start free, scale when your volume is real."
+          description="Customer-Zero is free forever. Growth is ₹4,999/mo and Scale is ₹19,999/mo, billed in INR. Enterprise is custom for high-volume and regulated teams. No hidden quote-only gate."
           cta={{ label: 'Book pricing call', href: '/demo' }}
         />
         <SectionBand title="Plans">
@@ -73,7 +106,7 @@ export default function PricingPage() {
               <SurfaceCard
                 key={name}
                 title={name}
-                href={name === 'Customer-Zero' ? '/demo' : '/contact'}
+                href={name === 'Enterprise' ? '/contact' : '/demo'}
               >
                 <p className="text-xl font-semibold text-foreground">{price}</p>
                 <p className="mt-2">{fit}</p>
