@@ -95,7 +95,7 @@ webhooks.deliveries (
     "difficulty": "hard",
     "format": "coding"
   },
-  "idempotency_key": "evt_1a2b3c4d5e6f7g8h9i0j"
+  "idempotency_key": "example-idempotency-key"
 }
 ```
 

@@ -55,7 +55,7 @@ For server-to-server integrations. API keys use HMAC-SHA256 signing.
 ```
 qor_[SKU]_[TENANT]_[32_HEX_CHARS]
 
-Example: qor_readybank_bosch_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+Example: REDACTED_EXAMPLE_API_KEY
 ```
 
 **Hashing at Rest:** Argon2id (memory 64MB, iterations 3, parallelism 4, PHC format)
@@ -63,8 +63,8 @@ Example: qor_readybank_bosch_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 **Header-based Authentication:**
 
 ```bash
+# Include your QOrium bearer token in the Authorization header.
 curl -X GET https://api.qorium.online/v1/questions \
-  -H "Authorization: Bearer qor_readybank_bosch_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" \
   -H "Content-Type: application/json"
 ```
 
@@ -546,7 +546,7 @@ Add a bespoke question to your exclusive library.
   "id": "qst_stackvault_cust_001a2b3c",
   "status": "draft",
   "created_at": "2026-05-02T10:30:45Z",
-  "watermark_token": "wtr_cust_xyz789"
+  "watermark_token": "example-watermark-token"
 }
 ```
 
@@ -683,7 +683,7 @@ Subscribe to events. All payloads are signed with HMAC-SHA256.
   "url": "https://your-domain.com/qorium-webhooks",
   "events": ["jd_forge.order.completed", "leak_alert.created"],
   "active": true,
-  "secret": "wbk_secret_xyz789",
+  "secret": "REDACTED_EXAMPLE_WEBHOOK_SECRET",
   "created_at": "2026-05-02T10:30:45Z"
 }
 ```
@@ -696,7 +696,7 @@ All webhook payloads include an `X-QOR-Signature` header. Verify it using:
 const crypto = require('crypto');
 const signature = req.headers['x-qor-signature'];
 const body = req.rawBody; // Raw request body (not parsed)
-const secret = 'wbk_secret_xyz789';
+const secret = process.env.QORIUM_WEBHOOK_SIGNING_SECRET;
 
 const expected = crypto
   .createHmac('sha256', secret)

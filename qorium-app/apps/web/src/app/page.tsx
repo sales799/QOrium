@@ -1,5 +1,12 @@
-import { redirect } from "next/navigation";
+import { MarketingPage, StructuredData, generateMarketingMetadata } from "../marketing/MarketingPage";
+
+export const metadata = generateMarketingMetadata("/");
 
 export default function Page() {
-  redirect("/assessments/new");
+  return (
+    <>
+      <StructuredData path="/" />
+      <MarketingPage path="/" />
+    </>
+  );
 }

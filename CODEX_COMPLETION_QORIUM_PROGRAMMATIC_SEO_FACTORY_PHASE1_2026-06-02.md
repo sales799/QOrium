@@ -4,7 +4,7 @@
 **Lane:** BHIMA backend + ARJUN marketing  
 **Shard:** `CODEX_PENDING_QORIUM_PROGRAMMATIC_SEO_FACTORY_2026-06-01.md`  
 **Branch:** `codex/qorium-programmatic-seo-factory-phase1`  
-**Final deployed SHA:** `84d90456d03e`
+**Final deployed SHA:** `cf717778541b`
 
 ## Scope Completed
 
@@ -25,8 +25,8 @@
 
 ## Deploy Evidence
 
-- Release path: `/opt/apps/qorium-marketing/releases/84d90456d03e`.
-- Current symlink: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/84d90456d03e`.
+- Release path: `/opt/apps/qorium-marketing/releases/cf717778541b`.
+- Current symlink: `/opt/apps/qorium-marketing/current -> /opt/apps/qorium-marketing/releases/cf717778541b`.
 - PM2: `qorium-marketing` online from `current/apps/marketing/.pm2-start.sh`; `qorium-chatbot` online from `current/services/chatbot/.pm2-start.sh`.
 - Local origin probes during deploy: `:5110` HTTP `200`; `:5122` HTTP `200`.
 - Cloudflare targeted purge: `cloudflare_purge_success=true`.
