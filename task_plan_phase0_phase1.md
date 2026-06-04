@@ -212,3 +212,12 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 - [DONE] Live verification: `https://qorium.online/`, `/healthz`, `https://api.qorium.online/healthz`, and `/sitemap.xml` returned HTTP 200 with security headers; `/v1/science/quality-gate` returned `92/92`.
 - [DONE] Accessibility follow-up: mobile Sheet navigation now includes hidden DialogTitle and DialogDescription text so Radix emits no missing-title or missing-description warning during mobile menu QA.
 - [DONE] Final accessibility follow-up is queued in this active-origin port commit; the session CTO report records the final pushed SHA, PR link, redeploy release, and browser re-proof.
+
+## Session Closeout Evidence - 2026-06-04 Phase F Scale Wedges Deploy Prep
+
+- [DONE] Phase F production-port branch created from active origin: `codex/qorium-phase-f-deploy-20260604`.
+- [DONE] ReadyBank `/v1/scale-wedges` now exposes full-breadth on-demand modules: Cognitive, Video Response, M3 Job Simulation, M8 Scheduling, M9 Live Room, and M10 Reference Check.
+- [DONE] Runtime sessions are API-key gated, tenant-scoped, persisted in `app.scale_wedge_sessions`, and audit-log creation/live-room events.
+- [DONE] Migration reservation advanced with `infra/B7-postgres-migrations/0020_phase_f_scale_wedges.sql`; numbering guard passed.
+- [DONE] Verification: ReadyBank Phase F test `4/4`, ReadyBank suite `171/171` passing with `21` DB-skipped integration cases, ReadyBank typecheck/build, root typecheck, root lint, root build, migration numbering, and gitleaks all passed.
+- [BLOCKED] Live deploy remains gated by cross-account review/merge guardrail; author must not self-approve or self-merge.

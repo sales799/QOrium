@@ -218,6 +218,52 @@ and OWASP-acceptable for high-entropy random tokens (165 bits). Logged at
 - `pnpm --filter @qorium/auth typecheck` clean
 - `pnpm --filter @qorium/auth test`: 26/26 pass
 - Root `pnpm typecheck` / `lint` / `format:check` / `build` / `test` all clean
+
+---
+
+## 2026-06-04 — Phase F Scale Wedges deploy branch ✅
+
+`codex/qorium-phase-f-deploy-20260604` ports the local Phase F prototype into
+the production ReadyBank service running on active origin.
+
+### What landed
+
+- `services/readybank/src/routes/scale-wedges.ts` — API-key protected
+  `/v1/scale-wedges`, session creation, session fetch, and live-room event
+  append routes.
+- Full-breadth modules are exposed as `live_on_demand`: Cognitive, Video
+  Response, M3 Job Simulation, M8 Scheduling, M9 Live Room, and M10 Reference
+  Check.
+- Runtime sessions are tenant-scoped through `req.auth.tenantId`, persisted as
+  JSONB, and record audit events for session creation and live-room events.
+- `infra/B7-postgres-migrations/0020_phase_f_scale_wedges.sql` adds
+  `app.scale_wedge_sessions`; `RESERVED.md` now advances the next migration
+  number to `0021`.
+- `services/readybank/__tests__/scale-wedges.test.ts` covers module discovery,
+  Cognitive + Video runtimes, M3/M8/M9/M10 runtimes, live-room event appends,
+  and RFC 7807 unknown-module handling.
+
+### Verified locally
+
+- `pnpm run build:packages`
+- `pnpm --filter @qorium/readybank exec vitest run __tests__/scale-wedges.test.ts`
+  → 4/4 passing
+- `pnpm --filter @qorium/readybank run typecheck`
+- `pnpm --filter @qorium/readybank run test` → 171 passed, 21 skipped DB
+  integration cases
+- `infra/B7-postgres-migrations/scripts/check-numbering.sh`
+- `pnpm --filter @qorium/readybank run build`
+- `pnpm run typecheck`
+- `pnpm run lint`
+- `pnpm run build`
+- `pnpm run secrets:scan`
+
+### Deploy status
+
+Deploy package is ready for cross-account review and merge. Live deployment is
+intentionally not self-merged because QOrium v7 guardrails require the account
+that authored the branch to avoid approving its own merge.
+
 - Total tests across workspaces: db smoke (7 skipped without DB),
   readybank (7 pass), auth (26 pass) = 33 active green
 - gitleaks clean (6 commits, 0 leaks)

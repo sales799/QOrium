@@ -46,8 +46,9 @@ For long-lived feature work that won't merge for weeks, **reserve** a slot by ad
 | 0017   | `0017_interactive_proof.sql`                | applied  | codex/qorium-marketing-phase4-main          |
 | 0018   | `0018_chatbot.sql`                          | applied  | codex/qorium-c1-chatbot                     |
 | 0019   | `0019_saml_sessions.sql`                    | applied  | codex/saml-live-active-origin-20260602      |
+| 0020   | `0020_phase_f_scale_wedges.sql`             | applied  | codex/qorium-phase-f-deploy-20260604        |
 
-**Next available number: 0020.**
+**Next available number: 0021.**
 
 ## Documented gaps (CI ignores these)
 

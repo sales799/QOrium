@@ -16,6 +16,7 @@ import { authRouter, adminAuthRouter } from './routes/auth.js';
 import { adminRouter } from './routes/admin.js';
 import { auditRouter } from './routes/audit.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
+import { scaleWedgesRouter } from './routes/scale-wedges.js';
 import { stackVaultRouter } from './routes/stack-vault.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
@@ -84,6 +85,7 @@ export function createServer(deps: ServerDeps): ServerHandle {
       auth,
       questionsRouter({ pool: deps.pool }),
       packsRouter({ pool: deps.pool }),
+      scaleWedgesRouter({ pool: deps.pool }),
       stackVaultRouter({ pool: deps.pool }),
     );
 
