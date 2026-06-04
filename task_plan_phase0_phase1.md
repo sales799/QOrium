@@ -188,3 +188,17 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 ---
 
 *End of Phase 0 + Phase 1 punchlist. The work has begun.*
+
+---
+
+## Codex Closeout Addendum — Marketing Redesign Phase 1 — 2026-06-04
+
+| Item | Status | Evidence |
+|---|---|---|
+| Tailwind v4 A+B+C token system | DONE | Commit `75eae8ea7eb5e3f50c5e6b2c0f8519a56e19b69f`; `apps/marketing/src/app/globals.css` now exposes shell, product, and India zone tokens/utilities. |
+| Full mega-menu + mobile accordion | DONE | Commit `75eae8ea7eb5e3f50c5e6b2c0f8519a56e19b69f`; header covers Platform, Solutions, Why QOrium, Resources, Pricing, Book a demo, and Sign in; mobile sheet has screen-reader title/description. |
+| Evidence-gated navigation | DONE | Commit `75eae8ea7eb5e3f50c5e6b2c0f8519a56e19b69f`; public proof flags resolve from explicit `NEXT_PUBLIC_QORIUM_EVIDENCE_FLAG_*` values; hidden proof links stay absent by default. |
+| Footer sitemap + missing destinations | DONE | Commit `75eae8ea7eb5e3f50c5e6b2c0f8519a56e19b69f`; `/resources/docs`, `/glossary`, and `/benchmarks` now build so visible nav/footer links do not point to missing pages. |
+| Verification | DONE | `pnpm run build:packages` PASS; `pnpm --filter @qorium/marketing test` PASS 63/63; `typecheck` PASS; `lint` PASS; `build` PASS with 252 routes; `test:e2e` PASS 11/11; `pnpm secrets:scan` PASS after exact historical fingerprint ignore for pre-existing dev DB URL. |
+
+Archive note: Phase 1 code is branch-ready. Production deploy still requires branch push/PR/merge/deploy on the approved marketing release path.
