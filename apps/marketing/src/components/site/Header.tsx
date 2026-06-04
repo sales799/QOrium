@@ -48,7 +48,14 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import {
   actionNavLinks,
   directNavLinks,
@@ -346,6 +353,11 @@ export function Header() {
             side="right"
             className="surface-shell w-[min(100vw,28rem)] overflow-y-auto border-white/10 p-6"
           >
+            <SheetTitle className="sr-only">Qorium navigation</SheetTitle>
+            <SheetDescription className="sr-only">
+              Mobile menu with platform, solutions, trust, resource, pricing, demo, and sign-in
+              links.
+            </SheetDescription>
             <div className="pr-8">
               <Logo className="text-white" />
             </div>

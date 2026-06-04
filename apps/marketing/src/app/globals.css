@@ -38,6 +38,15 @@
   --color-india-700: oklch(0.55 0.13 58);
   --color-shell-muted: var(--shell-muted);
   --color-shell-border: var(--shell-border);
+  --color-zone-shell-bg: var(--zone-shell-bg);
+  --color-zone-shell-panel: var(--zone-shell-panel);
+  --color-zone-shell-line: var(--zone-shell-line);
+  --color-zone-product-bg: var(--zone-product-bg);
+  --color-zone-product-panel: var(--zone-product-panel);
+  --color-zone-product-line: var(--zone-product-line);
+  --color-zone-india-bg: var(--zone-india-bg);
+  --color-zone-india-panel: var(--zone-india-panel);
+  --color-zone-india-line: var(--zone-india-line);
 
   /* Semantic */
   --color-positive: oklch(0.62 0.17 145);
@@ -128,6 +137,15 @@
   --product-panel: oklch(1 0 0);
   --india-accent: oklch(0.76 0.16 72);
   --ledger-line: oklch(0.72 0.1 188 / 18%);
+  --zone-shell-bg: var(--shell-bg);
+  --zone-shell-panel: var(--shell-panel);
+  --zone-shell-line: var(--ledger-line);
+  --zone-product-bg: var(--product-bg);
+  --zone-product-panel: var(--product-panel);
+  --zone-product-line: oklch(0.67 0.17 145 / 22%);
+  --zone-india-bg: oklch(0.975 0.028 82);
+  --zone-india-panel: oklch(1 0 0);
+  --zone-india-line: oklch(0.76 0.16 72 / 28%);
 }
 
 /* DARK theme — opt-in via `class="dark"` on html */
@@ -159,6 +177,15 @@
   --product-panel: oklch(0.22 0.04 145);
   --india-accent: oklch(0.8 0.15 72);
   --ledger-line: oklch(0.72 0.1 188 / 16%);
+  --zone-shell-bg: var(--shell-bg);
+  --zone-shell-panel: var(--shell-panel);
+  --zone-shell-line: var(--ledger-line);
+  --zone-product-bg: var(--product-bg);
+  --zone-product-panel: var(--product-panel);
+  --zone-product-line: oklch(0.67 0.17 145 / 20%);
+  --zone-india-bg: oklch(0.19 0.035 58);
+  --zone-india-panel: oklch(0.23 0.04 58);
+  --zone-india-line: oklch(0.8 0.15 72 / 28%);
 }
 
 @layer base {
@@ -217,16 +244,40 @@
     background-size: 56px 56px;
   }
   .surface-shell {
-    background: linear-gradient(135deg, oklch(1 0 0 / 6%), transparent 38%), var(--shell-bg);
+    background: linear-gradient(135deg, oklch(1 0 0 / 6%), transparent 38%), var(--zone-shell-bg);
     color: oklch(0.965 0.012 190);
   }
   .surface-product {
     background:
-      linear-gradient(135deg, oklch(0.94 0.05 145 / 72%), transparent 42%), var(--product-bg);
+      linear-gradient(135deg, oklch(0.94 0.05 145 / 72%), transparent 42%), var(--zone-product-bg);
   }
   .surface-india {
     background:
-      linear-gradient(135deg, oklch(0.92 0.08 82 / 72%), transparent 44%), var(--background);
+      linear-gradient(135deg, oklch(0.92 0.08 82 / 72%), transparent 44%), var(--zone-india-bg);
+  }
+  .zone-shell {
+    background-color: var(--zone-shell-bg);
+    color: oklch(0.965 0.012 190);
+  }
+  .zone-product {
+    background-color: var(--zone-product-bg);
+    color: var(--foreground);
+  }
+  .zone-india {
+    background-color: var(--zone-india-bg);
+    color: var(--foreground);
+  }
+  .zone-panel-shell {
+    background-color: var(--zone-shell-panel);
+    border-color: var(--zone-shell-line);
+  }
+  .zone-panel-product {
+    background-color: var(--zone-product-panel);
+    border-color: var(--zone-product-line);
+  }
+  .zone-panel-india {
+    background-color: var(--zone-india-panel);
+    border-color: var(--zone-india-line);
   }
   .evidence-ledger {
     background-image:

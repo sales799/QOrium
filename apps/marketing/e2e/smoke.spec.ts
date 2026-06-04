@@ -1,6 +1,42 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Critical-route smoke', () => {
+  test('/ — mega-menu is keyboard navigable and evidence-gated', async ({ page }) => {
+    await page.goto('/');
+
+    const platformTrigger = page.getByRole('button', { name: /Platform/i });
+    await platformTrigger.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page.getByText(/The Assessment Library/i)).toBeVisible();
+    await expect(page.getByRole('link', { name: /ReadyBank/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /REST API/i }).first()).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    const resourcesTrigger = page.getByRole('button', { name: /Resources/i });
+    await resourcesTrigger.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page.getByRole('link', { name: /API Documentation/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Sample Packs/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Case Studies/i })).toHaveCount(0);
+  });
+
+  test('/ — mobile menu uses accordion panels', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+
+    await page.getByRole('button', { name: /Open menu/i }).click();
+    await expect(page.getByRole('dialog', { name: /Qorium navigation/i })).toBeVisible();
+
+    await page.getByRole('button', { name: /Platform/i }).click();
+    await expect(page.getByRole('link', { name: /ReadyBank/i }).first()).toBeVisible();
+
+    await page.getByRole('button', { name: /Resources/i }).click();
+    await expect(page.getByRole('link', { name: /API Documentation/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Case Studies/i })).toHaveCount(0);
+  });
+
   test('/ — hero, trust shell, primary CTA links to /demo', async ({ page }) => {
     await page.goto('/');
 
