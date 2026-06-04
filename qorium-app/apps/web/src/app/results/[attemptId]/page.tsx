@@ -10,9 +10,10 @@ interface ResultPayload {
   };
 }
 
-export default async function ResultPage({ params }: { params: Promise<{ attemptId: string }> }) {
+export default async function ResultPage({ params, searchParams }: { params: Promise<{ attemptId: string }>; searchParams: Promise<{ token?: string }> }) {
   const { attemptId } = await params;
-  const payload = await api<ResultPayload>(`/api/v1/attempts/${attemptId}/result`);
+  const { token } = await searchParams;
+  const payload = await api<ResultPayload>(`/api/v1/attempts/${attemptId}/result?token=${encodeURIComponent(token ?? "")}`);
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-6">
       <div className="mx-auto max-w-4xl">

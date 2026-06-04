@@ -7,10 +7,20 @@ interface Assessment {
   candidateEmail: string;
   questions: Array<{
     id: string;
-    type: "mcq" | "multi-select" | "short-answer" | "code-question";
+    type: "mcq" | "multi-select" | "short-answer" | "code-question" | "simulation" | "video-response";
     stem: string;
     options?: string[];
     starterCode?: Record<string, string>;
+    simulation?: {
+      scenario: string;
+      roleContext: string;
+      steps: Array<{ id: string; prompt: string; inputType: "written" | "code" | "video" }>;
+    };
+    videoPrompt?: {
+      prompt: string;
+      maxSeconds: number;
+      transcriptionProvider: "whisper" | "deepgram";
+    };
   }>;
 }
 

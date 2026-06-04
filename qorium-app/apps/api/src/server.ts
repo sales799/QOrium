@@ -13,7 +13,7 @@ import {
 import { gradeAnswer } from "@qorium/grader-worker";
 import { z } from "zod";
 import { createReasoningTraceStore } from "./reasoning-trace-store.js";
-import { createRepository, type Assessment } from "./store.js";
+import { createRepository, type Assessment, type ScaleWedgeModule } from "./store.js";
 
 const RECRUITER_TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
 const RECRUITER_TOKEN_TTL_SECONDS = RECRUITER_TOKEN_TTL_MS / 1000;
@@ -32,6 +32,13 @@ const recruiterLoginSchema = z.object({
 const submitSchema = z.object({
   candidateEmail: z.string().email(),
   answers: z.array(z.object({ questionId: z.string(), response: z.unknown() })).min(1)
+});
+
+const scaleWedgeModules = ["cognitive", "job-simulation", "video-response", "scheduling", "live-room", "reference-check"] as const;
+const scaleWedgeSessionSchema = z.object({ candidateEmail: z.string().email() }).passthrough();
+const liveRoomEventSchema = z.object({
+  type: z.string().min(1),
+  payload: z.unknown()
 });
 
 export function buildServer() {
@@ -112,14 +119,15 @@ export function buildServer() {
     const input = createAssessmentSchema.parse(request.body);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const assessment = await repository.createAssessment({
+      orgId: recruiter.orgId,
       title: input.title,
       candidateEmail: input.candidateEmail,
       skillIds: input.skillIds,
       questionsPerSkill: 2,
       expiresAt
     });
-    const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
-    await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: recruiter.recruiterId });
+    const token = signAssessmentLink({ assessmentId: assessment.id, orgId: recruiter.orgId, exp: expiresAt.getTime() });
+    await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: recruiter.recruiterId }, recruiter.orgId);
     return reply.code(201).send({ assessment, shareUrl: `/candidate/${token}`, token });
   });
 
@@ -131,6 +139,7 @@ export function buildServer() {
     if (!skill) return reply.code(404).send({ error: "Skill not found" });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const assessment = await repository.createAssessmentFromSkill({
+      orgId: recruiter.orgId,
       skillId: input.skillId,
       title: `${skill.name} assessment`,
       candidateEmail: input.candidateEmail,
@@ -138,8 +147,8 @@ export function buildServer() {
       expiresAt
     });
     if (!assessment) return reply.code(404).send({ error: "Skill not found" });
-    const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
-    await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: recruiter.recruiterId });
+    const token = signAssessmentLink({ assessmentId: assessment.id, orgId: recruiter.orgId, exp: expiresAt.getTime() });
+    await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: recruiter.recruiterId }, recruiter.orgId);
     return reply.code(201).send({ assessment, shareUrl: `/candidate/${token}`, token });
   });
 
@@ -156,7 +165,7 @@ export function buildServer() {
   async function readAssessmentByToken(token: string, reply: FastifyReply) {
     try {
       const payload = verifyAssessmentToken(token);
-      const assessment = await repository.getAssessment(payload.assessmentId);
+      const assessment = await repository.getAssessment(payload.assessmentId, payload.orgId);
       if (!assessment) return reply.code(404).send({ error: "Assessment not found" });
       return { assessment: sanitizeAssessmentForCandidate(assessment) };
     } catch (error) {
@@ -177,8 +186,11 @@ export function buildServer() {
   async function submitAttempt(token: string, body: unknown, reply: FastifyReply) {
     const input = submitSchema.parse(body);
     let assessment: Assessment | null;
+    let orgId: string;
     try {
-      assessment = await repository.getAssessment(verifyAssessmentToken(token).assessmentId);
+      const payload = verifyAssessmentToken(token);
+      orgId = payload.orgId;
+      assessment = await repository.getAssessment(payload.assessmentId, payload.orgId);
     } catch (error) {
       return reply.code(401).send({ error: error instanceof Error ? error.message : "Invalid token" });
     }
@@ -203,22 +215,31 @@ export function buildServer() {
         "answer.graded",
         { questionId: question.id, score: result.score, confidence: result.confidence, reasoningTraceRef },
         { assessmentId: assessment.id, questionId: question.id },
-        { type: "worker", id: "grade-answer" }
+        { type: "worker", id: "grade-answer" },
+        orgId
       );
     }
 
     const attempt = await repository.createAttempt({
+      orgId,
       assessmentId: assessment.id,
       candidateEmail: input.candidateEmail,
       answers: graded
     });
-    await repository.audit("attempt.submitted", { answerCount: graded.length }, { assessmentId: assessment.id, attemptId: attempt.id }, { type: "candidate", id: input.candidateEmail });
+    await repository.audit("attempt.submitted", { answerCount: graded.length }, { assessmentId: assessment.id, attemptId: attempt.id }, { type: "candidate", id: input.candidateEmail }, orgId);
     return reply.code(201).send({ attempt });
   }
 
   app.get("/api/v1/attempts/:id/result", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const attempt = await repository.getAttempt(id);
+    const { token } = z.object({ token: z.string() }).parse(request.query);
+    let orgId: string;
+    try {
+      orgId = verifyAssessmentToken(token).orgId;
+    } catch (error) {
+      return reply.code(401).send({ error: error instanceof Error ? error.message : "Invalid token" });
+    }
+    const attempt = await repository.getAttempt(id, orgId);
     if (!attempt) return reply.code(404).send({ error: "Attempt not found" });
     const answers = await Promise.all(attempt.answers.map(async (answer) => ({
       ...answer,
@@ -230,6 +251,51 @@ export function buildServer() {
   });
 
   app.get("/api/v1/audit-log/sample", async () => ({ data: await repository.getAuditSample(10) }));
+
+  app.get("/api/v1/scale-wedges", async () => ({ data: await repository.listScaleWedgeModules() }));
+
+  app.post("/api/v1/scale-wedges/:module/sessions", async (request, reply) => {
+    const recruiter = authenticateRecruiter(request, reply);
+    if (!recruiter) return reply;
+    const { module } = request.params as { module: string };
+    if (!isScaleWedgeModule(module)) return reply.code(404).send({ error: "Scale wedge module not found" });
+    const input = scaleWedgeSessionSchema.parse(request.body);
+    const session = await repository.createScaleWedgeSession({
+      module,
+      candidateEmail: input.candidateEmail,
+      payload: input
+    });
+    await repository.audit(
+      "scale_wedge.session_created",
+      { module, candidateEmail: input.candidateEmail },
+      { sessionId: session.id, module },
+      { type: "recruiter", id: recruiter.recruiterId }
+    );
+    return reply.code(201).send(session);
+  });
+
+  app.get("/api/v1/scale-wedges/sessions/:id", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const session = await repository.getScaleWedgeSession(id);
+    if (!session) return reply.code(404).send({ error: "Scale wedge session not found" });
+    return session;
+  });
+
+  app.post("/api/v1/live-rooms/:sessionId/events", async (request, reply) => {
+    const recruiter = authenticateRecruiter(request, reply);
+    if (!recruiter) return reply;
+    const { sessionId } = request.params as { sessionId: string };
+    const input = liveRoomEventSchema.parse(request.body);
+    const session = await repository.appendScaleWedgeEvent(sessionId, input);
+    if (!session) return reply.code(404).send({ error: "Live room session not found" });
+    await repository.audit(
+      "scale_wedge.live_room_event",
+      { type: input.type },
+      { sessionId },
+      { type: "recruiter", id: recruiter.recruiterId }
+    );
+    return reply.code(201).send(session);
+  });
 
   return app;
 }
@@ -287,6 +353,10 @@ function recruiterCookieSecure() {
   return process.env.QORIUM_RECRUITER_COOKIE_SECURE !== "false";
 }
 
+function isScaleWedgeModule(value: string): value is ScaleWedgeModule {
+  return scaleWedgeModules.includes(value as ScaleWedgeModule);
+}
+
 function sanitizeAssessmentForCandidate(assessment: Assessment) {
   return {
     ...assessment,
@@ -300,7 +370,15 @@ function sanitizeAssessmentForCandidate(assessment: Assessment) {
         testExpectation: _testExpectation,
         ...candidateQuestion
       } = question;
-      return candidateQuestion;
+      return {
+        ...candidateQuestion,
+        simulation: candidateQuestion.simulation
+          ? {
+              ...candidateQuestion.simulation,
+              steps: candidateQuestion.simulation.steps.map(({ rubric: _stepRubric, ...step }) => step)
+            }
+          : undefined
+      };
     })
   };
 }

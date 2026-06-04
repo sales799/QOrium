@@ -2,6 +2,7 @@ import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 export interface SignedAssessmentPayload {
   assessmentId: string;
+  orgId: string;
   exp: number;
 }
 
@@ -62,7 +63,11 @@ export function readCookie(source: string | undefined, name: string) {
 }
 
 export function verifyAssessmentToken(token: string, secret = getSigningSecret()): SignedAssessmentPayload {
-  return verifyToken<SignedAssessmentPayload>(token, secret);
+  const payload = verifyToken<SignedAssessmentPayload>(token, secret);
+  if (!payload.assessmentId || !payload.orgId) {
+    throw new Error("Malformed assessment token payload");
+  }
+  return payload;
 }
 
 function signToken(payload: object, secret: string) {

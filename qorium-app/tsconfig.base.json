@@ -17,5 +17,6 @@
       "@qorium/taxonomy": ["packages/taxonomy/src/index.ts"],
       "@qorium/ui": ["packages/ui/src/index.tsx"]
     }
-  }
+  },
+  "exclude": ["**/* 2.ts", "**/* 2.tsx", "**/* 2.mts", "**/* 2.cts"]
 }

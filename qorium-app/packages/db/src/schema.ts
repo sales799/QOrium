@@ -1,6 +1,6 @@
 import { integer, jsonb, pgEnum, pgTable, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const questionType = pgEnum("question_type", ["mcq", "multi_select", "short_answer", "code_question"]);
+export const questionType = pgEnum("question_type", ["mcq", "multi_select", "short_answer", "code_question", "simulation", "video_response"]);
 export const auditActorType = pgEnum("audit_actor_type", ["system", "recruiter", "candidate", "worker"]);
 
 export const skills = pgTable("skill", {
@@ -49,6 +49,7 @@ export const questions = pgTable("question", {
   stem: text("stem").notNull(),
   options: jsonb("options").$type<string[]>(),
   correctAnswer: jsonb("correct_answer"),
+  bodyJson: jsonb("body_json").$type<Record<string, unknown>>().notNull().default({}),
   explanation: text("explanation").notNull(),
   irtA: real("irt_a").notNull().default(1),
   irtB: real("irt_b").notNull().default(0),
@@ -81,4 +82,15 @@ export const auditLog = pgTable("audit_log", {
   payloadHash: text("payload_hash").notNull(),
   refs: jsonb("refs").$type<Record<string, string>>().notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const scaleWedgeSessions = pgTable("scale_wedge_session", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  module: text("module").notNull(),
+  candidateEmail: text("candidate_email").notNull(),
+  status: text("status").notNull().default("live_on_demand"),
+  runtime: jsonb("runtime").$type<Record<string, unknown>>().notNull(),
+  events: jsonb("events").$type<Array<{ type: string; payload: unknown; createdAt: string }>>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });

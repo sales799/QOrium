@@ -79,7 +79,7 @@ const submit = await api.inject({
 assertEqual(submit.statusCode, 201, "attempt submit");
 const submitted = JSON.parse(submit.body) as { attempt: { id: string } };
 
-const result = await api.inject({ method: "GET", url: `/api/v1/attempts/${submitted.attempt.id}/result` });
+const result = await api.inject({ method: "GET", url: `/api/v1/attempts/${submitted.attempt.id}/result?token=${encodeURIComponent(created.token)}` });
 assertEqual(result.statusCode, 200, "attempt result");
 const resultBody = JSON.parse(result.body) as { attempt: { answers: Array<{ reasoning?: string; reasoningTraceRef?: string }> } };
 if (!resultBody.attempt.answers.every((answer) => answer.reasoningTraceRef)) throw new Error("Expected persisted reasoning trace refs");

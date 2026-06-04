@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Play, Send } from "lucide-react";
+import { ClipboardList, Play, Send, Video } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../lib/api";
 
@@ -14,10 +14,20 @@ interface Assessment {
   candidateEmail: string;
   questions: Array<{
     id: string;
-    type: "mcq" | "multi-select" | "short-answer" | "code-question";
+    type: "mcq" | "multi-select" | "short-answer" | "code-question" | "simulation" | "video-response";
     stem: string;
     options?: string[];
     starterCode?: Record<string, string>;
+    simulation?: {
+      scenario: string;
+      roleContext: string;
+      steps: Array<{ id: string; prompt: string; inputType: "written" | "code" | "video" }>;
+    };
+    videoPrompt?: {
+      prompt: string;
+      maxSeconds: number;
+      transcriptionProvider: "whisper" | "deepgram";
+    };
   }>;
 }
 
@@ -46,7 +56,7 @@ export function CandidateAssessment({ token, assessment }: { token: string; asse
         answers: assessment.questions.map((question) => ({ questionId: question.id, response: answers[question.id] ?? "" }))
       })
     });
-    setResultUrl(`/results/${payload.attempt.id}`);
+    setResultUrl(`/results/${payload.attempt.id}?token=${encodeURIComponent(token)}`);
   }
 
   if (resultUrl) {
@@ -102,6 +112,50 @@ export function CandidateAssessment({ token, assessment }: { token: string; asse
                   <Play size={16} /> Run
                 </button>
                 {runOutput[question.id] ? <pre className="mt-3 overflow-auto rounded-md bg-zinc-950 p-3 text-xs text-white">{runOutput[question.id]}</pre> : null}
+              </div>
+            ) : question.type === "simulation" && question.simulation ? (
+              <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-4">
+                <div className="flex items-start gap-3">
+                  <ClipboardList className="mt-1 text-emerald-700" size={18} />
+                  <div>
+                    <p className="text-sm font-semibold">{question.simulation.roleContext}</p>
+                    <p className="mt-1 text-sm text-zinc-600">{question.simulation.scenario}</p>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {question.simulation.steps.map((step, stepIndex) => (
+                    <label key={step.id} className="block">
+                      <span className="text-sm font-semibold text-zinc-700">Step {stepIndex + 1}: {step.prompt}</span>
+                      <textarea
+                        className="mt-2 min-h-28 w-full rounded-md border border-zinc-300 bg-white p-3 text-sm"
+                        value={String((answers[question.id] as Record<string, unknown> | undefined)?.[step.id] ?? "")}
+                        onChange={(event) =>
+                          setAnswers((current) => ({
+                            ...current,
+                            [question.id]: { ...(current[question.id] as Record<string, unknown> | undefined), [step.id]: event.target.value }
+                          }))
+                        }
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : question.type === "video-response" ? (
+              <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-4">
+                <div className="flex items-start gap-3">
+                  <Video className="mt-1 text-emerald-700" size={18} />
+                  <div>
+                    <p className="text-sm font-semibold">Video response runtime</p>
+                    <p className="mt-1 text-sm text-zinc-600">{question.videoPrompt?.prompt ?? question.stem}</p>
+                    <p className="mt-1 text-xs text-zinc-500">Max {question.videoPrompt?.maxSeconds ?? 120}s · transcript graded after upload.</p>
+                  </div>
+                </div>
+                <textarea
+                  className="mt-4 min-h-28 w-full rounded-md border border-zinc-300 bg-white p-3 text-sm"
+                  placeholder="Paste transcript or recording notes for this on-demand runtime."
+                  value={String(answers[question.id] ?? "")}
+                  onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
+                />
               </div>
             ) : (
               <textarea

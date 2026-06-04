@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import postgres from "postgres";
 import {
   assessmentQuestions,
@@ -9,6 +9,7 @@ import {
   auditLog,
   makeAuditRecord,
   questions,
+  scaleWedgeSessions,
   skills,
   type AuditRecord
 } from "@qorium/db";
@@ -33,6 +34,28 @@ export interface Attempt {
 }
 
 export type AuditActor = { type: "system" | "recruiter" | "candidate" | "worker"; id: string };
+export type ScaleWedgeModule = "cognitive" | "job-simulation" | "video-response" | "scheduling" | "live-room" | "reference-check";
+export type ScaleWedgeEvent = { type: string; payload: unknown; createdAt: string };
+
+export interface ScaleWedgeModuleInfo {
+  module: ScaleWedgeModule;
+  title: string;
+  status: "live_on_demand";
+  claimSafe: false;
+  runtimePath: string;
+  guardrail: string;
+}
+
+export interface ScaleWedgeSession {
+  id: string;
+  module: ScaleWedgeModule;
+  candidateEmail: string;
+  status: "live_on_demand";
+  runtime: Record<string, unknown>;
+  events: ScaleWedgeEvent[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface QoriumRepository {
   getSkillStats(): Promise<{ total: number; categories: number; skills: number; subSkills: number }>;
@@ -40,6 +63,7 @@ export interface QoriumRepository {
   getLibraryCards(): Promise<Array<{ skill: SkillNode; questionCount: number }>>;
   listLibraryQuestions(skillId?: string): Promise<LibraryQuestion[]>;
   createAssessment(input: {
+    orgId: string;
     title: string;
     candidateEmail: string;
     skillIds: string[];
@@ -48,23 +72,84 @@ export interface QoriumRepository {
   }): Promise<Assessment>;
   getSkill(id: string): Promise<SkillNode | null>;
   createAssessmentFromSkill(input: {
+    orgId: string;
     skillId: string;
     title: string;
     candidateEmail: string;
     questionLimit: number;
     expiresAt: Date;
   }): Promise<Assessment | null>;
-  getAssessment(id: string): Promise<Assessment | null>;
+  getAssessment(id: string, orgId: string): Promise<Assessment | null>;
   createAttempt(input: {
+    orgId: string;
     assessmentId: string;
     candidateEmail: string;
     answers: Attempt["answers"];
   }): Promise<Attempt>;
-  getAttempt(id: string): Promise<Attempt | null>;
-  audit(event: string, payload: unknown, refs?: Record<string, string>, actor?: AuditActor): Promise<AuditRecord>;
+  getAttempt(id: string, orgId: string): Promise<Attempt | null>;
+  audit(event: string, payload: unknown, refs?: Record<string, string>, actor?: AuditActor, orgId?: string): Promise<AuditRecord>;
   getAuditSample(limit?: number): Promise<AuditRecord[]>;
+  listScaleWedgeModules(): Promise<ScaleWedgeModuleInfo[]>;
+  createScaleWedgeSession(input: {
+    module: ScaleWedgeModule;
+    candidateEmail: string;
+    payload: Record<string, unknown>;
+  }): Promise<ScaleWedgeSession>;
+  getScaleWedgeSession(id: string): Promise<ScaleWedgeSession | null>;
+  appendScaleWedgeEvent(id: string, event: Omit<ScaleWedgeEvent, "createdAt">): Promise<ScaleWedgeSession | null>;
   close(): Promise<void>;
 }
+
+const scaleWedgeModules: ScaleWedgeModuleInfo[] = [
+  {
+    module: "cognitive",
+    title: "Cognitive / aptitude adaptive runtime",
+    status: "live_on_demand",
+    claimSafe: false,
+    runtimePath: "/api/v1/scale-wedges/cognitive/sessions",
+    guardrail: "Use honest model-estimated IRT until reference-panel calibration exists."
+  },
+  {
+    module: "job-simulation",
+    title: "Job simulation runtime",
+    status: "live_on_demand",
+    claimSafe: false,
+    runtimePath: "/api/v1/scale-wedges/job-simulation/sessions",
+    guardrail: "Publish claims only after three role simulations have live pilot evidence."
+  },
+  {
+    module: "video-response",
+    title: "Video response and transcription runtime",
+    status: "live_on_demand",
+    claimSafe: false,
+    runtimePath: "/api/v1/scale-wedges/video-response/sessions",
+    guardrail: "Store media through India-resident object storage; grade transcript, not appearance."
+  },
+  {
+    module: "scheduling",
+    title: "Interview scheduling runtime",
+    status: "live_on_demand",
+    claimSafe: false,
+    runtimePath: "/api/v1/scale-wedges/scheduling/sessions",
+    guardrail: "Use ICS fallback until Google/Microsoft OAuth is live."
+  },
+  {
+    module: "live-room",
+    title: "Live coding room runtime",
+    status: "live_on_demand",
+    claimSafe: false,
+    runtimePath: "/api/v1/scale-wedges/live-room/sessions",
+    guardrail: "Reuse sandbox execution and persist transcript events before enabling public rooms."
+  },
+  {
+    module: "reference-check",
+    title: "Async reference checking runtime",
+    status: "live_on_demand",
+    claimSafe: false,
+    runtimePath: "/api/v1/scale-wedges/reference-check/sessions",
+    guardrail: "Never name or expose referees externally without explicit consent."
+  }
+];
 
 export function createRepository(): QoriumRepository {
   if (process.env.DATABASE_URL) return new PostgresRepository(process.env.DATABASE_URL);
@@ -74,6 +159,7 @@ export function createRepository(): QoriumRepository {
 class MemoryRepository implements QoriumRepository {
   private readonly assessmentStore = new Map<string, Assessment>();
   private readonly attemptStore = new Map<string, Attempt>();
+  private readonly scaleWedgeStore = new Map<string, ScaleWedgeSession>();
   private readonly auditStore: AuditRecord[] = [];
 
   async getSkillStats() {
@@ -112,6 +198,7 @@ class MemoryRepository implements QoriumRepository {
   }
 
   async createAssessment(input: {
+    orgId: string;
     title: string;
     candidateEmail: string;
     skillIds: string[];
@@ -121,7 +208,7 @@ class MemoryRepository implements QoriumRepository {
     const selected = input.skillIds.flatMap((skillId) =>
       libraryQuestions.filter((question) => question.skillId === skillId).slice(0, input.questionsPerSkill)
     );
-    return this.saveAssessment(input.title, input.candidateEmail, selected, input.expiresAt);
+    return this.saveAssessment(input.orgId, input.title, input.candidateEmail, selected, input.expiresAt);
   }
 
   async getSkill(id: string) {
@@ -129,6 +216,7 @@ class MemoryRepository implements QoriumRepository {
   }
 
   async createAssessmentFromSkill(input: {
+    orgId: string;
     skillId: string;
     title: string;
     candidateEmail: string;
@@ -138,14 +226,17 @@ class MemoryRepository implements QoriumRepository {
     const skill = await this.getSkill(input.skillId);
     if (!skill) return null;
     const selected = libraryQuestions.filter((question) => question.skillId === input.skillId).slice(0, input.questionLimit);
-    return this.saveAssessment(input.title, input.candidateEmail, selected, input.expiresAt);
+    return this.saveAssessment(input.orgId, input.title, input.candidateEmail, selected, input.expiresAt);
   }
 
-  async getAssessment(id: string) {
-    return this.assessmentStore.get(id) ?? null;
+  async getAssessment(id: string, orgId: string) {
+    const assessment = this.assessmentStore.get(id) ?? null;
+    return assessment?.orgId === orgId ? assessment : null;
   }
 
-  async createAttempt(input: { assessmentId: string; candidateEmail: string; answers: Attempt["answers"] }) {
+  async createAttempt(input: { orgId: string; assessmentId: string; candidateEmail: string; answers: Attempt["answers"] }) {
+    const assessment = await this.getAssessment(input.assessmentId, input.orgId);
+    if (!assessment) throw new Error("Assessment not found for tenant");
     const attempt: Attempt = {
       id: crypto.randomUUID(),
       assessmentId: input.assessmentId,
@@ -157,12 +248,14 @@ class MemoryRepository implements QoriumRepository {
     return attempt;
   }
 
-  async getAttempt(id: string) {
-    return this.attemptStore.get(id) ?? null;
+  async getAttempt(id: string, orgId: string) {
+    const attempt = this.attemptStore.get(id) ?? null;
+    if (!attempt) return null;
+    return (await this.getAssessment(attempt.assessmentId, orgId)) ? attempt : null;
   }
 
-  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }) {
-    const record = makeAuditRecord({ orgId: "demo-org", event, actor, payload, refs });
+  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }, orgId = "demo-org") {
+    const record = makeAuditRecord({ orgId, event, actor, payload, refs });
     this.auditStore.push(record);
     return record;
   }
@@ -171,14 +264,51 @@ class MemoryRepository implements QoriumRepository {
     return this.auditStore.slice(-limit);
   }
 
+  async listScaleWedgeModules() {
+    return scaleWedgeModules;
+  }
+
+  async createScaleWedgeSession(input: { module: ScaleWedgeModule; candidateEmail: string; payload: Record<string, unknown> }) {
+    const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    const session: ScaleWedgeSession = {
+      id,
+      module: input.module,
+      candidateEmail: input.candidateEmail,
+      status: "live_on_demand",
+      runtime: buildScaleWedgeRuntime(input.module, input.payload, id),
+      events: [],
+      createdAt: now,
+      updatedAt: now
+    };
+    this.scaleWedgeStore.set(session.id, session);
+    return session;
+  }
+
+  async getScaleWedgeSession(id: string) {
+    return this.scaleWedgeStore.get(id) ?? null;
+  }
+
+  async appendScaleWedgeEvent(id: string, event: Omit<ScaleWedgeEvent, "createdAt">) {
+    const session = this.scaleWedgeStore.get(id);
+    if (!session) return null;
+    const updated: ScaleWedgeSession = {
+      ...session,
+      events: [...session.events, { ...event, createdAt: new Date().toISOString() }],
+      updatedAt: new Date().toISOString()
+    };
+    this.scaleWedgeStore.set(id, updated);
+    return updated;
+  }
+
   async close() {
     // No resources to release for the local fallback.
   }
 
-  private saveAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
+  private saveAssessment(orgId: string, title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
     const assessment: Assessment = {
       id: crypto.randomUUID(),
-      orgId: "demo-org",
+      orgId,
       title,
       candidateEmail,
       questions: selected,
@@ -246,6 +376,7 @@ class PostgresRepository implements QoriumRepository {
   }
 
   async createAssessment(input: {
+    orgId: string;
     title: string;
     candidateEmail: string;
     skillIds: string[];
@@ -258,7 +389,9 @@ class PostgresRepository implements QoriumRepository {
         this.db.select().from(questions).where(eq(questions.skillId, skillId)).limit(input.questionsPerSkill)
       ))
     ).flat();
-    return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt);
+    return this.withTenant(input.orgId, (db) =>
+      this.insertAssessment(db, input.orgId, input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt)
+    );
   }
 
   async getSkill(id: string) {
@@ -268,6 +401,7 @@ class PostgresRepository implements QoriumRepository {
   }
 
   async createAssessmentFromSkill(input: {
+    orgId: string;
     skillId: string;
     title: string;
     candidateEmail: string;
@@ -278,14 +412,21 @@ class PostgresRepository implements QoriumRepository {
     const skill = await this.getSkill(input.skillId);
     if (!skill) return null;
     const selected = await this.db.select().from(questions).where(eq(questions.skillId, input.skillId)).limit(input.questionLimit);
-    return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt);
+    return this.withTenant(input.orgId, (db) =>
+      this.insertAssessment(db, input.orgId, input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt)
+    );
   }
 
-  async getAssessment(id: string) {
+  async getAssessment(id: string, orgId: string) {
     await this.ensureSeeded();
-    const [assessment] = await this.db.select().from(assessments).where(eq(assessments.id, id)).limit(1);
+    return this.withTenant(orgId, async (db) => {
+    const [assessment] = await db
+      .select()
+      .from(assessments)
+      .where(and(eq(assessments.id, id), eq(assessments.orgId, orgId)))
+      .limit(1);
     if (!assessment) return null;
-    const questionRows = await this.db
+    const questionRows = await db
       .select({ question: questions })
       .from(assessmentQuestions)
       .innerJoin(questions, eq(assessmentQuestions.questionId, questions.id))
@@ -300,16 +441,24 @@ class PostgresRepository implements QoriumRepository {
       expiresAt: assessment.expiresAt.toISOString(),
       createdAt: assessment.createdAt.toISOString()
     };
+    });
   }
 
-  async createAttempt(input: { assessmentId: string; candidateEmail: string; answers: Attempt["answers"] }) {
-    const [attempt] = await this.db
+  async createAttempt(input: { orgId: string; assessmentId: string; candidateEmail: string; answers: Attempt["answers"] }) {
+    return this.withTenant(input.orgId, async (db) => {
+    const [assessment] = await db
+      .select({ id: assessments.id })
+      .from(assessments)
+      .where(and(eq(assessments.id, input.assessmentId), eq(assessments.orgId, input.orgId)))
+      .limit(1);
+    if (!assessment) throw new Error("Assessment not found for tenant");
+    const [attempt] = await db
       .insert(attempts)
       .values({ assessmentId: input.assessmentId, candidateEmail: input.candidateEmail, submittedAt: new Date() })
       .returning();
     if (!attempt) throw new Error("Failed to persist attempt");
     if (input.answers.length > 0) {
-      await this.db.insert(answers).values(input.answers.map((answer) => ({
+      await db.insert(answers).values(input.answers.map((answer) => ({
         attemptId: attempt.id,
         questionId: answer.questionId,
         response: answer.response,
@@ -325,12 +474,20 @@ class PostgresRepository implements QoriumRepository {
       answers: input.answers,
       submittedAt: attempt.submittedAt?.toISOString() ?? new Date().toISOString()
     };
+    });
   }
 
-  async getAttempt(id: string) {
-    const [attempt] = await this.db.select().from(attempts).where(eq(attempts.id, id)).limit(1);
+  async getAttempt(id: string, orgId: string) {
+    return this.withTenant(orgId, async (db) => {
+    const [attemptRow] = await db
+      .select({ attempt: attempts })
+      .from(attempts)
+      .innerJoin(assessments, eq(attempts.assessmentId, assessments.id))
+      .where(and(eq(attempts.id, id), eq(assessments.orgId, orgId)))
+      .limit(1);
+    const attempt = attemptRow?.attempt;
     if (!attempt) return null;
-    const answerRows = await this.db.select().from(answers).where(eq(answers.attemptId, id));
+    const answerRows = await db.select().from(answers).where(eq(answers.attemptId, id));
     return {
       id: attempt.id,
       assessmentId: attempt.assessmentId,
@@ -344,11 +501,13 @@ class PostgresRepository implements QoriumRepository {
       })),
       submittedAt: attempt.submittedAt?.toISOString() ?? new Date().toISOString()
     };
+    });
   }
 
-  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }) {
-    const record = makeAuditRecord({ orgId: "demo-org", event, actor, payload, refs });
-    await this.db.insert(auditLog).values({
+  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }, orgId = "demo-org") {
+    const record = makeAuditRecord({ orgId, event, actor, payload, refs });
+    await this.withTenant(orgId, async (db) => {
+    await db.insert(auditLog).values({
       id: record.id,
       orgId: record.orgId,
       event: record.event,
@@ -357,6 +516,7 @@ class PostgresRepository implements QoriumRepository {
       payloadHash: record.payloadHash,
       refs: record.refs,
       createdAt: new Date(record.createdAt)
+    });
     });
     return record;
   }
@@ -375,18 +535,56 @@ class PostgresRepository implements QoriumRepository {
     }));
   }
 
+  async listScaleWedgeModules() {
+    return scaleWedgeModules;
+  }
+
+  async createScaleWedgeSession(input: { module: ScaleWedgeModule; candidateEmail: string; payload: Record<string, unknown> }) {
+    const id = crypto.randomUUID();
+    const [session] = await this.db
+      .insert(scaleWedgeSessions)
+      .values({
+        id,
+        module: input.module,
+        candidateEmail: input.candidateEmail,
+        status: "live_on_demand",
+        runtime: buildScaleWedgeRuntime(input.module, input.payload, id),
+        events: []
+      })
+      .returning();
+    if (!session) throw new Error("Failed to persist scale wedge session");
+    return dbScaleWedgeSessionToSession(session);
+  }
+
+  async getScaleWedgeSession(id: string) {
+    const [session] = await this.db.select().from(scaleWedgeSessions).where(eq(scaleWedgeSessions.id, id)).limit(1);
+    return session ? dbScaleWedgeSessionToSession(session) : null;
+  }
+
+  async appendScaleWedgeEvent(id: string, event: Omit<ScaleWedgeEvent, "createdAt">) {
+    const current = await this.getScaleWedgeSession(id);
+    if (!current) return null;
+    const events = [...current.events, { ...event, createdAt: new Date().toISOString() }];
+    const [updated] = await this.db
+      .update(scaleWedgeSessions)
+      .set({ events, updatedAt: new Date() })
+      .where(eq(scaleWedgeSessions.id, id))
+      .returning();
+    return updated ? dbScaleWedgeSessionToSession(updated) : null;
+  }
+
   async close() {
     await this.client.end({ timeout: 5 });
   }
 
-  private async insertAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
-    const [assessment] = await this.db
+  private async insertAssessment(db: Database, orgId: string, title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
+    const [assessment] = await db
       .insert(assessments)
-      .values({ title, candidateEmail, expiresAt, status: "draft" })
+      .values({ orgId, title, candidateEmail, expiresAt, status: "draft" })
       .returning();
     if (!assessment) throw new Error("Failed to persist assessment");
     if (selected.length > 0) {
-      await this.db.insert(assessmentQuestions).values(selected.map((question, index) => ({
+      await db.insert(assessmentQuestions).values(selected.map((question, index) => ({
         assessmentId: assessment.id,
         questionId: question.id,
         position: index
@@ -401,6 +599,13 @@ class PostgresRepository implements QoriumRepository {
       expiresAt: assessment.expiresAt.toISOString(),
       createdAt: assessment.createdAt.toISOString()
     };
+  }
+
+  private async withTenant<T>(orgId: string, work: (db: Database) => Promise<T>) {
+    return this.db.transaction(async (tx) => {
+      await tx.execute(sql`select set_config('app.current_tenant_id', ${orgId}, true)`);
+      return work(tx as unknown as Database);
+    });
   }
 
   private async questionCounts(skillIds: string[]) {
@@ -438,6 +643,7 @@ class PostgresRepository implements QoriumRepository {
         stem: question.stem,
         options: question.options,
         correctAnswer: question.correctAnswer,
+        bodyJson: questionBodyJson(question),
         explanation: question.explanation,
         irtA: question.irt.a,
         irtB: question.irt.b,
@@ -459,6 +665,7 @@ function dbSkillToNode(row: typeof skills.$inferSelect): SkillNode {
 }
 
 function dbQuestionToLibraryQuestion(row: typeof questions.$inferSelect): LibraryQuestion {
+  const body = row.bodyJson as Partial<LibraryQuestion>;
   return {
     id: row.id,
     skillId: row.skillId,
@@ -469,18 +676,139 @@ function dbQuestionToLibraryQuestion(row: typeof questions.$inferSelect): Librar
     irt: { a: row.irtA, b: row.irtB, c: row.irtC },
     tags: [],
     options: row.options ?? undefined,
-    correctAnswer: row.correctAnswer
+    correctAnswer: row.correctAnswer,
+    rubric: body.rubric,
+    languageHints: body.languageHints,
+    starterCode: body.starterCode,
+    testExpectation: body.testExpectation,
+    simulation: body.simulation,
+    videoPrompt: body.videoPrompt
   };
 }
 
 function toDbQuestionType(type: QuestionType) {
-  return type.replace(/-/g, "_") as "mcq" | "multi_select" | "short_answer" | "code_question";
+  return type.replace(/-/g, "_") as "mcq" | "multi_select" | "short_answer" | "code_question" | "simulation" | "video_response";
 }
 
-function fromDbQuestionType(type: "mcq" | "multi_select" | "short_answer" | "code_question"): QuestionType {
+function fromDbQuestionType(type: "mcq" | "multi_select" | "short_answer" | "code_question" | "simulation" | "video_response"): QuestionType {
   return type.replace(/_/g, "-") as QuestionType;
 }
 
 function kindOrder(kind: SkillNode["kind"]) {
   return kind === "category" ? 0 : kind === "skill" ? 1 : 2;
+}
+
+function questionBodyJson(question: LibraryQuestion) {
+  return {
+    ...(question.rubric ? { rubric: question.rubric } : {}),
+    ...(question.languageHints ? { languageHints: question.languageHints } : {}),
+    ...(question.starterCode ? { starterCode: question.starterCode } : {}),
+    ...(question.testExpectation ? { testExpectation: question.testExpectation } : {}),
+    ...(question.simulation ? { simulation: question.simulation } : {}),
+    ...(question.videoPrompt ? { videoPrompt: question.videoPrompt } : {})
+  };
+}
+
+function buildScaleWedgeRuntime(module: ScaleWedgeModule, payload: Record<string, unknown>, sessionId = crypto.randomUUID()) {
+  const candidateEmail = String(payload.candidateEmail ?? "candidate@example.com");
+  if (module === "cognitive") {
+    const skillId = String(payload.skillId ?? "cognitive.numerical");
+    return {
+      adaptiveServing: true,
+      packIds: [skillId],
+      targetDifficulty: payload.targetDifficulty ?? "adaptive",
+      questionTypes: ["mcq"],
+      irtLabel: "model_estimated",
+      candidateEmail
+    };
+  }
+  if (module === "job-simulation") {
+    const roleContext = String(payload.roleContext ?? "IT staffing operations analyst");
+    return {
+      roleContext,
+      scenario: "Handle a realistic role task with evidence, decision, and rollout reasoning.",
+      steps: [
+        { id: "triage", prompt: "Identify the first signals you would inspect.", inputType: "written", rubric: ["evidence", "failure mode"] },
+        { id: "decision", prompt: "Make the defensible decision and explain the trade-off.", inputType: "written", rubric: ["trade-off", "risk"] },
+        { id: "rollout", prompt: "Describe the safest implementation or escalation path.", inputType: "written", rubric: ["implementation", "rollback"] }
+      ],
+      grader: "m4_reasoning_trace"
+    };
+  }
+  if (module === "video-response") {
+    return {
+      prompt: String(payload.prompt ?? "Explain a production incident you debugged."),
+      maxSeconds: 120,
+      upload: {
+        provider: "r2-compatible",
+        residency: "india",
+        uploadUrl: `on-demand://qorium-video/${crypto.randomUUID()}`
+      },
+      transcription: { provider: "whisper", status: "queued" },
+      grader: "m4_transcript_only"
+    };
+  }
+  if (module === "scheduling") {
+    const slotIso = String(payload.slotIso ?? new Date(Date.now() + 60 * 60 * 1000).toISOString());
+    const interviewerEmail = String(payload.interviewerEmail ?? "interviewer@example.com");
+    return {
+      slotIso,
+      interviewerEmail,
+      reminders: ["24h", "1h"],
+      ics: buildIcs(candidateEmail, interviewerEmail, slotIso),
+      oauthMode: "ics_fallback_until_google_ms_oauth"
+    };
+  }
+  if (module === "live-room") {
+    return {
+      roomId: sessionId,
+      language: String(payload.language ?? "javascript"),
+      wsPath: `/api/v1/live-rooms/${sessionId}/socket`,
+      sandboxBridge: "http://localhost:4102/run",
+      transcriptStatus: "persisting_events"
+    };
+  }
+  const referees = Array.isArray(payload.referees) ? payload.referees.map(String).slice(0, 5) : ["referee@example.com"];
+  return {
+    requests: referees.map((email, index) => ({
+      id: `ref-${index + 1}`,
+      email,
+      status: "pending_consent",
+      questionnaire: ["role_context", "work_quality", "reliability", "rehire_signal"]
+    })),
+    report: { status: "awaiting_responses", sections: ["summary", "risk_flags", "strengths"] }
+  };
+}
+
+function buildIcs(candidateEmail: string, interviewerEmail: string, slotIso: string) {
+  const start = new Date(slotIso);
+  const end = new Date(start.getTime() + 30 * 60 * 1000);
+  const format = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//QOrium//Interview Scheduling//EN",
+    "BEGIN:VEVENT",
+    `UID:${crypto.randomUUID()}@qorium.online`,
+    `DTSTART:${format(start)}`,
+    `DTEND:${format(end)}`,
+    `SUMMARY:QOrium interview with ${candidateEmail}`,
+    `ATTENDEE:mailto:${candidateEmail}`,
+    `ATTENDEE:mailto:${interviewerEmail}`,
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+}
+
+function dbScaleWedgeSessionToSession(row: typeof scaleWedgeSessions.$inferSelect): ScaleWedgeSession {
+  return {
+    id: row.id,
+    module: row.module as ScaleWedgeModule,
+    candidateEmail: row.candidateEmail,
+    status: "live_on_demand",
+    runtime: row.runtime,
+    events: row.events,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString()
+  };
 }
