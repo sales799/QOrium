@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { Pool } from '@qorium/db';
 
 // A4 scorer. v0 supports MCQ only — exact-index match against the question
@@ -29,12 +30,38 @@ export interface GradeInput {
   responseBody: { answer_index?: number; answer?: unknown } & Record<string, unknown>;
 }
 
+// Provenance enum mirrors the CHECK constraint on content.grade_decisions
+// (migration 0019). Deterministic MCQ matching is NOT one of these — it is not
+// AI-grader output — which is exactly why the deterministic path leaves
+// `aiDecision` null and writes no grade_decisions row.
+export type GraderSource = 'm4_grader' | 'ai_verify' | 'ensemble' | 'ats_rescore';
+
+// An AI grader's decision for one response: a model-produced reasoning trace
+// plus a confidence band. Present ONLY when an actual model graded the answer.
+// Deterministic grading (MCQ exact-match) sets this to null — see the
+// "honest plumbing" decision: content.grade_decisions is reserved for
+// AI-grader output and must never be populated by a deterministic matcher.
+export interface AiGradeTrace {
+  model: string; // e.g. 'claude-sonnet-4-6'
+  promptVersion?: string; // defaults to 'v1'
+  graderSource: GraderSource;
+  score: number; // 0..1 fraction (NUMERIC(5,4) in DB)
+  confidence: number; // 0..1 fraction
+  reasoningText: string; // the model's grading rationale (stored + hashed)
+  rubricBreakdown?: Record<string, unknown>; // optional per-criterion JSONB
+}
+
 export interface GradeOutcome {
-  score: number; // 0..100 numeric (NUMERIC(5,2) in DB)
+  score: number; // 0..100 numeric (NUMERIC(5,2) in content.responses)
   max_score: number;
   irt_status: 'model-estimated';
   correct: boolean | null; // null when format is unscoreable in v0
   rationale: string;
+  // Non-null ONLY when a model produced a reasoning trace. A4 v0 grades MCQ
+  // deterministically, so this is always null today; when BHIMA's M4 grader
+  // lands for non-MCQ formats it populates this and grade_decisions rows flow
+  // with no change to the route wiring.
+  aiDecision: AiGradeTrace | null;
 }
 
 // MCQ body shape may use either `answer_index` (data) or `correct_index`
@@ -58,6 +85,7 @@ export function grade(input: GradeInput): GradeOutcome {
         irt_status: 'model-estimated',
         correct: null,
         rationale: 'question has no correct_index/answer_index — cannot score',
+        aiDecision: null,
       };
     }
     const submitted =
@@ -69,6 +97,7 @@ export function grade(input: GradeInput): GradeOutcome {
         irt_status: 'model-estimated',
         correct: false,
         rationale: 'no answer_index submitted',
+        aiDecision: null,
       };
     }
     const correct = submitted === correctIdx;
@@ -80,18 +109,22 @@ export function grade(input: GradeInput): GradeOutcome {
       rationale: correct
         ? `selected option ${submitted} matches correct option ${correctIdx}`
         : `selected option ${submitted} does not match correct option ${correctIdx}`,
+      // Deterministic match: NOT AI-grader output, so no grade_decision.
+      aiDecision: null,
     };
   }
 
   // Other formats (code, casestudy, design, video) fall through to a stub.
   // Returns null `correct` so the row persists but signals downstream that
-  // human/LLM grading is still required. Real LLM grader lands with 0019.
+  // AI/human grading is still required. The real AI grader (M4) lands in
+  // BHIMA's lane and will return a populated `aiDecision` here.
   return {
     score: 0,
     max_score: 100,
     irt_status: 'model-estimated',
     correct: null,
-    rationale: `format "${fmt}" not auto-scored in A4 v0 — pending 0019 grader`,
+    rationale: `format "${fmt}" not auto-scored in A4 v0 — pending M4 AI grader`,
+    aiDecision: null,
   };
 }
 
@@ -131,4 +164,110 @@ export async function persistResponse(args: PersistResponseArgs): Promise<{
   );
   const row = r.rows[0]!;
   return { id: row.id, submitted_at: row.submitted_at.toISOString() };
+}
+
+// ---------------------------------------------------------------------------
+// grade_decisions writer (migration 0019) — A2 reasoning-trace + confidence.
+//
+// Called ONLY when grade() produced a non-null `aiDecision` (a real model
+// reasoning trace). Deterministic MCQ grading never reaches here, keeping the
+// "AI grader output" table honest per the labeling guardrail.
+//
+// The (response_id, model, prompt_version) tuple is unique; re-grades with the
+// same tuple are idempotent (ON CONFLICT DO NOTHING returns the existing row).
+// ---------------------------------------------------------------------------
+
+export interface PersistGradeDecisionArgs {
+  pool: Pool;
+  tenantId: string;
+  responseId: string;
+  questionId: string;
+  decision: AiGradeTrace;
+}
+
+export function sha256Hex(text: string): string {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
+
+export interface GradeDecisionRow {
+  id: string;
+  reasoning_hash: string;
+  created_at: string;
+}
+
+export async function persistGradeDecision(
+  args: PersistGradeDecisionArgs,
+): Promise<GradeDecisionRow> {
+  const d = args.decision;
+
+  // Fail-loud validation BEFORE touching the DB — the CHECK constraints would
+  // reject these anyway, but a clear app-level error beats a raw 23514.
+  const validSources: GraderSource[] = ['m4_grader', 'ai_verify', 'ensemble', 'ats_rescore'];
+  if (!validSources.includes(d.graderSource)) {
+    throw new Error(`invalid grader_source: ${d.graderSource}`);
+  }
+  if (!(d.score >= 0 && d.score <= 1)) {
+    throw new Error(`grade_decisions.score must be a 0..1 fraction, got ${d.score}`);
+  }
+  if (!(d.confidence >= 0 && d.confidence <= 1)) {
+    throw new Error(`grade_decisions.confidence must be a 0..1 fraction, got ${d.confidence}`);
+  }
+  if (!d.reasoningText || d.reasoningText.length === 0) {
+    throw new Error('grade_decisions.reasoning_text must not be empty');
+  }
+
+  // Immutability proof: the application computes the hash of the exact text it
+  // persists (NON-NEGOTIABLE per the column comment). A caller cannot supply a
+  // mismatched hash — we always derive it here.
+  const reasoningHash = sha256Hex(d.reasoningText);
+  const promptVersion = d.promptVersion ?? 'v1';
+
+  const r = await args.pool.query<{ id: string; reasoning_hash: string; created_at: Date }>(
+    `insert into content.grade_decisions
+       (tenant_id, response_id, question_id, model, prompt_version,
+        grader_source, score, confidence, reasoning_text, reasoning_hash,
+        rubric_breakdown)
+     values ($1::uuid, $2::uuid, $3::uuid, $4, $5,
+             $6, $7, $8, $9, $10,
+             $11::jsonb)
+     on conflict (response_id, model, prompt_version) do nothing
+     returning id::text, reasoning_hash, created_at`,
+    [
+      args.tenantId,
+      args.responseId,
+      args.questionId,
+      d.model,
+      promptVersion,
+      d.graderSource,
+      d.score,
+      d.confidence,
+      d.reasoningText,
+      reasoningHash,
+      d.rubricBreakdown ? JSON.stringify(d.rubricBreakdown) : null,
+    ],
+  );
+
+  // ON CONFLICT DO NOTHING returns zero rows when the tuple already existed;
+  // fetch the existing row so the caller always gets a stable id back.
+  if (r.rows[0]) {
+    const row = r.rows[0];
+    return {
+      id: row.id,
+      reasoning_hash: row.reasoning_hash,
+      created_at: row.created_at.toISOString(),
+    };
+  }
+  const existing = await args.pool.query<{ id: string; reasoning_hash: string; created_at: Date }>(
+    `select id::text, reasoning_hash, created_at
+       from content.grade_decisions
+      where response_id = $1::uuid and model = $2 and prompt_version = $3
+      limit 1`,
+    [args.responseId, d.model, promptVersion],
+  );
+  const row = existing.rows[0]!;
+  return {
+    id: row.id,
+    reasoning_hash: row.reasoning_hash,
+    created_at: row.created_at.toISOString(),
+  };
 }

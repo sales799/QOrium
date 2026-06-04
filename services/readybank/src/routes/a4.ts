@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Pool } from '@qorium/db';
 import { HttpProblem } from '../middleware/problem.js';
 import { verifyA4Token } from '../lib/a4-token.js';
-import { grade, loadQuestion, persistResponse } from '../lib/a4-grader.js';
+import { grade, loadQuestion, persistResponse, persistGradeDecision } from '../lib/a4-grader.js';
 
 // /a4/* endpoints are token-authenticated (HMAC, no DB lookup) and serve the
 // candidate side of the assessment loop:
@@ -154,7 +154,42 @@ export function a4Router(deps: A4RouterDeps): Router {
         suspiciousSignals: suspicious,
       });
 
+      // grade_decisions (migration 0019) is written ONLY when an AI grader
+      // produced a reasoning trace. Deterministic MCQ grading leaves
+      // outcome.aiDecision null, so no row is written and the 'AI grader
+      // output' table is never contaminated by a deterministic match. When
+      // BHIMA's M4 grader lands for non-MCQ formats it populates aiDecision
+      // and rows flow here with no further change.
+      let gradeDecision: {
+        id: string;
+        reasoning_hash: string;
+        created_at: string;
+        grader_source: string;
+        model: string;
+        confidence: number;
+        score: number;
+      } | null = null;
+      if (outcome.aiDecision) {
+        const gd = await persistGradeDecision({
+          pool: deps.pool,
+          tenantId: v.payload.tenant_id,
+          responseId: row.id,
+          questionId: q.id,
+          decision: outcome.aiDecision,
+        });
+        gradeDecision = {
+          id: gd.id,
+          reasoning_hash: gd.reasoning_hash,
+          created_at: gd.created_at,
+          grader_source: outcome.aiDecision.graderSource,
+          model: outcome.aiDecision.model,
+          confidence: outcome.aiDecision.confidence,
+          score: outcome.aiDecision.score,
+        };
+      }
+
       return res.status(201).json({
+        grade_decision: gradeDecision,
         response_id: row.id,
         question_id: q.id,
         candidate_id: v.payload.candidate_id,
