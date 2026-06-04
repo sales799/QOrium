@@ -1,17 +1,18 @@
 {
-  "name": "@qorium/candidate-portal",
+  "name": "@qorium/my",
   "version": "0.0.0",
   "private": true,
-  "description": "QOrium candidate portal (Wave 3 AI pair-coding UX). Listens on :5116. Per infra/Wave-3-AI-Pair-Coding-Format-Prototype-Spec-v0.md §2.1 + §2.2.",
+  "description": "QOrium customer self-service portal (my.qorium.online). Listens on :5118. Invoice list + payment intent + subscription overview + API key issuance/rotation. Reuses @qorium/qorium-sdk.",
   "scripts": {
     "build": "next build",
-    "dev": "next dev --port 5116",
-    "start": "next start --port 5116",
+    "dev": "next dev --port 5118",
+    "start": "next start --port 5118",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@qorium/sdk": "workspace:*",
     "next": "^15.5.18",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
