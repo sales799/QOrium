@@ -295,6 +295,8 @@ module.exports = {
         APIFY_ACTOR_ID: process.env.APIFY_ACTOR_ID,
         APIFY_COUNTRY_CODE: process.env.APIFY_COUNTRY_CODE || 'in',
         APIFY_LANGUAGE_CODE: process.env.APIFY_LANGUAGE_CODE || 'en',
+        LEAK_CRAWLER_APIFY_TIMEOUT_MS:
+          process.env.LEAK_CRAWLER_APIFY_TIMEOUT_MS || process.env.APIFY_TIMEOUT_MS || '120000',
         LEAK_CRAWLER_MAX_QUERIES_PER_RUN: process.env.LEAK_CRAWLER_MAX_QUERIES_PER_RUN || '25',
         ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
         SENTRY_DSN: process.env.SENTRY_DSN,
