@@ -274,6 +274,55 @@ module.exports = {
 
     /**
      * =====================================================================
+     * CANDIDATE PORTAL (Cluster Mode)
+     * =====================================================================
+     * Purpose: Public invited-candidate assessment surface
+     * Mode: Cluster (multiple instances)
+     * Port: 5116 (reverse-proxied as candidate.qorium.online)
+     *
+     * Watchdog health check:
+     *   talpro_watchdog_add \
+     *     --app "qorium-candidate-portal" \
+     *     --health_url "http://localhost:5116/healthz" \
+     *     --interval_min 5
+    */
+    {
+      name: 'qorium-candidate-portal',
+      script: './.next/standalone/apps/candidate-portal/server.js',
+      cwd: './apps/candidate-portal',
+      instances: 2,
+      exec_mode: 'cluster',
+      port: 5116,
+
+      max_memory_restart: '512M',
+      exp_backoff_restart_delay: 500,
+      kill_timeout: 30000,
+
+      env: {
+        NODE_ENV: 'staging',
+        PORT: 5116,
+        SERVICE_NAME: 'qorium-candidate-portal',
+      },
+
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5116,
+        SERVICE_NAME: 'qorium-candidate-portal',
+        QORIUM_API_BASE_URL: 'http://127.0.0.1:5101',
+        LOG_LEVEL: 'info',
+      },
+
+      out_file: '/var/log/pm2/qorium-candidate-portal-out.log',
+      error_file: '/var/log/pm2/qorium-candidate-portal-err.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+
+    /**
+     * =====================================================================
      * ANTI-LEAK CRAWLER WORKER (Fork Mode)
      * =====================================================================
      * Purpose: Background scheduled crawl for leaked questions
