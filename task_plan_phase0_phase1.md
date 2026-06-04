@@ -202,3 +202,10 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 | Verification | DONE | `pnpm run build:packages` PASS; `pnpm --filter @qorium/marketing test` PASS 63/63; `typecheck` PASS; `lint` PASS; `build` PASS with 252 routes; `test:e2e` PASS 11/11; `pnpm secrets:scan` PASS after exact historical fingerprint ignore for pre-existing dev DB URL. |
 
 Archive note: Phase 1 code is branch-ready. Production deploy still requires branch push/PR/merge/deploy on the approved marketing release path.
+
+## Session Closeout Evidence - 2026-06-04
+
+- [DONE] Candidate portal runtime PR #114 conflict resolved by replacement PR #119: `https://github.com/sales799/QOrium/pull/119`. PR #114 was closed as superseded without deleting its branch.
+- [IN PROGRESS] PR #119 became conflicting after `main` advanced; refreshed replacement branch `codex/qorium-br5-candidate-runtime-main-refresh-20260604` replays the candidate runtime shell, `/healthz`, safer assessment fetch, and PM2 `qorium-candidate-portal` entry onto current `main`.
+- [DONE] Local gates passed: `pnpm install --frozen-lockfile`, `pnpm --filter @qorium/candidate-portal typecheck`, `pnpm --filter @qorium/candidate-portal build`, `pnpm --filter @qorium/candidate-portal test`, PM2 ecosystem parse, staged gitleaks protect, and local `http://127.0.0.1:5116/healthz` smoke.
+- [BLOCKED] Cross-account review/merge remains required; author did not self-merge.
