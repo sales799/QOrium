@@ -206,6 +206,6 @@ Archive note: Phase 1 code is branch-ready. Production deploy still requires bra
 ## Session Closeout Evidence - 2026-06-04
 
 - [DONE] Candidate portal runtime PR #114 conflict resolved by replacement PR #119: `https://github.com/sales799/QOrium/pull/119`. PR #114 was closed as superseded without deleting its branch.
-- [IN PROGRESS] PR #119 became conflicting after `main` advanced; refreshed replacement branch `codex/qorium-br5-candidate-runtime-main-refresh-20260604` replays the candidate runtime shell, `/healthz`, safer assessment fetch, and PM2 `qorium-candidate-portal` entry onto current `main`.
-- [DONE] Local gates passed: `pnpm install --frozen-lockfile`, `pnpm --filter @qorium/candidate-portal typecheck`, `pnpm --filter @qorium/candidate-portal build`, `pnpm --filter @qorium/candidate-portal test`, PM2 ecosystem parse, staged gitleaks protect, and local `http://127.0.0.1:5116/healthz` smoke.
+- [IN PROGRESS] PR #119 became conflicting after `main` advanced; refreshed replacement branch `codex/qorium-br5-candidate-runtime-main-refresh-20260604` replays the candidate runtime shell, `/healthz`, safer assessment fetch, standalone start command, and PM2 `qorium-candidate-portal` entry onto current `main`.
+- [DONE] Previous local gates passed: `pnpm install --frozen-lockfile`, `pnpm --filter @qorium/candidate-portal typecheck`, `pnpm --filter @qorium/candidate-portal build`, `pnpm --filter @qorium/candidate-portal test`, PM2 ecosystem parse, staged gitleaks protect, and standalone-server `http://127.0.0.1:5116/healthz` smoke.
 - [BLOCKED] Cross-account review/merge remains required; author did not self-merge.
