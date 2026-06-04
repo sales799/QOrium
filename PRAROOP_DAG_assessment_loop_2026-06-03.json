@@ -1,0 +1,16 @@
+{
+  "bundle_id": "praroop-qorium-assessment-delivery-grading-loop--mpy7hzc4",
+  "kasauti": "PASS",
+  "dor_score": "24/24",
+  "manthan": "9194eed8",
+  "branches": [
+    { "id": "BR-1", "files": ["infra/B7-postgres-migrations/0015_assessment_delivery.sql"], "depends_on": [], "risk": "high", "priority": 1 },
+    { "id": "BR-5", "files": ["/etc/nginx/sites-enabled/qorium.conf"], "depends_on": [], "risk": "high", "priority": 1 },
+    { "id": "BR-2", "files": ["qorium-api/src/routes/assessments.ts", "qorium-api/src/routes/invitations.ts"], "depends_on": ["BR-1"], "risk": "high", "priority": 2 },
+    { "id": "BR-3", "files": ["qorium-api/src/routes/attempts.ts", "qorium-api/src/grading/worker.ts"], "depends_on": ["BR-1", "BR-2"], "risk": "high", "priority": 3 },
+    { "id": "BR-4", "files": ["qorium-irt-calibration/src/feedback.ts"], "depends_on": ["BR-1", "BR-3"], "risk": "high", "priority": 4 },
+    { "id": "BR-6", "files": ["candidate-portal/src/app/t/[token]/page.tsx"], "depends_on": ["BR-2"], "risk": "low", "priority": 5 },
+    { "id": "BR-7", "files": ["candidate-portal/src/app/sessions/[id]/page.tsx"], "depends_on": ["BR-3"], "risk": "high", "priority": 6 },
+    { "id": "BR-8", "files": ["candidate-portal/src/app/sessions/[id]/result/page.tsx", "admin/src/app/attempts/[id]/page.tsx"], "depends_on": ["BR-3"], "risk": "high", "priority": 6 }
+  ]
+}

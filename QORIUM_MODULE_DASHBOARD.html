@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QOrium — Backend, Web App & Module Artifact Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1220; --bg2:#111a2e; --card:#16223c; --card2:#1c2b4a; --line:#26344f;
+  --ink:#e9eefb; --mut:#93a3c4; --dim:#6b7a9a;
+  --teal:#2dd4bf; --blue:#5b9dff; --amber:#f5b945; --red:#ff6b6b; --green:#46d39a; --violet:#9b8cff;
+  --grad:linear-gradient(120deg,#2dd4bf,#5b9dff);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter Tight",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Space Grotesk",sans-serif;margin:0 0 .4em;letter-spacing:-.01em}
+a{color:var(--blue);text-decoration:none}
+.wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+header.top{background:linear-gradient(180deg,#0e1830,#0b1220);border-bottom:1px solid var(--line);padding:30px 0 22px}
+.kicker{color:var(--teal);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em}
+header.top h1{font-size:2rem;margin-top:6px}
+header.top p{color:var(--mut);margin:.2em 0 0;max-width:760px}
+.meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-size:.82rem;color:var(--dim)}
+.meta b{color:var(--ink)}
+nav.tabs{position:sticky;top:0;z-index:30;background:rgba(11,18,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+.tab{padding:14px 16px;color:var(--mut);cursor:pointer;font-weight:600;font-size:.9rem;border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--ink);border-bottom-color:var(--teal)}
+section.panel{display:none;padding:30px 0 60px}
+section.panel.active{display:block}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h3{font-size:1.05rem}
+.gauge{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.gauge .num{font-family:"Space Grotesk";font-size:2.1rem;font-weight:700}
+.gauge .lbl{color:var(--mut);font-size:.82rem;margin-top:2px}
+.bar{height:7px;border-radius:5px;background:#0d1730;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:5px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid transparent}
+.p-green{background:rgba(70,211,154,.13);color:var(--green);border-color:rgba(70,211,154,.3)}
+.p-amber{background:rgba(245,185,69,.13);color:var(--amber);border-color:rgba(245,185,69,.3)}
+.p-red{background:rgba(255,107,107,.13);color:var(--red);border-color:rgba(255,107,107,.3)}
+.p-grey{background:rgba(147,163,196,.12);color:var(--mut);border-color:rgba(147,163,196,.25)}
+.p-blue{background:rgba(91,157,255,.13);color:var(--blue);border-color:rgba(91,157,255,.3)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;position:sticky}
+tbody tr:hover{background:rgba(91,157,255,.05)}
+td.c,th.c{text-align:center}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.mod{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;border-left:3px solid var(--line)}
+.mod.s-green{border-left-color:var(--green)} .mod.s-amber{border-left-color:var(--amber)}
+.mod.s-red{border-left-color:var(--red)} .mod.s-grey{border-left-color:var(--dim)}
+.mod .id{font-family:"Space Grotesk";font-weight:700;font-size:.8rem;color:var(--teal)}
+.mod .nm{font-weight:600;margin:3px 0 6px}
+.mod .svc{font-size:.74rem;color:var(--dim);font-family:ui-monospace,monospace;word-break:break-word}
+.mod .note{font-size:.78rem;color:var(--mut);margin-top:6px}
+h2.sec{font-size:1.4rem;margin:6px 0 4px} .lead{color:var(--mut);margin:0 0 18px;max-width:820px}
+.callout{border-radius:12px;padding:14px 16px;margin:16px 0;border:1px solid var(--line);background:var(--bg2)}
+.callout.win{border-color:rgba(70,211,154,.35);background:rgba(70,211,154,.07)}
+.callout.warn{border-color:rgba(245,185,69,.35);background:rgba(245,185,69,.07)}
+.callout.risk{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.07)}
+.callout b{color:var(--ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--mut);margin:10px 0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.tag{font-size:.7rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+ul.clean{margin:.3em 0;padding-left:1.1em} ul.clean li{margin:.3em 0;color:var(--mut)} ul.clean li b{color:var(--ink)}
+.phase{border-left:2px solid var(--line);padding:0 0 4px 18px;margin-left:8px;position:relative}
+.phase:before{content:"";position:absolute;left:-7px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--teal);border:2px solid var(--bg)}
+.phase h4{margin-bottom:2px}
+.phase .ec{font-size:.78rem;color:var(--dim)}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.82rem;margin:8px 0}
+.flow .step{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-weight:600}
+.flow .arr{color:var(--dim)}
+footer{border-top:1px solid var(--line);padding:24px 0;color:var(--dim);font-size:.8rem}
+.src{font-size:.72rem;color:var(--dim);word-break:break-all}
+.scrollx{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="kicker">QOrium · qorium.online · CTO Artifact Dashboard</div>
+  <h1>Backend, Web App &amp; Module Gap Analysis</h1>
+  <p>Live audit of the QOrium platform &amp; marketing site against the planning corpus (Constitution · IdeaForge · SOW · SDLC · MEGA_BUILD · Site IA), with live competitor research, PRAROOP use-case gap analysis, and an end-to-end PRAROOP + Build-Spine plan.</p>
+  <div class="meta">
+    <span>Generated <b>2026-06-03</b></span>
+    <span>Fleet <b>35/35 online · 0 errored</b></span>
+    <span>Bank <b>1,406 live · 21 skills</b></span>
+    <span>Position <b>India-built · psychometrically-defensible · AI-graded</b></span>
+    <span>Customer Zero <b>Talpro India</b></span>
+  </div>
+</div></header>
+
+<nav class="tabs"><div class="wrap">
+  <div class="tab active" data-t="overview">Overview</div>
+  <div class="tab" data-t="modules">Modules (M1–M23)</div>
+  <div class="tab" data-t="site">Site Audit</div>
+  <div class="tab" data-t="compete">Competitor Gap</div>
+  <div class="tab" data-t="usecase">Use-Case Gaps</div>
+  <div class="tab" data-t="plan">Build Plan</div>
+</div></nav>
+
+<!-- OVERVIEW -->
+<section class="panel active" id="overview"><div class="wrap">
+  <h2 class="sec">Readiness at a glance</h2>
+  <p class="lead">Infrastructure and content are now strong; the gap is <b>proof &amp; defensibility</b> (empirical IRT, SME validation, bias audit) and a handful of <b>marketing-site defects</b>. None of these block onboarding Talpro as Customer Zero.</p>
+  <div class="grid g4">
+    <div class="gauge"><div class="num" style="color:var(--green)">95%</div><div class="lbl">Infrastructure</div><div class="bar"><i style="width:95%;background:var(--green)"></i></div></div>
+    <div class="gauge"><div class="num" style="color:var(--green)">85%</div><div class="lbl">Question bank / content</div><div class="bar"><i style="width:85%;background:var(--green)"></i></div></div>
+    <div class="gauge"><div class="num" style="color:var(--amber)">68%</div><div class="lbl">Marketing website</div><div class="bar"><i style="width:68%;background:var(--amber)"></i></div></div>
+    <div class="gauge"><div class="num" style="color:var(--red)">32%</div><div class="lbl">Proof &amp; defensibility</div><div class="bar"><i style="width:32%;background:var(--red)"></i></div></div>
+  </div>
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card"><div class="tag">Modules built</div><h3 style="font-size:1.6rem;margin-top:6px">11 <span style="color:var(--mut);font-size:1rem">/ 23 live</span></h3><div class="legend"><span><span class="dot" style="background:var(--green)"></span>11 green</span><span><span class="dot" style="background:var(--amber)"></span>6 partial</span><span><span class="dot" style="background:var(--red)"></span>3 not built</span><span><span class="dot" style="background:var(--dim)"></span>3 deferred</span></div></div>
+    <div class="card"><div class="tag">Competitive wedge</div><h3 style="font-size:1.05rem;margin-top:6px">5-part moat, uncontested</h3><p style="color:var(--mut);font-size:.84rem;margin:0">No competitor holds &gt;1 of: India residency · transparent INR pricing · <b style="color:var(--ink)">exposed IRT</b> · reasoning-trace grading · independent bias audit.</p></div>
+    <div class="card"><div class="tag">#1 risk</div><h3 style="font-size:1.05rem;margin-top:6px;color:var(--red)">The proof loop is empty</h3><p style="color:var(--mut);font-size:.84rem;margin:0"><b style="color:var(--ink)">1</b> real candidate response in prod · IRT <b style="color:var(--ink)">calibration_n=0</b> · 0 SME-validated · 0 bias audit. The wedge is claimable only after Customer-Zero volume.</p></div>
+  </div>
+
+  <h2 class="sec" style="margin-top:30px">The four findings</h2>
+  <div class="callout win"><b>✅ Content gap closed.</b> The bank went from 511 fragmented "skills" (≈1 Q each) to <b>21 real skills, 1,406 live questions</b>, 13/15 launch skills ≥50, now self-maintaining via an autonomous, idempotent ingest pipeline.</div>
+  <div class="callout risk"><b>🔴 Live site leaks the old fragmentation.</b> <code>/library/ai-prompt-engineering-2 … -33</code> are still published as dozens of thin, near-duplicate SEO pages. The DB was consolidated; the marketing <code>/library</code> generator on the active origin has not been regenerated. Live SEO + credibility defect.</div>
+  <div class="callout warn"><b>🟡 IA diverged from plan.</b> Plan specified <code>/product/*</code>; live shipped <b>both</b> <code>/platform/*</code> and <code>/features/*</code> around 3 pillars (JD-Forge, ReadyBank, Stack-Vault). Planned <b>compare pages (W11) are missing</b> — a key competitive/SEO surface — and <code>openapi.json</code> returns 404.</div>
+  <div class="callout warn"><b>🟡 Defensibility is asserted, not proven.</b> Marketing leans on "IRT-calibrated / psychometrically defensible," but empirical calibration needs real responses. This must stay labelled "provisional" until Customer-Zero data lands (Rakshak Legal 94/100 depends on it).</div>
+
+  <h2 class="sec" style="margin-top:30px">Recommendation</h2>
+  <div class="card"><p style="margin:0;color:var(--mut)"><b style="color:var(--ink)">Onboard Talpro as Customer Zero now</b> — platform + 15 ready assessments are live, and real candidate volume is the single input that flips defensibility from red to green. In parallel, run the <b style="color:var(--ink)">Site-Hardening sprint</b> (regenerate <code>/library</code> from canonical skills, ship compare pages, fix openapi.json, lock pricing). Gate <b style="color:var(--ink)">external paid clients</b> behind: real IRT calibration + SME spot-validation + bias-audit booked + fresh Rakshak GO on the onboarding path.</p></div>
+</div></section>
+
+<!-- MODULES -->
+<section class="panel" id="modules"><div class="wrap">
+  <h2 class="sec">Module status — M1–M23</h2>
+  <p class="lead">Audited live against PM2 fleet + DB. Source of truth: <code>BACKEND_MODULES_360_v1</code>. Status reflects what is actually running &amp; populated, not what is planned.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--green)"></span>Live &amp; usable</span>
+    <span><span class="dot" style="background:var(--amber)"></span>Service up, gap remains</span>
+    <span><span class="dot" style="background:var(--red)"></span>Not built</span>
+    <span><span class="dot" style="background:var(--dim)"></span>Deferred (post-revenue)</span>
+  </div>
+  <div class="modgrid" id="mods"></div>
+</div></section>
+
+<!-- SITE AUDIT -->
+<section class="panel" id="site"><div class="wrap">
+  <h2 class="sec">Part 1 — Web app &amp; site audit vs planning docs</h2>
+  <p class="lead">Live <code>qorium.online</code> sitemap/nav vs <code>MARKETING_SITE_IA_v1</code> + Constitution 100-pt quality gate. The site is, in places, <b>more</b> built than the plan (3 productized pillars, <code>/try/graded-answer</code>, <code>/science</code>, <code>/method</code>, <code>/benchmarks</code>) but has naming divergence, a live fragmentation leak, and missing surfaces.</p>
+
+  <h3 style="margin-top:18px">Planned IA → Live reality</h3>
+  <div class="scrollx"><table>
+    <thead><tr><th>Planned surface (Site IA v1)</th><th>Live on qorium.online</th><th class="c">Status</th><th>Finding</th></tr></thead>
+    <tbody id="siterows"></tbody>
+  </table></div>
+
+  <h3 style="margin-top:26px">Constitution 100-pt quality gate — site-relevant slice</h3>
+  <div class="scrollx"><table>
+    <thead><tr><th>Gate area</th><th class="c">Status</th><th>Evidence / gap</th></tr></thead>
+    <tbody id="gaterows"></tbody>
+  </table></div>
+</div></section>
+
+<!-- COMPETE -->
+<section class="panel" id="compete"><div class="wrap">
+  <h2 class="sec">Part 2 — Competitor &amp; market gap analysis</h2>
+  <p class="lead">Live research (2026-06-03) on five players. Legend: ✅ strong · 🟡 partial · ❌ absent · ? unverified. Pricing marked "not public" where no live figure was confirmable.</p>
+  <div class="scrollx"><table>
+    <thead><tr><th>Capability</th><th class="c">Vervoe</th><th class="c">CoderByte</th><th class="c">TechCurators</th><th class="c">Mercer Mettl</th><th class="c">iMocha</th><th class="c" style="color:var(--teal)">QOrium</th></tr></thead>
+    <tbody id="comprows"></tbody>
+  </table></div>
+
+  <h3 style="margin-top:26px">Market gaps &amp; QOrium wedges</h3>
+  <div class="grid g2" id="wedges"></div>
+
+  <div class="callout win" style="margin-top:18px"><b>Sharpest combined wedge:</b> India-resident + transparent INR pricing + <b>exposed</b> IRT calibration + reasoning-trace AI grading + independent bias audit. <b>No single competitor holds more than one</b> of these five — and the two that hold one each (Vervoe = bias audit; Mettl = IRT-as-concept) are the opaque, expensive incumbents.</div>
+  <p class="src">Sources: vervoe.com/pricing · coderbyte.com/#pricing · techcurators.in · mettl.com · imocha.io/pricing — fetched live 2026-06-03. CoderByte (~$10/candidate) &amp; iMocha (~$400/mo) are the only live-verifiable price points (via review aggregators). Vervoe / Mettl / TechCurators pricing not public.</p>
+</div></section>
+
+<!-- USECASE -->
+<section class="panel" id="usecase"><div class="wrap">
+  <h2 class="sec">Part 3 — PRAROOP use-case gap analysis</h2>
+  <p class="lead">End-to-end product view: the jobs-to-be-done for each actor, mapped to what is actually shippable today. <b>Recruiter</b> &amp; <b>candidate</b> core loops are usable; <b>defensibility</b> and <b>integration</b> journeys are the gaps.</p>
+  <div class="scrollx"><table>
+    <thead><tr><th>Actor</th><th>Use case (job-to-be-done)</th><th class="c">Today</th><th>Gap to close</th></tr></thead>
+    <tbody id="ucrows"></tbody>
+  </table></div>
+  <div class="callout warn" style="margin-top:16px"><b>The one journey that unlocks the rest:</b> Recruiter sends assessment → real candidate completes it → response lands in <code>content.responses</code> → IRT recalibrates → reliability badge becomes <i>true</i>. Today that loop has run <b>once</b>. Everything in the "defensibility" column is blocked on volume through this loop.</div>
+</div></section>
+
+<!-- PLAN -->
+<section class="panel" id="plan"><div class="wrap">
+  <h2 class="sec">Part 4 — End-to-end build plan (PRAROOP + Build-Spine)</h2>
+  <p class="lead">Planning single-brain (PRAROOP writes constitution → branch DAG); execution 4-wide work-stealing via Build-Spine, cross-account review, author never self-merges. Phases gated by exit-criteria, not dates.</p>
+
+  <div class="flow">
+    <span class="step">MANTHAN</span><span class="arr">→</span>
+    <span class="step">IdeaForge gate ≥20/24</span><span class="arr">→</span>
+    <span class="step">PRAROOP (constitution + DAG)</span><span class="arr">→</span>
+    <span class="step">KARYA 4 lanes</span><span class="arr">→</span>
+    <span class="step">cross-review → GBS merge</span><span class="arr">→</span>
+    <span class="step">PRAHARI audit → GO 80/80</span><span class="arr">→</span>
+    <span class="step">SETU deploy</span>
+  </div>
+
+  <div style="margin-top:18px" id="phases"></div>
+
+  <h3 style="margin-top:26px">Branch DAG — next sprint (dependency-ready first)</h3>
+  <div class="scrollx"><table>
+    <thead><tr><th>Branch</th><th>Lane</th><th>Depends on</th><th class="c">Risk</th><th>Exit criteria</th></tr></thead>
+    <tbody id="dagrows"></tbody>
+  </table></div>
+</div></section>
+
+<footer><div class="wrap">
+  QOrium CTO Artifact Dashboard · generated 2026-06-03 from live fleet + DB + sitemap + live competitor research · status reflects live-state truth hierarchy, not planning aspiration. Re-run to refresh.
+</div></footer>
+
+<script>
+// ---- tab switching ----
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+// ---- modules ----
+const mods=[
+ ["M1.A","Assessment Builder","qorium-api / qorium-my","green","Compose → preview → share → complete loop service-up."],
+ ["M1.B","Assessment Library","content schema (1,406 Qs)","green","Consolidated to 21 real skills; 13/15 launch skills ≥50; self-filling."],
+ ["M2","Coding sandbox","qorium-ai-pair-coding-orchestrator","green","Monaco + sandbox orchestrator online."],
+ ["M3","Job simulations","—","red","Not built. Marketing must not claim it."],
+ ["M4","AI grading engine v1","qorium-api (grader)","amber","Live but unproven — 1 real response; no accuracy spot-check yet."],
+ ["M5","Cognitive / aptitude","Wave3 packs only","red","Only 3–5 Qs/pack seeded; engine not built."],
+ ["M6","Video + transcription","—","red","Not built."],
+ ["M7","AI screening chatbot","qorium-chatbot","green","healthz 200 via api.qorium.online/chatbot."],
+ ["M8","Interview scheduling","—","red","Not built."],
+ ["M9","Live coding interview room","qorium-ai-pair-coding-orchestrator","amber","Partial — orchestrator present, room UX unverified."],
+ ["M10","Reference checking","—","red","Not built."],
+ ["M11","Anti-cheat + Gen-AI detect","qorium-leak-crawler / -rotation","green","Live; public /anti-leak surface shipped."],
+ ["M12","Skill taxonomy","content.skills (21 canonical)","green","Consolidated from 511 fragments."],
+ ["M13","JD-Forge (wedge)","qorium-jd-forge","amber","Service up + /platform/jd-forge live; 0 roles seeded → output thin."],
+ ["M14","IRT calibration (wedge)","qorium-irt-calibration","red","Synthetic only — calibration_n=0; needs real responses."],
+ ["M15","ISO 27001 + DPDP","/compliance-dpdp page","amber","DPDP page live; ISO 27001 not started."],
+ ["M16","Independent bias audit","—","red","Not done; no /trust/bias-audit. Vervoe holds this."],
+ ["M17","India data residency","claimed","amber","Asserted on site; not independently verified in audit log."],
+ ["M18","SSO (SAML+OIDC)","qorium-sso","green","Service up."],
+ ["M19","ATS / HRIS integration","qorium-ats-bridge","amber","Up; untested against a real ATS sandbox."],
+ ["M20","Public API + webhooks","qorium-api/-webhooks/-docs","amber","Up; openapi.json 404 regression on edge."],
+ ["M21","Audit log","qorium-audit-log","green","Append-only audit service online."],
+ ["M22","SOC 2 Type II","—","grey","Deferred — post ₹1cr ARR / first enterprise ask."],
+ ["M23","Priority support + SLAs","—","grey","Deferred — on first enterprise contract."],
+];
+const mp={green:"p-green",amber:"p-amber",red:"p-red",grey:"p-grey"};
+const ml={green:"Live",amber:"Partial",red:"Not built",grey:"Deferred"};
+document.getElementById('mods').innerHTML=mods.map(m=>`
+ <div class="mod s-${m[3]}">
+   <div class="id">${m[0]}</div><div class="nm">${m[1]}</div>
+   <div class="svc">${m[2]}</div>
+   <div style="margin-top:8px"><span class="pill ${mp[m[3]]}">${ml[m[3]]}</span></div>
+   <div class="note">${m[4]}</div>
+ </div>`).join('');
+
+// ---- site audit ----
+const site=[
+ ["/product/* (builder, ai-grading, job-sim, chatbot, anti-cheat, scheduling, reference)","Replaced by /platform/* + /features/* (JD-Forge, ReadyBank, Stack-Vault)","amber","Strategic reframe to 3 sellable pillars — but /platform &amp; /features duplicate the concept; pick one."],
+ ["/product/assessment-library + /skill/:slug (programmatic SEO)","/library + /library/&lt;skill&gt;-N","red","LEAK: fragmented skills (…-2 … -33) published as thin near-dup pages. Regenerate from 21 canonical skills."],
+ ["/compare/qorium-vs-{vervoe,coderbyte,hackerrank,mettl,imocha} (W11)","Absent","red","Missing high-intent competitive + SEO surface. Build from the live gap matrix."],
+ ["/pricing (W5)","/pricing live","amber","Page exists; numbers not locked (CEO founder_request pending)."],
+ ["/solutions/by-{company,use-case,industry}","/solutions/{staffing-firms,enterprises-gcc,assessment-platforms,role/software,stack/sap}","green","Leaner, sharper vertical/stack landing pages — an improvement on the plan."],
+ ["/trust/* (security, dpdp, gdpr, bias-audit, sub-processors)","/trust, /security, /compliance-dpdp, /dpa, /privacy, /responsible-ai, /science","amber","Trust shell present but flatter; /trust/bias-audit missing (M16 not done)."],
+ ["/product/api + openapi (W10)","/resources/docs; openapi.json 404","red","Docs surface present; openapi.json regressed to 404 on active origin."],
+ ["/llm-info + llms.txt (W12)","not in nav","amber","Verify at root; high-leverage AEO surface, no Indian competitor ships it."],
+ ["(not planned) extras","/try/graded-answer, /method, /benchmarks, /glossary, /authoring, /changelog, /press-kit","green","Strong additions — esp. /try/graded-answer (interactive proof) &amp; /science."],
+];
+document.getElementById('siterows').innerHTML=site.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td class="c"><span class="pill ${mp[s[2]]}">${s[2]==='green'?'Met/Better':s[2]==='amber'?'Partial':'Gap'}</span></td><td style="color:var(--mut)">${s[3]}</td></tr>`).join('');
+
+const gate=[
+ ["Health endpoints 200","green","qorium.online + api.qorium.online/healthz = 200."],
+ ["robots.txt / security.txt","green","Present (per CLAUDE.md active-origin certification)."],
+ ["Privacy / Terms / DPA accessible","green","/privacy, /terms, /dpa, /compliance-dpdp live."],
+ ["OpenAPI spec for API products","red","openapi.json = 404 (was 200 on 06-02)."],
+ ["Marketing claims ≤ shipped capability","amber","IRT/defensibility asserted ahead of empirical proof; library leak shows phantom skills."],
+ ["SEO: no thin/duplicate pages","red","/library/&lt;skill&gt;-N fragmentation live."],
+ ["Compare/competitive surface","red","W11 compare pages not shipped."],
+ ["Rakshak GO on onboarding path","amber","Last GO 94/89/88; re-run needed on signup→grade→results after fixes."],
+];
+document.getElementById('gaterows').innerHTML=gate.map(g=>`<tr><td>${g[0]}</td><td class="c"><span class="pill ${mp[g[1]]}">${g[1]==='green'?'Pass':g[1]==='amber'?'Watch':'Fail'}</span></td><td style="color:var(--mut)">${g[2]}</td></tr>`).join('');
+
+// ---- competitors ----
+const comp=[
+ ["Question-bank depth","🟡 no count","🟡 coding only","❌ 100+ manual","✅ 100k+/800 skills","✅ 250k+/2,500","🟡 1.4k / 21 real"],
+ ["AI grading + reasoning trace","🟡 black-box","🟡 code auto","❌ human SME","🟡 no trace","🟡 no trace","🟡 trace by design*"],
+ ["Coding sandbox","❌","✅ multi-lang","❌","✅ simulators","✅ 35+ langs","✅ Monaco+sandbox"],
+ ["Video response","🟡 sim","❌","❌","🟡","✅","❌ not built"],
+ ["Anti-cheat / Gen-AI detect","✅ adv.","✅ deepfake","❌","✅ 95%","✅ webcam/tab","🟡 leak-crawler"],
+ ["IRT / psychometric (exposed)","❌","❌","❌","🟡 concept only","❌","🟡 framework, uncalibrated*"],
+ ["JD → assessment auto-gen","🟡 builder","❌","❌ manual","❌","🟡 templates","🟡 JD-Forge (0 roles)"],
+ ["ATS integrations","✅ API","🟡 paid add-on","❌","✅ ent.","✅ ATS/LMS","🟡 ats-bridge untested"],
+ ["India data residency / DPDP","❌","❌","🟡 HQ only","🟡 co. only","❌","✅ DPDP-native"],
+ ["Independent bias audit","✅ Holistic AI","❌","❌","❌","❌","❌ not yet (M16)"],
+ ["Pricing transparency","❌ enterprise","✅ $10/cand","❌ form","❌ sales-led","🟡 ~$400/mo","🟡 page, no #"],
+];
+document.getElementById('comprows').innerHTML=comp.map(c=>`<tr><td><b>${c[0]}</b></td>${c.slice(1).map((x,i)=>`<td class="c"${i===5?' style="background:rgba(45,212,191,.06)"':''}>${x}</td>`).join('')}</tr>`).join('');
+
+const wedges=[
+ ["Reasoning-trace grading is empty space","All five grade with AI/auto but none expose a per-answer reasoning trace. QOrium's 'why this score' is a defensibility wedge no one markets.","win"],
+ ["IRT is claimed, never proven to buyers","Only Mettl mentions IRT — as a concept page. Visible per-item difficulty/discrimination wins the 'is this test statistically valid?' question outright.","win"],
+ ["Bias audit is a one-competitor moat","Only Vervoe (US/EU-framed) carries a 3rd-party bias audit. Pair one with DPDP-Act framing and you beat Vervoe in India.","win"],
+ ["India residency / DPDP / INR is unclaimed","Even Indian-origin Mettl &amp; iMocha don't surface explicit India-residency, DPDP, or INR pricing. Clean, evidence-backable, unoccupied.","win"],
+ ["Pricing transparency is wide open at the top","Vervoe, Mettl, TechCurators are opaque ('book a demo'). Transparent per-assessment INR pricing undercuts the trust gap.","win"],
+ ["JD→assessment auto-gen barely exists","No competitor leads with true JD-to-assessment generation. JD-Forge is a genuine wedge for high-velocity IT staffing — once roles are seeded.","warn"],
+];
+document.getElementById('wedges').innerHTML=wedges.map(w=>`<div class="callout ${w[2]}" style="margin:0"><b>${w[0]}</b><br><span style="color:var(--mut);font-size:.86rem">${w[1]}</span></div>`).join('');
+
+// ---- use cases ----
+const uc=[
+ ["Recruiter","Build/clone an assessment for a role and send it","green","Polish builder UX; seed JD-Forge roles so 'paste JD → test' is real."],
+ ["Recruiter","Trust the score is fair &amp; defensible","red","Empirical IRT (needs responses) + reasoning-trace surfaced in UI + SME validation."],
+ ["Recruiter","Pull results back into our ATS","amber","ats-bridge live but untested vs a real ATS sandbox (Greenhouse/Lever/Naukri)."],
+ ["Candidate","Take a fair, modern assessment (code/MCQ)","green","Candidate-portal + sandbox live; 15 Customer-Zero packs ready to send."],
+ ["Candidate","Async chat / video screen","amber","Chatbot live (M7); video (M6) not built."],
+ ["Hiring manager","See a calibrated shortlist with evidence","amber","Grading live but unproven; reliability badge is provisional until calibrated."],
+ ["Compliance / Legal","Prove DPDP residency + no bias to a tribunal","red","DPDP page yes; bias audit (M16) + residency verification + audit-log export-as-evidence pending."],
+ ["Developer (customer)","Integrate via API + webhooks","amber","API/webhooks up; openapi.json 404, SDK examples + Postman missing."],
+ ["Buyer (evaluating)","Compare QOrium vs Vervoe/Mettl quickly","red","Compare pages (W11) not shipped; pricing not locked."],
+ ["Self (Customer Zero)","Run real Talpro candidates &amp; generate proof","amber","15 packs ready; needs real candidate volume routed (the unlock)."],
+];
+document.getElementById('ucrows').innerHTML=uc.map(u=>`<tr><td><b>${u[0]}</b></td><td>${u[1]}</td><td class="c"><span class="pill ${mp[u[2]]}">${u[2]==='green'?'Ready':u[2]==='amber'?'Partial':'Gap'}</span></td><td style="color:var(--mut)">${u[3]}</td></tr>`).join('');
+
+// ---- phases ----
+const phases=[
+ ["Phase A — Proof loop (unlock defensibility)","Route real Talpro candidates through the 15 Customer-Zero packs → responses land → IRT recalibrates → reliability becomes true. SME spot-validate the launch skills.","Exit: ≥50 responses/launch skill · calibration_n≥50 on ≥10 skills · reasoning-trace shown in UI · accuracy spot-check ≥85%."],
+ ["Phase B — Site hardening","Regenerate /library from 21 canonical skills (kill the …-N leak); collapse /platform vs /features to one; ship 5 compare pages from the gap matrix; fix openapi.json; lock pricing numbers; ship llms.txt.","Exit: 0 fragmented library URLs · compare pages live · openapi.json 200 · pricing published · Rakshak SEO ≥90."],
+ ["Phase C — Defensibility shell","Book independent bias audit (M16); publish /trust/bias-audit; verify India residency in audit log (M17); start ISO 27001 (M15) evidence repo.","Exit: auditor engaged + report stub live · residency verified · ISO Stage-1 booked."],
+ ["Phase D — Integration depth","Smoke-test ats-bridge vs 2 real ATS sandboxes (M19); publish API SDK examples + Postman (M20); seed JD-Forge roles (M13).","Exit: ATS round-trip green ×2 · SDK/Postman in /docs · JD-Forge 60s draft, ≥70% human-accept."],
+ ["Phase E — External pilots","Onboard 3 non-Talpro logos behind the proven loop. Then scale wedges (M3 job-sims, M6 video, M5 cognitive) by demand.","Exit: 3 pilots live · first paid contract · SLA addendum (M23)."],
+];
+document.getElementById('phases').innerHTML=phases.map(p=>`<div class="phase"><h4>${p[0]}</h4><div style="color:var(--mut);font-size:.88rem">${p[1]}</div><div class="ec">${p[2]}</div></div>`).join('');
+
+// ---- DAG ----
+const dag=[
+ ["library-regen-canonical","ARJUN (marketing)","skill consolidation (done)","amber","/library lists 21 skills; zero …-N URLs; canonicals correct."],
+ ["compare-pages-w11","ARJUN","gap matrix (this doc)","low","5 /compare/* pages live, FAQ schema, factual tone."],
+ ["openapi-restore","BHIMA (active origin)","—","low","openapi.json 200 JSON at edge + CF purge."],
+ ["customer-zero-volume","CEO/ops","15 packs (done)","low","Real responses flowing into content.responses."],
+ ["irt-recalibrate","BHIMA","customer-zero-volume","med","calibration_n≥50 on ≥10 skills; params exposed in builder."],
+ ["reasoning-trace-ui","BHIMA","M4 grader","med","Every grade shows trace + confidence band in candidate/recruiter view."],
+ ["bias-audit-engage","CEO/legal","irt-recalibrate","high","Indian auditor engaged; /trust/bias-audit stub published."],
+ ["ats-smoke-2","BHIMA","ats-bridge","med","Round-trip vs 2 ATS sandboxes; results push-back verified."],
+ ["jdforge-roles-seed","BHIMA","M12 taxonomy","med","Role→skill graph seeded; JD-Forge draft ≤60s, ≥70% accept."],
+];
+document.getElementById('dagrows').innerHTML=dag.map(d=>`<tr><td><code>${d[0]}</code></td><td>${d[1]}</td><td style="color:var(--mut)">${d[2]}</td><td class="c"><span class="pill ${d[3]==='low'?'p-green':d[3]==='med'?'p-amber':'p-red'}">${d[3]}</span></td><td style="color:var(--mut)">${d[4]}</td></tr>`).join('');
+</script>
+</body>
+</html>

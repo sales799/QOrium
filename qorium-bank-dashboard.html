@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QOrium Question Bank — Live</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:#f7f8fa; color:#15181d; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 19px; margin: 0 0 2px; }
+.sub { color:#5b6470; font-size: 13px; margin-bottom: 18px; }
+.grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.card { background:#fff; border:1px solid #e6e9ef; border-radius:12px; padding:16px 18px; }
+.card .label { font-size:12px; color:#5b6470; text-transform:uppercase; letter-spacing:.04em; }
+.card .num { font-size:34px; font-weight:700; margin-top:4px; line-height:1; }
+.card .note { font-size:12px; color:#7a828c; margin-top:6px; }
+.big { grid-column: 1 / -1; background: linear-gradient(135deg,#0f7a5a,#13a06f); color:#fff; border:none; }
+.big .label, .big .note { color: rgba(255,255,255,.85); }
+.bar { height:10px; background:rgba(255,255,255,.25); border-radius:6px; margin-top:12px; overflow:hidden; }
+.bar > div { height:100%; background:#fff; border-radius:6px; transition:width .4s; }
+.green { color:#0f7a5a; } .amber { color:#b8860b; } .red { color:#b3261e; }
+.status { font-size:13px; margin-top:16px; padding:10px 14px; border-radius:8px; background:#fff; border:1px solid #e6e9ef; }
+.err { background:#fdf6e3; border-color:#f5c84b; }
+.foot { font-size:11px; color:#9aa1ab; margin-top:14px; }
+.spin { color:#5b6470; font-size:14px; padding:30px 0; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>QOrium Question Bank — Live</h1>
+  <div class="sub">Pulled fresh from the self-hosted Postgres each time you open this. Free Qwen factory + approver.</div>
+  <div id="content"><div class="spin">Loading live counts…</div></div>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+const TARGET = 5000;
+const CMD = `sudo -u postgres psql -d qorium -tAc "SELECT 'released='||count(*) FILTER (WHERE status='released')||' drafts='||count(*) FILTER (WHERE status='draft')||' deprecated='||count(*) FILTER (WHERE status='deprecated')||' aimade='||count(*) FILTER (WHERE status='released' AND source_corpus='free-llm-draft-factory')||' new24h='||count(*) FILTER (WHERE status='released' AND released_at > now()-interval '24 hours')||' under10='||(SELECT count(*) FROM (SELECT s.id FROM content.skills s LEFT JOIN content.questions q ON q.skill_id=s.id GROUP BY s.id HAVING count(q.id)<10) x) FROM content.questions;"`;
+
+function pick(t,k){ const m = t.match(new RegExp(k+"=(\\d+)")); return m ? parseInt(m[1],10) : null; }
+
+async function load(){
+  try {
+    const res = await window.cowork.callMcpTool('mcp__talpro-cto__talpro_bash_exec', { command: CMD, cwd: '/tmp' });
+    const text = typeof res === 'string' ? res : JSON.stringify(res);
+    const released = pick(text,'released'), drafts = pick(text,'drafts'), dep = pick(text,'deprecated'),
+          aimade = pick(text,'aimade'), new24 = pick(text,'new24h'), under10 = pick(text,'under10');
+    if (released === null) throw new Error('Could not parse counts. Raw: ' + text.slice(0,300));
+    const pct = Math.min(100, Math.round(released/TARGET*100));
+    const done = (drafts===0 && under10===0);
+    document.getElementById('content').innerHTML = `
+      <div class="grid">
+        <div class="card big">
+          <div class="label">Released (live questions)</div>
+          <div class="num">${released.toLocaleString()}</div>
+          <div class="note">+${new24||0} in last 24h · target ${TARGET.toLocaleString()} (Phase-1 floor)</div>
+          <div class="bar"><div style="width:${pct}%"></div></div>
+          <div class="note">${pct}% of Phase-1 floor</div>
+        </div>
+        <div class="card"><div class="label">Drafts waiting approval</div><div class="num amber">${drafts??'–'}</div><div class="note">approver runs every 10 min</div></div>
+        <div class="card"><div class="label">AI-made &amp; live</div><div class="num green">${aimade??0}</div><div class="note">free Qwen, approved</div></div>
+        <div class="card"><div class="label">Auto-rejected</div><div class="num red">${dep??0}</div><div class="note">caught by the gate</div></div>
+        <div class="card"><div class="label">Skills still under 10 Qs</div><div class="num">${under10??'–'}</div><div class="note">target 0</div></div>
+      </div>
+      <div class="status ${done?'':''}">${done ? '✅ Phase-1 floor reached — every skill has 10+ questions.' : '⏳ Building — free factory generates drafts, approver promotes the good ones automatically.'}</div>`;
+    document.getElementById('foot').textContent = 'Live as of ' + new Date().toLocaleString() + ' · source: content.questions (self-hosted Postgres)';
+  } catch(e){
+    document.getElementById('content').innerHTML = '<div class="status err">Could not load live counts: ' + (e.message||e) + '</div>';
+  }
+}
+load();
+</script>
+</body>
+</html>
