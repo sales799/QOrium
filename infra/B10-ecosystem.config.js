@@ -285,11 +285,10 @@ module.exports = {
      *     --app "qorium-candidate-portal" \
      *     --health_url "http://localhost:5116/healthz" \
      *     --interval_min 5
-     */
+    */
     {
       name: 'qorium-candidate-portal',
-      script: './node_modules/.bin/next',
-      args: 'start',
+      script: './.next/standalone/apps/candidate-portal/server.js',
       cwd: './apps/candidate-portal',
       instances: 2,
       exec_mode: 'cluster',

@@ -195,5 +195,5 @@ Per Constitution Article X §10.1, the following Phase 0 + Phase 1 specific risk
 
 - [DONE] Candidate portal runtime PR #114 conflict resolved by replacement PR #119: `https://github.com/sales799/QOrium/pull/119`. PR #114 was closed as superseded without deleting its branch.
 - [DONE] Replacement branch `codex/qorium-br5-candidate-runtime-main-20260604` at commit `fb0fbc69d3b5fcb6a46b10836846227ecd9e93d7` ports the BR-5 candidate runtime shell, `/healthz`, safer assessment fetch, and PM2 `qorium-candidate-portal` entry onto current `main`.
-- [DONE] Local gates passed: `pnpm install --frozen-lockfile`, `pnpm --filter @qorium/candidate-portal typecheck`, `pnpm --filter @qorium/candidate-portal build`, `pnpm --filter @qorium/candidate-portal test`, PM2 ecosystem parse, staged gitleaks protect, and local `http://127.0.0.1:5116/healthz` smoke.
+- [DONE] Local gates passed: `pnpm install --frozen-lockfile`, `pnpm --filter @qorium/candidate-portal typecheck`, `pnpm --filter @qorium/candidate-portal build`, `pnpm --filter @qorium/candidate-portal test`, PM2 ecosystem parse, staged gitleaks protect, and standalone-server `http://127.0.0.1:5116/healthz` smoke.
 - [BLOCKED] Cross-account review/merge remains required for PR #119; author did not self-merge.
