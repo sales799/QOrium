@@ -19,7 +19,16 @@ export default function ResourcesPage() {
         cta={{ label: 'Browse job descriptions', href: '/resources/job-descriptions' }}
       />
       <SectionBand title="Research and benchmarks">
-        <CardGrid columns="md:grid-cols-2">
+        <CardGrid>
+          <SurfaceCard title="API documentation" href="/resources/docs">
+            Public-preview OpenAPI contracts for demo, proof, and trust evidence endpoints.
+          </SurfaceCard>
+          <SurfaceCard title="Glossary" href="/glossary">
+            Plain-English assessment, anti-leak, role-graph, and calibration terms.
+          </SurfaceCard>
+          <SurfaceCard title="Benchmarks & reports" href="/benchmarks">
+            Evidence-led benchmark surfaces with no unsupported outcome claims.
+          </SurfaceCard>
           <SurfaceCard
             title="AI Plagiarism Benchmark Protocol"
             href="/research/plagiarism-benchmark"
