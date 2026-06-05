@@ -61,6 +61,12 @@ const nextConfig = {
         destination: '/compare/qorium-vs-mettl',
         permanent: true,
       },
+      {
+        source:
+          '/vs/qorium-vs-:slug(vervoe|hackerrank|mettl|imocha|coderbyte|testgorilla|wecp|adaface|karat|devskiller|techcurators)',
+        destination: '/compare/qorium-vs-:slug',
+        permanent: true,
+      },
       { source: '/vs/:slug', destination: '/compare/qorium-vs-:slug', permanent: true },
       {
         source:
