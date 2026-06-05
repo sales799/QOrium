@@ -17,11 +17,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Requires repo secrets:
-    #   VPS_HOST                       — 147.93.103.194
+    # Requires repo secrets for the active QOrium origin:
+    #   VPS_HOST                       — active origin host
     #   VPS_USER                       — root
     #   VPS_PORT                       — 2244
-    #   VPS_SSH_KEY                    — private key authorized on VPS 1.
+    #   VPS_SSH_KEY                    — private key authorized on the active origin.
     #
     # Optional env-injection secrets (when set, populated into apps/marketing/
     # .env.local on VPS before deploy script runs; missing values fall back to
@@ -71,19 +71,111 @@ jobs:
           GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
           EOF
 
-      - name: Run deploy script on VPS
+      - name: Deploy marketing build atomically
         run: |
           ssh -p ${{ secrets.VPS_PORT }} \
               -o StrictHostKeyChecking=accept-new \
               -i ~/.ssh/id_ed25519 \
               ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-              'cd /opt/apps/qorium-marketing && bash infra/marketing-deploy.sh'
+              'GITHUB_SHA=${{ github.sha }} bash -s' <<'EOF'
+          set -euo pipefail
+
+          SHA="${GITHUB_SHA:?missing GITHUB_SHA}"
+          SRC="/tmp/qorium-marketing-main-${SHA}"
+          ROOT="/opt/apps/qorium-marketing"
+          APP="${ROOT}/apps/marketing"
+          BACKUP=""
+
+          restore_on_error() {
+            status=$?
+            if [ "$status" -ne 0 ] && [ -n "${BACKUP:-}" ] && [ -d "$BACKUP" ]; then
+              echo "restore: reverting marketing .next from $BACKUP" >&2
+              rm -rf "$APP/.next"
+              mv "$BACKUP" "$APP/.next"
+              cd "$ROOT"
+              pm2 reload qorium-marketing --update-env || true
+            fi
+            exit "$status"
+          }
+          trap restore_on_error EXIT
+
+          rm -rf "$SRC"
+          git clone --depth=1 --branch main https://github.com/sales799/qorium.git "$SRC"
+          cd "$SRC"
+          git fetch --depth=1 origin "$SHA"
+          git checkout --detach "$SHA"
+          printf "deploy-source=%s\n" "$(git rev-parse --short HEAD)"
+
+          pnpm install --frozen-lockfile --prefer-offline
+          pnpm run build:packages
+          NEXT_PUBLIC_SITE_URL=https://qorium.online pnpm --filter @qorium/marketing build
+          [ -d "$SRC/apps/marketing/.next" ]
+
+          BACKUP="$APP/.next.backup.$(date -u +%Y%m%dT%H%M%SZ)"
+          NEW="$APP/.next.new.$SHA"
+          rm -rf "$NEW"
+          cp -a "$SRC/apps/marketing/.next" "$NEW"
+          if [ -d "$APP/.next" ]; then mv "$APP/.next" "$BACKUP"; fi
+          mv "$NEW" "$APP/.next"
+
+          cd "$ROOT"
+          pm2 reload qorium-marketing --update-env
+          pm2 save --force >/dev/null
+          sleep 3
+
+          python3 - <<'PY'
+          import http.client
+
+          checks = [
+              "/",
+              "/trust",
+              "/solutions/role/software",
+              "/solutions/stack/sap-abap",
+              "/library/python",
+              "/compare/qorium-vs-vervoe",
+              "/platform/api",
+              "/pricing",
+          ]
+          for path in checks:
+              c = http.client.HTTPConnection("127.0.0.1", 5110, timeout=10)
+              c.request("GET", path)
+              r = c.getresponse()
+              r.read()
+              c.close()
+              print(path, r.status)
+              assert r.status in (200, 308), (path, r.status)
+
+          redirects = {
+              "/vs/qorium-vs-vervoe": "/compare/qorium-vs-vervoe",
+              "/vs/hackerrank": "/compare/qorium-vs-hackerrank",
+              "/solutions/role/software-2": "/solutions/role/software",
+          }
+          for path, expected in redirects.items():
+              c = http.client.HTTPConnection("127.0.0.1", 5110, timeout=10)
+              c.request("GET", path)
+              r = c.getresponse()
+              r.read()
+              c.close()
+              print(path, r.status, r.getheader("location"))
+              assert r.status == 308, (path, r.status)
+              assert r.getheader("location") == expected, (path, r.getheader("location"), expected)
+          PY
+
+          trap - EXIT
+          rm -rf "$SRC"
+          EOF
 
       - name: Smoke test the live URL
         run: |
           set -e
-          for path in / /product /pricing /security /changelog /press-kit; do
+          for path in / /platform /pricing /security /changelog /press-kit /solutions/role/software /compare/qorium-vs-vervoe /platform/api; do
             code=$(curl -s -m 15 -o /dev/null -w "%{http_code}" "https://qorium.online${path}")
             echo "https://qorium.online${path} → ${code}"
             [ "$code" = "200" ] || { echo "::error::Smoke test failed for ${path}"; exit 1; }
           done
+          redirect=$(curl -s -m 15 -o /dev/null -w "%{http_code} %{redirect_url}" "https://qorium.online/vs/qorium-vs-vervoe")
+          echo "https://qorium.online/vs/qorium-vs-vervoe → ${redirect}"
+          [ "$redirect" = "308 https://qorium.online/compare/qorium-vs-vervoe" ] || {
+            echo "::error::Legacy redirect smoke failed";
+            exit 1;
+          }
