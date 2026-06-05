@@ -8,12 +8,10 @@ import { seoSitemapFamilies } from '@/content/seo-graph';
 const STATIC_PATHS = [
   '/',
   '/platform',
+  '/platform/api',
   '/platform/readybank',
   '/platform/jd-forge',
   '/platform/stack-vault',
-  '/product',
-  '/product/assessment-library',
-  '/product/api',
   '/solutions/assessment-platforms',
   '/solutions/enterprises-gcc',
   '/solutions/staffing-firms',
@@ -57,7 +55,6 @@ const STATIC_PATHS = [
   '/library',
   '/solutions/role',
   '/solutions/stack',
-  '/vs',
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -125,7 +122,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.76,
     })),
-    ...seoSitemapFamilies.vs.map((entry) => ({
+    ...seoSitemapFamilies.compare.map((entry) => ({
       url: entry.url,
       lastModified: now,
       changeFrequency: 'monthly' as const,

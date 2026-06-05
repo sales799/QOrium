@@ -37,7 +37,7 @@ export default function BiasAuditPage() {
         <PageHero
           eyebrow="Trust / Bias audit"
           title="Our bias-audit methodology — published before the audit, not after."
-          description="Status: methodology published; independent audit scheduled. QOrium does not claim a passed or independent bias audit. This page explains what we test, how, and what is honestly still pending."
+          description="Status: methodology published; independent audit scheduled. QOrium does not claim a passed or independent bias audit. Review what we test, how, and what is honestly still pending."
           cta={{ label: 'Talk to us about fairness', href: '/contact' }}
         />
 

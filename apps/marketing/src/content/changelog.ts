@@ -51,7 +51,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-05-03',
     category: 'site',
-    title: 'MagicUI Agent-style redesign',
+    title: 'MagicUI Agent-style refresh',
     body: 'Light-default theme with electric-blue secondary (oklch 54.65% 0.246 262.87). Four animated bento cells (ReadyBank streaming JSON, JD-Forge timer, Anti-Leak rotation, Stack-Vault watermark mesh). Cobe globe lazy-loaded on home. OrbitingCircles + FlickeringGrid + Marquee + NumberTicker + AnimatedBeam + BorderBeam vocabulary throughout.',
   },
   {

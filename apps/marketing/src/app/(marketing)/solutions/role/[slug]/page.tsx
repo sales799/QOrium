@@ -1,7 +1,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EvidenceRuleGrid,
+  PageHero,
+  RelatedRoutes,
+  SectionBand,
+  SurfaceCard,
+  WorkflowSteps,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, SoftwareApplicationJsonLd } from '@/components/seo/JsonLd';
 import { getLibrarySkill, getRolePage, getStackPage, rolePages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
@@ -24,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!role) return {};
   return {
     title: `${role.name} Assessment Battery`,
-    description: `${role.description} View core skills, recommended skills, stacks, and sample QOrium assessment flow.`,
+    description: `${role.name} hiring battery with core skills, recommended skills, stack context, evidence rules, and a sample QOrium assessment flow.`,
     alternates: { canonical: role.path },
   };
 }
@@ -54,9 +62,28 @@ export default async function RolePage({ params }: Props) {
       <main>
         <PageHero
           eyebrow={`${role.family} role`}
-          title={`${role.name} Assessment Battery`}
-          description={role.description}
+          title={`${role.name} hiring, with evidence your client can trust.`}
+          description={`${role.description} Built for staffing and enterprise teams that need a buyer-readable shortlist, not a generic test link.`}
           cta={{ label: 'Build this battery', href: `/demo?role=${role.slug}` }}
+        />
+        <WorkflowSteps
+          eyebrow="Role workflow"
+          title="Turn the hiring brief into a defensible shortlist."
+          description="Every generated role page now follows the same proof posture as the flagship pages: clear buyer intent, visible evidence limits, and reusable next steps."
+          steps={[
+            {
+              title: 'Map the role to skill signals',
+              body: 'Core skills appear first, then adjacent skills that help separate seniority and role fit.',
+            },
+            {
+              title: 'Attach stack context',
+              body: 'The battery links to the exact stack surfaces the hiring team will recognise in the requirement.',
+            },
+            {
+              title: 'Report only supported evidence',
+              body: 'Public pages show calibration posture and suppress logos, metrics, or certifications until source notes exist.',
+            },
+          ]}
         />
         <SectionBand
           title="Recommended skill battery"
@@ -86,6 +113,24 @@ export default async function RolePage({ params }: Props) {
             </SurfaceCard>
           </CardGrid>
         </SectionBand>
+        <SectionBand title="Evidence rules">
+          <EvidenceRuleGrid
+            rules={[
+              {
+                title: 'Buyer-specific claim posture',
+                body: 'The page names what the role battery can support and avoids generic assessment filler.',
+              },
+              {
+                title: 'No fake proof',
+                body: 'Customer logos, win rates, and certification claims stay out until evidence exists.',
+              },
+              {
+                title: 'Canonical route',
+                body: `${role.path} is the indexed route; duplicate suffix routes redirect to the base role page.`,
+              },
+            ]}
+          />
+        </SectionBand>
         <SectionBand title="Stack context">
           <CardGrid>
             {stacks.map((stack) => (
@@ -94,6 +139,27 @@ export default async function RolePage({ params }: Props) {
               </SurfaceCard>
             ))}
           </CardGrid>
+        </SectionBand>
+        <SectionBand title="Related pages">
+          <RelatedRoutes
+            links={[
+              {
+                label: 'Assessment library',
+                href: '/library',
+                body: 'Browse the canonical skill pages that power this battery.',
+              },
+              {
+                label: 'Stack solutions',
+                href: '/solutions/stack',
+                body: 'Move from the role view into vendor and enterprise-stack context.',
+              },
+              {
+                label: 'Trust center',
+                href: '/trust',
+                body: 'Review DPDP, evidence, and security posture before client use.',
+              },
+            ]}
+          />
         </SectionBand>
       </main>
     </>

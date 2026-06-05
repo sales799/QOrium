@@ -706,13 +706,9 @@ function titleizeSlug(slug: string): string {
     .join(' ');
 }
 
-export const rolePages: RolePage[] = Array.from({ length: 30 }, (_, index) => {
-  const seed = roleSeeds[index % roleSeeds.length]!;
-  const suffix = index < roleSeeds.length ? '' : `-${Math.floor(index / roleSeeds.length) + 1}`;
-  const slug = `${seed}${suffix}`;
-  const title = suffix
-    ? `${roleTitles[seed] ?? titleizeSlug(seed)} ${suffix.slice(1)}`
-    : (roleTitles[seed] ?? titleizeSlug(seed));
+export const rolePages: RolePage[] = roleSeeds.map((seed, index) => {
+  const slug = seed;
+  const title = roleTitles[seed] ?? titleizeSlug(seed);
   const mappedSkills = roleSkillMap[seed];
   const family: RolePage['family'] =
     roleFamilies[seed] ??
@@ -763,7 +759,7 @@ export const stackPages: StackPage[] = stackSeeds.map((slug) => {
     description: `${title} assessment modules mapped to roles and related skills.`,
     indiaCallout: isIndiaStack
       ? 'India enterprise hiring needs applied stack evidence that generic libraries often miss.'
-      : 'Stack context links this page to role-specific assessment batteries.',
+      : 'Stack context links the stack surface to role-specific assessment batteries.',
     roles: stackRoleMap[slug],
     skills: stackSkillMap[slug],
   };
@@ -1031,7 +1027,7 @@ export const competitorPages: CompetitorPage[] = competitors.map(({ slug, compet
   if (override) {
     return {
       slug,
-      path: `/vs/${slug}`,
+      path: `/compare/qorium-vs-${slug}`,
       title: `QOrium vs ${competitor}`,
       competitor,
       ...override,
@@ -1039,7 +1035,7 @@ export const competitorPages: CompetitorPage[] = competitors.map(({ slug, compet
   }
   return {
     slug,
-    path: `/vs/${slug}`,
+    path: `/compare/qorium-vs-${slug}`,
     title: `QOrium vs ${competitor}`,
     competitor,
     summary: `${competitor} is an established assessment category reference; QOrium compares honestly on structure rather than unsupported numeric claims.`,
@@ -1072,7 +1068,10 @@ export const seoSitemapFamilies = {
   library: librarySkills.map((page) => ({ url: `${siteConfig.url}${page.path}`, slug: page.slug })),
   roles: rolePages.map((page) => ({ url: `${siteConfig.url}${page.path}`, slug: page.slug })),
   stacks: stackPages.map((page) => ({ url: `${siteConfig.url}${page.path}`, slug: page.slug })),
-  vs: competitorPages.map((page) => ({ url: `${siteConfig.url}${page.path}`, slug: page.slug })),
+  compare: competitorPages.map((page) => ({
+    url: `${siteConfig.url}${page.path}`,
+    slug: page.slug,
+  })),
 };
 
 export function getLibrarySkill(slug: string): LibrarySkillPage | undefined {

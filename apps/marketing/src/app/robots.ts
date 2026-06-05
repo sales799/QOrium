@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
       `${siteConfig.url}/sitemap-library.xml`,
       `${siteConfig.url}/sitemap-roles.xml`,
       `${siteConfig.url}/sitemap-stacks.xml`,
-      `${siteConfig.url}/sitemap-vs.xml`,
+      `${siteConfig.url}/sitemap-compare.xml`,
     ],
     host: siteConfig.url,
   };

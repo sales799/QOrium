@@ -120,19 +120,19 @@ export const megaMenuPanels: MegaMenuPanel[] = [
         links: [
           {
             label: 'REST API',
-            href: '/resources/docs',
+            href: '/platform/api',
             description: 'Programmatic access for assessment platforms.',
             icon: 'api',
           },
           {
             label: 'Bulk Export',
-            href: '/product/api#exports',
+            href: '/platform/api#exports',
             description: 'CSV and JSON delivery for existing workflows.',
             icon: 'docs',
           },
           {
             label: 'Embedded Widget',
-            href: '/product#embedded',
+            href: '/platform#embedded',
             description: 'Drop-in assessment surfaces for partner flows.',
             icon: 'code',
           },
@@ -323,25 +323,25 @@ export const megaMenuPanels: MegaMenuPanel[] = [
         links: [
           {
             label: 'vs Vervoe',
-            href: '/vs/vervoe',
+            href: '/compare/qorium-vs-vervoe',
             description: 'Skills-first assessment comparison.',
             icon: 'compare',
           },
           {
             label: 'vs HackerRank',
-            href: '/vs/hackerrank',
+            href: '/compare/qorium-vs-hackerrank',
             description: 'Technical assessment platform comparison.',
             icon: 'compare',
           },
           {
             label: 'vs Mercer Mettl',
-            href: '/vs/mettl',
+            href: '/compare/qorium-vs-mettl',
             description: 'India enterprise assessment comparison.',
             icon: 'compare',
           },
           {
             label: 'vs iMocha / CoderByte',
-            href: '/vs/imocha',
+            href: '/compare/qorium-vs-imocha',
             description: 'Skills intelligence and coding assessment alternatives.',
             icon: 'compare',
           },
@@ -530,11 +530,11 @@ export const footerSitemap: MegaMenuColumn[] = [
   {
     heading: 'Compare',
     links: [
-      { label: 'Vervoe', href: '/vs/vervoe' },
-      { label: 'Mercer Mettl', href: '/vs/mettl' },
-      { label: 'iMocha', href: '/vs/imocha' },
-      { label: 'Coderbyte', href: '/vs/coderbyte' },
-      { label: 'TechCurators', href: '/vs/techcurators' },
+      { label: 'Vervoe', href: '/compare/qorium-vs-vervoe' },
+      { label: 'Mercer Mettl', href: '/compare/qorium-vs-mettl' },
+      { label: 'iMocha', href: '/compare/qorium-vs-imocha' },
+      { label: 'Coderbyte', href: '/compare/qorium-vs-coderbyte' },
+      { label: 'TechCurators', href: '/compare/qorium-vs-techcurators' },
     ],
   },
   {
