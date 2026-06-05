@@ -17,6 +17,7 @@ import { adminRouter } from './routes/admin.js';
 import { auditRouter } from './routes/audit.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
 import { stackVaultRouter } from './routes/stack-vault.js';
+import { assessmentsRouter } from './routes/assessments.js';
 import { a4Router } from './routes/a4.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
@@ -93,6 +94,9 @@ export function createServer(deps: ServerDeps): ServerHandle {
       questionsRouter({ pool: deps.pool }),
       packsRouter({ pool: deps.pool }),
       stackVaultRouter({ pool: deps.pool }),
+      assessmentsRouter(
+        deps.mailer ? { pool: deps.pool, mailer: deps.mailer } : { pool: deps.pool },
+      ),
     );
 
     if (deps.mailer) {
