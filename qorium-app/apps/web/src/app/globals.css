@@ -497,14 +497,14 @@ h2 {
 .detail-hero p,
 .section-intro > p:last-child {
   max-width: 780px;
-  color: rgba(246, 248, 244, 0.76);
+  color: rgba(246, 248, 244, 0.86);
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 19px;
   line-height: 1.7;
 }
 
 .detail-hero p {
-  color: rgba(246, 248, 244, 0.78);
+  color: rgba(246, 248, 244, 0.88);
 }
 
 .hero-visual {
@@ -843,6 +843,40 @@ h2 {
   line-height: 1.55;
 }
 
+.evidence-meta {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 6px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(246, 248, 244, 0.14);
+  border-bottom: 1px solid rgba(246, 248, 244, 0.14);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.evidence-meta div {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+}
+
+.evidence-meta dt,
+.evidence-meta dd {
+  margin: 0;
+}
+
+.evidence-meta dt {
+  color: rgba(246, 248, 244, 0.58);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.evidence-meta dd {
+  color: white;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
 .evidence-panel li {
   padding-left: 14px;
   border-left: 3px solid var(--saffron);
@@ -878,6 +912,115 @@ h2 {
 
 .matrix svg {
   color: var(--green);
+}
+
+.workflow-grid,
+.battery-grid,
+.related-grid,
+.evidence-rule-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.workflow-grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 30px;
+}
+
+.workflow-grid article,
+.battery-card,
+.related-card,
+.evidence-rule-grid article {
+  min-height: 100%;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 16px 45px rgba(17, 19, 15, 0.06);
+}
+
+.workflow-grid article {
+  background:
+    linear-gradient(180deg, rgba(246, 248, 244, 0.94), rgba(231, 238, 233, 0.82)),
+    white;
+}
+
+.workflow-grid span,
+.battery-card span {
+  display: inline-flex;
+  margin-bottom: 18px;
+  color: var(--saffron);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.workflow-grid strong,
+.battery-card strong,
+.related-card strong {
+  display: block;
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 21px;
+  line-height: 1.16;
+}
+
+.workflow-grid p,
+.battery-card p,
+.related-card p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.65;
+}
+
+.battery-grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 30px;
+}
+
+.battery-card,
+.related-card {
+  display: grid;
+  align-content: start;
+  color: inherit;
+}
+
+.battery-card em,
+.related-card span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--green-2);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.evidence-rule-grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 28px;
+}
+
+.evidence-rule-grid article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-color: rgba(246, 248, 244, 0.18);
+  background: rgba(246, 248, 244, 0.08);
+  color: white;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.evidence-rule-grid svg {
+  flex: 0 0 auto;
+  color: var(--saffron);
+}
+
+.related-grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 28px;
 }
 
 .comparison-table {
@@ -996,6 +1139,10 @@ h2 {
   .competitor-grid,
   .gap-grid,
   .page-grid,
+  .workflow-grid,
+  .battery-grid,
+  .related-grid,
+  .evidence-rule-grid,
   .matrix,
   .site-footer {
     grid-template-columns: 1fr 1fr;
@@ -1026,6 +1173,10 @@ h2 {
   .competitor-grid,
   .gap-grid,
   .page-grid,
+  .workflow-grid,
+  .battery-grid,
+  .related-grid,
+  .evidence-rule-grid,
   .matrix,
   .site-footer {
     grid-template-columns: 1fr;

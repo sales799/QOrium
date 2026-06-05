@@ -28,7 +28,35 @@ export type MarketingPageData = {
   summary: string;
   primaryCta?: string;
   secondaryCta?: string;
+  primaryHref?: string;
+  secondaryHref?: string;
+  canonicalPath?: string;
+  auditStatus?: "complete" | "thin-template" | "canonicalize" | "redirect" | "evidence-blocked" | "needs-visual-QA";
+  schemaType?: "WebPage" | "Article" | "Product" | "FAQPage";
   proof: string[];
+  workflow?: {
+    kicker: string;
+    title: string;
+    body: string;
+    steps: Array<{
+      label: string;
+      title: string;
+      body: string;
+    }>;
+  };
+  battery?: Array<{
+    name: string;
+    category: string;
+    href: string;
+    note: string;
+  }>;
+  comparisonRows?: Array<[string, string]>;
+  relatedLinks?: Array<{
+    label: string;
+    href: string;
+    body: string;
+  }>;
+  evidenceRules?: string[];
   sections: Array<{
     title: string;
     body: string;
@@ -175,6 +203,86 @@ export const corePages: MarketingPageData[] = [
     ]
   },
   {
+    path: "/platform/api",
+    kind: "platform",
+    kicker: "API delivery",
+    title: "License calibrated assessment content through one API.",
+    summary:
+      "Give assessment platforms and enterprise workflow owners governed content access without forcing a full front-end migration.",
+    primaryCta: "Discuss API access",
+    secondaryCta: "Read docs",
+    primaryHref: "/demo",
+    secondaryHref: "/resources/docs",
+    canonicalPath: "/platform/api",
+    auditStatus: "complete",
+    schemaType: "Product",
+    proof: ["REST delivery path", "Governed content metadata", "Platform buyer workflow"],
+    workflow: {
+      kicker: "API workflow",
+      title: "Keep your experience. Add defensible content.",
+      body:
+        "The API path is built for teams that already own the candidate experience and need fresher, governed assessment content behind it.",
+      steps: [
+        { label: "AUTH", title: "Control access", body: "API access starts with scoped buyer review and governed delivery." },
+        { label: "SYNC", title: "Read content metadata", body: "Skills, role tags, difficulty posture, and version notes travel with the item family." },
+        { label: "DELIVER", title: "Serve through your workflow", body: "Use REST, export, embedded widget, or white-label delivery depending on buyer maturity." }
+      ]
+    },
+    sections: [
+      {
+        title: "Content access without a front-end rewrite.",
+        body:
+          "You license the assessment engine where you need it: platform UX, internal workflow, export process, or embedded candidate experience.",
+        points: ["REST API", "CSV and JSON exports", "Embedded and white-label options"]
+      }
+    ],
+    relatedLinks: [
+      { label: "Docs", href: "/resources/docs", body: "Implementation notes and delivery posture." },
+      { label: "Assessment platforms", href: "/solutions/assessment-platforms", body: "Buyer workflow for platform teams." },
+      { label: "Trust center", href: "/trust", body: "Evidence boundaries and data handling." }
+    ]
+  },
+  {
+    path: "/library",
+    kind: "library",
+    kicker: "Assessment library",
+    title: "Browse calibrated assessment coverage without exposing the bank.",
+    summary:
+      "Start with priority skills, roles, and stack routes, then request controlled samples when you need to inspect the depth.",
+    primaryCta: "Request sample pack",
+    secondaryCta: "Open skill routes",
+    primaryHref: "/resources/sample-packs",
+    secondaryHref: "/skill/python",
+    canonicalPath: "/library",
+    auditStatus: "complete",
+    schemaType: "Product",
+    proof: ["Controlled previews", "Role and stack cross-links", "No full-bank harvesting"],
+    workflow: {
+      kicker: "Library hub",
+      title: "Browse by skill, then move to evidence.",
+      body:
+        "The hub gives buyers a clean way to find coverage while keeping the complete assessment bank private.",
+      steps: [
+        { label: "SKILL", title: "Find the domain", body: "Programming, data, cloud, BFSI, and enterprise stacks stay visible." },
+        { label: "ROLE", title: "Connect the job", body: "Each skill points toward role batteries and JD-Forge when the buyer is ready." },
+        { label: "SAMPLE", title: "Inspect safely", body: "Controlled packs prove quality without publishing the live bank." }
+      ]
+    },
+    sections: [
+      {
+        title: "Search visibility with bank protection.",
+        body:
+          "A buyer can understand coverage, quality, and related routes without turning public SEO pages into answer keys.",
+        points: ["Skill coverage", "Scenario coverage", "Controlled sample flow"]
+      }
+    ],
+    relatedLinks: [
+      { label: "Python assessment", href: "/skill/python", body: "A flagship skill lander." },
+      { label: "Software role", href: "/solutions/role/software", body: "A role battery example." },
+      { label: "Sample packs", href: "/resources/sample-packs", body: "Controlled previews." }
+    ]
+  },
+  {
     path: "/product",
     kind: "product",
     kicker: "Product suite",
@@ -271,43 +379,451 @@ export const corePages: MarketingPageData[] = [
   }
 ];
 
+const titleOverrides: Record<string, string> = {
+  ai: "AI",
+  api: "API",
+  aws: "AWS",
+  bfsi: "BFSI",
+  cpq: "CPQ",
+  css: "CSS",
+  dpdp: "DPDP",
+  hcm: "HCM",
+  html: "HTML",
+  javascript: "JavaScript",
+  js: "JS",
+  reactjs: "React.js",
+  sap: "SAP",
+  sql: "SQL",
+  typescript: "TypeScript",
+  ux: "UX"
+};
+
 const routePageFactory = (
   path: string,
   kind: MarketingRouteKind,
   title: string,
   summary: string,
   kicker = "QOrium route"
-): MarketingPageData => ({
-  path,
-  kind,
-  kicker,
-  title,
-  summary,
-  primaryCta: "Book a demo",
-  secondaryCta: "Browse the library",
-  proof: ["Calibrated, leak-resistant questions", "Mapped to the role you hire", "Explainable, audit-ready scores"],
-  sections: [
-    {
-      title: "Hire on proof, not guesswork",
-      body:
-        "Test candidates on the skills the job actually needs, with questions that stay fresh and a score a hiring manager can trust — instead of a résumé and a hunch.",
-      points: ["The skills the job needs", "Questions that don't leak", "A score you can act on"]
+): MarketingPageData => createMarketingPage({ path, kind, title, summary, kicker });
+
+function createMarketingPage(input: Pick<MarketingPageData, "path" | "kind" | "title" | "summary" | "kicker">): MarketingPageData {
+  const label = titleize(input.path.split("/").pop() ?? "qorium");
+  const base: MarketingPageData = {
+    ...input,
+    canonicalPath: input.path,
+    auditStatus: "complete",
+    schemaType: input.kind === "blog" || input.kind === "guide" ? "Article" : input.kind === "product" || input.kind === "platform" ? "Product" : "WebPage",
+    primaryCta: "Book a demo",
+    secondaryCta: "Browse library",
+    primaryHref: "/demo",
+    secondaryHref: "/library",
+    proof: ["Calibrated, leak-resistant questions", "Mapped to the role you hire", "Explainable, audit-ready scores"],
+    evidenceRules: ["No unearned logos", "No unsupported metrics", "No certification badge without source evidence"],
+    sections: [
+      {
+        title: "Hire on proof, not guesswork",
+        body:
+          "You test the work the role actually needs, with questions that stay fresh and a score a hiring manager can read without a psychometric translator.",
+        points: ["Role-fit evidence", "Fresh item lifecycle", "Readable score rationale"]
+      },
+      {
+        title: "A score you can stand behind",
+        body:
+          "Every result carries difficulty posture, candidate-level traceability, and source notes, so a hiring review starts from evidence instead of opinion.",
+        points: ["Measured difficulty", "Candidate traceability", "Review-ready notes"]
+      }
+    ],
+    workflow: {
+      kicker: "Evidence workflow",
+      title: "From requirement to defensible score.",
+      body: "Every page follows the same operating model: define the work, build the evidence, protect the bank, and give the buyer one clear next step.",
+      steps: [
+        { label: "01", title: "Map the work", body: "Role, stack, seniority, and outcome are translated into the skills that matter." },
+        { label: "02", title: "Build the evidence", body: "Items, rubrics, and sample outputs show what the candidate can actually do." },
+        { label: "03", title: "Keep it defensible", body: "Calibration, anti-leak rotation, and trust notes keep the decision explainable." }
+      ]
     },
-    {
-      title: "A score you can stand behind",
-      body:
-        "Every result is calibrated for difficulty, watermarked to the candidate, and backed by an audit trail — so the decision holds up in a hiring review or a tribunal.",
-      points: ["Measured difficulty", "Watermarked items", "Audit-ready evidence"]
+    relatedLinks: [
+      { label: "Trust center", href: "/trust", body: "Security, DPDP, responsible AI, and evidence boundaries." },
+      { label: "Assessment library", href: "/library", body: "Browse calibrated skills and controlled previews." },
+      { label: "Book demo", href: "/demo", body: "Map your hiring workflow to QOrium." }
+    ]
+  };
+
+  if (input.kind === "role") return rolePage(input.path, label);
+  if (input.kind === "stack") return stackPage(input.path, label);
+  if (input.kind === "library" || input.kind === "skill") return libraryPage(input, label);
+  if (input.kind === "job") return jobPage(input.path, label);
+  if (input.kind === "samplePack") return samplePackPage(input.path, label);
+  if (input.kind === "compare") return comparePage(input, label);
+  if (input.kind === "blog" || input.kind === "guide" || input.kind === "resource") return resourcePage(base, label);
+  if (input.kind === "trust" || input.kind === "legal") return trustPage(base);
+  return base;
+}
+
+function rolePage(path: string, role: string): MarketingPageData {
+  const coreRole = role.replace(/\s[23]$/, "");
+  return {
+    path,
+    kind: "role",
+    kicker: "Role solution",
+    title: `${coreRole} hiring, with evidence your client can trust.`,
+    summary: `Build a ${coreRole} assessment path that covers hands-on skill, seniority judgement, stack context, and score evidence without relying on a stale question bank.`,
+    canonicalPath: path.replace(/-\d+$/, ""),
+    auditStatus: path.match(/-\d+$/) ? "canonicalize" : "complete",
+    schemaType: "WebPage",
+    primaryCta: "Build this battery",
+    secondaryCta: "See JD-Forge",
+    primaryHref: "/try/jd-forge",
+    secondaryHref: "/platform/jd-forge",
+    proof: ["Role-to-skill map", "Controlled skill previews", "Calibration and leak posture visible"],
+    evidenceRules: ["Show seniority bands", "Show related skills", "Do not expose the full bank"],
+    battery: roleBattery(coreRole),
+    workflow: {
+      kicker: "Role workflow",
+      title: `Turn a ${coreRole} requirement into a defensible shortlist.`,
+      body: "A recruiter or hiring manager can move from job text to evidence-backed candidate review without inventing a test from scratch.",
+      steps: [
+        { label: "JD", title: "Parse the work", body: "Extract stack, seniority, must-have skills, and client-specific evidence expectations." },
+        { label: "PACK", title: "Build the battery", body: "Combine practical tasks, scenario judgement, debugging, and communication evidence." },
+        { label: "SCORE", title: "Explain the shortlist", body: "Send a score with rubric notes, difficulty posture, and trust boundaries attached." }
+      ]
+    },
+    sections: [
+      {
+        title: "The role is more than a keyword.",
+        body: `${coreRole} hiring needs a battery that separates syntax memory from practical judgement, debugging, architecture, communication, and stack-specific work.`,
+        points: ["Scenario-led tasks", "Seniority-aware difficulty", "Rubric language hiring managers can use"]
+      },
+      {
+        title: "The bank stays useful after the first hiring wave.",
+        body:
+          "QOrium keeps the route connected to anti-leak rotation, watermarking, and controlled previews so public SEO pages do not become a harvesting path for candidates.",
+        points: ["Controlled public samples", "Leak-aware rotation", "Candidate traceability"]
+      }
+    ],
+    relatedLinks: [
+      { label: "JD-Forge", href: "/platform/jd-forge", body: "Paste the role and shape a hiring assessment." },
+      { label: "Assessment library", href: "/library", body: "Browse adjacent skills and scenarios." },
+      { label: "Staffing workflow", href: "/solutions/staffing-firms", body: "Use role batteries for client shortlists." }
+    ]
+  };
+}
+
+function stackPage(path: string, stack: string): MarketingPageData {
+  return {
+    path,
+    kind: "stack",
+    kicker: "Stack coverage",
+    title: `${stack} assessments for teams that need real stack depth.`,
+    summary: `Assess ${stack} work with scenario tasks, private-bank options, watermarking, and proof notes that generic coding tests usually miss.`,
+    canonicalPath: path,
+    auditStatus: "complete",
+    schemaType: "WebPage",
+    primaryCta: "Scope stack coverage",
+    secondaryCta: "See Stack-Vault",
+    primaryHref: "/contact?intent=stack-vault",
+    secondaryHref: "/platform/stack-vault",
+    proof: ["Private-bank ready", "Stack-specific scenarios", "Watermark and audit posture"],
+    battery: stackBattery(stack),
+    workflow: {
+      kicker: "Stack workflow",
+      title: "Protect the knowledge that makes your team different.",
+      body: "Commodity tests flatten hard enterprise stacks. QOrium lets you test workflow judgement, platform constraints, and implementation risk.",
+      steps: [
+        { label: "SCOPE", title: "Name the stack surface", body: "Roles, modules, integrations, and regulated workflows are mapped before authoring." },
+        { label: "VAULT", title: "Create private depth", body: "Reusable packs stay exclusive when the stack cannot be tested from a public bank." },
+        { label: "TRACE", title: "Watermark delivery", body: "Each served item can be traced to the candidate to reduce leak risk." }
+      ]
+    },
+    sections: [
+      {
+        title: "Generic tests stop where your stack begins.",
+        body: `${stack} hiring depends on workflows, implementation context, migration judgement, and production tradeoffs that public coding screens rarely capture.`,
+        points: ["Workflow scenarios", "Implementation judgement", "Private SME review"]
+      },
+      {
+        title: "Built for enterprise security review.",
+        body:
+          "The stack route connects directly to DPDP handling, responsible AI notes, and trust posture so technical depth does not outrun governance.",
+        points: ["DPDP-aligned handling", "Visible trust notes", "No unsupported claims"]
+      }
+    ],
+    relatedLinks: [
+      { label: "Stack-Vault", href: "/platform/stack-vault", body: "Private, watermarked banks for enterprise stacks." },
+      { label: "Security", href: "/security", body: "Controls, sub-processors, and posture." },
+      { label: "Book demo", href: "/demo", body: "Scope your first stack pack." }
+    ]
+  };
+}
+
+function libraryPage(input: Pick<MarketingPageData, "path" | "kind" | "title" | "summary" | "kicker">, skill: string): MarketingPageData {
+  return {
+    path: input.path,
+    kind: input.kind,
+    kicker: input.kind === "skill" ? "Skill assessment" : "Assessment library",
+    title: input.kind === "skill" ? `${skill} assessment, built for hiring signal.` : `${skill} assessment coverage.`,
+    summary: input.kind === "skill" ? `Evaluate ${skill} with controlled samples, calibrated difficulty, scenario coverage, and related role paths.` : `A controlled QOrium library route for ${skill}, connecting scenario practice, calibration posture, and buyer next steps without exposing the full bank.`,
+    canonicalPath: input.path,
+    auditStatus: "complete",
+    schemaType: "Product",
+    primaryCta: "Request sample pack",
+    secondaryCta: "Browse role paths",
+    primaryHref: "/resources/sample-packs",
+    secondaryHref: "/solutions/role/software",
+    proof: ["Controlled public preview", "Difficulty posture shown", "Related role and stack paths"],
+    battery: skillBattery(skill),
+    workflow: {
+      kicker: "Library template",
+      title: "Show enough to earn trust. Hide enough to protect the bank.",
+      body: "Each library page turns SEO demand into a buyer journey while keeping the complete item bank private.",
+      steps: [
+        { label: "PREVIEW", title: "Show the skill surface", body: "Name the scenarios, evidence types, and adjacent roles the buyer should expect." },
+        { label: "CALIBRATE", title: "Expose posture, not answers", body: "Difficulty, format, and rubric notes are visible without publishing the full item set." },
+        { label: "CONVERT", title: "Route to action", body: "Buyers can request a pack, open JD-Forge, or browse related routes." }
+      ]
+    },
+    sections: [
+      {
+        title: "A public page should not become a leaked test.",
+        body:
+          "You see the assessment shape, evidence quality, and use cases, while the full bank remains controlled behind sample-pack and demo flows.",
+        points: ["Scenario map", "Guarded samples", "Private full bank"]
+      },
+      {
+        title: "The page connects skill demand to buyer action.",
+        body:
+          "Every skill route links back to role batteries, stack coverage, sample packs, and the trust center so SEO traffic enters the same enterprise journey.",
+        points: ["Role cross-links", "Stack cross-links", "Trust cross-links"]
+      }
+    ],
+    relatedLinks: [
+      { label: "Sample packs", href: "/resources/sample-packs", body: "Controlled previews by role and stack." },
+      { label: "JD-Forge", href: "/platform/jd-forge", body: "Turn a job description into a test." },
+      { label: "Science", href: "/science", body: "IRT, validity, reliability, and bias posture." }
+    ]
+  };
+}
+
+function jobPage(path: string, role: string): MarketingPageData {
+  return {
+    path,
+    kind: "job",
+    kicker: "Job description",
+    title: `${role} job description, connected to assessment design.`,
+    summary: `Use the ${role} role outline as the start of a defensible hiring battery, not as another resume-screening document.`,
+    canonicalPath: path,
+    auditStatus: "complete",
+    schemaType: "Article",
+    primaryCta: "Build from this JD",
+    secondaryCta: "Browse related skills",
+    primaryHref: "/try/jd-forge",
+    secondaryHref: "/library",
+    proof: ["Responsibilities mapped to skills", "Assessment route attached", "Sample-pack CTA"],
+    workflow: {
+      kicker: "JD to test",
+      title: "A job description should lead to measurable evidence.",
+      body: "The template connects responsibilities, skills, interview risk, and assessment design so the hiring team does not stop at a polished JD.",
+      steps: [
+        { label: "ROLE", title: "Define the work", body: "Responsibilities and must-have skills are made explicit." },
+        { label: "TEST", title: "Choose the evidence", body: "Scenarios, rubrics, and difficulty bands become the assessment plan." },
+        { label: "SHORTLIST", title: "Review with proof", body: "Candidates are compared on demonstrated capability." }
+      ]
+    },
+    sections: [
+      {
+        title: "Start with the role. Finish with the score.",
+        body: `${role} hiring improves when responsibilities connect directly to assessed skills, scenario tasks, and reviewer notes.`,
+        points: ["Responsibility map", "Skill checklist", "Assessment plan"]
+      },
+      {
+        title: "Reusable without becoming generic.",
+        body:
+          "The route gives recruiters a useful starting point while JD-Forge adapts the final battery to the actual employer, seniority, and stack.",
+        points: ["Reusable baseline", "Employer-specific adaptation", "Seniority-aware testing"]
+      }
+    ],
+    relatedLinks: [
+      { label: "JD-Forge", href: "/platform/jd-forge", body: "Convert role text to an assessment pack." },
+      { label: "Role solutions", href: "/solutions/role/software", body: "Browse role-specific batteries." },
+      { label: "Sample packs", href: "/resources/sample-packs", body: "Preview controlled assessment depth." }
+    ]
+  };
+}
+
+function samplePackPage(path: string, pack: string): MarketingPageData {
+  return {
+    path,
+    kind: "samplePack",
+    kicker: "Sample pack",
+    title: `${pack} sample pack, with the full bank protected.`,
+    summary: `Preview the shape and quality of a ${pack} assessment without exposing enough content for candidates to harvest.`,
+    canonicalPath: path,
+    auditStatus: "complete",
+    schemaType: "Product",
+    primaryCta: "Request this pack",
+    secondaryCta: "See trust center",
+    primaryHref: "/demo",
+    secondaryHref: "/trust",
+    proof: ["Controlled preview", "Rubric notes included", "Full bank remains private"],
+    workflow: {
+      kicker: "Controlled preview",
+      title: "A sample should prove quality without weakening the bank.",
+      body: "The buyer sees evidence depth and scoring language while QOrium protects live assessment content.",
+      steps: [
+        { label: "SHOW", title: "Reveal the format", body: "Question types, rubric style, and scenario range are visible." },
+        { label: "HIDE", title: "Protect the bank", body: "Enough detail is withheld to prevent candidate harvesting." },
+        { label: "DISCUSS", title: "Map to the buyer", body: "The walkthrough adapts the pack to the buyer's stack and role mix." }
+      ]
+    },
+    sections: [
+      {
+        title: "Proof without leakage.",
+        body:
+          "You can review assessment quality, scoring logic, and workflow fit while the production item bank remains governed.",
+        points: ["Visible quality", "Private full bank", "Governed delivery"]
+      }
+    ],
+    relatedLinks: [
+      { label: "Assessment library", href: "/library", body: "Browse skill coverage." },
+      { label: "Anti-leak", href: "/anti-leak", body: "Understand bank protection." },
+      { label: "Book demo", href: "/demo", body: "Request the pack." }
+    ]
+  };
+}
+
+function comparePage(input: Pick<MarketingPageData, "path" | "title" | "summary" | "kicker" | "kind">, label: string): MarketingPageData {
+  const competitor = label.replace(/^Qorium Vs\s/i, "");
+  return {
+    path: input.path,
+    kind: "compare",
+    kicker: "Fair comparison",
+    title: `QOrium vs ${competitor}`,
+    summary: input.summary,
+    canonicalPath: input.path.startsWith("/vs/") ? `/compare/qorium-vs-${input.path.replace("/vs/", "")}` : input.path,
+    auditStatus: input.path.startsWith("/vs/") ? "canonicalize" : "complete",
+    schemaType: "WebPage",
+    primaryCta: "Compare on your workflow",
+    secondaryCta: "Open trust center",
+    primaryHref: "/demo",
+    secondaryHref: "/trust",
+    proof: ["Fair competitor summary", "QOrium edge stated plainly", "No market smearing"],
+    comparisonRows: [
+      ["Private stack depth", "Use QOrium when SAP, Oracle, BFSI, GCC, or internal-stack evidence matters."],
+      ["Anti-leak lifecycle", "Use QOrium when a static bank would become prep-market inventory."],
+      ["Defensible scoring", "Use QOrium when reviewers need difficulty posture and audit notes."],
+      ["India-built trust", "Use QOrium when DPDP handling and India-first buyer diligence matter."]
+    ],
+    workflow: {
+      kicker: "Decision flow",
+      title: "Compare the hiring decision, not just the feature list.",
+      body: "The useful comparison is whether the score stays fresh, explainable, and safe to defend after the assessment is over.",
+      steps: [
+        { label: "FIT", title: "Name the buyer workflow", body: "Platform licensing, staffing shortlist, or enterprise stack-vault." },
+        { label: "RISK", title: "Check bank decay risk", body: "Static banks lose signal when public prep catches up." },
+        { label: "PROOF", title: "Review the evidence layer", body: "Difficulty, watermarking, and trust posture become the deciding layer." }
+      ]
+    },
+    sections: [
+      {
+        title: `${competitor} can be a strong fit for many teams.`,
+        body:
+          "QOrium does not win by pretending every competitor is weak. QOrium wins when the buyer needs private stack depth, leak-resistant content, and a score that can survive review.",
+        points: ["Fair market framing", "Clear QOrium wedge", "Buyer-specific choice"]
+      }
+    ],
+    relatedLinks: [
+      { label: "Trust center", href: "/trust", body: "See the proof boundaries behind public claims." },
+      { label: "Stack-Vault", href: "/platform/stack-vault", body: "Private banks for enterprise stacks." },
+      { label: "Book demo", href: "/demo", body: "Compare against your real workflow." }
+    ]
+  };
+}
+
+function resourcePage(base: MarketingPageData, label: string): MarketingPageData {
+  return {
+    ...base,
+    primaryCta: base.kind === "resource" ? "Request sample pack" : "Read with a buyer lens",
+    secondaryCta: "Open trust center",
+    primaryHref: base.kind === "resource" ? "/resources/sample-packs" : "/demo",
+    secondaryHref: "/trust",
+    proof: ["Buyer education", "Evidence-first framing", "Routes to assessment action"],
+    workflow: {
+      kicker: "Resource path",
+      title: "Education should move the buyer toward evidence.",
+      body: `${label} content connects the hiring problem to a concrete assessment, trust, or sample-pack action.`,
+      steps: [
+        { label: "LEARN", title: "Understand the risk", body: "The resource names the hiring risk in plain language." },
+        { label: "CHECK", title: "Review the evidence", body: "The buyer sees what QOrium can prove and what it does not claim." },
+        { label: "ACT", title: "Move to a workflow", body: "The route points to sample packs, JD-Forge, trust, or demo." }
+      ]
     }
-  ]
-});
+  };
+}
+
+function trustPage(base: MarketingPageData): MarketingPageData {
+  return {
+    ...base,
+    secondaryHref: "/method",
+    proof: ["Evidence boundaries visible", "DPDP-aware language", "No badge without certificate evidence"],
+    workflow: {
+      kicker: "Trust shell",
+      title: "Start with the reviewer question, then open evidence.",
+      body: "Trust pages keep security, privacy, science, and responsible AI claims tied to their source posture.",
+      steps: [
+        { label: "CLAIM", title: "State the buyer concern", body: "Security, DPDP, AI state, assessment science, or anti-leak posture." },
+        { label: "SOURCE", title: "Name the evidence state", body: "Live controls, published reports, or withheld claims are separated clearly." },
+        { label: "NEXT", title: "Route diligence", body: "The buyer can open the adjacent trust destination without losing context." }
+      ]
+    }
+  };
+}
+
+function roleBattery(role: string) {
+  const lower = role.toLowerCase();
+  if (lower.includes("software") || lower.includes("react") || lower.includes("developer") || lower.includes("engineer")) {
+    return [
+      { name: "Python", category: "Programming", href: "/library/python", note: "Debugging, data handling, and production judgement." },
+      { name: "Java", category: "Backend", href: "/library/java", note: "Object design, services, and enterprise code review." },
+      { name: "React", category: "Frontend", href: "/library/react", note: "Component thinking, state, testing, and accessibility." }
+    ];
+  }
+  if (lower.includes("data")) {
+    return [
+      { name: "SQL", category: "Data", href: "/library/sql", note: "Query design, debugging, and data modelling." },
+      { name: "Python", category: "Analytics", href: "/library/python-data-modeling", note: "Analysis workflows and automation." },
+      { name: "Power BI", category: "Reporting", href: "/library/power-bi", note: "Dashboard judgement and stakeholder communication." }
+    ];
+  }
+  return [
+    { name: "Role scenarios", category: "Practical work", href: "/library/scenario-practice", note: "Work samples mapped to the role." },
+    { name: "Communication evidence", category: "Reviewer clarity", href: "/library/stakeholder-communication", note: "Explain tradeoffs like the job requires." },
+    { name: "Quality review", category: "Decision support", href: "/library/quality-review", note: "Review judgement and rubric fit." }
+  ];
+}
+
+function stackBattery(stack: string) {
+  return [
+    { name: `${stack} scenario`, category: "Stack depth", href: "/resources/sample-packs", note: "Private workflows and implementation judgement." },
+    { name: "Migration risk", category: "Architecture", href: "/library/migration", note: "Tradeoffs, dependencies, and rollout judgement." },
+    { name: "Governance", category: "Trust", href: "/compliance-dpdp", note: "Controls and evidence for regulated teams." }
+  ];
+}
+
+function skillBattery(skill: string) {
+  return [
+    { name: "Scenario practice", category: skill, href: "/resources/sample-packs", note: "Work-shaped tasks instead of trivia." },
+    { name: "Debugging signal", category: "Practical evidence", href: "/library/debugging", note: "Find and explain failures." },
+    { name: "Communication evidence", category: "Reviewer clarity", href: "/library/stakeholder-communication", note: "Explain choices to a hiring manager." }
+  ];
+}
 
 export const additionalStaticPages: MarketingPageData[] = [
   routePageFactory("/blog", "blog", "QOrium blog.", "Opinionated writing on skills evidence, assessment science, anti-leak operations, and enterprise hiring trust.", "Blog"),
   routePageFactory("/features/readybank", "feature", "ReadyBank features for fast assessment launch.", "Coverage, preview control, calibration posture, and reusable pack logic for teams that need immediate assessment signal.", "ReadyBank features"),
   routePageFactory("/features/jd-forge", "feature", "JD-Forge features for role-mapped assessment design.", "Convert role requirements into skill coverage, item mix, rubrics, and recruiter-ready test blueprints.", "JD-Forge features"),
   routePageFactory("/features/stack-vault", "feature", "Stack-Vault features for private enterprise banks.", "Customer-exclusive item banks, watermark-ready governance, and stack-specific depth for regulated hiring teams.", "Stack-Vault features"),
-  routePageFactory("/solutions/assessment-platforms", "solution", "Expand your assessment platform without rebuilding the content team.", "License governed skill content, taxonomy metadata, and stack-specific item families through QOrium delivery routes.", "For assessment platforms"),
+  routePageFactory("/solutions/assessment-platforms", "solution", "Expand your assessment platform without hiring a larger content team.", "License governed skill content, taxonomy metadata, and stack-specific item families through QOrium delivery routes.", "For assessment platforms"),
   routePageFactory("/solutions/enterprises-gcc", "solution", "Private assessment depth for enterprises and GCCs.", "Build defensible Stack-Vaults for India-heavy stacks, confidential roles, and regulated talent programs.", "For enterprises and GCCs"),
   routePageFactory("/solutions/staffing-firms", "solution", "Turn every client JD into a stronger shortlist signal.", "Use ReadyBank and JD-Forge to move staffing conversations from resume forwarding to evidence-backed candidate proof.", "For staffing firms"),
   routePageFactory("/solutions/platforms", "solution", "Assessment platform content licensing.", "A buyer page for platforms that need faster skill coverage, content governance, and API-friendly delivery.", "Solution"),
@@ -521,6 +1037,7 @@ export const libraryThemes = [
 ];
 
 export const roleRoutes = [
+  "software",
   "react-developer",
   "java-developer",
   "python-developer",
@@ -533,24 +1050,7 @@ export const roleRoutes = [
   "core-banking-consultant",
   "cloud-engineer",
   "ai-engineer",
-  "salesforce-cpq-consultant",
-  "react-developer-2",
-  "java-developer-2",
-  "python-developer-2",
-  "devops-engineer-2",
-  "data-engineer-2",
-  "salesforce-developer-2",
-  "sap-abap-consultant-2",
-  "oracle-hcm-consultant-2",
-  "embedded-engineer-2",
-  "core-banking-consultant-2",
-  "cloud-engineer-2",
-  "ai-engineer-2",
-  "salesforce-cpq-consultant-2",
-  "react-developer-3",
-  "java-developer-3",
-  "python-developer-3",
-  "devops-engineer-3"
+  "salesforce-cpq-consultant"
 ];
 
 export const stackRoutes = [
@@ -583,32 +1083,38 @@ export const competitors = [
   ["devskiller", "DevSkiller", "Technical screening and talent intelligence"]
 ] as const;
 
-export const compareRoutes = [
-  "qorium-vs-vervoe",
-  "qorium-vs-coderbyte",
-  "qorium-vs-hackerrank",
-  "qorium-vs-mercer-mettl",
-  "qorium-vs-imocha"
-];
+export const compareRoutes = competitors.map(([slug]) => `qorium-vs-${slug}`);
 
-const titleOverrides: Record<string, string> = {
-  ai: "AI",
-  api: "API",
-  aws: "AWS",
-  bfsi: "BFSI",
-  cpq: "CPQ",
-  css: "CSS",
-  dpdp: "DPDP",
-  hcm: "HCM",
-  html: "HTML",
-  javascript: "JavaScript",
-  js: "JS",
-  reactjs: "React.js",
-  sap: "SAP",
-  sql: "SQL",
-  typescript: "TypeScript",
-  ux: "UX"
-};
+export const canonicalRedirects = [
+  ["/features", "/platform"],
+  ["/features/readybank", "/platform/readybank"],
+  ["/features/jd-forge", "/platform/jd-forge"],
+  ["/features/stack-vault", "/platform/stack-vault"],
+  ["/product", "/platform"],
+  ["/product/api", "/platform/api"],
+  ["/product/assessment-library", "/library"],
+  ...competitors.map(([slug]) => [`/vs/${slug}`, `/compare/qorium-vs-${slug}`] as const),
+  ...[
+    "react-developer",
+    "java-developer",
+    "python-developer",
+    "devops-engineer",
+    "data-engineer",
+    "salesforce-developer",
+    "sap-abap-consultant",
+    "oracle-hcm-consultant",
+    "embedded-engineer",
+    "core-banking-consultant",
+    "cloud-engineer",
+    "ai-engineer",
+    "salesforce-cpq-consultant"
+  ].flatMap((slug) => [
+    [`/solutions/role/${slug}-2`, `/solutions/role/${slug}`] as const,
+    [`/solutions/role/${slug}-3`, `/solutions/role/${slug}`] as const
+  ])
+] as const;
+
+const redirectedPaths = new Set<string>(canonicalRedirects.map(([source]) => source));
 
 export function titleize(slug: string) {
   return slug
@@ -635,9 +1141,8 @@ export function allMarketingPaths() {
     ...libraryPaths,
     ...roleRoutes.map((slug) => `/solutions/role/${slug}`),
     ...stackRoutes.map((slug) => `/solutions/stack/${slug}`),
-    ...competitors.map(([slug]) => `/vs/${slug}`),
     ...compareRoutes.map((slug) => `/compare/${slug}`)
-  ];
+  ].filter((path) => !redirectedPaths.has(path));
 }
 
 export function getPageData(path: string): MarketingPageData | null {
@@ -692,8 +1197,11 @@ export function getPageData(path: string): MarketingPageData | null {
 
   const compare = compareRoutes.find((slug) => normalizedPath === `/compare/${slug}`);
   if (compare) {
-    const competitor = titleize(compare.replace("qorium-vs-", ""));
-    return routePageFactory(normalizedPath, "compare", `QOrium vs ${competitor}`, `A migration-aware comparison page for buyers evaluating QOrium and ${competitor}.`, "Comparison");
+    const competitorSlug = compare.replace("qorium-vs-", "");
+    const competitor = competitors.find(([slug]) => slug === competitorSlug);
+    const competitorName = competitor?.[1] ?? titleize(competitorSlug);
+    const competitorSummary = competitor?.[2] ?? "assessment platform workflows";
+    return routePageFactory(normalizedPath, "compare", `QOrium vs ${competitorName}`, `A migration-aware comparison page for buyers evaluating QOrium and ${competitorName}: ${competitorSummary}.`, "Comparison");
   }
 
   return null;

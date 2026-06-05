@@ -17,6 +17,7 @@
   },
   "scripts": {
     "build": "next build --webpack",
+    "copy:audit": "node scripts/marketing-copy-audit.mjs",
     "dev": "next dev -p 3000",
     "start": "next start -p ${PORT:-3000}",
     "typecheck": "tsc -p tsconfig.json --noEmit",

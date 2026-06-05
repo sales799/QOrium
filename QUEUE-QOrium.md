@@ -3,7 +3,21 @@
 **Lock 1 of the 5-Lock State System (Constitution Article IV)**
 **This is the QOrium-specific QUEUE; the cross-project Talpro Universe QUEUE lives at `_shared/QUEUE.md`**
 **Updated:** Continuously by all 7 offices; reviewed Mondays at strategic 1:1
-**Last touched:** 2026-06-03 — Codex Run #66 (Phase G RLS app-wiring locally verified)
+**Last touched:** 2026-06-05 — Codex Run #67 (Universal marketing makeover locally verified)
+
+---
+
+## RUN #67 — Universal Marketing Makeover Locally Verified (2026-06-05, Codex)
+
+### COMPLETED
+- [2026-06-05] **Implemented the universal page-family makeover in `qorium-app/apps/web`** — expanded the marketing data contract, added family-specific page blocks for role, stack, library, skill, job-description, sample-pack, comparison, resource, trust, legal, and company routes, and kept the approved dark-grid/cream-surface QOrium visual language.
+- [2026-06-05] **Canonicalized marketing IA and sitemap output** — source `allMarketingPaths()` now emits `1167` canonical paths, including `/library`, `/platform/api`, `/solutions/role/software`, and `11` `/compare/qorium-vs-*` pages; legacy `/product/*`, `/features/*`, `/vs/*`, and duplicate `-2`/`-3` role routes are backed by `44` permanent redirects.
+- [2026-06-05] **Added audit and copy gates** — `QORIUM_UNIVERSAL_MARKETING_MAKEOVER_AUDIT_2026-06-05.md` records the live/source sitemap reconciliation, and `pnpm --dir qorium-app/apps/web copy:audit` blocks banned internal public-copy phrases plus deprecated sitemap emissions.
+- [2026-06-05] **Verified local gates and representative visuals** — copy audit, web typecheck, web production build (`1172/1172` app pages), local sitemap/redirect smoke, root Vitest (`5` files / `9` tests), scripted visual QA at `1440px` and `390px` across 9 representative routes with mobile menu open state, and repo Playwright e2e (`1` test) all passed. Screenshots are saved in `qorium-app/audits/post-deploy-qa/screenshots/universal-makeover-20260605/`.
+
+### REMAINING FOLLOW-UP
+- [DEPLOY] Live production still serves the prior deployed sitemap until this branch is reviewed, merged, and deployed through the approved active-origin pipeline.
+- [REVIEW] Cross-account review is required before merge; author must not self-approve.
 
 ---
 

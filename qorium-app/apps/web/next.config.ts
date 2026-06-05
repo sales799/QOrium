@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
+import { canonicalRedirects } from "./src/marketing/data";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@qorium/ui"],
+  async redirects() {
+    return canonicalRedirects.map(([source, destination]) => ({
+      source,
+      destination,
+      permanent: true
+    }));
+  },
   async headers() {
     return [
       {

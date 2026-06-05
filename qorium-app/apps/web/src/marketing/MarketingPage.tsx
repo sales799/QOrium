@@ -80,7 +80,7 @@ const navGroups: MegaGroup[] = [
       {
         title: "Delivery",
         items: [
-          { label: "REST API", href: "/product/api", body: "Programmatic content access", icon: Layers3 },
+          { label: "REST API", href: "/platform/api", body: "Programmatic content access", icon: Layers3 },
           { label: "Bulk Export", href: "/resources/docs", body: "CSV and JSON delivery paths", icon: FileText },
           { label: "Embedded Widget", href: "/try/jd-forge", body: "Drop-in assessment workflow", icon: Boxes }
         ]
@@ -89,7 +89,7 @@ const navGroups: MegaGroup[] = [
     promo: {
       title: "The Assessment Library",
       body: "Browse seeded skill pages with calibration posture and guarded previews.",
-      href: "/product/assessment-library",
+      href: "/library",
       cta: "See it live",
       icon: BookOpenCheck
     }
@@ -154,9 +154,9 @@ const navGroups: MegaGroup[] = [
       {
         title: "Compare",
         items: [
-          { label: "vs Vervoe", href: "/vs/vervoe", body: "Real-work assessment framing", icon: Network },
-          { label: "vs HackerRank", href: "/vs/hackerrank", body: "Technical screening authority", icon: Network },
-          { label: "vs Mercer Mettl", href: "/vs/mercer-mettl", body: "India enterprise comparison", icon: Network }
+          { label: "vs Vervoe", href: "/compare/qorium-vs-vervoe", body: "Real-work assessment framing", icon: Network },
+          { label: "vs HackerRank", href: "/compare/qorium-vs-hackerrank", body: "Technical screening authority", icon: Network },
+          { label: "vs Mercer Mettl", href: "/compare/qorium-vs-mercer-mettl", body: "India enterprise comparison", icon: Network }
         ]
       }
     ],
@@ -177,7 +177,7 @@ const navGroups: MegaGroup[] = [
         items: [
           { label: "Guides and Playbooks", href: "/resources/guides", body: "Buyer education", icon: BookOpenCheck },
           { label: "Blog and Research", href: "/blog", body: "Market POV", icon: FileText },
-          { label: "Skills Glossary", href: "/library/javascript", body: "Taxonomy-backed library entry", icon: Layers3 }
+          { label: "Skills Glossary", href: "/library", body: "Taxonomy-backed library hub", icon: Layers3 }
         ]
       },
       {
@@ -347,10 +347,10 @@ function HomePage({ page }: { page: MarketingPageData }) {
           {[
             ["Platform", "Products", "/platform", "ReadyBank, JD-Forge, Stack-Vault and the engine"],
             ["Solutions", "By team", "/solutions/enterprises-gcc", "Staffing, enterprises and GCCs, platforms"],
-            ["Library", "Browse", "/library/javascript", "Calibrated tests by skill and role"],
+            ["Library", "Browse", "/library", "Calibrated tests by skill and role"],
             ["Resources", "Guides", "/resources", "Guides, job descriptions, sample packs, docs"],
             ["Trust", "Proof", "/trust", "Security, DPDP, responsible AI, science"],
-            ["Compare", "Decide", "/vs/vervoe", "How QOrium compares, fairly"]
+            ["Compare", "Decide", "/compare/qorium-vs-vervoe", "How QOrium compares, fairly"]
           ].map(([title, count, href, body]) => (
             <a className="sitemap-card" href={href} key={title}>
               <span>{count}</span>
@@ -407,11 +407,11 @@ function Hero({ page }: { page: MarketingPageData }) {
         <h1>{page.title}</h1>
         <p className="hero-summary">{page.summary}</p>
         <div className="cta-row">
-          <a className="primary-button large" href="/demo">
+          <a className="primary-button large" href={page.primaryHref ?? "/demo"}>
             {page.primaryCta}
             <ArrowRight size={18} />
           </a>
-          <a className="secondary-button large" href="/product/assessment-library">
+          <a className="secondary-button large" href={page.secondaryHref ?? "/library"}>
             {page.secondaryCta}
             <BookOpenCheck size={18} />
           </a>
@@ -450,11 +450,11 @@ function DetailPage({ page }: { page: MarketingPageData }) {
           <h1>{page.title}</h1>
           <p>{page.summary}</p>
           <div className="cta-row">
-            <a className="primary-button large" href="/demo">
+            <a className="primary-button large" href={page.primaryHref ?? "/demo"}>
               {page.primaryCta}
               <ArrowRight size={18} />
             </a>
-            <a className="secondary-button large" href={secondaryHref(page.kind)}>
+            <a className="secondary-button large" href={page.secondaryHref ?? secondaryHref(page.kind)}>
               {page.secondaryCta}
               <Sparkles size={18} />
             </a>
@@ -488,47 +488,46 @@ function DetailPage({ page }: { page: MarketingPageData }) {
 }
 
 function RouteSpecificSection({ page }: { page: MarketingPageData }) {
-  if (page.kind === "library" || page.kind === "skill") {
+  if (page.kind === "compare") {
     return (
-      <section className="section product-section">
-        <SectionIntro
-          kicker="Assessment preview"
-          title={`${titleize(page.path.split("/").pop() ?? "skill")} coverage map`}
-          body="Each library route is structured to sell with enough specificity to earn trust while protecting the full question bank from public harvesting."
-        />
-        <div className="matrix">
-          {["Scenario practice", "Debugging signal", "Architecture judgement", "Communication evidence"].map((item) => (
-            <div key={item}>
-              <BarChart3 size={22} />
-              <strong>{item}</strong>
-              <p>Mapped to item type, seniority, rubric language, and evidence quality.</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <>
+        <WorkflowSection page={page} />
+        <ComparisonSection page={page} />
+        <RelatedSection page={page} />
+      </>
     );
   }
 
-  if (page.kind === "compare") {
+  if (page.battery?.length) {
+    return (
+      <>
+        <WorkflowSection page={page} />
+        <BatterySection page={page} />
+        <RelatedSection page={page} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <WorkflowSection page={page} />
+      <EvidenceRulesSection page={page} />
+      <RelatedSection page={page} />
+    </>
+  );
+}
+
+function WorkflowSection({ page }: { page: MarketingPageData }) {
+  if (!page.workflow) {
     return (
       <section className="section product-section">
-        <SectionIntro
-          kicker="A fair comparison"
-          title="Where QOrium is genuinely different."
-          body="We won't smear the market. Here's where QOrium gives you something the alternatives don't: private depth for your stack, questions that retire before they leak, and scores you can defend."
-        />
-        <div className="comparison-table" role="table" aria-label="QOrium comparison framework">
-          {[
-            ["Private stack depth", "A library for SAP, Oracle, BFSI — not just generic coding"],
-            ["Anti-leak lifecycle", "Questions rotate out before the prep market catches up"],
-            ["Defensible scoring", "Every score has measured difficulty and an audit trail"],
-            ["India-built trust", "DPDP compliance and data that stays in India"]
-          ].map(([row, edge]) => (
-            <div role="row" key={row}>
-              <span role="cell">{row}</span>
-              <strong role="cell">{edge}</strong>
-            </div>
-          ))}
+        <div className="split reverse">
+          <ProductConsole compact />
+          <SectionIntro
+            kicker="Your next step"
+            title="See how this works on your roles."
+            body="Book a 20-minute walkthrough, browse the calibrated library, or request a sample pack — whichever helps you decide faster."
+          />
         </div>
       </section>
     );
@@ -536,13 +535,115 @@ function RouteSpecificSection({ page }: { page: MarketingPageData }) {
 
   return (
     <section className="section product-section">
-      <div className="split reverse">
-        <ProductConsole compact />
-        <SectionIntro
-          kicker="Your next step"
-          title="See how this works on your roles."
-          body="Book a 20-minute walkthrough, browse the calibrated library, or request a sample pack — whichever helps you decide faster."
-        />
+      <SectionIntro kicker={page.workflow.kicker} title={page.workflow.title} body={page.workflow.body} />
+      <div className="workflow-grid">
+        {page.workflow.steps.map((step) => (
+          <article key={`${step.label}-${step.title}`}>
+            <span>{step.label}</span>
+            <strong>{step.title}</strong>
+            <p>{step.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function BatterySection({ page }: { page: MarketingPageData }) {
+  const battery = page.battery ?? [];
+
+  return (
+    <section className="section light-section">
+      <SectionIntro
+        kicker="Assessment battery"
+        title="The page shows a real path, not a generic promise."
+        body="Every generated page now carries concrete skill, stack, or role evidence so the buyer can see what QOrium would actually test."
+      />
+      <div className="battery-grid">
+        {battery.map((item) => (
+          <a className="battery-card" href={item.href} key={`${item.name}-${item.href}`}>
+            <span>{item.category}</span>
+            <strong>{item.name}</strong>
+            <p>{item.note}</p>
+            <em>
+              Open route
+              <ArrowRight size={15} />
+            </em>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ComparisonSection({ page }: { page: MarketingPageData }) {
+  const rows = page.comparisonRows ?? [];
+
+  return (
+    <section className="section product-section">
+      <SectionIntro
+        kicker="A fair comparison"
+        title="Where QOrium is genuinely different."
+        body="The comparison stays buyer-safe: it names competitor strengths fairly, then shows the specific QOrium edge when defensibility matters."
+      />
+      <div className="comparison-table" role="table" aria-label="QOrium comparison framework">
+        {rows.map(([row, edge]) => (
+          <div role="row" key={row}>
+            <span role="cell">{row}</span>
+            <strong role="cell">{edge}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function EvidenceRulesSection({ page }: { page: MarketingPageData }) {
+  const rules = page.evidenceRules ?? [];
+  if (!rules.length) return null;
+
+  return (
+    <section className="section dark-section">
+      <SectionIntro
+        kicker="Evidence rules"
+        title="Enterprise polish without unsupported claims."
+        body="Pages can look premium before every proof source lands, but public claims stay tied to evidence."
+        inverted
+      />
+      <div className="evidence-rule-grid">
+        {rules.map((rule) => (
+          <article key={rule}>
+            <ShieldCheck size={20} />
+            <strong>{rule}</strong>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function RelatedSection({ page }: { page: MarketingPageData }) {
+  const links = page.relatedLinks ?? [];
+  if (!links.length) return null;
+
+  return (
+    <section className="section light-section">
+      <SectionIntro
+        kicker="Connected sitemap"
+        title="The next route is always intentional."
+        body="Every page now points into a product, solution, trust, or resource path that continues the same enterprise story."
+      />
+      <div className="related-grid">
+        {links.map((link) => (
+          <a className="related-card" href={link.href} key={`${link.label}-${link.href}`}>
+            <strong>{link.label}</strong>
+            <p>{link.body}</p>
+            <span>
+              Open page
+              <ArrowRight size={15} />
+            </span>
+          </a>
+        ))}
       </div>
     </section>
   );
@@ -555,6 +656,16 @@ function EvidencePanel({ page }: { page: MarketingPageData }) {
         <ShieldCheck size={22} />
         <span>Evidence posture</span>
       </div>
+      <dl className="evidence-meta">
+        <div>
+          <dt>Audit</dt>
+          <dd>{page.auditStatus ?? "complete"}</dd>
+        </div>
+        <div>
+          <dt>Canonical</dt>
+          <dd>{page.canonicalPath ?? page.path}</dd>
+        </div>
+      </dl>
       <ul>
         {page.proof.map((item) => (
           <li key={item}>{item}</li>
@@ -675,7 +786,7 @@ function CTA() {
 
 function Footer() {
   const footerGroups: Array<[string, Array<[string, string]>]> = [
-    ["Platform", [["ReadyBank", "/platform/readybank"], ["JD-Forge", "/platform/jd-forge"], ["Stack-Vault", "/platform/stack-vault"], ["API", "/product/api"]]],
+    ["Platform", [["ReadyBank", "/platform/readybank"], ["JD-Forge", "/platform/jd-forge"], ["Stack-Vault", "/platform/stack-vault"], ["API", "/platform/api"]]],
     ["Solutions", [["Platforms", "/solutions/assessment-platforms"], ["Enterprises", "/solutions/enterprises-gcc"], ["Staffing", "/solutions/staffing-firms"], ["Pricing", "/pricing"]]],
     ["Trust", [["Trust center", "/trust"], ["Security", "/security"], ["DPDP", "/compliance-dpdp"], ["Responsible AI", "/responsible-ai"]]],
     ["Resources", [["Guides", "/resources/guides"], ["Sample packs", "/resources/sample-packs"], ["Job descriptions", "/resources/job-descriptions"], ["LLM info", "/llm-info"]]]
@@ -709,23 +820,27 @@ function Footer() {
 function secondaryHref(kind: MarketingPageData["kind"]) {
   if (kind === "trust") return "/method";
   if (kind === "resource" || kind === "guide" || kind === "blog") return "/resources/sample-packs";
-  if (kind === "compare") return "/vs/vervoe";
-  if (kind === "pricing") return "/product/assessment-library";
-  return "/product/assessment-library";
+  if (kind === "compare") return "/compare/qorium-vs-vervoe";
+  if (kind === "pricing") return "/library";
+  return "/library";
 }
 
 export function generateMarketingMetadata(path: string) {
   const page = getPageData(path);
   const title = page ? `${page.title} | QOrium` : "QOrium";
   const description = page?.summary ?? "QOrium is an enterprise skills assessment content platform.";
+  const canonicalPath = page?.canonicalPath ?? path;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: `${baseUrl}${canonicalPath === "/" ? "" : canonicalPath}`
+    },
     openGraph: {
       title,
       description,
-      url: `${baseUrl}${path === "/" ? "" : path}`,
+      url: `${baseUrl}${canonicalPath === "/" ? "" : canonicalPath}`,
       siteName: "QOrium",
       type: "website"
     },
@@ -739,12 +854,13 @@ export function generateMarketingMetadata(path: string) {
 
 export function StructuredData({ path }: { path: string }) {
   const page = getPageData(path);
+  const canonicalPath = page?.canonicalPath ?? path;
   const data = {
     "@context": "https://schema.org",
-    "@type": page?.kind === "blog" ? "Article" : "WebPage",
+    "@type": page?.schemaType ?? (page?.kind === "blog" ? "Article" : "WebPage"),
     name: page?.title ?? "QOrium",
     description: page?.summary ?? "QOrium enterprise skills assessment platform",
-    url: `${baseUrl}${path === "/" ? "" : path}`
+    url: `${baseUrl}${canonicalPath === "/" ? "" : canonicalPath}`
   };
 
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
