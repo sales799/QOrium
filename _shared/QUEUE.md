@@ -1,6 +1,6 @@
 # Shared Queue — QOrium Content Recreation Closeout
 
-Last touched: 2026-06-04 — after-review Sentry route deploy proof recorded
+Last touched: 2026-06-05 — PR #122 post-merge review gate checked; non-author review still unproven
 
 ## DONE
 
@@ -62,7 +62,7 @@ Last touched: 2026-06-04 — after-review Sentry route deploy proof recorded
 
 | Task | Status | Owner | Evidence | Next |
 | --- | --- | --- | --- | --- |
-| Cross-account review evidence for merged PRs #101/#123 | BLOCKED | Non-author reviewer / repo governance | Fresh GitHub proof on 2026-06-04 shows PR #123 and PR #101 are both `MERGED`, both `mergedBy=sales799`, and both have `reviews=[]`. Production runtime is fixed, but the author-never-self-approves rule is not proven for these merges. | Run a post-merge non-author audit/review note from another authorized account and enforce branch protection so future author-owned PRs cannot merge with `reviews=[]`. |
+| Cross-account review evidence for merged PRs #101/#122/#123 | BLOCKED | Non-author reviewer / repo governance | Fresh GitHub proof on 2026-06-05 shows PR #122 is `MERGED` at `72845b9e12e5c1146d99310b77e88932e5b1f333`, `mergedBy=sales799`, `reviews=[]`, and comments `[]`; `gh api repos/sales799/QOrium/pulls/122/reviews` returned `[]`. Fresh `gh auth status -a` shows this shell is authenticated only as `sales799`, and `gh api repos/sales799/QOrium/collaborators` returns only `sales799`. Prior proof on 2026-06-04 shows PR #123 and PR #101 are also `MERGED`, both `mergedBy=sales799`, and both have `reviews=[]`. Production/runtime code is technically verified where separately recorded, but the author-never-self-approves rule is not proven for these merges. | Run a post-merge non-author audit/review note from another authorized account and enforce branch protection so future author-owned PRs cannot merge with `reviews=[]`. |
 | Merge author-owned phase branch to `main` | BLOCKED | Non-author reviewer | Current production includes the route via newer active release, but branch `codex/qorium-marketing-phase4-main` still needs cross-account review/merge for `main` parity. | Have another account review/merge; author must not approve own merge. |
 | Save full-site closeout to Talpro MCP session/MANTHAN | BLOCKED | Tooling / Talpro MCP-enabled session | `tool_search` for `watchdog talpro session_save_state manthan_save memory` returned `0` tools in this Codex context on 2026-06-03; local `_shared/QUEUE.md` and `task_plan.md` were updated instead. | Run `session_save_state` / `manthan_save` from a Talpro-tool-enabled session if archive automation requires that external record. |
 | Merge ported active-origin hub branch for branch parity | BLOCKED | Non-author reviewer | Production deploy is complete from active-origin `main` at `c436ac3`, and live `/try` plus `/research` return HTTP `200`. Raw `dec4ad2` / PR #94 remains unsafe for production because it changes `qorium-app/apps/web`, not the live `apps/marketing` tree. PR #99 at commit `9916126` is still author-owned and needs non-author review only if branch parity remains required. | Non-author review/merge PR #99 only if branch parity is still needed; production deploy no longer blocked by this item. |
