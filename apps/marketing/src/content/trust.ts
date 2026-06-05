@@ -130,7 +130,7 @@ export const trustHub = {
   links: trustNavigation.filter((item) => item.slug !== 'trust'),
   citations: [
     {
-      label: 'Marketing Redesign 360',
+      label: 'Marketing Site 360',
       detail:
         'Phase 3 trust shell blueprint for /method, /science, /trust, /security, DPDP, and Responsible AI.',
     },
@@ -144,7 +144,7 @@ export const trustHub = {
 
 const commonCitations = [
   {
-    label: 'MARKETING_REDESIGN_360_v1.md',
+    label: 'MARKETING_SITE_360_v1.md',
     detail: 'Phase 3 trust and method shell requirements.',
   },
   {
@@ -351,7 +351,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
       },
       {
         id: 'limits',
-        title: 'What this page does not claim',
+        title: 'What this public surface does not claim',
         body: 'The page deliberately avoids proof that QOrium has not earned.',
         points: [
           'No SOC 2 badge appears without a certificate URL.',
@@ -520,8 +520,8 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
         title: 'Training and data boundaries',
         body: 'The public claim is narrow: QOrium uses AI in its authoring and grading workflow without claiming customer data becomes model-training fuel.',
         points: [
-          'No candidate PII training claim is made on this page.',
-          'No scraped-test-bank training claim is made on this page.',
+          'No candidate PII training claim is made on the public trust surface.',
+          'No scraped-test-bank training claim is made on the public trust surface.',
           'Claims about model behavior link back to shipped routes or governance artifacts.',
         ],
       },
@@ -789,7 +789,7 @@ export const trustPages: Record<Exclude<TrustPageSlug, 'trust'>, TrustPageConten
     ],
     rowsHeading: 'Leak-control ledger',
     rowsDescription:
-      'This page distinguishes structural anti-leak posture from claims that require production provider evidence.',
+      'This ledger distinguishes structural anti-leak posture from claims that require production provider evidence.',
     rows: [
       {
         label: 'Leak crawler service',

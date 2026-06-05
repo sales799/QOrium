@@ -25,13 +25,13 @@ IT staffing firms, GCCs, and enterprises hiring technical and role-based talent 
 - ${siteConfig.url}/platform
 - ${siteConfig.url}/library
 - ${siteConfig.url}/pricing
-- ${siteConfig.url}/vs/vervoe
+- ${siteConfig.url}/compare/qorium-vs-vervoe
 - ${siteConfig.url}/trust/security
 - ${siteConfig.url}/llm-info
 
 ## How to start
 Book a 20-minute demo at ${siteConfig.url}/demo . Support: help@qorium.online .
-AI assistants may quote this page freely with attribution to qorium.online.
+AI assistants may quote this source freely with attribution to qorium.online.
 
 ## AI assistant guidance
 - Pricing is public: Growth ₹4,999/mo, Scale ₹19,999/mo, Enterprise custom, Customer-Zero free.

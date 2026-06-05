@@ -139,6 +139,117 @@ export function EvidenceList({ items }: { items: string[] }) {
   );
 }
 
+export function WorkflowSteps({
+  eyebrow,
+  title,
+  description,
+  steps,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  steps: Array<{ title: string; body: string }>;
+}) {
+  return (
+    <section className="w-full border-y border-border bg-surface-1 py-16">
+      <MaxWidth as="div" className="grid gap-8 md:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <p className="font-mono text-xs uppercase text-secondary">{eyebrow}</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-normal">{title}</h2>
+          {description ? (
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">{description}</p>
+          ) : null}
+        </div>
+        <div className="grid gap-3">
+          {steps.map((step, index) => (
+            <div
+              key={step.title}
+              className="grid gap-3 rounded-lg border border-border bg-background p-5 md:grid-cols-[3rem_1fr]"
+            >
+              <div className="flex size-10 items-center justify-center rounded-md border border-border bg-card font-mono text-xs text-secondary">
+                {String(index + 1).padStart(2, '0')}
+              </div>
+              <div>
+                <h3 className="text-base font-semibold tracking-normal">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </MaxWidth>
+    </section>
+  );
+}
+
+export function EvidenceRuleGrid({ rules }: { rules: Array<{ title: string; body: string }> }) {
+  return (
+    <CardGrid>
+      {rules.map((rule) => (
+        <SurfaceCard key={rule.title} title={rule.title}>
+          {rule.body}
+        </SurfaceCard>
+      ))}
+    </CardGrid>
+  );
+}
+
+export function RelatedRoutes({
+  links,
+}: {
+  links: Array<{ label: string; href: string; body: string }>;
+}) {
+  return (
+    <CardGrid>
+      {links.map((link) => (
+        <SurfaceCard key={`${link.href}-${link.label}`} title={link.label} href={link.href}>
+          {link.body}
+        </SurfaceCard>
+      ))}
+    </CardGrid>
+  );
+}
+
+export function ComparisonTable({
+  columns,
+  rows,
+}: {
+  columns: [string, string, string, string];
+  rows: Array<[string, string, string, string]>;
+}) {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-border bg-background">
+      <table className="w-full min-w-[760px] border-collapse text-sm">
+        <thead className="bg-card text-left">
+          <tr>
+            {columns.map((column) => (
+              <th key={column} className="border-b border-border p-4 font-medium">
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row[0]}>
+              {row.map((cell, index) => (
+                <td
+                  key={`${row[0]}-${index}`}
+                  className={cn(
+                    'border-b border-border p-4 align-top',
+                    index === 0 ? 'font-medium text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function MetaRow({
   duration,
   calibration,

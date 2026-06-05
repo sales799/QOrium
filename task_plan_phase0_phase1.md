@@ -209,3 +209,14 @@ Archive note: Phase 1 code is branch-ready. Production deploy still requires bra
 - [IN PROGRESS] PR #119 became conflicting after `main` advanced; refreshed replacement branch `codex/qorium-br5-candidate-runtime-main-refresh-20260604` replays the candidate runtime shell, `/healthz`, safer assessment fetch, standalone start command, and PM2 `qorium-candidate-portal` entry onto current `main`.
 - [DONE] Previous local gates passed: `pnpm install --frozen-lockfile`, `pnpm --filter @qorium/candidate-portal typecheck`, `pnpm --filter @qorium/candidate-portal build`, `pnpm --filter @qorium/candidate-portal test`, PM2 ecosystem parse, staged gitleaks protect, and standalone-server `http://127.0.0.1:5116/healthz` smoke.
 - [BLOCKED] Cross-account review/merge remains required; author did not self-merge.
+
+## Codex Closeout Addendum — Universal Marketing Makeover Production Port — 2026-06-05
+
+| Item | Status | Evidence |
+|---|---|---|
+| Production app port | DONE | The universal marketing makeover was ported from the alternate `qorium-app/apps/web` implementation into the production `apps/marketing` tree on branch `codex/qorium-marketing-port-universal-makeover-20260605`. |
+| Page-family contracts | DONE | Role, stack, library, and compare families now render buyer workflow, evidence rules, related routes, and canonical IA using shared `MarketingSurface` sections. |
+| Canonical IA cleanup | DONE | `/platform/api`, `/library`, `/compare/qorium-vs-*`, and base `/solutions/role/*` are canonical; `/product*`, `/vs*`, and duplicate role suffixes redirect. |
+| Sitemap QA | DONE | Local built app on port 3107 returned sitemap count 171; sitemap includes `/platform/api`, `/compare/qorium-vs-vervoe`, and `/solutions/role/software`; excludes `/vs/`, `/product/api`, `/product/assessment-library`, and `/solutions/role/software-2`. |
+| Verification | DONE | `pnpm --filter @qorium/marketing copy:audit` PASS 228 files; `typecheck` PASS after `pnpm run build:packages`; `test` PASS 64/64; `build` PASS 236 pages; `test:e2e` PASS 11/11; Playwright visual smoke PASS desktop/mobile no horizontal overflow. |
+| Deploy gate | BLOCKED | Remote deploy is still gated by cross-account review and merge. Author did not self-approve or self-merge. |

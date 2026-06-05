@@ -97,7 +97,7 @@ export default function TrustSecurityPage() {
             </SurfaceCard>
             <SurfaceCard title="Scoring">
               Item statistics are model-estimated · calibrating with live use — not empirically
-              calibrated or certified.
+              calibrated, and not certified.
             </SurfaceCard>
           </CardGrid>
         </SectionBand>

@@ -19,7 +19,7 @@ describe('programmatic SEO role graph', () => {
     // Consolidated 2026-06-03: content.skills filtered to NOT (metadata ? 'merged_into').
     // The legacy 1,000-page generator is intentionally gone.
     expect(librarySkills.length).toBe(21);
-    expect(rolePages.length).toBeGreaterThanOrEqual(30);
+    expect(rolePages.length).toBe(17);
     expect(stackPages.length).toBeGreaterThanOrEqual(12);
     expect(competitorPages.length).toBeGreaterThanOrEqual(10);
   });
@@ -32,6 +32,13 @@ describe('programmatic SEO role graph', () => {
     expect(new Set(librarySkills.map((s) => s.slug)).size).toBe(librarySkills.length);
   });
 
+  it('has no duplicate role suffix routes', () => {
+    for (const role of rolePages) {
+      expect(role.slug).not.toMatch(/-\d+$/);
+    }
+    expect(new Set(rolePages.map((role) => role.slug)).size).toBe(rolePages.length);
+  });
+
   it('uses canonical paths from the SEO factory brief', () => {
     expect(getLibrarySkill('python')?.path).toBe('/library/python');
     expect(getLibrarySkill('sap-abap')?.path).toBe('/library/sap-abap');
@@ -39,8 +46,8 @@ describe('programmatic SEO role graph', () => {
     expect(getRolePage('react-developer')?.path).toBe('/solutions/role/react-developer');
     expect(getStackPage('sap')?.path).toBe('/solutions/stack/sap');
     expect(getStackPage('sap-abap')?.path).toBe('/solutions/stack/sap-abap');
-    expect(getCompetitorPage('vervoe')?.path).toBe('/vs/vervoe');
-    expect(getCompetitorPage('mettl')?.path).toBe('/vs/mettl');
+    expect(getCompetitorPage('vervoe')?.path).toBe('/compare/qorium-vs-vervoe');
+    expect(getCompetitorPage('mettl')?.path).toBe('/compare/qorium-vs-mettl');
     expect(
       ['vervoe', 'mettl', 'imocha', 'coderbyte', 'techcurators'].every(getCompetitorPage),
     ).toBe(true);
@@ -78,7 +85,7 @@ describe('programmatic SEO role graph', () => {
     expect(getRolePage('core-banking-consultant')?.coreSkills).toContain('finacle-flexcube');
   });
 
-  it('requires competitor honesty sections before a /vs page can ship', () => {
+  it('requires competitor honesty sections before a compare page can ship', () => {
     for (const page of competitorPages) {
       expect(page.whereCompetitorIsBetter.length).toBeGreaterThanOrEqual(2);
       expect(page.qoriumEdges.length).toBeGreaterThanOrEqual(3);
@@ -100,8 +107,9 @@ describe('programmatic SEO role graph', () => {
     expect(seoSitemapFamilies.library).toHaveLength(librarySkills.length);
     expect(seoSitemapFamilies.roles).toHaveLength(rolePages.length);
     expect(seoSitemapFamilies.stacks).toHaveLength(stackPages.length);
-    expect(seoSitemapFamilies.vs).toHaveLength(competitorPages.length);
+    expect(seoSitemapFamilies.compare).toHaveLength(competitorPages.length);
     expect(seoSitemapFamilies.library[0]?.url).toMatch(/\/library\//);
+    expect(seoSitemapFamilies.compare[0]?.url).toMatch(/\/compare\/qorium-vs-/);
   });
 
   it('prebuilds every canonical library page', () => {

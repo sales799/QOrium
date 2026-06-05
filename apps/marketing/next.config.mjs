@@ -53,20 +53,21 @@ const nextConfig = {
     return [
       {
         source: '/compare/qorium-vs-mercer-mettl',
-        destination: '/vs/mettl',
+        destination: '/compare/qorium-vs-mettl',
         permanent: true,
       },
       {
-        source: '/compare/qorium-vs-mettl',
-        destination: '/vs/mettl',
+        source: '/vs/mercer-mettl',
+        destination: '/compare/qorium-vs-mettl',
         permanent: true,
       },
+      { source: '/vs/:slug', destination: '/compare/qorium-vs-:slug', permanent: true },
       {
-        source: '/compare/qorium-vs-:slug',
-        destination: '/vs/:slug',
+        source:
+          '/compare/:slug(vervoe|hackerrank|mettl|imocha|coderbyte|testgorilla|wecp|adaface|karat|devskiller|techcurators)',
+        destination: '/compare/qorium-vs-:slug',
         permanent: true,
       },
-      { source: '/compare/:slug', destination: '/vs/:slug', permanent: true },
       { source: '/skill/javascript', destination: '/library/react', permanent: true },
       { source: '/skill/reactjs', destination: '/library/react', permanent: true },
       { source: '/skill/java', destination: '/library/java', permanent: true },
@@ -78,6 +79,14 @@ const nextConfig = {
       // Phase B: collapse /features into /platform (single canonical pillar surface).
       { source: '/features', destination: '/platform', permanent: true },
       { source: '/features/:slug', destination: '/platform/:slug', permanent: true },
+      { source: '/product', destination: '/platform', permanent: true },
+      { source: '/product/api', destination: '/platform/api', permanent: true },
+      { source: '/product/assessment-library', destination: '/library', permanent: true },
+      {
+        source: '/solutions/role/:slug-:n(\\d+)',
+        destination: '/solutions/role/:slug',
+        permanent: true,
+      },
       // Phase B: kill the legacy 1,000-page library fragment leak.
       // Removed clean slugs map to their nearest canonical skill.
       { source: '/library/javascript', destination: '/library/react', permanent: true },
@@ -96,8 +105,8 @@ const nextConfig = {
         destination: '/library/:base',
         permanent: true,
       },
-      { source: '/resources/docs', destination: '/product/api', permanent: false },
-      { source: '/docs', destination: '/product/api', permanent: false },
+      { source: '/resources/docs', destination: '/platform/api', permanent: false },
+      { source: '/docs', destination: '/platform/api', permanent: false },
       { source: '/glossary', destination: '/resources', permanent: false },
       { source: '/sample-pack', destination: '/resources/sample-packs', permanent: false },
       {

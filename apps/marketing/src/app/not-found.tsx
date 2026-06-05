@@ -33,7 +33,7 @@ export default function NotFound() {
             <Link href="/">Back to home</Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link href="/product">See the platform</Link>
+            <Link href="/platform">See the platform</Link>
           </Button>
           <Button asChild variant="ghost">
             <Link href="/blog">Read the blog</Link>

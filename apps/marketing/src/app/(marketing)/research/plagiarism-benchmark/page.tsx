@@ -8,7 +8,7 @@ const benchmarkFaqs = [
   {
     question: 'Does QOrium publish an AI plagiarism accuracy percentage today?',
     answer:
-      'No. This page publishes the benchmark protocol and evidence status. QOrium will publish an accuracy figure only after a completed run has reviewable evidence.',
+      'No. The benchmark surface publishes the protocol and evidence status. QOrium will publish an accuracy figure only after a completed run has reviewable evidence.',
   },
   {
     question: 'Why publish the benchmark before the final number?',
@@ -66,7 +66,7 @@ export default function PlagiarismBenchmarkPage() {
             </SurfaceCard>
             <SurfaceCard title="Not claimed yet">
               No live public accuracy percentage, customer win rate, or competitor superiority claim
-              appears on this page.
+              appears in the public benchmark report.
             </SurfaceCard>
             <SurfaceCard title="Release gate">
               Pro-tier anti-plagiarism claims stay blocked until the completed benchmark and review
@@ -114,8 +114,8 @@ export default function PlagiarismBenchmarkPage() {
               until the benchmark run is complete and the evidence has passed review.
             </p>
             <p className="mt-4">
-              If a run fails the release threshold, this page remains a protocol page and the failed
-              run is treated as remediation input, not as marketing proof.
+              If a run fails the release threshold, the benchmark surface remains protocol-only and
+              the failed run is treated as remediation input, not as marketing proof.
             </p>
           </div>
         </SectionBand>

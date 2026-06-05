@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { CardGrid, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import {
+  CardGrid,
+  EvidenceRuleGrid,
+  RelatedRoutes,
+  SectionBand,
+  SurfaceCard,
+  WorkflowSteps,
+} from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, ProductJsonLd } from '@/components/seo/JsonLd';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { getLibrarySkill, librarySkills, rolePages, stackPages } from '@/content/seo-graph';
@@ -91,6 +98,25 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
             </div>
           </MaxWidth>
         </section>
+        <WorkflowSteps
+          eyebrow="Library workflow"
+          title="From skill signal to reusable assessment evidence."
+          description="Library pages now explain how the skill is used, where it maps, and which proof boundaries stay visible."
+          steps={[
+            {
+              title: 'Show public previews',
+              body: 'A small sample set explains the question style without exposing the full item bank.',
+            },
+            {
+              title: 'Map the skill to roles and stacks',
+              body: 'Related role and stack pages help buyers understand where the signal is useful.',
+            },
+            {
+              title: 'Carry calibration language',
+              body: 'Every skill page keeps the current calibration label visible instead of implying unsupported psychometric proof.',
+            },
+          ]}
+        />
         <SectionBand title="What this skill measures">
           <div className="grid gap-4 md:grid-cols-3">
             {skill.measures.map((measure) => (
@@ -118,6 +144,24 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
             ))}
           </CardGrid>
         </SectionBand>
+        <SectionBand title="Evidence rules">
+          <EvidenceRuleGrid
+            rules={[
+              {
+                title: 'Calibration is named',
+                body: `${skill.calibration.label}. Item-bank claims do not exceed the published status.`,
+              },
+              {
+                title: 'Preview is bounded',
+                body: 'Public samples demonstrate style while full production packs remain gated.',
+              },
+              {
+                title: 'Canonical library route',
+                body: `${skill.path} is the indexed skill route; old /skill links redirect into /library.`,
+              },
+            ]}
+          />
+        </SectionBand>
         <SectionBand title="Related skills">
           <CardGrid>
             {relatedSkills.slice(0, 6).map((related) => (
@@ -126,6 +170,27 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
               </SurfaceCard>
             ))}
           </CardGrid>
+        </SectionBand>
+        <SectionBand title="Related pages">
+          <RelatedRoutes
+            links={[
+              {
+                label: 'Role solutions',
+                href: '/solutions/role',
+                body: 'Find the role batteries that use this skill signal.',
+              },
+              {
+                label: 'Stack solutions',
+                href: '/solutions/stack',
+                body: 'Connect this skill to vendor and enterprise stack contexts.',
+              },
+              {
+                label: 'Trust center',
+                href: '/trust',
+                body: 'Review the evidence, security, and responsible AI posture.',
+              },
+            ]}
+          />
         </SectionBand>
       </main>
     </>

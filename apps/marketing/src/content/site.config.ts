@@ -15,8 +15,8 @@ export const siteConfig = {
   nav: {
     primary: [
       {
-        label: 'Product',
-        href: '/product',
+        label: 'Platform',
+        href: '/platform',
         children: [
           {
             label: 'Assessment Library',
@@ -24,13 +24,13 @@ export const siteConfig = {
             description: 'Browse skill assessments by role, category, and calibration status.',
           },
           {
-            label: 'Product overview',
-            href: '/product',
+            label: 'Platform overview',
+            href: '/platform',
             description: 'How QOrium works end-to-end.',
           },
           {
             label: 'API access',
-            href: '/product/api',
+            href: '/platform/api',
             description: 'API docs are in beta; request access.',
           },
           {
