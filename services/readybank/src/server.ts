@@ -18,6 +18,7 @@ import { auditRouter } from './routes/audit.js';
 import { referencePanelRouter } from './routes/reference-panel.js';
 import { stackVaultRouter } from './routes/stack-vault.js';
 import { assessmentsRouter } from './routes/assessments.js';
+import { candidateAttemptRouter, attemptReviewRouter } from './routes/attempts.js';
 import { a4Router } from './routes/a4.js';
 import type { Mailer } from './mailer/index.js';
 import type { Logger } from 'pino';
@@ -87,6 +88,7 @@ export function createServer(deps: ServerDeps): ServerHandle {
     app.use(adminRouter({ pool: deps.pool, config: deps.config }));
     app.use(auditRouter({ pool: deps.pool, config: deps.config }));
     app.use(referencePanelRouter({ pool: deps.pool, config: deps.config }));
+    app.use(candidateAttemptRouter({ pool: deps.pool }));
 
     app.use(
       '/v1',
@@ -97,6 +99,7 @@ export function createServer(deps: ServerDeps): ServerHandle {
       assessmentsRouter(
         deps.mailer ? { pool: deps.pool, mailer: deps.mailer } : { pool: deps.pool },
       ),
+      attemptReviewRouter({ pool: deps.pool }),
     );
 
     if (deps.mailer) {
