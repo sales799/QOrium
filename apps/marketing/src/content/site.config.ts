@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: 'Qorium',
+  name: 'QOrium',
   domain: 'qorium.online',
   url: process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://qorium.online',
   tagline: "The world's question bank for hiring.",
