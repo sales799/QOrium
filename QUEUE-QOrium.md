@@ -14,10 +14,11 @@
 - [2026-06-05] **Canonicalized marketing IA and sitemap output** — source `allMarketingPaths()` now emits `1167` canonical paths, including `/library`, `/platform/api`, `/solutions/role/software`, and `11` `/compare/qorium-vs-*` pages; legacy `/product/*`, `/features/*`, `/vs/*`, and duplicate `-2`/`-3` role routes are backed by `44` permanent redirects.
 - [2026-06-05] **Added audit and copy gates** — `QORIUM_UNIVERSAL_MARKETING_MAKEOVER_AUDIT_2026-06-05.md` records the live/source sitemap reconciliation, and `pnpm --dir qorium-app/apps/web copy:audit` blocks banned internal public-copy phrases plus deprecated sitemap emissions.
 - [2026-06-05] **Verified local gates and representative visuals** — copy audit, web typecheck, web production build (`1172/1172` app pages), local sitemap/redirect smoke, root Vitest (`5` files / `9` tests), scripted visual QA at `1440px` and `390px` across 9 representative routes with mobile menu open state, and repo Playwright e2e (`1` test) all passed. Screenshots are saved in `qorium-app/audits/post-deploy-qa/screenshots/universal-makeover-20260605/`.
+- [2026-06-05] **Opened review PR** — branch `codex/qorium-universal-marketing-makeover-20260605` pushed at `4f337c3`; PR #124 opened at `https://github.com/sales799/QOrium/pull/124` against the `qorium-app` base branch after `main` proved to be the separate production `apps/marketing` tree.
 
 ### REMAINING FOLLOW-UP
-- [DEPLOY] Live production still serves the prior deployed sitemap until this branch is reviewed, merged, and deployed through the approved active-origin pipeline.
-- [REVIEW] Cross-account review is required before merge; author must not self-approve.
+- [REVIEW] Cross-account review is currently blocked in this authenticated GitHub context because `gh api repos/sales799/QOrium/collaborators` returns only `sales799`. A non-author account must review PR #124; author must not self-approve.
+- [DEPLOY] Live production still serves the prior deployed sitemap. Production deploy requires porting this `qorium-app` implementation into the production `apps/marketing` tree, then reviewing and deploying through the approved active-origin pipeline.
 
 ---
 
