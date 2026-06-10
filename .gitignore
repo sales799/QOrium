@@ -48,3 +48,7 @@ infra/docker/data/
 packages/db/drizzle/meta/
 
 .env.production
+
+# runtime secrets (DB password + API_KEY_PEPPER) — never commit
+services/readybank/runtime.secrets
+services/*/runtime.secrets
