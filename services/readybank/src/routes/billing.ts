@@ -114,13 +114,11 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
           unitAmountCents: planUnitAmountCents(plan.id),
           razorpaySubscriptionId: subscription.id,
         });
-        res
-          .status(200)
-          .json({
-            plan: plan.id,
-            status: subscription.status,
-            checkoutUrl: subscription.short_url,
-          });
+        res.status(200).json({
+          plan: plan.id,
+          status: subscription.status,
+          checkoutUrl: subscription.short_url,
+        });
       } catch (e) {
         next(e);
       }
