@@ -20,22 +20,25 @@ function testConfig(overrides: Partial<Config> = {}): Config {
 const silentLogger = pino({ level: 'silent' });
 
 describe('readybank server', () => {
-  describe('GET /healthz', () => {
-    it('returns 200 with service metadata', async () => {
-      const { app } = createServer({ config: testConfig(), logger: silentLogger });
-      const res = await request(app).get('/healthz');
+  describe('GET health aliases', () => {
+    it.each(['/health', '/healthz', '/v1/health', '/v1/healthz'])(
+      'returns 200 with service metadata for %s',
+      async (path) => {
+        const { app } = createServer({ config: testConfig(), logger: silentLogger });
+        const res = await request(app).get(path);
 
-      expect(res.status).toBe(200);
-      expect(res.body).toMatchObject({
-        status: 'ok',
-        service: 'qorium-readybank',
-        version: '0.0.0-test',
-        git_sha: 'testsha',
-        env: 'test',
-      });
-      expect(res.body.uptime_seconds).toBeGreaterThanOrEqual(0);
-      expect(res.body.checks.db).toBe('not-configured');
-    });
+        expect(res.status).toBe(200);
+        expect(res.body).toMatchObject({
+          status: 'ok',
+          service: 'qorium-readybank',
+          version: '0.0.0-test',
+          git_sha: 'testsha',
+          env: 'test',
+        });
+        expect(res.body.uptime_seconds).toBeGreaterThanOrEqual(0);
+        expect(res.body.checks.db).toBe('not-configured');
+      },
+    );
 
     it('emits a request id header', async () => {
       const { app } = createServer({ config: testConfig(), logger: silentLogger });

@@ -25,18 +25,19 @@ const startTime = Date.now();
 export function healthRouter(deps: HealthDeps): Router {
   const router = Router();
 
+  const livenessBody = (): HealthResponse => ({
+    status: 'ok',
+    service: deps.config.serviceName,
+    version: deps.config.version,
+    git_sha: deps.config.gitSha,
+    env: deps.config.nodeEnv,
+    uptime_seconds: Math.floor((Date.now() - startTime) / 1000),
+    checks: { db: deps.pool ? 'ok' : 'not-configured' },
+  });
+
   // Liveness: process is up. Cheap. Used by PM2 / load balancer.
-  router.get('/healthz', (_req, res) => {
-    const body: HealthResponse = {
-      status: 'ok',
-      service: deps.config.serviceName,
-      version: deps.config.version,
-      git_sha: deps.config.gitSha,
-      env: deps.config.nodeEnv,
-      uptime_seconds: Math.floor((Date.now() - startTime) / 1000),
-      checks: { db: deps.pool ? 'ok' : 'not-configured' },
-    };
-    res.status(200).json(body);
+  router.get(['/health', '/healthz', '/v1/health', '/v1/healthz'], (_req, res) => {
+    res.status(200).json(livenessBody());
   });
 
   // Readiness: dependencies are reachable. Used for traffic-shifting.
