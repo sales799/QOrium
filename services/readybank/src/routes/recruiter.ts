@@ -46,6 +46,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
   const router = Router();
   const baseUrl = deps.candidateBaseUrl ?? 'https://candidate.qorium.online';
   router.use(
+    '/recruiter',
     recruiterAuth({
       jwtSecret: deps.config.jwtSecret as string,
       cookieSecure: deps.config.cookieSecure,

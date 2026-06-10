@@ -28,6 +28,7 @@ export interface BillingRouterDeps {
 export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
   const router = Router();
   router.use(
+    '/recruiter',
     recruiterAuth({
       jwtSecret: deps.config.jwtSecret as string,
       cookieSecure: deps.config.cookieSecure,
