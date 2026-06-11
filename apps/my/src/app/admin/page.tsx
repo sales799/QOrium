@@ -101,6 +101,19 @@ type GradeDecision = {
   created_at: string;
 };
 
+type BankStats = {
+  questions_total: number;
+  questions_released: number;
+  questions_calibrated: number;
+  calibration_pct: number;
+  by_status: Record<string, number>;
+  by_sku: Record<string, number>;
+  skills_total: number;
+  families_total: number;
+  families_with_released: number;
+  generated_at: string;
+};
+
 const C = { teal: '#0d9488', ink: '#0f172a', sub: '#64748b', line: '#e2e8f0', bg: '#f8fafc' };
 const n = (x: number) => x.toLocaleString('en-IN');
 const dt = (s: string | null) => (s ? new Date(s).toLocaleString('en-IN') : '—');
@@ -112,7 +125,7 @@ const RISK_COLOR: Record<Integrity['risk_level'], string> = {
   high: '#b91c1c',
 };
 
-const TABS = ['Overview', 'Assessments', 'Attempts', 'Grades', 'Audit'] as const;
+const TABS = ['Overview', 'Assessments', 'Attempts', 'Grades', 'Audit', 'Bank'] as const;
 type Tab = (typeof TABS)[number];
 
 const th = {
@@ -311,6 +324,119 @@ function FilterBar({
   );
 }
 
+function BankPanel({ stats }: { stats: BankStats | null }) {
+  if (!stats) return <p style={{ color: C.sub, fontSize: 13 }}>Loading bank health…</p>;
+  const kpis = [
+    { label: 'Questions total', value: stats.questions_total },
+    { label: 'Released', value: stats.questions_released },
+    { label: 'Calibrated (n≥30)', value: stats.questions_calibrated },
+    { label: 'Skills', value: stats.skills_total },
+    { label: 'Families with released', value: stats.families_with_released },
+    { label: 'Families total', value: stats.families_total },
+  ];
+  const statusRows = Object.entries(stats.by_status).sort((a, b) => b[1] - a[1]);
+  const skuRows = Object.entries(stats.by_sku).sort((a, b) => b[1] - a[1]);
+  return (
+    <>
+      <p style={{ color: C.sub, fontSize: 13 }}>
+        Generated {new Date(stats.generated_at).toLocaleString('en-IN')}
+      </p>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))',
+          gap: 12,
+          marginBottom: 20,
+        }}
+      >
+        {kpis.map((k) => (
+          <div
+            key={k.label}
+            style={{
+              padding: 16,
+              background: '#fff',
+              border: `1px solid ${C.line}`,
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink }}>{n(k.value)}</div>
+            <div style={{ fontSize: 13, color: C.sub }}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          padding: 16,
+          background: '#fff',
+          border: `1px solid ${C.line}`,
+          borderRadius: 12,
+          marginBottom: 28,
+        }}
+      >
+        <div style={{ fontSize: 13, color: C.sub, marginBottom: 6 }}>
+          Calibration coverage (released items with IRT-defensible n≥30)
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, height: 10, background: C.line, borderRadius: 999 }}>
+            <div
+              style={{
+                width: `${Math.min(stats.calibration_pct, 100)}%`,
+                height: 10,
+                background: C.teal,
+                borderRadius: 999,
+              }}
+            />
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.ink }}>
+            {stats.calibration_pct}%
+          </div>
+        </div>
+      </div>
+
+      <h2 style={{ fontSize: 16, color: C.ink }}>By status</h2>
+      <Card>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <thead>
+            <tr>
+              <th style={th}>Status</th>
+              <th style={th}>Questions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {statusRows.map(([k, v]) => (
+              <tr key={k}>
+                <td style={td}>{k}</td>
+                <td style={td}>{n(v)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+
+      <h2 style={{ fontSize: 16, color: C.ink, marginTop: 24 }}>By SKU</h2>
+      <Card>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <thead>
+            <tr>
+              <th style={th}>SKU</th>
+              <th style={th}>Questions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {skuRows.map(([k, v]) => (
+              <tr key={k}>
+                <td style={td}>{k}</td>
+                <td style={td}>{n(v)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </>
+  );
+}
+
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('Overview');
   const [ov, setOv] = useState<Overview | null>(null);
@@ -319,6 +445,7 @@ export default function AdminPage() {
   const [attempts, setAttempts] = useState<Attempt[] | null>(null);
   const [events, setEvents] = useState<AuditEvent[] | null>(null);
   const [gradeDecisions, setGradeDecisions] = useState<GradeDecision[] | null>(null);
+  const [bankStats, setBankStats] = useState<BankStats | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   // Client-side filter state (per tab).
@@ -371,7 +498,12 @@ export default function AdminPage() {
         .then((d) => setGradeDecisions(d.grade_decisions))
         .catch((e) => setErr(String(e)));
     }
-  }, [tab, assessments, attempts, events, gradeDecisions]);
+    if (tab === 'Bank' && bankStats === null) {
+      getJson<BankStats>('/api/v1/admin/bank-stats')
+        .then((d) => setBankStats(d))
+        .catch((e) => setErr(String(e)));
+    }
+  }, [tab, assessments, attempts, events, gradeDecisions, bankStats]);
 
   if (err)
     return (
@@ -909,6 +1041,8 @@ export default function AdminPage() {
             )}
           </>
         )}
+
+        {tab === 'Bank' && <BankPanel stats={bankStats} />}
       </section>
     </main>
   );
