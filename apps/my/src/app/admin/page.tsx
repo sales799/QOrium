@@ -1,8 +1,9 @@
 'use client';
 
 // apps/my: src/app/admin/page.tsx — recruiter-authed admin console (N8).
-// Read-only control-plane view consuming GET /v1/admin/overview and
-// /v1/admin/tenants via the cookie-forwarding /api/v1 proxy. No mutations.
+// Read-only control-plane view consuming GET /v1/admin/overview, /tenants,
+// /assessments, /attempts and /audit-events via the cookie-forwarding /api/v1
+// proxy. No mutations. Tabs lazy-fetch their endpoint on first open.
 
 import { useEffect, useState } from 'react';
 
@@ -34,26 +35,143 @@ type Tenant = {
   attempts: number;
 };
 
+type Assessment = {
+  id: string;
+  tenant_id: string;
+  tenant_name: string | null;
+  title: string;
+  status: string;
+  total_questions: number;
+  created_at: string;
+  invitations: number;
+  attempts: number;
+};
+
+type Integrity = {
+  total: number;
+  by_type: Record<string, number>;
+  risk_score: number;
+  risk_level: 'low' | 'medium' | 'high';
+  flagged: boolean;
+};
+
+type Attempt = {
+  id: string;
+  tenant_id: string;
+  tenant_name: string | null;
+  assessment_id: string;
+  assessment_title: string | null;
+  candidate_id: string;
+  status: string;
+  total_score: number | null;
+  max_score: number | null;
+  started_at: string;
+  submitted_at: string | null;
+  graded_at: string | null;
+  integrity: Integrity;
+};
+
+type AuditEvent = {
+  id: string;
+  event_type: string;
+  actor_type: string | null;
+  actor_id: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  tenant_id: string | null;
+  tenant_name: string | null;
+  occurred_at: string;
+};
+
 const C = { teal: '#0d9488', ink: '#0f172a', sub: '#64748b', line: '#e2e8f0', bg: '#f8fafc' };
 const n = (x: number) => x.toLocaleString('en-IN');
+const dt = (s: string | null) => (s ? new Date(s).toLocaleString('en-IN') : '—');
+const shortId = (s: string | null) => (s ? s.slice(0, 8) : '—');
+
+const RISK_COLOR: Record<Integrity['risk_level'], string> = {
+  low: '#16a34a',
+  medium: '#d97706',
+  high: '#b91c1c',
+};
+
+const TABS = ['Overview', 'Assessments', 'Attempts', 'Audit'] as const;
+type Tab = (typeof TABS)[number];
+
+const th = {
+  textAlign: 'left',
+  padding: '8px 10px',
+  color: C.sub,
+  fontWeight: 600,
+  borderBottom: `1px solid ${C.line}`,
+  whiteSpace: 'nowrap',
+} as const;
+const td = {
+  padding: '8px 10px',
+  color: C.ink,
+  borderBottom: `1px solid ${C.line}`,
+  whiteSpace: 'nowrap',
+} as const;
+
+function getJson<T>(path: string): Promise<T> {
+  return fetch(path, { credentials: 'include' }).then((r) =>
+    r.ok ? (r.json() as Promise<T>) : Promise.reject(new Error(`${path}: status ${r.status}`)),
+  );
+}
+
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        overflowX: 'auto',
+        background: '#fff',
+        border: `1px solid ${C.line}`,
+        borderRadius: 12,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function AdminPage() {
+  const [tab, setTab] = useState<Tab>('Overview');
   const [ov, setOv] = useState<Overview | null>(null);
   const [tenants, setTenants] = useState<Tenant[] | null>(null);
+  const [assessments, setAssessments] = useState<Assessment[] | null>(null);
+  const [attempts, setAttempts] = useState<Attempt[] | null>(null);
+  const [events, setEvents] = useState<AuditEvent[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    const get = (p: string) =>
-      fetch(p, { credentials: 'include' }).then((r) =>
-        r.ok ? r.json() : Promise.reject(new Error(`${p}: status ${r.status}`)),
-      );
-    Promise.all([get('/api/v1/admin/overview'), get('/api/v1/admin/tenants?limit=200')])
+    Promise.all([
+      getJson<Overview>('/api/v1/admin/overview'),
+      getJson<{ tenants: Tenant[] }>('/api/v1/admin/tenants?limit=200'),
+    ])
       .then(([o, t]) => {
-        setOv(o as Overview);
-        setTenants((t as { tenants: Tenant[] }).tenants);
+        setOv(o);
+        setTenants(t.tenants);
       })
       .catch((e) => setErr(String(e)));
   }, []);
+
+  // Lazy-load each tab's data on first open.
+  useEffect(() => {
+    if (tab === 'Assessments' && assessments === null) {
+      getJson<{ assessments: Assessment[] }>('/api/v1/admin/assessments?limit=200')
+        .then((d) => setAssessments(d.assessments))
+        .catch((e) => setErr(String(e)));
+    }
+    if (tab === 'Attempts' && attempts === null) {
+      getJson<{ attempts: Attempt[] }>('/api/v1/admin/attempts?limit=200')
+        .then((d) => setAttempts(d.attempts))
+        .catch((e) => setErr(String(e)));
+    }
+    if (tab === 'Audit' && events === null) {
+      getJson<{ events: AuditEvent[] }>('/api/v1/admin/audit-events?limit=200')
+        .then((d) => setEvents(d.events))
+        .catch((e) => setErr(String(e)));
+    }
+  }, [tab, assessments, attempts, events]);
 
   if (err)
     return (
@@ -77,19 +195,6 @@ export default function AdminPage() {
     { label: 'Active subs', value: ov.billing.subscriptions_active },
   ];
 
-  const th = {
-    textAlign: 'left',
-    padding: '8px 10px',
-    color: C.sub,
-    fontWeight: 600,
-    borderBottom: `1px solid ${C.line}`,
-  } as const;
-  const td = {
-    padding: '8px 10px',
-    color: C.ink,
-    borderBottom: `1px solid ${C.line}`,
-  } as const;
-
   return (
     <main style={{ minHeight: '100vh', background: C.bg, fontFamily: 'system-ui, sans-serif' }}>
       <header
@@ -108,68 +213,229 @@ export default function AdminPage() {
         </a>
       </header>
 
-      <section style={{ maxWidth: 980, margin: '24px auto', padding: '0 20px' }}>
-        <p style={{ color: C.sub, fontSize: 13 }}>
-          Generated {new Date(ov.generated_at).toLocaleString('en-IN')}
-        </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))',
-            gap: 12,
-            marginBottom: 28,
-          }}
-        >
-          {kpis.map((k) => (
+      <nav
+        style={{
+          display: 'flex',
+          gap: 4,
+          padding: '0 24px',
+          background: '#fff',
+          borderBottom: `1px solid ${C.line}`,
+        }}
+      >
+        {TABS.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            style={{
+              padding: '10px 14px',
+              fontSize: 13,
+              fontWeight: 600,
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              color: tab === t ? C.teal : C.sub,
+              borderBottom: tab === t ? `2px solid ${C.teal}` : '2px solid transparent',
+            }}
+          >
+            {t}
+          </button>
+        ))}
+      </nav>
+
+      <section style={{ maxWidth: 1040, margin: '24px auto', padding: '0 20px' }}>
+        {tab === 'Overview' && (
+          <>
+            <p style={{ color: C.sub, fontSize: 13 }}>
+              Generated {new Date(ov.generated_at).toLocaleString('en-IN')}
+            </p>
             <div
-              key={k.label}
               style={{
-                padding: 16,
-                background: '#fff',
-                border: `1px solid ${C.line}`,
-                borderRadius: 12,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))',
+                gap: 12,
+                marginBottom: 28,
               }}
             >
-              <div style={{ fontSize: 24, fontWeight: 700, color: C.ink }}>{n(k.value)}</div>
-              <div style={{ fontSize: 13, color: C.sub }}>{k.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <h2 style={{ fontSize: 16, color: C.ink }}>Tenants ({tenants.length})</h2>
-        <div
-          style={{
-            overflowX: 'auto',
-            background: '#fff',
-            border: `1px solid ${C.line}`,
-            borderRadius: 12,
-          }}
-        >
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={th}>Tenant</th>
-                <th style={th}>Type</th>
-                <th style={th}>Plan</th>
-                <th style={th}>Status</th>
-                <th style={th}>Assessments</th>
-                <th style={th}>Attempts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tenants.map((t) => (
-                <tr key={t.id}>
-                  <td style={td}>{t.name}</td>
-                  <td style={td}>{t.type}</td>
-                  <td style={td}>{t.plan}</td>
-                  <td style={td}>{t.status}</td>
-                  <td style={td}>{n(t.assessments)}</td>
-                  <td style={td}>{n(t.attempts)}</td>
-                </tr>
+              {kpis.map((k) => (
+                <div
+                  key={k.label}
+                  style={{
+                    padding: 16,
+                    background: '#fff',
+                    border: `1px solid ${C.line}`,
+                    borderRadius: 12,
+                  }}
+                >
+                  <div style={{ fontSize: 24, fontWeight: 700, color: C.ink }}>{n(k.value)}</div>
+                  <div style={{ fontSize: 13, color: C.sub }}>{k.label}</div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+
+            <h2 style={{ fontSize: 16, color: C.ink }}>Tenants ({tenants.length})</h2>
+            <Card>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr>
+                    <th style={th}>Tenant</th>
+                    <th style={th}>Type</th>
+                    <th style={th}>Plan</th>
+                    <th style={th}>Status</th>
+                    <th style={th}>Assessments</th>
+                    <th style={th}>Attempts</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tenants.map((t) => (
+                    <tr key={t.id}>
+                      <td style={td}>{t.name}</td>
+                      <td style={td}>{t.type}</td>
+                      <td style={td}>{t.plan}</td>
+                      <td style={td}>{t.status}</td>
+                      <td style={td}>{n(t.assessments)}</td>
+                      <td style={td}>{n(t.attempts)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          </>
+        )}
+
+        {tab === 'Assessments' && (
+          <>
+            <h2 style={{ fontSize: 16, color: C.ink }}>
+              Assessments {assessments ? `(${assessments.length})` : ''}
+            </h2>
+            {assessments === null ? (
+              <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
+            ) : (
+              <Card>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr>
+                      <th style={th}>Title</th>
+                      <th style={th}>Tenant</th>
+                      <th style={th}>Status</th>
+                      <th style={th}>Qs</th>
+                      <th style={th}>Invites</th>
+                      <th style={th}>Attempts</th>
+                      <th style={th}>Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assessments.map((a) => (
+                      <tr key={a.id}>
+                        <td style={td}>{a.title}</td>
+                        <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
+                        <td style={td}>{a.status}</td>
+                        <td style={td}>{n(a.total_questions)}</td>
+                        <td style={td}>{n(a.invitations)}</td>
+                        <td style={td}>{n(a.attempts)}</td>
+                        <td style={td}>{dt(a.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            )}
+          </>
+        )}
+
+        {tab === 'Attempts' && (
+          <>
+            <h2 style={{ fontSize: 16, color: C.ink }}>
+              Attempts {attempts ? `(${attempts.length})` : ''}
+            </h2>
+            {attempts === null ? (
+              <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
+            ) : (
+              <Card>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr>
+                      <th style={th}>Assessment</th>
+                      <th style={th}>Tenant</th>
+                      <th style={th}>Candidate</th>
+                      <th style={th}>Status</th>
+                      <th style={th}>Score</th>
+                      <th style={th}>Integrity</th>
+                      <th style={th}>Started</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attempts.map((a) => (
+                      <tr key={a.id}>
+                        <td style={td}>{a.assessment_title ?? shortId(a.assessment_id)}</td>
+                        <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
+                        <td style={td}>{shortId(a.candidate_id)}</td>
+                        <td style={td}>{a.status}</td>
+                        <td style={td}>
+                          {a.total_score === null
+                            ? '—'
+                            : `${n(a.total_score)}${a.max_score !== null ? ` / ${n(a.max_score)}` : ''}`}
+                        </td>
+                        <td
+                          style={{
+                            ...td,
+                            color: RISK_COLOR[a.integrity.risk_level],
+                            fontWeight: 600,
+                          }}
+                        >
+                          {a.integrity.flagged ? '⚑ ' : ''}
+                          {a.integrity.risk_level} ({a.integrity.risk_score})
+                        </td>
+                        <td style={td}>{dt(a.started_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            )}
+          </>
+        )}
+
+        {tab === 'Audit' && (
+          <>
+            <h2 style={{ fontSize: 16, color: C.ink }}>
+              Audit events {events ? `(${events.length})` : ''}
+            </h2>
+            {events === null ? (
+              <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
+            ) : (
+              <Card>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr>
+                      <th style={th}>Event</th>
+                      <th style={th}>Actor</th>
+                      <th style={th}>Entity</th>
+                      <th style={th}>Tenant</th>
+                      <th style={th}>When</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.map((e) => (
+                      <tr key={e.id}>
+                        <td style={td}>{e.event_type}</td>
+                        <td style={td}>
+                          {e.actor_type ?? '—'}
+                          {e.actor_id ? ` · ${shortId(e.actor_id)}` : ''}
+                        </td>
+                        <td style={td}>
+                          {e.entity_type ?? '—'}
+                          {e.entity_id ? ` · ${shortId(e.entity_id)}` : ''}
+                        </td>
+                        <td style={td}>{e.tenant_name ?? shortId(e.tenant_id)}</td>
+                        <td style={td}>{dt(e.occurred_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            )}
+          </>
+        )}
       </section>
     </main>
   );
