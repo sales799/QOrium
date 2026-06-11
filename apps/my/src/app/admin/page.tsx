@@ -216,6 +216,9 @@ function FilterBar({
   onFlagged,
   sort,
   onSort,
+  risk,
+  onRisk,
+  risks,
 }: {
   search: string;
   onSearch: (v: string) => void;
@@ -228,6 +231,9 @@ function FilterBar({
   onFlagged?: (v: boolean) => void;
   sort?: 'desc' | 'asc';
   onSort?: (v: 'desc' | 'asc') => void;
+  risk?: string;
+  onRisk?: (v: string) => void;
+  risks?: string[];
 }) {
   return (
     <div
@@ -275,6 +281,16 @@ function FilterBar({
           <option value="asc">Oldest first</option>
         </select>
       )}
+      {onRisk && (
+        <select style={fld} value={risk ?? ''} onChange={(e) => onRisk(e.target.value)}>
+          <option value="">All risk levels</option>
+          {(risks ?? ['high', 'medium', 'low']).map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
 }
@@ -294,6 +310,7 @@ export default function AdminPage() {
   const [tSearch, setTSearch] = useState('');
   const [tStatus, setTStatus] = useState('');
   const [tFlagged, setTFlagged] = useState(false);
+  const [tRisk, setTRisk] = useState('');
   const [evSearch, setEvSearch] = useState('');
   const [evType, setEvType] = useState('');
   const [aSort, setASort] = useState<'desc' | 'asc'>('desc');
@@ -365,6 +382,7 @@ export default function AdminPage() {
     (a) =>
       (tStatus === '' || a.status === tStatus) &&
       (!tFlagged || a.integrity.flagged) &&
+      (tRisk === '' || a.integrity.risk_level === tRisk) &&
       (tSearch === '' ||
         q(`${a.assessment_title ?? ''} ${a.tenant_name ?? ''} ${a.candidate_id}`).includes(
           q(tSearch),
@@ -592,6 +610,9 @@ export default function AdminPage() {
                   onFlagged={setTFlagged}
                   sort={tSort}
                   onSort={setTSort}
+                  risk={tRisk}
+                  onRisk={setTRisk}
+                  risks={['high', 'medium', 'low']}
                 />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                   <ExportButton
