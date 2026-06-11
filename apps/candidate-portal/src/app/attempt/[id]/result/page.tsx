@@ -1,6 +1,7 @@
 // BR-8: candidate-facing result. No answer keys — just the outcome.
 
 import { ResultAutoRefresh } from '../../../../components/result-auto-refresh';
+import { buildCompletionSummary } from '../../../../lib/completion-summary';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -12,6 +13,9 @@ interface Result {
   passed: boolean | null;
   answered: number;
   total_questions: number;
+  started_at?: string | null;
+  submitted_at?: string | null;
+  duration_sec?: number | null;
 }
 
 async function fetchResult(id: string, token: string): Promise<Result | null> {
@@ -63,6 +67,22 @@ export default async function ResultPage({
   const graded = result.status === 'graded' && result.score_pct !== null;
   const passed = result.passed === true;
 
+  const summary = buildCompletionSummary({
+    answered: result.answered,
+    total: result.total_questions,
+    durationSec: result.duration_sec ?? null,
+  });
+
+  const statRow: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: 13,
+    padding: '7px 0',
+    borderTop: '1px solid #f1f5f9',
+  };
+  const statLabel: React.CSSProperties = { color: '#64748b' };
+  const statValue: React.CSSProperties = { color: '#0f172a', fontWeight: 600 };
+
   return (
     <main style={wrap}>
       <p style={{ color: '#0d9488', fontSize: 12, fontWeight: 600, letterSpacing: 0.4 }}>
@@ -112,9 +132,50 @@ export default async function ResultPage({
             <ResultAutoRefresh />
           </>
         )}
+
+        <div
+          style={{
+            marginTop: 22,
+            textAlign: 'left',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: 12,
+            padding: '6px 16px 12px',
+          }}
+        >
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: 0.4,
+              color: '#94a3b8',
+              margin: '12px 0 2px',
+            }}
+          >
+            COMPLETION SUMMARY
+          </p>
+          <div style={{ ...statRow, borderTop: 'none' }}>
+            <span style={statLabel}>Questions answered</span>
+            <span style={statValue}>
+              {summary.answered} of {summary.total} ({summary.completionPct}%)
+            </span>
+          </div>
+          {summary.durationLabel ? (
+            <div style={statRow}>
+              <span style={statLabel}>Time taken</span>
+              <span style={statValue}>{summary.durationLabel}</span>
+            </div>
+          ) : null}
+          {summary.avgPerQuestionLabel ? (
+            <div style={statRow}>
+              <span style={statLabel}>Avg per question</span>
+              <span style={statValue}>{summary.avgPerQuestionLabel}</span>
+            </div>
+          ) : null}
+        </div>
+
         <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 18 }}>
-          Answered {result.answered} of {result.total_questions} questions. The recruiter will
-          follow up with next steps.
+          The recruiter will follow up with next steps.
         </p>
       </div>
     </main>
