@@ -13,6 +13,7 @@ import type { Pool } from '@qorium/db';
 import { HttpProblem } from '../middleware/problem.js';
 import { verifyProofCode } from '../lib/proof-code.js';
 import { getProofRecord } from '../repositories/proof.js';
+import { getProofStats } from '../repositories/proof-stats.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 
 export interface ProofRouterDeps {
@@ -33,6 +34,21 @@ const VIEW_CSP =
 
 export function proofRouter(deps: ProofRouterDeps): Router {
   const router = Router();
+
+  // Public Customer-Zero proof funnel — aggregate, non-sensitive platform
+  // metrics for the marketing proof/case-study page. Registered BEFORE the
+  // /:code route so the literal "stats" segment is never read as a proof code.
+  // Available regardless of proof-code config (it mints nothing) and cacheable
+  // at the edge.
+  router.get('/v1/proof/stats', async (_req, res, next) => {
+    try {
+      const stats = await getProofStats(deps.pool);
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).json(stats);
+    } catch (err) {
+      next(err);
+    }
+  });
 
   router.get('/v1/proof/:code', async (req, res, next) => {
     if (!deps.secret) {
