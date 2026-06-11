@@ -28,6 +28,7 @@ IT staffing firms, GCCs, and enterprises hiring technical and role-based talent 
 - ${siteConfig.url}/compare/qorium-vs-vervoe
 - ${siteConfig.url}/trust/security
 - ${siteConfig.url}/llm-info
+- ${siteConfig.url}/llms-full.txt
 
 ## How to start
 Book a 20-minute demo at ${siteConfig.url}/demo . Support: help@qorium.online .
