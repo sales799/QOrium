@@ -108,6 +108,59 @@ export interface SkillFamilyRollup {
   topSkills: { name: string; released: number }[];
 }
 
+/**
+ * Ordering source for skill families. When the persisted `content.skill_families`
+ * reference table (migration 0022) is present, families are ordered by its
+ * canonical `sort_order` and labelled with its `name`; otherwise we fall back to
+ * the in-app taxonomy ordered by released-question volume. Keeps the endpoint
+ * working whether or not 0022 has been applied to the target DB.
+ */
+export interface PersistedFamily {
+  name: string;
+  sortOrder: number;
+}
+
+export async function loadPersistedFamilyOrder(
+  pool: Pool,
+): Promise<Map<string, PersistedFamily> | null> {
+  try {
+    const r = await pool.query<{ id: string; name: string; sort_order: number }>(
+      `SELECT id, name, sort_order FROM content.skill_families ORDER BY sort_order`,
+    );
+    if (r.rows.length === 0) return null;
+    return new Map(r.rows.map((row) => [row.id, { name: row.name, sortOrder: row.sort_order }]));
+  } catch (err) {
+    // undefined_table (42P01): migration 0022 not yet applied to this DB.
+    if ((err as { code?: string })?.code === '42P01') return null;
+    throw err;
+  }
+}
+
+/**
+ * Pure ordering of family rollups. With a persisted order map, families are
+ * sorted by canonical sort_order and re-labelled with the persisted name; without
+ * one, they keep the in-app name and are ordered by released-question volume.
+ * Does not mutate the input array.
+ */
+export function orderFamilyRollups(
+  rollups: SkillFamilyRollup[],
+  persisted: Map<string, PersistedFamily> | null,
+): SkillFamilyRollup[] {
+  if (persisted) {
+    return rollups
+      .map((f) => {
+        const p = persisted.get(f.id);
+        return p ? { ...f, name: p.name } : f;
+      })
+      .sort((a, b) => {
+        const sa = persisted.get(a.id)?.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        const sb = persisted.get(b.id)?.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        return sa - sb || b.released - a.released;
+      });
+  }
+  return [...rollups].sort((a, b) => b.released - a.released);
+}
+
 export async function listSkillFamilies(pool: Pool): Promise<SkillFamilyRollup[]> {
   const r = await pool.query<{ name: string; released: number }>(
     `SELECT s.name, count(q.id)::int AS released
@@ -130,7 +183,7 @@ export async function listSkillFamilies(pool: Pool): Promise<SkillFamilyRollup[]
     bucket.skills.push({ name: row.name, released: row.released });
   }
 
-  return SKILL_FAMILIES.map((fam) => {
+  const rollups = SKILL_FAMILIES.map((fam) => {
     const bucket = acc.get(fam.id)!;
     return {
       id: fam.id,
@@ -139,7 +192,8 @@ export async function listSkillFamilies(pool: Pool): Promise<SkillFamilyRollup[]
       skillCount: bucket.skills.length,
       topSkills: bucket.skills.sort((a, b) => b.released - a.released).slice(0, 5),
     };
-  })
-    .filter((fam) => fam.skillCount > 0)
-    .sort((a, b) => b.released - a.released);
+  }).filter((fam) => fam.skillCount > 0);
+
+  const persisted = await loadPersistedFamilyOrder(pool);
+  return orderFamilyRollups(rollups, persisted);
 }
