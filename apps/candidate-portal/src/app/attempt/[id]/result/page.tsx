@@ -1,5 +1,7 @@
 // BR-8: candidate-facing result. No answer keys — just the outcome.
 
+import { ResultAutoRefresh } from '../../../../components/result-auto-refresh';
+
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
@@ -103,7 +105,12 @@ export default async function ResultPage({
             </p>
           </>
         ) : (
-          <p style={{ color: '#64748b' }}>Your assessment was submitted and is being processed.</p>
+          <>
+            <p style={{ color: '#64748b' }}>
+              Your assessment was submitted and is being processed.
+            </p>
+            <ResultAutoRefresh />
+          </>
         )}
         <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 18 }}>
           Answered {result.answered} of {result.total_questions} questions. The recruiter will
