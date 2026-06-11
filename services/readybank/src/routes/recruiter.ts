@@ -6,6 +6,7 @@ import { recruiterAuth, type RecruiterRequest } from '../middleware/recruiter-au
 import { HttpProblem } from '../middleware/problem.js';
 import { assertWithinLimit, recordUsage } from '../billing/enforce.js';
 import { loadQuestion } from '../lib/a4-grader.js';
+import { summarizeIntegrity } from '../lib/integrity.js';
 import {
   createAssessment,
   createInvitation,
@@ -270,6 +271,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
         candidate_id: attempt.candidate_id,
         total_score: attempt.total_score !== null ? Number(attempt.total_score) : null,
         graded_at: attempt.graded_at ? attempt.graded_at.toISOString() : null,
+        integrity: summarizeIntegrity(responses.map((r) => r.suspicious_signals)),
         responses: detailed,
       });
     } catch (err) {
