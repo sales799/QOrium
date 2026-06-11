@@ -751,6 +751,120 @@ describe('GET /v1/admin/attempts', () => {
   });
 });
 
+function poolWithIntegrity(): Pool {
+  return {
+    async query(sql: string) {
+      if (sql.includes('FROM content.attempts at')) {
+        return {
+          rows: [
+            {
+              id: 'att-1',
+              tenant_id: 't1',
+              tenant_name: 'Talpro India',
+              assessment_id: 'aa',
+              assessment_title: 'Backend Screen',
+              candidate_id: 'cand-1',
+              status: 'graded',
+              total_score: '40',
+              max_score: '100',
+              started_at: new Date('2026-06-05T01:00:00Z'),
+              submitted_at: new Date('2026-06-05T01:20:00Z'),
+              graded_at: new Date('2026-06-05T01:21:00Z'),
+            },
+          ],
+          rowCount: 1,
+        };
+      }
+      if (sql.includes('FROM content.responses')) {
+        return {
+          rows: [
+            { attempt_id: 'att-1', suspicious_signals: { tab_switches: 5 } },
+            { attempt_id: 'att-1', suspicious_signals: { fullscreen_exits: 4 } },
+          ],
+          rowCount: 2,
+        };
+      }
+      return { rows: [], rowCount: 0 };
+    },
+  } as unknown as Pool;
+}
+
+describe('GET /v1/admin/attempts integrity (N10)', () => {
+  it('attaches a low/not-flagged integrity summary when there are no signals', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/attempts').set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.attempts.length).toBe(2);
+    expect(res.body.attempts[0].integrity.risk_level).toBe('low');
+    expect(res.body.attempts[0].integrity.flagged).toBe(false);
+    expect(res.body.attempts[0].integrity.total).toBe(0);
+  });
+  it('aggregates suspicious_signals into a flagged high-risk summary', async () => {
+    const { app } = createServer({
+      config: testConfig(),
+      pool: poolWithIntegrity(),
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/attempts').set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.attempts.length).toBe(1);
+    const integ = res.body.attempts[0].integrity;
+    expect(integ.flagged).toBe(true);
+    expect(integ.risk_level).toBe('high');
+    expect(integ.risk_score).toBe(80);
+    expect(integ.by_type.tab_switches).toBe(5);
+    expect(integ.by_type.fullscreen_exits).toBe(4);
+  });
+  it('flagged_only=true keeps flagged attempts', async () => {
+    const { app } = createServer({
+      config: testConfig(),
+      pool: poolWithIntegrity(),
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/attempts?flagged_only=true')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.attempts.length).toBe(1);
+  });
+  it('flagged_only=true drops unflagged attempts', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/attempts?flagged_only=true')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.attempts.length).toBe(0);
+  });
+  it('rejects an invalid flagged_only value (400)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/attempts?flagged_only=maybe')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(400);
+    expect(res.body.title).toBe('admin/invalid-query');
+  });
+});
+
 describe('GET /v1/admin/audit-events', () => {
   it('rejects without a session cookie (401)', async () => {
     const stub = buildStub();
