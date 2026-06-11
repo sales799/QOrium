@@ -88,3 +88,23 @@ export function proctoringFeatureFlag(env: NodeJS.ProcessEnv = process.env): boo
   const v = (env.PROCTORING_ENABLED ?? '').trim().toLowerCase();
   return v === '1' || v === 'true' || v === 'yes' || v === 'on';
 }
+
+// Candidate-facing projection of a resolved proctoring policy. The candidate
+// runner only needs to know whether any proctoring is active for this attempt,
+// which features will run, and whether explicit consent is required before
+// capture. It must NEVER learn the tenant plan id or the internal resolution
+// reason -- those are operator/recruiter internals. This pure projection is the
+// single point that strips them.
+export interface CandidateConsentView {
+  proctoring_enabled: boolean;
+  features: ProctoringFeature[];
+  consent_required: boolean;
+}
+
+export function toCandidateConsentView(policy: ProctoringPolicy): CandidateConsentView {
+  return {
+    proctoring_enabled: policy.enabled,
+    features: [...policy.features],
+    consent_required: policy.consent_required,
+  };
+}
