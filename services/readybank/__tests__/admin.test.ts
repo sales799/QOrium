@@ -912,3 +912,112 @@ describe('GET /v1/admin/audit-events', () => {
     ).toBe(true);
   });
 });
+
+function poolWithGradeDecisions(): Pool {
+  return {
+    async query(sql: string, params: unknown[] = []) {
+      if (sql.includes('FROM content.grade_decisions gd')) {
+        const rows = [
+          {
+            id: 'gd-1',
+            tenant_id: 't1',
+            tenant_name: 'Talpro India',
+            response_id: 'resp-1',
+            question_id: 'q-1',
+            model: 'qwen2.5-coder',
+            prompt_version: 'v1',
+            grader_source: 'm4_grader',
+            score: '0.4000',
+            confidence: '0.9000',
+            reasoning_excerpt: 'Candidate selected the correct option for two of five sub-parts.',
+            reasoning_hash: 'a'.repeat(64),
+            created_at: new Date('2026-06-05T01:21:00Z'),
+          },
+          {
+            id: 'gd-2',
+            tenant_id: 't2',
+            tenant_name: 'Paused Co',
+            response_id: 'resp-2',
+            question_id: 'q-2',
+            model: 'gpt-4.1-mini',
+            prompt_version: 'v1',
+            grader_source: 'ai_verify',
+            score: '1.0000',
+            confidence: '0.7500',
+            reasoning_excerpt: 'Full marks; solution passes all hidden tests.',
+            reasoning_hash: 'b'.repeat(64),
+            created_at: new Date('2026-06-06T01:21:00Z'),
+          },
+        ];
+        const filtered = sql.includes('gd.grader_source = $1')
+          ? rows.filter((r) => r.grader_source === params[0])
+          : rows;
+        return { rows: filtered, rowCount: filtered.length };
+      }
+      return { rows: [], rowCount: 0 };
+    },
+  } as unknown as Pool;
+}
+
+describe('GET /v1/admin/grade-decisions', () => {
+  it('rejects without a session cookie (401)', async () => {
+    const { app } = createServer({
+      config: testConfig(),
+      pool: poolWithGradeDecisions(),
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/grade-decisions');
+    expect(res.status).toBe(401);
+  });
+  it('returns sanitized grade decisions (excerpt + hash, numeric score, no reasoning_text)', async () => {
+    const { app } = createServer({
+      config: testConfig(),
+      pool: poolWithGradeDecisions(),
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/grade-decisions').set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.grade_decisions)).toBe(true);
+    expect(res.body.grade_decisions.length).toBe(2);
+    const d = res.body.grade_decisions[0];
+    expect(typeof d.score).toBe('number');
+    expect(d.score).toBe(0.4);
+    expect(typeof d.confidence).toBe('number');
+    expect(d.reasoning_hash.length).toBe(64);
+    expect(d).toHaveProperty('reasoning_excerpt');
+    expect(d).not.toHaveProperty('reasoning_text');
+    expect(d.tenant_name).toBe('Talpro India');
+  });
+  it('filters by grader_source', async () => {
+    const { app } = createServer({
+      config: testConfig(),
+      pool: poolWithGradeDecisions(),
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/grade-decisions?grader_source=ai_verify')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(
+      res.body.grade_decisions.every(
+        (d: { grader_source: string }) => d.grader_source === 'ai_verify',
+      ),
+    ).toBe(true);
+  });
+  it('rejects an invalid grader_source (400)', async () => {
+    const { app } = createServer({
+      config: testConfig(),
+      pool: poolWithGradeDecisions(),
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/grade-decisions?grader_source=bogus')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(400);
+    expect(res.body.title).toBe('admin/invalid-query');
+  });
+});

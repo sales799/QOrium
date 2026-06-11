@@ -132,6 +132,20 @@ const AdminAuditEventsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
 });
 
+// ─── GET /v1/admin/grade-decisions ─────────────────────
+// Cross-tenant read-only AI-grading audit trail (N8). Sanitized: the full
+// reasoning chain-of-thought is truncated to a short excerpt and the
+// tamper-evident reasoning_hash is surfaced for forensic verification —
+// callers get score/confidence/model provenance without the full prompt
+// leaking. grader_source matches content.grade_decisions CHECK constraint.
+const AdminGradeDecisionsQuerySchema = z.object({
+  tenant_id: z.string().uuid().optional(),
+  question_id: z.string().uuid().optional(),
+  grader_source: z.enum(['m4_grader', 'ai_verify', 'ensemble', 'ats_rescore']).optional(),
+  model: z.string().min(1).max(64).optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
 export function adminRouter(deps: AdminRouterDeps): Router {
   const router = Router();
   const auth = recruiterAuth({
@@ -760,6 +774,78 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
+  // GET /v1/admin/grade-decisions ────────────────
+  router.get('/v1/admin/grade-decisions', auth, async (req: Request, res, next) => {
+    try {
+      const parsed = AdminGradeDecisionsQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'admin/invalid-query',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const q = parsed.data;
+      const conditions: string[] = [];
+      const params: unknown[] = [];
+      if (q.tenant_id) {
+        conditions.push(`gd.tenant_id = $${params.length + 1}`);
+        params.push(q.tenant_id);
+      }
+      if (q.question_id) {
+        conditions.push(`gd.question_id = $${params.length + 1}`);
+        params.push(q.question_id);
+      }
+      if (q.grader_source) {
+        conditions.push(`gd.grader_source = $${params.length + 1}`);
+        params.push(q.grader_source);
+      }
+      if (q.model) {
+        conditions.push(`gd.model = $${params.length + 1}`);
+        params.push(q.model);
+      }
+      const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(q.limit);
+      const result = await deps.pool.query<{
+        id: string;
+        tenant_id: string;
+        tenant_name: string | null;
+        response_id: string;
+        question_id: string;
+        model: string;
+        prompt_version: string;
+        grader_source: string;
+        score: string;
+        confidence: string;
+        reasoning_excerpt: string;
+        reasoning_hash: string;
+        created_at: Date;
+      }>(
+        `SELECT gd.id, gd.tenant_id, t.name AS tenant_name, gd.response_id, gd.question_id, gd.model, gd.prompt_version, gd.grader_source, gd.score::text AS score, gd.confidence::text AS confidence, LEFT(gd.reasoning_text, 280) AS reasoning_excerpt, gd.reasoning_hash, gd.created_at FROM content.grade_decisions gd LEFT JOIN app.tenants t ON t.id = gd.tenant_id ${whereSql} ORDER BY gd.created_at DESC LIMIT $${params.length}`,
+        params,
+      );
+      res.json({
+        grade_decisions: result.rows.map((r) => ({
+          id: r.id,
+          tenant_id: r.tenant_id,
+          tenant_name: r.tenant_name,
+          response_id: r.response_id,
+          question_id: r.question_id,
+          model: r.model,
+          prompt_version: r.prompt_version,
+          grader_source: r.grader_source,
+          score: Number(r.score),
+          confidence: Number(r.confidence),
+          reasoning_excerpt: r.reasoning_excerpt,
+          reasoning_hash: r.reasoning_hash,
+          created_at: r.created_at,
+        })),
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 
@@ -776,5 +862,6 @@ export function _testHelpers() {
     AdminAssessmentsQuerySchema,
     AdminAttemptsQuerySchema,
     AdminAuditEventsQuerySchema,
+    AdminGradeDecisionsQuerySchema,
   };
 }
