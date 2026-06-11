@@ -7,6 +7,7 @@ import { ContactForm } from '@/components/site/ContactForm';
 import { EmailText } from '@/components/site/EmailText';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Spotlight } from '@/components/aceternity/Spotlight';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
@@ -18,6 +19,17 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
+      <WebPageJsonLd
+        name="Contact QOrium"
+        description="Talk to QOrium about ReadyBank, JD-Forge, and Stack-Vault for India-first skills assessment."
+        url={`${siteConfig.url}/contact`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Contact', path: '/contact' },
+        ]}
+      />
       <section className="relative isolate overflow-hidden relative py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">
