@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Research — QOrium benchmarks and methodology',
@@ -22,6 +24,17 @@ const RESEARCH_ENTRIES = [
 export default function ResearchIndexPage() {
   return (
     <main>
+      <WebPageJsonLd
+        name="QOrium research"
+        description="The psychometric and IRT research behind QOrium assessments."
+        url={`${siteConfig.url}/research`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Research', path: '/research' },
+        ]}
+      />
       <PageHero
         eyebrow="Research"
         title="Published research and benchmarks."

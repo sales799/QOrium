@@ -8,6 +8,8 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { Spotlight } from '@/components/aceternity/Spotlight';
 import { featureIndex } from '@/content/copy/features';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Features',
@@ -24,6 +26,17 @@ const ICON: Record<string, React.ComponentType<{ className?: string }>> = {
 export default function FeaturesIndexPage() {
   return (
     <>
+      <WebPageJsonLd
+        name="QOrium features"
+        description="Explore QOrium assessment, JD-Forge, and anti-cheating capabilities."
+        url={`${siteConfig.url}/features`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Features', path: '/features' },
+        ]}
+      />
       <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">

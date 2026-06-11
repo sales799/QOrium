@@ -8,6 +8,8 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { Spotlight } from '@/components/aceternity/Spotlight';
 import { listBlogPosts } from '@/lib/blog';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -28,6 +30,17 @@ export default function BlogIndexPage() {
 
   return (
     <>
+      <WebPageJsonLd
+        name="QOrium blog"
+        description="Articles on skills assessment, hiring, and psychometrics from QOrium."
+        url={`${siteConfig.url}/blog`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Blog', path: '/blog' },
+        ]}
+      />
       <section className="relative isolate overflow-hidden relative py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">
