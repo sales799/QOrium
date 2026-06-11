@@ -189,6 +189,9 @@ export function RecruiterDashboard() {
           <a href="/skills" style={{ color: C.teal }}>
             Skill catalog
           </a>
+          <a href="/admin" style={{ color: C.teal }}>
+            Admin
+          </a>
           <span style={{ color: C.sub }}>{me?.email}</span>
         </span>
       </header>
