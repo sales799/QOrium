@@ -4,6 +4,11 @@ const main = renderLayout('dashboard');
 main.innerHTML = `
   <h2>Admin Dashboard</h2>
   <p class="subtitle">Live engineering view — Sprint 1.8d. Counts pulled from the live API.</p>
+  <div class="card">
+    <h3 class="tight">Assessment loop</h3>
+    <p class="subtitle tight">Funnel from created assessments to graded answers — the keystone "is the product loop warm?" view.</p>
+    <div id="loop-metrics" class="metric-row"></div>
+  </div>
   <div id="metrics" class="metric-row"></div>
   <div class="card">
     <h3 class="tight">Recent leak alerts</h3>
@@ -11,10 +16,40 @@ main.innerHTML = `
   </div>
 `;
 
+const loopEl = main.querySelector('#loop-metrics');
 const metricsEl = main.querySelector('#metrics');
 const recentEl = main.querySelector('#recent-leaks');
 
-async function load() {
+function renderMetrics(target, pairs) {
+  target.innerHTML = '';
+  for (const [label, value] of pairs) {
+    const m = document.createElement('div');
+    m.className = 'metric';
+    m.innerHTML = `<div class="label"></div><div class="value"></div>`;
+    m.querySelector('.label').textContent = label;
+    m.querySelector('.value').textContent = value;
+    target.append(m);
+  }
+}
+
+async function loadOverview() {
+  try {
+    const o = await adminFetch('/v1/admin/overview');
+    renderMetrics(loopEl, [
+      ['Assessments', String(o.loop.assessments)],
+      ['Invitations', String(o.loop.invitations)],
+      ['Attempts', String(o.loop.attempts)],
+      ['Graded answers', String(o.loop.grade_decisions)],
+      ['Released bank', String(o.bank.questions_released)],
+      ['Calibrated', String(o.bank.questions_calibrated)],
+      ['Active subs', String(o.billing.subscriptions_active)],
+    ]);
+  } catch (err) {
+    loopEl.innerHTML = `<div class="empty">Loop metrics unavailable: ${err.message}</div>`;
+  }
+}
+
+async function loadLeaks() {
   try {
     const [leaks, queue, calib] = await Promise.all([
       adminFetch('/v1/admin/leak-alerts?limit=200'),
@@ -28,20 +63,12 @@ async function load() {
     );
     const open = leaks.alerts.filter((a) => ['detected', 'under_review'].includes(a.status)).length;
 
-    metricsEl.innerHTML = '';
-    for (const [label, value] of [
+    renderMetrics(metricsEl, [
       ['Open leak alerts', String(open)],
       ['Critical leaks', String(counts.critical || 0)],
       ['SME-review queue', String(queue.questions.length)],
       ['Items calibrating', String(calib.items.length)],
-    ]) {
-      const m = document.createElement('div');
-      m.className = 'metric';
-      m.innerHTML = `<div class="label"></div><div class="value"></div>`;
-      m.querySelector('.label').textContent = label;
-      m.querySelector('.value').textContent = value;
-      metricsEl.append(m);
-    }
+    ]);
 
     if (leaks.alerts.length === 0) {
       recentEl.innerHTML = '<div class="empty">No leak alerts. ✅</div>';
@@ -90,4 +117,5 @@ async function load() {
   }
 }
 
-load();
+loadOverview();
+loadLeaks();

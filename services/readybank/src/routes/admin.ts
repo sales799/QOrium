@@ -363,6 +363,85 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
+  // GET /v1/admin/overview ────────────────────────────────────────────
+  // Platform-wide assessment-loop keystone metrics for the engineering
+  // dashboard. Read-only (no audit row — no state change). Answers the
+  // question "is the product loop warm?" by surfacing the funnel
+  // assessments → invitations → attempts → responses → grade_decisions
+  // alongside bank calibration coverage and active billing subscriptions
+  // in one place. Mounted (with the rest of this router) at /v1.
+  router.get('/v1/admin/overview', auth, async (_req: Request, res, next) => {
+    try {
+      const [totals, attemptsByStatus, invitationsByStatus] = await Promise.all([
+        deps.pool.query<{
+          assessments: string;
+          invitations: string;
+          attempts: string;
+          responses: string;
+          responses_with_attempt: string;
+          grade_decisions: string;
+          questions_released: string;
+          questions_calibrated: string;
+          subscriptions_active: string;
+        }>(
+          `SELECT
+             (SELECT COUNT(*) FROM content.assessments)::text AS assessments,
+             (SELECT COUNT(*) FROM content.invitations)::text AS invitations,
+             (SELECT COUNT(*) FROM content.attempts)::text AS attempts,
+             (SELECT COUNT(*) FROM content.responses)::text AS responses,
+             (SELECT COUNT(*) FROM content.responses WHERE attempt_id IS NOT NULL)::text AS responses_with_attempt,
+             (SELECT COUNT(*) FROM content.grade_decisions)::text AS grade_decisions,
+             (SELECT COUNT(*) FROM content.questions WHERE status = 'released')::text AS questions_released,
+             (SELECT COUNT(*) FROM content.questions WHERE calibration_n > 0)::text AS questions_calibrated,
+             (SELECT COUNT(*) FROM billing.subscriptions WHERE status = 'active')::text AS subscriptions_active`,
+        ),
+        deps.pool.query<{ status: string; n: string }>(
+          `SELECT status, COUNT(*)::text AS n FROM content.attempts GROUP BY status`,
+        ),
+        deps.pool.query<{ status: string; n: string }>(
+          `SELECT status, COUNT(*)::text AS n FROM content.invitations GROUP BY status`,
+        ),
+      ]);
+
+      const toMap = (rows: { status: string; n: string }[]): Record<string, number> =>
+        rows.reduce<Record<string, number>>((acc, r) => {
+          acc[r.status] = Number(r.n);
+          return acc;
+        }, {});
+
+      const t = totals.rows[0];
+      if (!t) {
+        throw new HttpProblem({
+          status: 500,
+          title: 'admin/overview-failed',
+          detail: 'overview aggregation returned no row',
+        });
+      }
+      res.json({
+        generated_at: new Date().toISOString(),
+        loop: {
+          assessments: Number(t.assessments),
+          invitations: Number(t.invitations),
+          attempts: Number(t.attempts),
+          responses: Number(t.responses),
+          responses_with_attempt: Number(t.responses_with_attempt),
+          grade_decisions: Number(t.grade_decisions),
+        },
+        bank: {
+          questions_released: Number(t.questions_released),
+          questions_calibrated: Number(t.questions_calibrated),
+        },
+        billing: {
+          subscriptions_active: Number(t.subscriptions_active),
+        },
+        attempts_by_status: toMap(attemptsByStatus.rows),
+        invitations_by_status: toMap(invitationsByStatus.rows),
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 
