@@ -85,6 +85,22 @@ type AuditEvent = {
   occurred_at: string;
 };
 
+type GradeDecision = {
+  id: string;
+  tenant_id: string;
+  tenant_name: string | null;
+  response_id: string;
+  question_id: string;
+  model: string;
+  prompt_version: string;
+  grader_source: string;
+  score: number;
+  confidence: number;
+  reasoning_excerpt: string;
+  reasoning_hash: string;
+  created_at: string;
+};
+
 const C = { teal: '#0d9488', ink: '#0f172a', sub: '#64748b', line: '#e2e8f0', bg: '#f8fafc' };
 const n = (x: number) => x.toLocaleString('en-IN');
 const dt = (s: string | null) => (s ? new Date(s).toLocaleString('en-IN') : '—');
@@ -96,7 +112,7 @@ const RISK_COLOR: Record<Integrity['risk_level'], string> = {
   high: '#b91c1c',
 };
 
-const TABS = ['Overview', 'Assessments', 'Attempts', 'Audit'] as const;
+const TABS = ['Overview', 'Assessments', 'Attempts', 'Grades', 'Audit'] as const;
 type Tab = (typeof TABS)[number];
 
 const th = {
@@ -302,6 +318,7 @@ export default function AdminPage() {
   const [assessments, setAssessments] = useState<Assessment[] | null>(null);
   const [attempts, setAttempts] = useState<Attempt[] | null>(null);
   const [events, setEvents] = useState<AuditEvent[] | null>(null);
+  const [gradeDecisions, setGradeDecisions] = useState<GradeDecision[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   // Client-side filter state (per tab).
@@ -316,6 +333,9 @@ export default function AdminPage() {
   const [aSort, setASort] = useState<'desc' | 'asc'>('desc');
   const [tSort, setTSort] = useState<'desc' | 'asc'>('desc');
   const [evSort, setEvSort] = useState<'desc' | 'asc'>('desc');
+  const [gdSearch, setGdSearch] = useState('');
+  const [gdSource, setGdSource] = useState('');
+  const [gdSort, setGdSort] = useState<'desc' | 'asc'>('desc');
 
   useEffect(() => {
     Promise.all([
@@ -346,7 +366,12 @@ export default function AdminPage() {
         .then((d) => setEvents(d.events))
         .catch((e) => setErr(String(e)));
     }
-  }, [tab, assessments, attempts, events]);
+    if (tab === 'Grades' && gradeDecisions === null) {
+      getJson<{ grade_decisions: GradeDecision[] }>('/api/v1/admin/grade-decisions?limit=200')
+        .then((d) => setGradeDecisions(d.grade_decisions))
+        .catch((e) => setErr(String(e)));
+    }
+  }, [tab, assessments, attempts, events, gradeDecisions]);
 
   if (err)
     return (
@@ -400,6 +425,16 @@ export default function AdminPage() {
   const aSorted = sortByDate(aFiltered, (a) => a.created_at, aSort);
   const tSorted = sortByDate(tFiltered, (a) => a.started_at, tSort);
   const evSorted = sortByDate(evFiltered, (e) => e.occurred_at, evSort);
+  const gradeList = gradeDecisions ?? [];
+  const gdFiltered = gradeList.filter(
+    (g) =>
+      (gdSource === '' || g.grader_source === gdSource) &&
+      (gdSearch === '' ||
+        q(`${g.tenant_name ?? ''} ${g.model} ${g.grader_source} ${g.question_id}`).includes(
+          q(gdSearch),
+        )),
+  );
+  const gdSorted = sortByDate(gdFiltered, (g) => g.created_at, gdSort);
 
   return (
     <main style={{ minHeight: '100vh', background: C.bg, fontFamily: 'system-ui, sans-serif' }}>
@@ -686,6 +721,100 @@ export default function AdminPage() {
                             {a.integrity.risk_level} ({a.integrity.risk_score})
                           </td>
                           <td style={td}>{dt(a.started_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </>
+            )}
+          </>
+        )}
+
+        {tab === 'Grades' && (
+          <>
+            <h2 style={{ fontSize: 16, color: C.ink }}>
+              Grade decisions{' '}
+              {gradeDecisions ? `(${gdFiltered.length}/${gradeDecisions.length})` : ''}
+            </h2>
+            {gradeDecisions === null ? (
+              <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
+            ) : (
+              <>
+                <FilterBar
+                  search={gdSearch}
+                  onSearch={setGdSearch}
+                  placeholder="Search tenant, model, source or question…"
+                  status={gdSource}
+                  onStatus={setGdSource}
+                  statuses={uniqSorted(gradeList.map((g) => g.grader_source))}
+                  statusLabel="All grader sources"
+                  sort={gdSort}
+                  onSort={setGdSort}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                  <ExportButton
+                    count={gdSorted.length}
+                    onClick={() =>
+                      downloadCsv(
+                        `qorium-grade-decisions-${today()}.csv`,
+                        toCsv(
+                          [
+                            'Tenant',
+                            'Source',
+                            'Model',
+                            'PromptVersion',
+                            'Score',
+                            'Confidence',
+                            'QuestionId',
+                            'ReasoningHash',
+                            'When',
+                          ],
+                          gdSorted.map((g) => [
+                            g.tenant_name ?? g.tenant_id,
+                            g.grader_source,
+                            g.model,
+                            g.prompt_version,
+                            g.score,
+                            g.confidence,
+                            g.question_id,
+                            g.reasoning_hash,
+                            g.created_at,
+                          ]),
+                        ),
+                      )
+                    }
+                  />
+                </div>
+                <Card>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={th}>Tenant</th>
+                        <th style={th}>Source</th>
+                        <th style={th}>Model</th>
+                        <th style={th}>Score</th>
+                        <th style={th}>Conf.</th>
+                        <th style={th}>Reasoning (excerpt)</th>
+                        <th style={th}>Hash</th>
+                        <th style={th}>When</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gdSorted.map((g) => (
+                        <tr key={g.id}>
+                          <td style={td}>{g.tenant_name ?? shortId(g.tenant_id)}</td>
+                          <td style={td}>{g.grader_source}</td>
+                          <td style={td}>{g.model}</td>
+                          <td style={td}>{g.score.toFixed(3)}</td>
+                          <td style={td}>{g.confidence.toFixed(2)}</td>
+                          <td style={{ ...td, whiteSpace: 'normal', maxWidth: 360, color: C.sub }}>
+                            {g.reasoning_excerpt || '—'}
+                          </td>
+                          <td style={{ ...td, fontFamily: 'monospace' }} title={g.reasoning_hash}>
+                            {shortId(g.reasoning_hash)}
+                          </td>
+                          <td style={td}>{dt(g.created_at)}</td>
                         </tr>
                       ))}
                     </tbody>
