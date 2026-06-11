@@ -8,6 +8,13 @@ import { summarizeIntegrity } from '../lib/integrity.js';
 import { gradeAttempt } from '../grading/worker.js';
 import { issueProofCode } from '../lib/proof-code.js';
 import {
+  resolveProctoringPolicy,
+  proctoringFeatureFlag,
+  toCandidateConsentView,
+} from '../lib/proctoring-policy.js';
+import { getSubscriptionForTenant } from '../repositories/billing.js';
+import { isPlanId, type PlanId } from '../billing/plans.js';
+import {
   createOrResumeAttempt,
   getAttempt,
   getAttemptForToken,
@@ -120,6 +127,33 @@ export function candidateAttemptRouter(deps: AttemptsRouterDeps): Router {
           pass_score: Number(inv.pass_score),
         },
       });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Candidate-facing proctoring consent surface. Resolves this invitation's
+  // tenant plan -> proctoring policy and returns ONLY the sanitized consent
+  // view (no plan id, no internal reason). Inert (proctoring_enabled:false)
+  // until PROCTORING_ENABLED is set. No DB write, no audit row.
+  router.get('/v1/invitations/:token/proctoring', async (req, res, next) => {
+    try {
+      const inv = await getInvitationByToken(deps.pool, req.params.token);
+      if (!inv) {
+        next(new HttpProblem({ status: 404, title: 'Not Found', detail: 'Invitation not found' }));
+        return;
+      }
+      if (inv.expires_at.getTime() < Date.now()) {
+        next(new HttpProblem({ status: 410, title: 'Gone', detail: 'Invitation has expired' }));
+        return;
+      }
+      const sub = await getSubscriptionForTenant(deps.pool, inv.tenant_id);
+      const plan: PlanId =
+        sub && isPlanId(sub.tier) && (sub.status === 'active' || sub.status === 'trial')
+          ? sub.tier
+          : 'free';
+      const policy = resolveProctoringPolicy({ globalEnabled: proctoringFeatureFlag(), plan });
+      res.status(200).json(toCandidateConsentView(policy));
     } catch (err) {
       next(err);
     }
