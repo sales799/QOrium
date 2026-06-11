@@ -171,7 +171,12 @@ export function RecruiterDashboard() {
         }}
       >
         <strong style={{ color: C.teal }}>QOrium · Recruiter</strong>
-        <span style={{ fontSize: 13, color: C.sub }}>{me?.email}</span>
+        <span style={{ display: 'flex', gap: 16, alignItems: 'center', fontSize: 13 }}>
+          <a href="/skills" style={{ color: C.teal }}>
+            Skill catalog
+          </a>
+          <span style={{ color: C.sub }}>{me?.email}</span>
+        </span>
       </header>
 
       <section style={{ maxWidth: 820, margin: '24px auto', padding: '0 20px' }}>
