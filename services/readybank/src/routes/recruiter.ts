@@ -16,6 +16,7 @@ import {
   listAssessmentsForTenant,
   listAttemptsForAssessment,
   listTopSkills,
+  listSkillFamilies,
   pickReleasedQuestionIds,
 } from '../repositories/recruiter.js';
 
@@ -61,6 +62,14 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
   router.get('/recruiter/skills', async (_req, res, next) => {
     try {
       res.status(200).json({ skills: await listTopSkills(deps.pool, 25) });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get('/recruiter/skill-families', async (_req, res, next) => {
+    try {
+      res.status(200).json({ families: await listSkillFamilies(deps.pool) });
     } catch (err) {
       next(err);
     }
