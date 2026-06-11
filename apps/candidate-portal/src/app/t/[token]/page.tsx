@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { StartButton } from '@/components/start-button';
+import { invitationGate } from '@/lib/invitation-gate';
 
 // BR-6: candidate landing. Server-fetches the invitation (answer keys never
 // touch this path) and renders consent + Start.
@@ -61,7 +62,7 @@ export default async function LandingPage({ params }: { params: Promise<{ token:
   if (!inv) notFound();
 
   const minutes = Math.round(inv.assessment.time_limit_sec / 60);
-  const alreadyDone = inv.status === 'submitted';
+  const gate = invitationGate({ status: inv.status, expiresAt: inv.expires_at });
 
   return (
     <main style={wrap}>
@@ -89,9 +90,14 @@ export default async function LandingPage({ params }: { params: Promise<{ token:
           </span>
         </div>
 
-        {alreadyDone ? (
+        {gate === 'submitted' ? (
           <p style={{ color: '#b45309', fontSize: 14 }}>
             This assessment has already been submitted. Thank you.
+          </p>
+        ) : gate === 'expired' ? (
+          <p style={{ color: '#b45309', fontSize: 14 }}>
+            This invitation has expired and can no longer be started. Please ask the recruiter who
+            invited you for a fresh link.
           </p>
         ) : (
           <>
