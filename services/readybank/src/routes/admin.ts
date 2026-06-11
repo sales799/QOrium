@@ -111,6 +111,22 @@ const AdminAssessmentsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
 });
 
+// GET /v1/admin/attempts — cross-tenant read-only list (sanitized: no question_order)
+const AdminAttemptsQuerySchema = z.object({
+  status: z.enum(['in_progress', 'submitted', 'graded', 'abandoned']).optional(),
+  tenant_id: z.string().uuid().optional(),
+  assessment_id: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
+// GET /v1/admin/audit-events — cross-tenant read-only audit trail
+// (sanitized: omits payload/changes/ip_address/user_agent — metadata only)
+const AdminAuditEventsQuerySchema = z.object({
+  event_type: z.string().min(1).max(128).optional(),
+  tenant_id: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
 export function adminRouter(deps: AdminRouterDeps): Router {
   const router = Router();
   const auth = recruiterAuth({
@@ -597,6 +613,126 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
+  router.get('/v1/admin/attempts', auth, async (req: Request, res, next) => {
+    try {
+      const parsed = AdminAttemptsQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'admin/invalid-query',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const q = parsed.data;
+      const conditions: string[] = [];
+      const params: unknown[] = [];
+      if (q.status) {
+        conditions.push(`at.status = $${params.length + 1}`);
+        params.push(q.status);
+      }
+      if (q.tenant_id) {
+        conditions.push(`at.tenant_id = $${params.length + 1}`);
+        params.push(q.tenant_id);
+      }
+      if (q.assessment_id) {
+        conditions.push(`at.assessment_id = $${params.length + 1}`);
+        params.push(q.assessment_id);
+      }
+      const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(q.limit);
+      const result = await deps.pool.query<{
+        id: string;
+        tenant_id: string;
+        tenant_name: string | null;
+        assessment_id: string;
+        assessment_title: string | null;
+        candidate_id: string;
+        status: string;
+        total_score: string | null;
+        max_score: string | null;
+        started_at: Date;
+        submitted_at: Date | null;
+        graded_at: Date | null;
+      }>(
+        `SELECT at.id, at.tenant_id, t.name AS tenant_name, at.assessment_id, a.title AS assessment_title, at.candidate_id, at.status, at.total_score::text AS total_score, at.max_score::text AS max_score, at.started_at, at.submitted_at, at.graded_at FROM content.attempts at LEFT JOIN app.tenants t ON t.id = at.tenant_id LEFT JOIN content.assessments a ON a.id = at.assessment_id ${whereSql} ORDER BY at.started_at DESC LIMIT $${params.length}`,
+        params,
+      );
+      res.json({
+        attempts: result.rows.map((r) => ({
+          id: r.id,
+          tenant_id: r.tenant_id,
+          tenant_name: r.tenant_name,
+          assessment_id: r.assessment_id,
+          assessment_title: r.assessment_title,
+          candidate_id: r.candidate_id,
+          status: r.status,
+          total_score: r.total_score === null ? null : Number(r.total_score),
+          max_score: r.max_score === null ? null : Number(r.max_score),
+          started_at: r.started_at,
+          submitted_at: r.submitted_at,
+          graded_at: r.graded_at,
+        })),
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get('/v1/admin/audit-events', auth, async (req: Request, res, next) => {
+    try {
+      const parsed = AdminAuditEventsQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'admin/invalid-query',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const q = parsed.data;
+      const conditions: string[] = [];
+      const params: unknown[] = [];
+      if (q.event_type) {
+        conditions.push(`e.event_type = $${params.length + 1}`);
+        params.push(q.event_type);
+      }
+      if (q.tenant_id) {
+        conditions.push(`e.tenant_id = $${params.length + 1}`);
+        params.push(q.tenant_id);
+      }
+      const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(q.limit);
+      const result = await deps.pool.query<{
+        id: string;
+        event_type: string;
+        actor_type: string | null;
+        actor_id: string | null;
+        entity_type: string | null;
+        entity_id: string | null;
+        tenant_id: string | null;
+        tenant_name: string | null;
+        occurred_at: Date;
+      }>(
+        `SELECT e.id, e.event_type, e.actor_type, e.actor_id, e.entity_type, e.entity_id, e.tenant_id, t.name AS tenant_name, e.occurred_at FROM audit.events e LEFT JOIN app.tenants t ON t.id = e.tenant_id ${whereSql} ORDER BY e.occurred_at DESC LIMIT $${params.length}`,
+        params,
+      );
+      res.json({
+        events: result.rows.map((r) => ({
+          id: r.id,
+          event_type: r.event_type,
+          actor_type: r.actor_type,
+          actor_id: r.actor_id,
+          entity_type: r.entity_type,
+          entity_id: r.entity_id,
+          tenant_id: r.tenant_id,
+          tenant_name: r.tenant_name,
+          occurred_at: r.occurred_at,
+        })),
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 
@@ -611,5 +747,7 @@ export function _testHelpers() {
     MintTokenSchema,
     TenantsQuerySchema,
     AdminAssessmentsQuerySchema,
+    AdminAttemptsQuerySchema,
+    AdminAuditEventsQuerySchema,
   };
 }
