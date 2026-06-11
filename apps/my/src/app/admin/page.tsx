@@ -132,6 +132,17 @@ function uniqSorted(values: (string | null | undefined)[]): string[] {
   return Array.from(new Set(values.filter((v): v is string => !!v))).sort();
 }
 
+// Pure date sort — returns a new array (no mutation); invalid/missing dates sort last.
+function sortByDate<T>(rows: T[], getDate: (r: T) => string | null, dir: 'desc' | 'asc'): T[] {
+  const ts = (v: string | null) => {
+    const t = v ? Date.parse(v) : NaN;
+    return Number.isNaN(t) ? 0 : t;
+  };
+  return [...rows].sort((a, b) =>
+    dir === 'desc' ? ts(getDate(b)) - ts(getDate(a)) : ts(getDate(a)) - ts(getDate(b)),
+  );
+}
+
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -157,6 +168,8 @@ function FilterBar({
   statusLabel = 'All statuses',
   flaggedOnly,
   onFlagged,
+  sort,
+  onSort,
 }: {
   search: string;
   onSearch: (v: string) => void;
@@ -167,6 +180,8 @@ function FilterBar({
   statusLabel?: string;
   flaggedOnly?: boolean;
   onFlagged?: (v: boolean) => void;
+  sort?: 'desc' | 'asc';
+  onSort?: (v: 'desc' | 'asc') => void;
 }) {
   return (
     <div
@@ -204,6 +219,16 @@ function FilterBar({
           Flagged only
         </label>
       )}
+      {onSort && (
+        <select
+          style={fld}
+          value={sort ?? 'desc'}
+          onChange={(e) => onSort(e.target.value as 'desc' | 'asc')}
+        >
+          <option value="desc">Newest first</option>
+          <option value="asc">Oldest first</option>
+        </select>
+      )}
     </div>
   );
 }
@@ -225,6 +250,9 @@ export default function AdminPage() {
   const [tFlagged, setTFlagged] = useState(false);
   const [evSearch, setEvSearch] = useState('');
   const [evType, setEvType] = useState('');
+  const [aSort, setASort] = useState<'desc' | 'asc'>('desc');
+  const [tSort, setTSort] = useState<'desc' | 'asc'>('desc');
+  const [evSort, setEvSort] = useState<'desc' | 'asc'>('desc');
 
   useEffect(() => {
     Promise.all([
@@ -305,6 +333,9 @@ export default function AdminPage() {
           `${e.event_type} ${e.actor_type ?? ''} ${e.entity_type ?? ''} ${e.tenant_name ?? ''}`,
         ).includes(q(evSearch))),
   );
+  const aSorted = sortByDate(aFiltered, (a) => a.created_at, aSort);
+  const tSorted = sortByDate(tFiltered, (a) => a.started_at, tSort);
+  const evSorted = sortByDate(evFiltered, (e) => e.occurred_at, evSort);
 
   return (
     <main style={{ minHeight: '100vh', background: C.bg, fontFamily: 'system-ui, sans-serif' }}>
@@ -429,6 +460,8 @@ export default function AdminPage() {
                   status={aStatus}
                   onStatus={setAStatus}
                   statuses={uniqSorted(assessmentList.map((a) => a.status))}
+                  sort={aSort}
+                  onSort={setASort}
                 />
                 <Card>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -444,7 +477,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {aFiltered.map((a) => (
+                      {aSorted.map((a) => (
                         <tr key={a.id}>
                           <td style={td}>{a.title}</td>
                           <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
@@ -481,6 +514,8 @@ export default function AdminPage() {
                   statuses={uniqSorted(attemptList.map((a) => a.status))}
                   flaggedOnly={tFlagged}
                   onFlagged={setTFlagged}
+                  sort={tSort}
+                  onSort={setTSort}
                 />
                 <Card>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -496,7 +531,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {tFiltered.map((a) => (
+                      {tSorted.map((a) => (
                         <tr key={a.id}>
                           <td style={td}>{a.assessment_title ?? shortId(a.assessment_id)}</td>
                           <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
@@ -545,6 +580,8 @@ export default function AdminPage() {
                   onStatus={setEvType}
                   statuses={uniqSorted(eventList.map((e) => e.event_type))}
                   statusLabel="All event types"
+                  sort={evSort}
+                  onSort={setEvSort}
                 />
                 <Card>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -558,7 +595,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {evFiltered.map((e) => (
+                      {evSorted.map((e) => (
                         <tr key={e.id}>
                           <td style={td}>{e.event_type}</td>
                           <td style={td}>
