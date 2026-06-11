@@ -7,6 +7,7 @@ import { HttpProblem } from '../middleware/problem.js';
 import { assertWithinLimit, recordUsage } from '../billing/enforce.js';
 import { loadQuestion } from '../lib/a4-grader.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
+import { buildProofRef } from '../lib/proof-ref.js';
 import {
   createAssessment,
   createInvitation,
@@ -48,6 +49,7 @@ export interface RecruiterRouterDeps {
 export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
   const router = Router();
   const baseUrl = deps.candidateBaseUrl ?? 'https://candidate.qorium.online';
+  const proofSecret = deps.config.proofSecret ?? deps.config.a4TokenSecret;
   router.use(
     '/recruiter',
     recruiterAuth({
@@ -249,6 +251,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
         return;
       }
       const responses = await listAttemptResponses(deps.pool, id);
+      const proof = buildProofRef(attempt.status, attempt.id, proofSecret);
       const detailed = await Promise.all(
         responses.map(async (r) => {
           const q = await loadQuestion(deps.pool, r.question_id);
@@ -271,6 +274,9 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
         candidate_id: attempt.candidate_id,
         total_score: attempt.total_score !== null ? Number(attempt.total_score) : null,
         graded_at: attempt.graded_at ? attempt.graded_at.toISOString() : null,
+        proof_code: proof?.proof_code ?? null,
+        proof_view_path: proof?.proof_view_path ?? null,
+        proof_badge_path: proof?.proof_badge_path ?? null,
         integrity: summarizeIntegrity(responses.map((r) => r.suspicious_signals)),
         responses: detailed,
       });
