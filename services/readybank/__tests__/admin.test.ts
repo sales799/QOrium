@@ -216,6 +216,36 @@ function buildStub(): StubPool {
         return { rows: filtered, rowCount: filtered.length };
       }
 
+      if (sql.includes('FROM content.assessments a')) {
+        const rows = [
+          {
+            id: 'aa',
+            tenant_id: 't1',
+            tenant_name: 'Talpro India',
+            title: 'Backend Screen',
+            status: 'active',
+            total_questions: 5,
+            created_at: new Date('2026-06-05T00:00:00Z'),
+            invitations: '3',
+            attempts: '2',
+          },
+          {
+            id: 'bb',
+            tenant_id: 't2',
+            tenant_name: 'Paused Co',
+            title: 'Draft Test',
+            status: 'draft',
+            total_questions: 0,
+            created_at: new Date('2026-06-06T00:00:00Z'),
+            invitations: '0',
+            attempts: '0',
+          },
+        ];
+        const filtered = sql.includes('a.status = $1')
+          ? rows.filter((r) => r.status === params[0])
+          : rows;
+        return { rows: filtered, rowCount: filtered.length };
+      }
       return { rows: [], rowCount: 0 };
     },
   } as unknown as Pool;
@@ -531,6 +561,64 @@ describe('GET /v1/admin/tenants', () => {
     });
     const res = await request(app)
       .get('/v1/admin/tenants?status=bogus')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(400);
+    expect(res.body.title).toBe('admin/invalid-query');
+  });
+});
+
+describe('GET /v1/admin/assessments', () => {
+  it('rejects without a session cookie (401)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/assessments');
+    expect(res.status).toBe(401);
+  });
+  it('returns cross-tenant assessments with numeric rollups', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/assessments').set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.assessments)).toBe(true);
+    expect(res.body.assessments.length).toBe(2);
+    expect(typeof res.body.assessments[0].invitations).toBe('number');
+    expect(res.body.assessments[0].invitations).toBe(3);
+    expect(res.body.assessments[0].tenant_name).toBe('Talpro India');
+  });
+  it('filters by status', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/assessments?status=draft')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.assessments.every((a: { status: string }) => a.status === 'draft')).toBe(true);
+  });
+  it('rejects an invalid status (400)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/assessments?status=bogus')
       .set('Cookie', adminCookie());
     expect(res.status).toBe(400);
     expect(res.body.title).toBe('admin/invalid-query');
