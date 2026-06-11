@@ -4,6 +4,7 @@ import type { Pool } from '@qorium/db';
 import type { Config } from '../config.js';
 import { recruiterAuth, type RecruiterRequest } from '../middleware/recruiter-auth.js';
 import { HttpProblem } from '../middleware/problem.js';
+import { assertWithinLimit, recordUsage } from '../billing/enforce.js';
 import { loadQuestion } from '../lib/a4-grader.js';
 import {
   createAssessment,
@@ -97,6 +98,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
     }
     try {
       const me = rec(req as RecruiterRequest);
+      await assertWithinLimit(deps.pool, me.tenantId, 'assessment');
       const questionIds = await pickReleasedQuestionIds(
         deps.pool,
         body.skill_id,
@@ -119,6 +121,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
         questionIds,
         createdBy: me.id,
       });
+      await recordUsage(deps.pool, me.tenantId, 'assessment.created');
       res.status(201).json({
         id: a.id,
         title: a.title,
@@ -168,6 +171,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
         next(new HttpProblem({ status: 404, title: 'Not Found', detail: 'Assessment not found' }));
         return;
       }
+      await assertWithinLimit(deps.pool, me.tenantId, 'attempt');
       const inv = await createInvitation(deps.pool, {
         assessmentId: id,
         tenantId: me.tenantId,
@@ -176,6 +180,7 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
         createdBy: me.id,
         ...(body.expires_in_days !== undefined ? { expiresInDays: body.expires_in_days } : {}),
       });
+      await recordUsage(deps.pool, me.tenantId, 'invitation.created');
       res.status(201).json({
         id: inv.id,
         token: inv.token,
