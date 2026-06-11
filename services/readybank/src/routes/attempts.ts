@@ -356,13 +356,24 @@ async function buildCandidateResult(
   );
   const passScore = passRow.rows[0] ? Number(passRow.rows[0].pass_score) : 0.6;
   const total = attempt.total_score !== null ? Number(attempt.total_score) : null;
+  const answered = (await listAttemptResponses(pool, attempt.id)).length;
+  // N11 slice 2: surface effort/timing (no answer keys, safe pre-grading).
+  const startedAt = attempt.started_at ? new Date(attempt.started_at) : null;
+  const submittedAt = attempt.submitted_at ? new Date(attempt.submitted_at) : null;
+  const durationSec =
+    startedAt && submittedAt
+      ? Math.max(0, Math.round((submittedAt.getTime() - startedAt.getTime()) / 1000))
+      : null;
   return {
     attempt_id: attempt.id,
     status: attempt.status,
     score_pct: total,
     passed: total !== null ? total / 100 >= passScore : null,
-    answered: (await listAttemptResponses(pool, attempt.id)).length,
+    answered,
     total_questions: attempt.question_order.length,
+    started_at: startedAt ? startedAt.toISOString() : null,
+    submitted_at: submittedAt ? submittedAt.toISOString() : null,
+    duration_sec: durationSec,
   };
 }
 
