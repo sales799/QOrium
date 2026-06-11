@@ -4,6 +4,7 @@ import type { Pool } from '@qorium/db';
 import { recordAuditEvent } from '@qorium/auth';
 import type { AuthenticatedRequest } from '@qorium/auth';
 import { HttpProblem } from '../middleware/problem.js';
+import { assertWithinLimit, recordUsage } from '../billing/enforce.js';
 import type { Mailer } from '../mailer/index.js';
 import {
   createAssessment,
@@ -124,6 +125,7 @@ export function assessmentsRouter(deps: AssessmentsRouterDeps): Router {
         }
       }
 
+      await assertWithinLimit(deps.pool, auth.tenantId, 'assessment');
       const assessment = await createAssessment(deps.pool, {
         tenantId: auth.tenantId,
         title: body.title,
@@ -135,6 +137,8 @@ export function assessmentsRouter(deps: AssessmentsRouterDeps): Router {
         ...(body.question_ids ? { questionIds: body.question_ids } : {}),
         ...(body.blueprint_json ? { blueprint: body.blueprint_json } : {}),
       });
+
+      await recordUsage(deps.pool, auth.tenantId, 'assessment.created');
 
       if (auditEnabled) {
         void recordAuditEvent({
@@ -262,6 +266,7 @@ export function assessmentsRouter(deps: AssessmentsRouterDeps): Router {
         return;
       }
 
+      await assertWithinLimit(deps.pool, auth.tenantId, 'attempt');
       const invitation = await createInvitation(deps.pool, {
         assessmentId: id,
         tenantId: auth.tenantId,
@@ -270,6 +275,8 @@ export function assessmentsRouter(deps: AssessmentsRouterDeps): Router {
         createdBy: auth.apiKeyId,
         ...(body.expires_in_days !== undefined ? { expiresInDays: body.expires_in_days } : {}),
       });
+
+      await recordUsage(deps.pool, auth.tenantId, 'invitation.created');
 
       const link = `${candidateBaseUrl}/t/${invitation.token}`;
 
