@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { StartButton } from '@/components/start-button';
 import { invitationGate } from '@/lib/invitation-gate';
+import { buildProctoringNotice, type ProctoringConsentResponse } from '@/lib/proctoring-consent';
 
 // BR-6: candidate landing. Server-fetches the invitation (answer keys never
 // touch this path) and renders consent + Start.
@@ -20,14 +21,32 @@ interface Invitation {
   };
 }
 
+function apiBase(): string {
+  return (process.env.QORIUM_API_BASE_URL ?? 'http://127.0.0.1:5101').replace(/\/+$/, '');
+}
+
 async function fetchInvitation(token: string): Promise<Invitation | null> {
-  const base = (process.env.QORIUM_API_BASE_URL ?? 'http://127.0.0.1:5101').replace(/\/+$/, '');
   try {
-    const r = await fetch(`${base}/v1/invitations/${encodeURIComponent(token)}`, {
+    const r = await fetch(`${apiBase()}/v1/invitations/${encodeURIComponent(token)}`, {
       cache: 'no-store',
     });
     if (!r.ok) return null;
     return (await r.json()) as Invitation;
+  } catch {
+    return null;
+  }
+}
+
+// N10: resolve this invitation's proctoring policy (sanitized — the API never
+// returns the tenant plan id or internal reason). Inert by default; a fetch
+// failure degrades to "no proctoring" so the landing page still works.
+async function fetchProctoring(token: string): Promise<ProctoringConsentResponse | null> {
+  try {
+    const r = await fetch(`${apiBase()}/v1/invitations/${encodeURIComponent(token)}/proctoring`, {
+      cache: 'no-store',
+    });
+    if (!r.ok) return null;
+    return (await r.json()) as ProctoringConsentResponse;
   } catch {
     return null;
   }
@@ -55,6 +74,13 @@ const meta: React.CSSProperties = {
   fontSize: 14,
   color: '#475569',
 };
+const noticeBox: React.CSSProperties = {
+  border: '1px solid #fcd34d',
+  background: '#fffbeb',
+  borderRadius: 10,
+  padding: '14px 16px',
+  margin: '4px 0 18px',
+};
 
 export default async function LandingPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -63,6 +89,11 @@ export default async function LandingPage({ params }: { params: Promise<{ token:
 
   const minutes = Math.round(inv.assessment.time_limit_sec / 60);
   const gate = invitationGate({ status: inv.status, expiresAt: inv.expires_at });
+  // Only resolve proctoring when the candidate can actually start.
+  const notice =
+    gate === 'open'
+      ? buildProctoringNotice(await fetchProctoring(token))
+      : buildProctoringNotice(null);
 
   return (
     <main style={wrap}>
@@ -108,7 +139,37 @@ export default async function LandingPage({ params }: { params: Promise<{ token:
               <li>Stay in this tab. Tab switches, pasting and exiting full screen are recorded.</li>
               <li>Answers save automatically as you go.</li>
             </ul>
-            <StartButton token={token} />
+
+            {notice.enabled && (
+              <div style={noticeBox}>
+                <p
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: 0.3,
+                    color: '#92400e',
+                    margin: '0 0 8px',
+                  }}
+                >
+                  PROCTORING ACTIVE FOR THIS ASSESSMENT
+                </p>
+                <ul
+                  style={{
+                    fontSize: 13,
+                    color: '#78350f',
+                    lineHeight: 1.65,
+                    margin: 0,
+                    paddingLeft: 18,
+                  }}
+                >
+                  {notice.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <StartButton token={token} requireConsent={notice.requiresExplicitConsent} />
             <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 14 }}>
               By starting you consent to QOrium recording your responses and integrity signals for
               evaluation, per our candidate privacy notice.
