@@ -95,6 +95,15 @@ const MintTokenSchema = z.object({
   scopes: z.array(z.string()).optional(),
 });
 
+// ─── GET /v1/admin/tenants ──────────────────────────────────
+const TenantsQuerySchema = z.object({
+  status: z.enum(['active', 'paused', 'churned']).optional(),
+  type: z
+    .enum(['internal', 'customer-platform', 'customer-enterprise', 'customer-recruiter'])
+    .optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
 export function adminRouter(deps: AdminRouterDeps): Router {
   const router = Router();
   const auth = recruiterAuth({
@@ -442,6 +451,90 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
+  // GET /v1/admin/tenants ────────────────────────────
+  // Multi-tenant control-plane view for the admin console (N8). Lists
+  // tenant (customer) records with per-tenant loop rollups: how many
+  // assessments and attempts each tenant owns. Read-only — no audit row
+  // (no state change), consistent with /v1/admin/overview. Plan/type/
+  // status come straight off app.tenants so this works with or without
+  // the billing tables populated. Mounted at /v1.
+  router.get('/v1/admin/tenants', auth, async (req: Request, res, next) => {
+    try {
+      const parsed = TenantsQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'admin/invalid-query',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const q = parsed.data;
+      const conditions: string[] = [];
+      const params: unknown[] = [];
+      if (q.status) {
+        conditions.push(`t.status = $${params.length + 1}`);
+        params.push(q.status);
+      }
+      if (q.type) {
+        conditions.push(`t.type = $${params.length + 1}`);
+        params.push(q.type);
+      }
+      const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(q.limit);
+      const result = await deps.pool.query<{
+        id: string;
+        name: string;
+        slug: string;
+        type: string;
+        plan: string;
+        status: string;
+        created_at: Date;
+        assessments: string;
+        attempts: string;
+      }>(
+        `SELECT t.id,
+                t.name,
+                t.slug,
+                t.type,
+                t.plan,
+                t.status,
+                t.created_at,
+                COALESCE(a.n, 0)::text AS assessments,
+                COALESCE(at.n, 0)::text AS attempts
+           FROM app.tenants t
+           LEFT JOIN (
+             SELECT tenant_id, COUNT(*) AS n
+               FROM content.assessments
+              GROUP BY tenant_id
+           ) a ON a.tenant_id = t.id
+           LEFT JOIN (
+             SELECT tenant_id, COUNT(*) AS n
+               FROM content.attempts
+              GROUP BY tenant_id
+           ) at ON at.tenant_id = t.id
+           ${whereSql}
+          ORDER BY t.created_at ASC
+          LIMIT $${params.length}`,
+        params,
+      );
+      res.json({
+        tenants: result.rows.map((r) => ({
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          type: r.type,
+          plan: r.plan,
+          status: r.status,
+          created_at: r.created_at,
+          assessments: Number(r.assessments),
+          attempts: Number(r.attempts),
+        })),
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 
@@ -450,5 +543,5 @@ export function adminAuthRequired(req: Request): boolean {
 }
 
 export function _testHelpers() {
-  return { LeakAlertQuerySchema, ReviewLeakAlertSchema, MintTokenSchema };
+  return { LeakAlertQuerySchema, ReviewLeakAlertSchema, MintTokenSchema, TenantsQuerySchema };
 }
