@@ -16,6 +16,7 @@ export function renderLayout(activeId) {
 
   const items = [
     ['dashboard', 'Dashboard', '/admin/dashboard.html'],
+    ['overview', 'Platform Overview', '/admin/overview.html'],
     ['leak-inbox', 'Anti-Leak Inbox', '/admin/leak-inbox.html'],
     ['sme-queue', 'SME Review Queue', '/admin/sme-queue.html'],
     ['calibration', 'IRT Calibration', '/admin/calibration.html'],
