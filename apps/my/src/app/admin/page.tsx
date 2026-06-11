@@ -143,6 +143,52 @@ function sortByDate<T>(rows: T[], getDate: (r: T) => string | null, dir: 'desc' 
   );
 }
 
+// Pure CSV builder — RFC-4180 escaping (quote fields containing comma/quote/newline).
+function toCsv(headers: string[], rows: (string | number | null)[][]): string {
+  const esc = (v: string | number | null) => {
+    const s = v === null || v === undefined ? '' : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [headers, ...rows].map((r) => r.map(esc).join(',')).join('\r\n');
+}
+
+// Client-side CSV download (Blob + object URL) — no server round-trip, no endpoint.
+function downloadCsv(filename: string, csv: string): void {
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+function ExportButton({ onClick, count }: { onClick: () => void; count: number }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={count === 0}
+      style={{
+        padding: '7px 12px',
+        fontSize: 13,
+        borderRadius: 8,
+        border: `1px solid ${C.line}`,
+        background: count === 0 ? '#f1f5f9' : '#fff',
+        color: count === 0 ? C.sub : C.teal,
+        cursor: count === 0 ? 'default' : 'pointer',
+        fontWeight: 600,
+      }}
+    >
+      Export CSV ({count})
+    </button>
+  );
+}
+
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -463,6 +509,36 @@ export default function AdminPage() {
                   sort={aSort}
                   onSort={setASort}
                 />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                  <ExportButton
+                    count={aSorted.length}
+                    onClick={() =>
+                      downloadCsv(
+                        `qorium-assessments-${today()}.csv`,
+                        toCsv(
+                          [
+                            'Title',
+                            'Tenant',
+                            'Status',
+                            'Questions',
+                            'Invites',
+                            'Attempts',
+                            'Created',
+                          ],
+                          aSorted.map((a) => [
+                            a.title,
+                            a.tenant_name ?? a.tenant_id,
+                            a.status,
+                            a.total_questions,
+                            a.invitations,
+                            a.attempts,
+                            a.created_at,
+                          ]),
+                        ),
+                      )
+                    }
+                  />
+                </div>
                 <Card>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
@@ -517,6 +593,42 @@ export default function AdminPage() {
                   sort={tSort}
                   onSort={setTSort}
                 />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                  <ExportButton
+                    count={tSorted.length}
+                    onClick={() =>
+                      downloadCsv(
+                        `qorium-attempts-${today()}.csv`,
+                        toCsv(
+                          [
+                            'Assessment',
+                            'Tenant',
+                            'Candidate',
+                            'Status',
+                            'Score',
+                            'MaxScore',
+                            'IntegrityLevel',
+                            'IntegrityScore',
+                            'Flagged',
+                            'Started',
+                          ],
+                          tSorted.map((a) => [
+                            a.assessment_title ?? a.assessment_id,
+                            a.tenant_name ?? a.tenant_id,
+                            a.candidate_id,
+                            a.status,
+                            a.total_score,
+                            a.max_score,
+                            a.integrity.risk_level,
+                            a.integrity.risk_score,
+                            a.integrity.flagged ? 'yes' : 'no',
+                            a.started_at,
+                          ]),
+                        ),
+                      )
+                    }
+                  />
+                </div>
                 <Card>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
@@ -583,6 +695,36 @@ export default function AdminPage() {
                   sort={evSort}
                   onSort={setEvSort}
                 />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                  <ExportButton
+                    count={evSorted.length}
+                    onClick={() =>
+                      downloadCsv(
+                        `qorium-audit-events-${today()}.csv`,
+                        toCsv(
+                          [
+                            'Event',
+                            'ActorType',
+                            'ActorId',
+                            'EntityType',
+                            'EntityId',
+                            'Tenant',
+                            'When',
+                          ],
+                          evSorted.map((e) => [
+                            e.event_type,
+                            e.actor_type,
+                            e.actor_id,
+                            e.entity_type,
+                            e.entity_id,
+                            e.tenant_name ?? e.tenant_id,
+                            e.occurred_at,
+                          ]),
+                        ),
+                      )
+                    }
+                  />
+                </div>
                 <Card>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                     <thead>
