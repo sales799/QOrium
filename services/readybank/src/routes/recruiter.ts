@@ -7,6 +7,9 @@ import { HttpProblem } from '../middleware/problem.js';
 import { assertWithinLimit, recordUsage } from '../billing/enforce.js';
 import { loadQuestion } from '../lib/a4-grader.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
+import { resolveProctoringPolicy, proctoringFeatureFlag } from '../lib/proctoring-policy.js';
+import { isPlanId, type PlanId } from '../billing/plans.js';
+import { getSubscriptionForTenant } from '../repositories/billing.js';
 import { buildProofRef } from '../lib/proof-ref.js';
 import {
   createAssessment,
@@ -73,6 +76,27 @@ export function recruiterPortalRouter(deps: RecruiterRouterDeps): Router {
   router.get('/recruiter/skill-families', async (_req, res, next) => {
     try {
       res.status(200).json({ families: await listSkillFamilies(deps.pool) });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // N10 proctoring tier-2: resolve the proctoring policy for the recruiter's
+  // tenant (plan entitlement + global feature flag). Read-only, no DB write,
+  // no audit row. Inert (enabled:false) until PROCTORING_ENABLED is set.
+  router.get('/recruiter/proctoring-policy', async (req, res, next) => {
+    try {
+      const me = rec(req as RecruiterRequest);
+      const sub = await getSubscriptionForTenant(deps.pool, me.tenantId);
+      const plan: PlanId =
+        sub && isPlanId(sub.tier) && (sub.status === 'active' || sub.status === 'trial')
+          ? sub.tier
+          : 'free';
+      const policy = resolveProctoringPolicy({
+        globalEnabled: proctoringFeatureFlag(),
+        plan,
+      });
+      res.status(200).json({ policy });
     } catch (err) {
       next(err);
     }
