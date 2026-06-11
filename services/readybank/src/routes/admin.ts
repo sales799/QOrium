@@ -7,6 +7,7 @@ import { HttpProblem } from '../middleware/problem.js';
 import { recruiterAuth, type RecruiterRequest } from '../middleware/recruiter-auth.js';
 import type { Config } from '../config.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
+import { getBankStats } from '../repositories/bank-stats.js';
 
 /**
  * Admin console API — Sprint 1.8d.
@@ -488,6 +489,19 @@ export function adminRouter(deps: AdminRouterDeps): Router {
         attempts_by_status: toMap(attemptsByStatus.rows),
         invitations_by_status: toMap(invitationsByStatus.rows),
       });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/bank-stats ──────────
+  // Read-only question-bank health for the admin console (N8). Surfaces bank
+  // shape only — totals, status/SKU breakdown, calibration coverage, and how
+  // many consolidated skill families carry released items. No tenant data, no
+  // question content, no PII; no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/bank-stats', auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getBankStats(deps.pool));
     } catch (err) {
       next(err);
     }
