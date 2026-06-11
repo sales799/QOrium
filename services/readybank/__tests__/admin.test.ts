@@ -246,6 +246,74 @@ function buildStub(): StubPool {
           : rows;
         return { rows: filtered, rowCount: filtered.length };
       }
+      if (sql.includes('FROM content.attempts at')) {
+        const rows = [
+          {
+            id: 'att-1',
+            tenant_id: 't1',
+            tenant_name: 'Talpro India',
+            assessment_id: 'aa',
+            assessment_title: 'Backend Screen',
+            candidate_id: 'cand-1',
+            status: 'graded',
+            total_score: '40',
+            max_score: '100',
+            started_at: new Date('2026-06-05T01:00:00Z'),
+            submitted_at: new Date('2026-06-05T01:20:00Z'),
+            graded_at: new Date('2026-06-05T01:21:00Z'),
+          },
+          {
+            id: 'att-2',
+            tenant_id: 't2',
+            tenant_name: 'Paused Co',
+            assessment_id: 'bb',
+            assessment_title: 'Draft Test',
+            candidate_id: 'cand-2',
+            status: 'in_progress',
+            total_score: null,
+            max_score: null,
+            started_at: new Date('2026-06-06T01:00:00Z'),
+            submitted_at: null,
+            graded_at: null,
+          },
+        ];
+        const filtered = sql.includes('at.status = $1')
+          ? rows.filter((r) => r.status === params[0])
+          : rows;
+        return { rows: filtered, rowCount: filtered.length };
+      }
+
+      if (sql.includes('FROM audit.events e')) {
+        const rows = [
+          {
+            id: 'evt-1',
+            event_type: 'auth.login.success',
+            actor_type: 'recruiter',
+            actor_id: 'rec-1',
+            entity_type: 'session',
+            entity_id: 'sess-1',
+            tenant_id: 't1',
+            tenant_name: 'Talpro India',
+            occurred_at: new Date('2026-06-10T01:00:00Z'),
+          },
+          {
+            id: 'evt-2',
+            event_type: 'assessment.created',
+            actor_type: 'recruiter',
+            actor_id: 'rec-1',
+            entity_type: 'assessment',
+            entity_id: 'aa',
+            tenant_id: 't1',
+            tenant_name: 'Talpro India',
+            occurred_at: new Date('2026-06-09T01:00:00Z'),
+          },
+        ];
+        const filtered = sql.includes('e.event_type = $1')
+          ? rows.filter((r) => r.event_type === params[0])
+          : rows;
+        return { rows: filtered, rowCount: filtered.length };
+      }
+
       return { rows: [], rowCount: 0 };
     },
   } as unknown as Pool;
@@ -622,5 +690,111 @@ describe('GET /v1/admin/assessments', () => {
       .set('Cookie', adminCookie());
     expect(res.status).toBe(400);
     expect(res.body.title).toBe('admin/invalid-query');
+  });
+});
+
+describe('GET /v1/admin/attempts', () => {
+  it('rejects without a session cookie (401)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/attempts');
+    expect(res.status).toBe(401);
+  });
+  it('returns cross-tenant attempts with numeric scores and tenant names', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/attempts').set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.attempts)).toBe(true);
+    expect(res.body.attempts.length).toBe(2);
+    expect(res.body.attempts[0].total_score).toBe(40);
+    expect(res.body.attempts[0].tenant_name).toBe('Talpro India');
+    expect(res.body.attempts[1].total_score).toBe(null);
+  });
+  it('filters by status', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/attempts?status=graded')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(res.body.attempts.every((a: { status: string }) => a.status === 'graded')).toBe(true);
+  });
+  it('rejects an invalid status (400)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/attempts?status=bogus')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(400);
+    expect(res.body.title).toBe('admin/invalid-query');
+  });
+});
+
+describe('GET /v1/admin/audit-events', () => {
+  it('rejects without a session cookie (401)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/audit-events');
+    expect(res.status).toBe(401);
+  });
+  it('returns sanitized audit events (no payload/ip/user_agent)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app).get('/v1/admin/audit-events').set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.events)).toBe(true);
+    expect(res.body.events.length).toBe(2);
+    expect(res.body.events[0].event_type).toBe('auth.login.success');
+    expect(res.body.events[0].tenant_name).toBe('Talpro India');
+    expect(res.body.events[0]).not.toHaveProperty('payload');
+    expect(res.body.events[0]).not.toHaveProperty('ip_address');
+    expect(res.body.events[0]).not.toHaveProperty('user_agent');
+  });
+  it('filters by event_type', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/audit-events?event_type=auth.login.success')
+      .set('Cookie', adminCookie());
+    expect(res.status).toBe(200);
+    expect(
+      res.body.events.every((e: { event_type: string }) => e.event_type === 'auth.login.success'),
+    ).toBe(true);
   });
 });
