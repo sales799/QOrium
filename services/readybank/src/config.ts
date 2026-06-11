@@ -39,6 +39,8 @@ export interface Config {
   sendgridApiKey: string | undefined;
   /** A4 candidate-flow HMAC secret. Required to enable /a4/* routes. */
   a4TokenSecret: string | undefined;
+  /** HMAC secret for Proof-of-Skill codes. Falls back to A4 secret when unset. */
+  proofSecret: string | undefined;
 }
 
 function getEnv(name: string, fallback?: string): string {
@@ -107,5 +109,6 @@ export function loadConfig(): Config {
     sesSecretAccessKey: process.env.SES_SECRET_ACCESS_KEY,
     sendgridApiKey: process.env.SENDGRID_API_KEY,
     a4TokenSecret: process.env.A4_TOKEN_SECRET,
+    proofSecret: process.env.PROOF_SECRET,
   };
 }
