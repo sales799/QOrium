@@ -9,6 +9,8 @@ import { SectionHeading } from '@/components/site/SectionHeading';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { Spotlight } from '@/components/aceternity/Spotlight';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Press kit',
@@ -49,6 +51,17 @@ const ASSETS = [
 export default function PressKitPage() {
   return (
     <>
+      <WebPageJsonLd
+        name="QOrium press kit"
+        description="Brand assets, boilerplate, and media contacts for QOrium."
+        url={`${siteConfig.url}/press-kit`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Press kit', path: '/press-kit' },
+        ]}
+      />
       <section className="relative isolate overflow-hidden py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">

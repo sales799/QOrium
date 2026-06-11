@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { guides, jobDescriptions, slugify } from '@/content/phase4';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Resources',
@@ -12,6 +14,17 @@ export const metadata: Metadata = {
 export default function ResourcesPage() {
   return (
     <main>
+      <WebPageJsonLd
+        name="QOrium resources"
+        description="Guides, job-description templates, and assessment resources from QOrium."
+        url={`${siteConfig.url}/resources`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Resources', path: '/resources' },
+        ]}
+      />
       <PageHero
         eyebrow="Resources"
         title="Hiring resources for teams moving from resumes to skills evidence."
