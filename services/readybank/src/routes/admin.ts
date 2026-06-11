@@ -6,6 +6,7 @@ import { recordAuditEvent } from '@qorium/auth';
 import { HttpProblem } from '../middleware/problem.js';
 import { recruiterAuth, type RecruiterRequest } from '../middleware/recruiter-auth.js';
 import type { Config } from '../config.js';
+import { summarizeIntegrity } from '../lib/integrity.js';
 
 /**
  * Admin console API — Sprint 1.8d.
@@ -116,6 +117,10 @@ const AdminAttemptsQuerySchema = z.object({
   status: z.enum(['in_progress', 'submitted', 'graded', 'abandoned']).optional(),
   tenant_id: z.string().uuid().optional(),
   assessment_id: z.string().uuid().optional(),
+  flagged_only: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => v === 'true'),
   limit: z.coerce.number().int().min(1).max(200).default(50),
 });
 
@@ -657,8 +662,28 @@ export function adminRouter(deps: AdminRouterDeps): Router {
         `SELECT at.id, at.tenant_id, t.name AS tenant_name, at.assessment_id, a.title AS assessment_title, at.candidate_id, at.status, at.total_score::text AS total_score, at.max_score::text AS max_score, at.started_at, at.submitted_at, at.graded_at FROM content.attempts at LEFT JOIN app.tenants t ON t.id = at.tenant_id LEFT JOIN content.assessments a ON a.id = at.assessment_id ${whereSql} ORDER BY at.started_at DESC LIMIT $${params.length}`,
         params,
       );
-      res.json({
-        attempts: result.rows.map((r) => ({
+      const attemptIds = result.rows.map((r) => r.id);
+      const integrityByAttempt = new Map<string, ReturnType<typeof summarizeIntegrity>>();
+      if (attemptIds.length > 0) {
+        const sig = await deps.pool.query<{
+          attempt_id: string;
+          suspicious_signals: Record<string, unknown> | null;
+        }>(
+          `SELECT attempt_id, suspicious_signals FROM content.responses WHERE attempt_id = ANY($1::uuid[])`,
+          [attemptIds],
+        );
+        const grouped = new Map<string, Array<Record<string, unknown> | null>>();
+        for (const row of sig.rows) {
+          const list = grouped.get(row.attempt_id) ?? [];
+          list.push(row.suspicious_signals);
+          grouped.set(row.attempt_id, list);
+        }
+        for (const id of attemptIds) {
+          integrityByAttempt.set(id, summarizeIntegrity(grouped.get(id) ?? []));
+        }
+      }
+      const attempts = result.rows
+        .map((r) => ({
           id: r.id,
           tenant_id: r.tenant_id,
           tenant_name: r.tenant_name,
@@ -671,8 +696,10 @@ export function adminRouter(deps: AdminRouterDeps): Router {
           started_at: r.started_at,
           submitted_at: r.submitted_at,
           graded_at: r.graded_at,
-        })),
-      });
+          integrity: integrityByAttempt.get(r.id) ?? summarizeIntegrity([]),
+        }))
+        .filter((row) => (q.flagged_only ? row.integrity.flagged : true));
+      res.json({ attempts });
     } catch (err) {
       next(err);
     }
