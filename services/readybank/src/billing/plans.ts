@@ -9,6 +9,7 @@ export interface Plan {
   name: string;
   priceInr: number; // monthly INR; 0 = free or custom
   razorpayPlanEnv?: string;
+  cashfreePlanEnv?: string;
   limits: { assessmentsPerMonth: number; attemptsPerMonth: number }; // -1 = unlimited
   custom?: boolean;
 }
@@ -25,6 +26,7 @@ export const PLANS: Record<PlanId, Plan> = {
     name: 'Growth',
     priceInr: 4999,
     razorpayPlanEnv: 'RAZORPAY_PLAN_GROWTH',
+    cashfreePlanEnv: 'CASHFREE_PLAN_GROWTH',
     limits: { assessmentsPerMonth: 50, attemptsPerMonth: 1000 },
   },
   scale: {
@@ -32,6 +34,7 @@ export const PLANS: Record<PlanId, Plan> = {
     name: 'Scale',
     priceInr: 19999,
     razorpayPlanEnv: 'RAZORPAY_PLAN_SCALE',
+    cashfreePlanEnv: 'CASHFREE_PLAN_SCALE',
     limits: { assessmentsPerMonth: 500, attemptsPerMonth: 20000 },
   },
   enterprise: {

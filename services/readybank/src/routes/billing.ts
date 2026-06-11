@@ -4,12 +4,9 @@ import type { Config } from '../config.js';
 import { HttpProblem } from '../middleware/problem.js';
 import { recruiterAuth, type RecruiterRequest } from '../middleware/recruiter-auth.js';
 import { PLANS, isPlanId, planUnitAmountCents } from '../billing/plans.js';
-import {
-  createSubscription,
-  cancelSubscription,
-  verifyWebhookSignature,
-  razorpayConfigured,
-} from '../lib/razorpay.js';
+import { razorpayConfigured, verifyWebhookSignature } from '../lib/razorpay.js';
+import { getPaymentProvider, activeProviderName, getProvider } from '../lib/payment-provider.js';
+import { verifyCfWebhookSignature } from '../lib/cashfree.js';
 import {
   ensureCustomer,
   getSubscriptionForTenant,
@@ -46,6 +43,7 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
           getUsageForTenant(deps.pool, tenantId),
         ]);
         const planId = sub?.tier && isPlanId(sub.tier) ? sub.tier : 'free';
+        const provider = getPaymentProvider();
         res.status(200).json({
           plan: planId,
           status: sub?.status ?? 'active',
@@ -59,6 +57,9 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
             custom: Boolean(p.custom),
             limits: p.limits,
           })),
+          paymentProvider: provider.name,
+          providerConfigured: provider.configured(),
+          // retained for backward compatibility with the existing /billing page
           razorpayConfigured: razorpayConfigured(),
         });
       } catch (e) {
@@ -89,23 +90,27 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
         }
         if (plan.custom)
           throw new HttpProblem({ status: 422, title: 'Enterprise is custom — contact sales' });
-        if (!razorpayConfigured())
+
+        const provider = getPaymentProvider();
+        if (!provider.configured())
           throw new HttpProblem({
             status: 503,
             title: 'Billing not configured',
-            detail: 'Razorpay keys are not set on the server yet',
+            detail: `${provider.name} keys are not set on the server yet`,
           });
-        const rzpPlanId = plan.razorpayPlanEnv ? process.env[plan.razorpayPlanEnv] : undefined;
-        if (!rzpPlanId)
+        const planEnv = provider.planEnvFor(plan);
+        const providerPlanId = planEnv ? process.env[planEnv] : undefined;
+        if (!providerPlanId)
           throw new HttpProblem({
             status: 503,
             title: 'Plan not provisioned',
-            detail: `${plan.razorpayPlanEnv} is not set`,
+            detail: `${planEnv ?? `${provider.name} plan env`} is not set`,
           });
 
-        const subscription = await createSubscription({
-          planId: rzpPlanId,
+        const subscription = await provider.createSubscription({
+          providerPlanId,
           customerEmail: email,
+          customerName: name,
           notes: { tenant_id: tenantId, qorium_plan: plan.id },
         });
         await upsertSubscription(deps.pool, {
@@ -118,7 +123,8 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
         res.status(200).json({
           plan: plan.id,
           status: subscription.status,
-          checkoutUrl: subscription.short_url,
+          checkoutUrl: subscription.checkoutUrl,
+          provider: provider.name,
         });
       } catch (e) {
         next(e);
@@ -134,7 +140,7 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
         const sub = await getSubscriptionForTenant(deps.pool, tenantId);
         if (!sub?.razorpay_subscription_id)
           throw new HttpProblem({ status: 404, title: 'No active subscription' });
-        await cancelSubscription(sub.razorpay_subscription_id);
+        await getPaymentProvider().cancelSubscription(sub.razorpay_subscription_id);
         const customerId = await getCustomerIdByTenant(deps.pool, tenantId);
         if (customerId)
           await upsertSubscription(deps.pool, {
@@ -153,9 +159,12 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
   return router;
 }
 
-// ── Public webhook (mount at '/v1/billing' BEFORE the global express.json) ──
+// ── Public webhooks (mount at '/v1/billing' BEFORE the global express.json) ──
+// Razorpay  -> POST /v1/billing/webhook
+// Cashfree  -> POST /v1/billing/webhook/cashfree
 export function billingWebhookRouter(deps: BillingRouterDeps): Router {
   const router = Router();
+
   router.post(
     '/webhook',
     raw({ type: '*/*' }),
@@ -222,5 +231,68 @@ export function billingWebhookRouter(deps: BillingRouterDeps): Router {
       }
     },
   );
+
+  router.post(
+    '/webhook/cashfree',
+    raw({ type: '*/*' }),
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
+        const signature = req.header('x-webhook-signature');
+        const timestamp = req.header('x-webhook-timestamp');
+        if (!verifyCfWebhookSignature(rawBody, signature, timestamp))
+          throw new HttpProblem({ status: 401, title: 'Invalid webhook signature' });
+
+        let event: {
+          type?: string;
+          data?: { subscription?: Record<string, unknown> };
+        };
+        try {
+          event = JSON.parse(rawBody);
+        } catch {
+          throw new HttpProblem({ status: 400, title: 'Malformed webhook body' });
+        }
+
+        const sub = event.data?.subscription;
+        const cfSubId = sub?.subscription_id as string | undefined;
+        const cfStatus = String(sub?.subscription_status ?? '').toUpperCase();
+        const tenantId = cfSubId
+          ? await findTenantByRazorpaySubscription(deps.pool, cfSubId)
+          : null;
+
+        if (tenantId) {
+          const customerId = await getCustomerIdByTenant(deps.pool, tenantId);
+          if (customerId) {
+            if (cfStatus === 'ACTIVE') {
+              const meta = sub?.subscription_meta as Record<string, string> | undefined;
+              const planNotes = meta?.qorium_plan;
+              const tier = planNotes && isPlanId(planNotes) ? planNotes : 'growth';
+              await upsertSubscription(deps.pool, {
+                customerId,
+                tier,
+                status: 'active',
+                unitAmountCents: planUnitAmountCents(tier),
+                razorpaySubscriptionId: cfSubId ?? null,
+              });
+            } else if (cfStatus === 'CANCELLED' || cfStatus === 'COMPLETED') {
+              await upsertSubscription(deps.pool, {
+                customerId,
+                tier: 'free',
+                status: 'active',
+                unitAmountCents: 0,
+              });
+            }
+          }
+        }
+        res.status(200).json({ ok: true });
+      } catch (e) {
+        next(e);
+      }
+    },
+  );
+
   return router;
 }
+
+// Exported for diagnostics/tests: which provider routes subscribe calls today.
+export { activeProviderName, getProvider };
