@@ -7,6 +7,9 @@ import { DemoForm } from '@/components/site/DemoForm';
 import { CalendlyEmbed } from '@/components/site/CalendlyEmbed';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { Spotlight } from '@/components/aceternity/Spotlight';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+
+import { siteConfig } from '@/content/site.config';
 
 const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL ?? '';
 
@@ -27,6 +30,17 @@ const AGENDA = [
 export default function DemoPage() {
   return (
     <>
+      <WebPageJsonLd
+        name="Book a QOrium demo"
+        description="See ReadyBank, JD-Forge, and Stack-Vault in a live QOrium walkthrough."
+        url={`${siteConfig.url}/demo`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Demo', path: '/demo' },
+        ]}
+      />
       <section className="relative isolate overflow-hidden relative py-20 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-1/2 opacity-25" />
         <MaxWidth as="div" className="relative z-10">

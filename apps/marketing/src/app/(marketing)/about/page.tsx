@@ -9,6 +9,9 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { Spotlight } from '@/components/aceternity/Spotlight';
+import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+
+import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -82,6 +85,18 @@ const VALUES = [
 export default function AboutPage() {
   return (
     <>
+      <WebPageJsonLd
+        name="About QOrium"
+        description="QOrium's mission, founder note, and why we're based in India."
+        url={`${siteConfig.url}/about`}
+        type="AboutPage"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'About', path: '/about' },
+        ]}
+      />
       {/* HERO */}
       <section className="relative isolate overflow-hidden relative py-24 [background:radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,oklch(54.65%_0.246_262.87/0.18)_100%)]">
         <Spotlight className="left-1/2 top-0 -translate-x-[60%] opacity-25" />
