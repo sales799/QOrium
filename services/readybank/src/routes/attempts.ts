@@ -6,6 +6,7 @@ import { HttpProblem } from '../middleware/problem.js';
 import { loadQuestion } from '../lib/a4-grader.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
 import { gradeAttempt } from '../grading/worker.js';
+import { issueProofCode } from '../lib/proof-code.js';
 import {
   createOrResumeAttempt,
   getAttempt,
@@ -85,6 +86,8 @@ const SubmitBody = z.object({ token: z.string().min(16).max(128) });
 
 export interface AttemptsRouterDeps {
   pool: Pool;
+  /** Optional HMAC secret to mint shareable Proof-of-Skill codes on graded attempts. */
+  secret?: string | undefined;
 }
 
 /**
@@ -433,6 +436,10 @@ export function attemptReviewRouter(deps: AttemptsRouterDeps): Router {
         candidate_id: attempt.candidate_id,
         total_score: attempt.total_score !== null ? Number(attempt.total_score) : null,
         graded_at: attempt.graded_at ? attempt.graded_at.toISOString() : null,
+        proof_code:
+          attempt.status === 'graded' && deps.secret
+            ? issueProofCode(attempt.id, deps.secret)
+            : null,
         responses: detailed,
         integrity: summarizeIntegrity(responses.map((r) => r.suspicious_signals)),
       });

@@ -19,6 +19,7 @@ import { referencePanelRouter } from './routes/reference-panel.js';
 import { stackVaultRouter } from './routes/stack-vault.js';
 import { assessmentsRouter } from './routes/assessments.js';
 import { candidateAttemptRouter, attemptReviewRouter } from './routes/attempts.js';
+import { proofRouter } from './routes/proof.js';
 import { recruiterPortalRouter } from './routes/recruiter.js';
 import { billingRecruiterRouter, billingWebhookRouter } from './routes/billing.js';
 import { a4Router } from './routes/a4.js';
@@ -88,11 +89,13 @@ export function createServer(deps: ServerDeps): ServerHandle {
   // smoke runs without a DB) so /healthz still works.
   if (deps.pool) {
     const auth = deps.authMiddleware ?? buildAuthMiddleware(deps.config, deps.pool);
+    const proofSecret = deps.config.proofSecret ?? deps.config.a4TokenSecret;
     app.use('/v1', authRouter({ pool: deps.pool, config: deps.config }));
     app.use(adminRouter({ pool: deps.pool, config: deps.config }));
     app.use(auditRouter({ pool: deps.pool, config: deps.config }));
     app.use(referencePanelRouter({ pool: deps.pool, config: deps.config }));
     app.use(candidateAttemptRouter({ pool: deps.pool }));
+    app.use(proofRouter({ pool: deps.pool, secret: proofSecret }));
     app.use('/v1', recruiterPortalRouter({ pool: deps.pool, config: deps.config }));
     app.use('/v1', billingRecruiterRouter({ pool: deps.pool, config: deps.config }));
 
@@ -105,7 +108,7 @@ export function createServer(deps: ServerDeps): ServerHandle {
       assessmentsRouter(
         deps.mailer ? { pool: deps.pool, mailer: deps.mailer } : { pool: deps.pool },
       ),
-      attemptReviewRouter({ pool: deps.pool }),
+      attemptReviewRouter({ pool: deps.pool, secret: proofSecret }),
     );
 
     if (deps.mailer) {
