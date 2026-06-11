@@ -23,6 +23,13 @@ interface Attempt {
   candidate_email: string;
   candidate_name: string | null;
 }
+interface IntegritySummary {
+  total: number;
+  by_type: Record<string, number>;
+  risk_score: number;
+  risk_level: 'low' | 'medium' | 'high';
+  flagged: boolean;
+}
 interface ReviewItem {
   response_id: string;
   format: string | null;
@@ -75,6 +82,7 @@ export function RecruiterDashboard() {
   const [invite, setInvite] = useState<Record<string, string>>({});
   const [links, setLinks] = useState<Record<string, string>>({});
   const [review, setReview] = useState<Record<string, ReviewItem[]>>({});
+  const [integrity, setIntegrity] = useState<Record<string, IntegritySummary>>({});
 
   const loadAssessments = useCallback(async () => {
     const r = await api('/recruiter/assessments');
@@ -149,12 +157,18 @@ export function RecruiterDashboard() {
         delete n[attemptId];
         return n;
       });
+      setIntegrity((iv) => {
+        const n = { ...iv };
+        delete n[attemptId];
+        return n;
+      });
       return;
     }
     const r = await api(`/recruiter/attempts/${attemptId}/review`);
     if (r.ok) {
       const d = await r.json();
       setReview((rv) => ({ ...rv, [attemptId]: d.responses }));
+      if (d.integrity) setIntegrity((iv) => ({ ...iv, [attemptId]: d.integrity }));
     }
   }
 
@@ -301,6 +315,25 @@ export function RecruiterDashboard() {
                       </div>
                       {review[at.id] && (
                         <div style={{ marginTop: 8 }}>
+                          {integrity[at.id] && (
+                            <div
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                marginBottom: 6,
+                                color:
+                                  integrity[at.id]!.risk_level === 'high'
+                                    ? '#dc2626'
+                                    : integrity[at.id]!.risk_level === 'medium'
+                                      ? '#d97706'
+                                      : C.sub,
+                              }}
+                            >
+                              Integrity: {integrity[at.id]!.risk_level} (risk{' '}
+                              {integrity[at.id]!.risk_score}/100){' '}
+                              {integrity[at.id]!.flagged ? '\u2014 flagged' : ''}
+                            </div>
+                          )}
                           {review[at.id]!.map((rv, i) => (
                             <div
                               key={rv.response_id}
