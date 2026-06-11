@@ -254,3 +254,21 @@ export function familyForSkill(skillName: string): SkillFamilyId {
 export function familyName(id: SkillFamilyId): string {
   return FAMILY_BY_ID[id]?.name ?? 'Other';
 }
+
+/**
+ * Canonical seed for the persisted `content.skill_families` reference table
+ * (migration 0022). Derived from SKILL_FAMILIES so the in-app taxonomy stays the
+ * single source of truth; the migration mirrors these exact rows.
+ * __tests__/skill-families-seed.test.ts fails CI if the two drift apart.
+ */
+export interface SkillFamilySeedRow {
+  id: SkillFamilyId;
+  name: string;
+  sortOrder: number;
+}
+
+export const SKILL_FAMILY_SEED: SkillFamilySeedRow[] = SKILL_FAMILIES.map((fam, i) => ({
+  id: fam.id,
+  name: fam.name,
+  sortOrder: i,
+}));
