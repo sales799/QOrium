@@ -104,6 +104,13 @@ const TenantsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
 });
 
+// GET /v1/admin/assessments — cross-tenant read-only list
+const AdminAssessmentsQuerySchema = z.object({
+  status: z.enum(['draft', 'active', 'archived']).optional(),
+  tenant_id: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
 export function adminRouter(deps: AdminRouterDeps): Router {
   const router = Router();
   const auth = recruiterAuth({
@@ -535,6 +542,61 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
+  router.get('/v1/admin/assessments', auth, async (req: Request, res, next) => {
+    try {
+      const parsed = AdminAssessmentsQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new HttpProblem({
+          status: 400,
+          title: 'admin/invalid-query',
+          detail: parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+        });
+      }
+      const q = parsed.data;
+      const conditions: string[] = [];
+      const params: unknown[] = [];
+      if (q.status) {
+        conditions.push(`a.status = $${params.length + 1}`);
+        params.push(q.status);
+      }
+      if (q.tenant_id) {
+        conditions.push(`a.tenant_id = $${params.length + 1}`);
+        params.push(q.tenant_id);
+      }
+      const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(q.limit);
+      const result = await deps.pool.query<{
+        id: string;
+        tenant_id: string;
+        tenant_name: string | null;
+        title: string;
+        status: string;
+        total_questions: number;
+        created_at: Date;
+        invitations: string;
+        attempts: string;
+      }>(
+        `SELECT a.id, a.tenant_id, t.name AS tenant_name, a.title, a.status, a.total_questions, a.created_at, COALESCE(inv.n, 0)::text AS invitations, COALESCE(att.n, 0)::text AS attempts FROM content.assessments a LEFT JOIN app.tenants t ON t.id = a.tenant_id LEFT JOIN (SELECT assessment_id, COUNT(*) AS n FROM content.invitations GROUP BY assessment_id) inv ON inv.assessment_id = a.id LEFT JOIN (SELECT i.assessment_id, COUNT(*) AS n FROM content.attempts at2 JOIN content.invitations i ON i.id = at2.invitation_id GROUP BY i.assessment_id) att ON att.assessment_id = a.id ${whereSql} ORDER BY a.created_at DESC LIMIT $${params.length}`,
+        params,
+      );
+      res.json({
+        assessments: result.rows.map((r) => ({
+          id: r.id,
+          tenant_id: r.tenant_id,
+          tenant_name: r.tenant_name,
+          title: r.title,
+          status: r.status,
+          total_questions: Number(r.total_questions),
+          created_at: r.created_at,
+          invitations: Number(r.invitations),
+          attempts: Number(r.attempts),
+        })),
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
 
@@ -543,5 +605,11 @@ export function adminAuthRequired(req: Request): boolean {
 }
 
 export function _testHelpers() {
-  return { LeakAlertQuerySchema, ReviewLeakAlertSchema, MintTokenSchema, TenantsQuerySchema };
+  return {
+    LeakAlertQuerySchema,
+    ReviewLeakAlertSchema,
+    MintTokenSchema,
+    TenantsQuerySchema,
+    AdminAssessmentsQuerySchema,
+  };
 }
