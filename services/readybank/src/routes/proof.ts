@@ -4,6 +4,7 @@
 //
 //   GET /v1/proof/:code        ->  200 sanitized public proof (JSON) | 404 | 503
 //   GET /v1/proof/:code/view   ->  200 human-readable HTML trust card | 404 | 503
+//   GET /v1/proof/:code/badge.svg -> 200 embeddable SVG badge | 404 | 503
 //
 // 404 covers both "bad/forged code" and "attempt not graded" so the endpoint
 // never confirms the existence of an attempt to an unauthenticated caller.
@@ -15,6 +16,7 @@ import { verifyProofCode } from '../lib/proof-code.js';
 import { getProofRecord } from '../repositories/proof.js';
 import { getProofStats } from '../repositories/proof-stats.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
+import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
 export interface ProofRouterDeps {
   pool: Pool;
@@ -131,6 +133,51 @@ export function proofRouter(deps: ProofRouterDeps): Router {
           scoreBand: scoreBand(pct),
           passed: passedFrom(pct, record.pass_score),
           gradedAt: record.graded_at,
+        }),
+      );
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Embeddable Proof-of-Skill badge (SVG). The portable face of a proof: a
+  // candidate drops it in a resume / LinkedIn / portfolio, a viewer sees a
+  // tamper-evident QOrium mark. Script-free SVG; verified badges are
+  // edge-cacheable, invalid/unconfigured are no-store. Shows issuer + band +
+  // outcome only — never candidate PII, numeric score, question, or answer.
+  router.get('/v1/proof/:code/badge.svg', async (req, res, next) => {
+    res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    if (!deps.secret) {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(503).send(renderProofBadgeSvg({ kind: 'unconfigured' }));
+      return;
+    }
+
+    const verified = verifyProofCode(req.params.code, deps.secret);
+    if (!verified.ok) {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(404).send(renderProofBadgeSvg({ kind: 'invalid' }));
+      return;
+    }
+
+    try {
+      const record = await getProofRecord(deps.pool, verified.attemptId);
+      if (!record) {
+        res.setHeader('Cache-Control', 'no-store');
+        res.status(404).send(renderProofBadgeSvg({ kind: 'invalid' }));
+        return;
+      }
+      const pct = record.total_score;
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(
+        renderProofBadgeSvg({
+          kind: 'verified',
+          issuer: record.issuer,
+          assessment: record.assessment_title,
+          scoreBand: scoreBand(pct),
+          passed: passedFrom(pct, record.pass_score),
         }),
       );
     } catch (err) {
