@@ -4,6 +4,8 @@
 // Read-only control-plane view consuming GET /v1/admin/overview, /tenants,
 // /assessments, /attempts and /audit-events via the cookie-forwarding /api/v1
 // proxy. No mutations. Tabs lazy-fetch their endpoint on first open.
+// Client-side filter/search controls (search box, status filter, flagged-only)
+// operate on the already-fetched rows — no new endpoints, no DB change.
 
 import { useEffect, useState } from 'react';
 
@@ -111,11 +113,23 @@ const td = {
   borderBottom: `1px solid ${C.line}`,
   whiteSpace: 'nowrap',
 } as const;
+const fld = {
+  padding: '7px 10px',
+  fontSize: 13,
+  border: `1px solid ${C.line}`,
+  borderRadius: 8,
+  color: C.ink,
+  background: '#fff',
+} as const;
 
 function getJson<T>(path: string): Promise<T> {
   return fetch(path, { credentials: 'include' }).then((r) =>
     r.ok ? (r.json() as Promise<T>) : Promise.reject(new Error(`${path}: status ${r.status}`)),
   );
+}
+
+function uniqSorted(values: (string | null | undefined)[]): string[] {
+  return Array.from(new Set(values.filter((v): v is string => !!v))).sort();
 }
 
 function Card({ children }: { children: React.ReactNode }) {
@@ -133,6 +147,67 @@ function Card({ children }: { children: React.ReactNode }) {
   );
 }
 
+function FilterBar({
+  search,
+  onSearch,
+  placeholder,
+  status,
+  onStatus,
+  statuses,
+  statusLabel = 'All statuses',
+  flaggedOnly,
+  onFlagged,
+}: {
+  search: string;
+  onSearch: (v: string) => void;
+  placeholder: string;
+  status: string;
+  onStatus: (v: string) => void;
+  statuses: string[];
+  statusLabel?: string;
+  flaggedOnly?: boolean;
+  onFlagged?: (v: boolean) => void;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: 10,
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        margin: '10px 0 14px',
+      }}
+    >
+      <input
+        style={{ ...fld, minWidth: 220, flex: '1 1 220px' }}
+        placeholder={placeholder}
+        value={search}
+        onChange={(e) => onSearch(e.target.value)}
+      />
+      <select style={fld} value={status} onChange={(e) => onStatus(e.target.value)}>
+        <option value="">{statusLabel}</option>
+        {statuses.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+      {onFlagged && (
+        <label
+          style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: C.sub }}
+        >
+          <input
+            type="checkbox"
+            checked={!!flaggedOnly}
+            onChange={(e) => onFlagged(e.target.checked)}
+          />
+          Flagged only
+        </label>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('Overview');
   const [ov, setOv] = useState<Overview | null>(null);
@@ -141,6 +216,15 @@ export default function AdminPage() {
   const [attempts, setAttempts] = useState<Attempt[] | null>(null);
   const [events, setEvents] = useState<AuditEvent[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  // Client-side filter state (per tab).
+  const [aSearch, setASearch] = useState('');
+  const [aStatus, setAStatus] = useState('');
+  const [tSearch, setTSearch] = useState('');
+  const [tStatus, setTStatus] = useState('');
+  const [tFlagged, setTFlagged] = useState(false);
+  const [evSearch, setEvSearch] = useState('');
+  const [evType, setEvType] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -194,6 +278,33 @@ export default function AdminPage() {
     { label: 'Calibrated Qs', value: ov.bank.questions_calibrated },
     { label: 'Active subs', value: ov.billing.subscriptions_active },
   ];
+
+  const q = (s: string) => s.toLowerCase();
+  const assessmentList = assessments ?? [];
+  const aFiltered = assessmentList.filter(
+    (a) =>
+      (aStatus === '' || a.status === aStatus) &&
+      (aSearch === '' || q(`${a.title} ${a.tenant_name ?? ''}`).includes(q(aSearch))),
+  );
+  const attemptList = attempts ?? [];
+  const tFiltered = attemptList.filter(
+    (a) =>
+      (tStatus === '' || a.status === tStatus) &&
+      (!tFlagged || a.integrity.flagged) &&
+      (tSearch === '' ||
+        q(`${a.assessment_title ?? ''} ${a.tenant_name ?? ''} ${a.candidate_id}`).includes(
+          q(tSearch),
+        )),
+  );
+  const eventList = events ?? [];
+  const evFiltered = eventList.filter(
+    (e) =>
+      (evType === '' || e.event_type === evType) &&
+      (evSearch === '' ||
+        q(
+          `${e.event_type} ${e.actor_type ?? ''} ${e.entity_type ?? ''} ${e.tenant_name ?? ''}`,
+        ).includes(q(evSearch))),
+  );
 
   return (
     <main style={{ minHeight: '100vh', background: C.bg, fontFamily: 'system-ui, sans-serif' }}>
@@ -305,39 +416,49 @@ export default function AdminPage() {
         {tab === 'Assessments' && (
           <>
             <h2 style={{ fontSize: 16, color: C.ink }}>
-              Assessments {assessments ? `(${assessments.length})` : ''}
+              Assessments {assessments ? `(${aFiltered.length}/${assessments.length})` : ''}
             </h2>
             {assessments === null ? (
               <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
             ) : (
-              <Card>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                  <thead>
-                    <tr>
-                      <th style={th}>Title</th>
-                      <th style={th}>Tenant</th>
-                      <th style={th}>Status</th>
-                      <th style={th}>Qs</th>
-                      <th style={th}>Invites</th>
-                      <th style={th}>Attempts</th>
-                      <th style={th}>Created</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {assessments.map((a) => (
-                      <tr key={a.id}>
-                        <td style={td}>{a.title}</td>
-                        <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
-                        <td style={td}>{a.status}</td>
-                        <td style={td}>{n(a.total_questions)}</td>
-                        <td style={td}>{n(a.invitations)}</td>
-                        <td style={td}>{n(a.attempts)}</td>
-                        <td style={td}>{dt(a.created_at)}</td>
+              <>
+                <FilterBar
+                  search={aSearch}
+                  onSearch={setASearch}
+                  placeholder="Search title or tenant…"
+                  status={aStatus}
+                  onStatus={setAStatus}
+                  statuses={uniqSorted(assessmentList.map((a) => a.status))}
+                />
+                <Card>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={th}>Title</th>
+                        <th style={th}>Tenant</th>
+                        <th style={th}>Status</th>
+                        <th style={th}>Qs</th>
+                        <th style={th}>Invites</th>
+                        <th style={th}>Attempts</th>
+                        <th style={th}>Created</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
+                    </thead>
+                    <tbody>
+                      {aFiltered.map((a) => (
+                        <tr key={a.id}>
+                          <td style={td}>{a.title}</td>
+                          <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
+                          <td style={td}>{a.status}</td>
+                          <td style={td}>{n(a.total_questions)}</td>
+                          <td style={td}>{n(a.invitations)}</td>
+                          <td style={td}>{n(a.attempts)}</td>
+                          <td style={td}>{dt(a.created_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </>
             )}
           </>
         )}
@@ -345,52 +466,64 @@ export default function AdminPage() {
         {tab === 'Attempts' && (
           <>
             <h2 style={{ fontSize: 16, color: C.ink }}>
-              Attempts {attempts ? `(${attempts.length})` : ''}
+              Attempts {attempts ? `(${tFiltered.length}/${attempts.length})` : ''}
             </h2>
             {attempts === null ? (
               <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
             ) : (
-              <Card>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                  <thead>
-                    <tr>
-                      <th style={th}>Assessment</th>
-                      <th style={th}>Tenant</th>
-                      <th style={th}>Candidate</th>
-                      <th style={th}>Status</th>
-                      <th style={th}>Score</th>
-                      <th style={th}>Integrity</th>
-                      <th style={th}>Started</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {attempts.map((a) => (
-                      <tr key={a.id}>
-                        <td style={td}>{a.assessment_title ?? shortId(a.assessment_id)}</td>
-                        <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
-                        <td style={td}>{shortId(a.candidate_id)}</td>
-                        <td style={td}>{a.status}</td>
-                        <td style={td}>
-                          {a.total_score === null
-                            ? '—'
-                            : `${n(a.total_score)}${a.max_score !== null ? ` / ${n(a.max_score)}` : ''}`}
-                        </td>
-                        <td
-                          style={{
-                            ...td,
-                            color: RISK_COLOR[a.integrity.risk_level],
-                            fontWeight: 600,
-                          }}
-                        >
-                          {a.integrity.flagged ? '⚑ ' : ''}
-                          {a.integrity.risk_level} ({a.integrity.risk_score})
-                        </td>
-                        <td style={td}>{dt(a.started_at)}</td>
+              <>
+                <FilterBar
+                  search={tSearch}
+                  onSearch={setTSearch}
+                  placeholder="Search assessment, tenant or candidate…"
+                  status={tStatus}
+                  onStatus={setTStatus}
+                  statuses={uniqSorted(attemptList.map((a) => a.status))}
+                  flaggedOnly={tFlagged}
+                  onFlagged={setTFlagged}
+                />
+                <Card>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={th}>Assessment</th>
+                        <th style={th}>Tenant</th>
+                        <th style={th}>Candidate</th>
+                        <th style={th}>Status</th>
+                        <th style={th}>Score</th>
+                        <th style={th}>Integrity</th>
+                        <th style={th}>Started</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
+                    </thead>
+                    <tbody>
+                      {tFiltered.map((a) => (
+                        <tr key={a.id}>
+                          <td style={td}>{a.assessment_title ?? shortId(a.assessment_id)}</td>
+                          <td style={td}>{a.tenant_name ?? shortId(a.tenant_id)}</td>
+                          <td style={td}>{shortId(a.candidate_id)}</td>
+                          <td style={td}>{a.status}</td>
+                          <td style={td}>
+                            {a.total_score === null
+                              ? '—'
+                              : `${n(a.total_score)}${a.max_score !== null ? ` / ${n(a.max_score)}` : ''}`}
+                          </td>
+                          <td
+                            style={{
+                              ...td,
+                              color: RISK_COLOR[a.integrity.risk_level],
+                              fontWeight: 600,
+                            }}
+                          >
+                            {a.integrity.flagged ? '⚑ ' : ''}
+                            {a.integrity.risk_level} ({a.integrity.risk_score})
+                          </td>
+                          <td style={td}>{dt(a.started_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </>
             )}
           </>
         )}
@@ -398,41 +531,52 @@ export default function AdminPage() {
         {tab === 'Audit' && (
           <>
             <h2 style={{ fontSize: 16, color: C.ink }}>
-              Audit events {events ? `(${events.length})` : ''}
+              Audit events {events ? `(${evFiltered.length}/${events.length})` : ''}
             </h2>
             {events === null ? (
               <p style={{ color: C.sub, fontSize: 13 }}>Loading…</p>
             ) : (
-              <Card>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                  <thead>
-                    <tr>
-                      <th style={th}>Event</th>
-                      <th style={th}>Actor</th>
-                      <th style={th}>Entity</th>
-                      <th style={th}>Tenant</th>
-                      <th style={th}>When</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {events.map((e) => (
-                      <tr key={e.id}>
-                        <td style={td}>{e.event_type}</td>
-                        <td style={td}>
-                          {e.actor_type ?? '—'}
-                          {e.actor_id ? ` · ${shortId(e.actor_id)}` : ''}
-                        </td>
-                        <td style={td}>
-                          {e.entity_type ?? '—'}
-                          {e.entity_id ? ` · ${shortId(e.entity_id)}` : ''}
-                        </td>
-                        <td style={td}>{e.tenant_name ?? shortId(e.tenant_id)}</td>
-                        <td style={td}>{dt(e.occurred_at)}</td>
+              <>
+                <FilterBar
+                  search={evSearch}
+                  onSearch={setEvSearch}
+                  placeholder="Search event, actor, entity or tenant…"
+                  status={evType}
+                  onStatus={setEvType}
+                  statuses={uniqSorted(eventList.map((e) => e.event_type))}
+                  statusLabel="All event types"
+                />
+                <Card>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={th}>Event</th>
+                        <th style={th}>Actor</th>
+                        <th style={th}>Entity</th>
+                        <th style={th}>Tenant</th>
+                        <th style={th}>When</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
+                    </thead>
+                    <tbody>
+                      {evFiltered.map((e) => (
+                        <tr key={e.id}>
+                          <td style={td}>{e.event_type}</td>
+                          <td style={td}>
+                            {e.actor_type ?? '—'}
+                            {e.actor_id ? ` · ${shortId(e.actor_id)}` : ''}
+                          </td>
+                          <td style={td}>
+                            {e.entity_type ?? '—'}
+                            {e.entity_id ? ` · ${shortId(e.entity_id)}` : ''}
+                          </td>
+                          <td style={td}>{e.tenant_name ?? shortId(e.tenant_id)}</td>
+                          <td style={td}>{dt(e.occurred_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </>
             )}
           </>
         )}
