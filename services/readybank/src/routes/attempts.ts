@@ -4,6 +4,7 @@ import type { Pool } from '@qorium/db';
 import type { AuthenticatedRequest } from '@qorium/auth';
 import { HttpProblem } from '../middleware/problem.js';
 import { loadQuestion } from '../lib/a4-grader.js';
+import { summarizeIntegrity } from '../lib/integrity.js';
 import { gradeAttempt } from '../grading/worker.js';
 import {
   createOrResumeAttempt,
@@ -422,6 +423,7 @@ export function attemptReviewRouter(deps: AttemptsRouterDeps): Router {
         total_score: attempt.total_score !== null ? Number(attempt.total_score) : null,
         graded_at: attempt.graded_at ? attempt.graded_at.toISOString() : null,
         responses: detailed,
+        integrity: summarizeIntegrity(responses.map((r) => r.suspicious_signals)),
       });
     } catch (err) {
       next(err);
