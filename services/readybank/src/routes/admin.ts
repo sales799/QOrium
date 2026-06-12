@@ -8,6 +8,7 @@ import { recruiterAuth, type RecruiterRequest } from '../middleware/recruiter-au
 import type { Config } from '../config.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
 import { getBankStats } from '../repositories/bank-stats.js';
+import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
 
 /**
  * Admin console API — Sprint 1.8d.
@@ -514,6 +515,22 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   // (no state change), consistent with /v1/admin/overview. Plan/type/
   // status come straight off app.tenants so this works with or without
   // the billing tables populated. Mounted at /v1.
+  // GET /v1/admin/calibration-coverage ────────────────────────────
+  // Per-skill-family calibration coverage for the admin console (N8) and the
+  // calibration-volume program (N19). Surfaces, for each of the 13 buyer-facing
+  // skill families: released item count, how many carry IRT parameters, how many
+  // have any empirical response data, and how many cross the refit threshold —
+  // so the operator can see which families are starved of real responses (the
+  // cold-loop). Aggregate bank shape only — no tenant data, no question content,
+  // no PII; no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-coverage', auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getCalibrationCoverage(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.get('/v1/admin/tenants', auth, async (req: Request, res, next) => {
     try {
       const parsed = TenantsQuerySchema.safeParse(req.query);
