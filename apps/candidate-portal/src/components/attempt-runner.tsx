@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { buildResumePlan, progressPercent } from '../lib/resume-state';
+import { buildTimeWarning } from '../lib/time-warning';
 
 interface QuestionPayload {
   idx: number;
@@ -203,6 +204,7 @@ export function AttemptRunner({
 
   const answeredCount = answeredIdx.size;
   const pct = progressPercent(answeredCount, totalQ);
+  const timeWarning = buildTimeWarning(remaining, timeLimitSec);
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
   const ss = String(remaining % 60).padStart(2, '0');
   const q = payload?.question;
@@ -236,6 +238,22 @@ export function AttemptRunner({
           {mm}:{ss}
         </span>
       </header>
+
+      {timeWarning.level !== 'none' && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          style={{
+            padding: '8px 20px',
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#fff',
+            background: timeWarning.level === 'critical' ? '#dc2626' : '#f59e0b',
+          }}
+        >
+          {timeWarning.message}
+        </div>
+      )}
 
       <div
         aria-label={`Answered ${answeredCount} of ${totalQ}`}
