@@ -14,6 +14,7 @@ import {
 } from '../lib/proctoring-policy.js';
 import { getSubscriptionForTenant } from '../repositories/billing.js';
 import { isPlanId, type PlanId } from '../billing/plans.js';
+import { buildAttemptState } from '../lib/attempt-state.js';
 import {
   createOrResumeAttempt,
   getAttempt,
@@ -233,6 +234,52 @@ export function candidateAttemptRouter(deps: AttemptsRouterDeps): Router {
       res
         .status(200)
         .json({ idx, total: attempt.question_order.length, question: sanitizeQuestion(q) });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Resume-after-disconnect: leak-safe attempt progress so the candidate
+  // runner can rehydrate position + time budget after a reload / dropped
+  // connection. Returns ONLY positions/counts/status/time — never an answer
+  // body, score, or question content. No DB write.
+  router.get('/v1/attempts/:id/state', async (req, res, next) => {
+    try {
+      const id = req.params.id;
+      const token = tokenFromQuery(req.query.token);
+      if (!UUID.test(id) || !token) {
+        next(
+          new HttpProblem({
+            status: 400,
+            title: 'Bad Request',
+            detail: 'attempt id + token required',
+          }),
+        );
+        return;
+      }
+      const attempt = await getAttemptForToken(deps.pool, id, token);
+      if (!attempt) {
+        next(
+          new HttpProblem({
+            status: 404,
+            title: 'Not Found',
+            detail: 'Attempt not found for token',
+          }),
+        );
+        return;
+      }
+      const inv = await getInvitationByToken(deps.pool, token);
+      const responses = await listAttemptResponses(deps.pool, attempt.id);
+      const state = buildAttemptState({
+        attemptId: attempt.id,
+        status: attempt.status,
+        questionOrder: attempt.question_order,
+        currentIdx: attempt.current_idx,
+        startedAt: attempt.started_at,
+        answeredQuestionIds: responses.map((r) => r.question_id),
+        timeLimitSec: inv?.time_limit_sec ?? 0,
+      });
+      res.status(200).json(state);
     } catch (err) {
       next(err);
     }
