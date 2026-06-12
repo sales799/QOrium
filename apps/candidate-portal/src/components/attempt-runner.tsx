@@ -10,6 +10,7 @@ import { buildA11yStatus } from '../lib/a11y-status';
 import { buildRadiogroupLabel, optionPrefix } from '../lib/option-a11y';
 import { nextRovingIndex, rovingTabIndex } from '../lib/option-roving';
 import { isExplicitSelectKey, resolveSelectIndex, focusRing } from '../lib/option-select';
+import { runnerLayout } from '../lib/responsive-layout';
 
 interface QuestionPayload {
   idx: number;
@@ -69,6 +70,7 @@ export function AttemptRunner({
   const submittedRef = useRef(false);
   const optionRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [focusedOption, setFocusedOption] = useState<number | null>(null);
+  const [viewportWidth, setViewportWidth] = useState(0);
   const totalQ = payload?.total ?? total;
 
   const loadQuestion = useCallback(
@@ -175,6 +177,15 @@ export function AttemptRunner({
     return () => clearInterval(id);
   }, [doSubmit]);
 
+  // Measure the viewport so the runner can adopt a phone/tablet layout.
+  // Starts at 0 (-> desktop default) so the first paint matches SSR.
+  useEffect(() => {
+    const measure = () => setViewportWidth(window.innerWidth);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
   const saveAnswer = useCallback(
     async (questionId: string, body: ResponseBody, atIdx: number) => {
       await fetch(`/api/v1/attempts/${attemptId}/answer`, {
@@ -221,6 +232,7 @@ export function AttemptRunner({
   const ss = String(remaining % 60).padStart(2, '0');
   const q = payload?.question;
   const current = q ? answers[q.id] : undefined;
+  const layout = runnerLayout(viewportWidth);
   const a11yStatus = buildA11yStatus({
     idx,
     total: totalQ,
@@ -388,7 +400,13 @@ export function AttemptRunner({
         )}
       </div>
 
-      <section style={{ maxWidth: 760, margin: '28px auto', padding: '0 20px' }}>
+      <section
+        style={{
+          maxWidth: 760,
+          margin: layout.sectionMargin,
+          padding: layout.sectionPadding,
+        }}
+      >
         {busy && !q ? (
           <p style={{ color: COLORS.sub }}>Loading…</p>
         ) : q ? (
@@ -397,10 +415,17 @@ export function AttemptRunner({
               background: '#fff',
               border: `1px solid ${COLORS.line}`,
               borderRadius: 14,
-              padding: 26,
+              padding: layout.cardPadding,
             }}
           >
-            <p style={{ fontSize: 16, lineHeight: 1.6, color: COLORS.ink, marginTop: 0 }}>
+            <p
+              style={{
+                fontSize: layout.bodyFontSize,
+                lineHeight: 1.6,
+                color: COLORS.ink,
+                marginTop: 0,
+              }}
+            >
               {q.body_md ?? 'Answer the question below.'}
             </p>
 
@@ -442,6 +467,7 @@ export function AttemptRunner({
                         borderRadius: 10,
                         padding: '12px 14px',
                         cursor: 'pointer',
+                        minHeight: layout.optionMinHeight || undefined,
                         boxShadow: focusRing(focusedOption, i),
                       }}
                     >
@@ -499,7 +525,15 @@ export function AttemptRunner({
               />
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 22 }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: layout.navStack ? 'column' : 'row',
+                justifyContent: 'space-between',
+                gap: layout.navStack ? 10 : 0,
+                marginTop: 22,
+              }}
+            >
               <button
                 onClick={() => void go(-1)}
                 disabled={idx === 0 || busy}
