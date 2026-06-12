@@ -8,6 +8,7 @@ import { buildTimeWarning } from '../lib/time-warning';
 import { buildResumeToast } from '../lib/resume-toast';
 import { buildA11yStatus } from '../lib/a11y-status';
 import { buildRadiogroupLabel, optionPrefix } from '../lib/option-a11y';
+import { nextRovingIndex, rovingTabIndex } from '../lib/option-roving';
 
 interface QuestionPayload {
   idx: number;
@@ -65,6 +66,7 @@ export function AttemptRunner({
     fullscreen_exits: 0,
   });
   const submittedRef = useRef(false);
+  const optionRefs = useRef<(HTMLInputElement | null)[]>([]);
   const totalQ = payload?.total ?? total;
 
   const loadQuestion = useCallback(
@@ -405,6 +407,15 @@ export function AttemptRunner({
                 role="radiogroup"
                 aria-label={buildRadiogroupLabel((q.body.options as unknown[]).length)}
                 style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}
+                onKeyDown={(e) => {
+                  const total = (q.body.options as unknown[]).length;
+                  const from = (current?.answer_index as number | undefined) ?? -1;
+                  const to = nextRovingIndex(from, total, e.key);
+                  if (to === null) return;
+                  e.preventDefault();
+                  setAnswer(q.id, { answer_index: to });
+                  optionRefs.current[to]?.focus();
+                }}
               >
                 {(q.body.options as unknown[]).map((opt, i) => {
                   const selected = (current?.answer_index as number | undefined) === i;
@@ -425,7 +436,15 @@ export function AttemptRunner({
                       <input
                         type="radio"
                         name="opt"
+                        ref={(el) => {
+                          optionRefs.current[i] = el;
+                        }}
                         checked={selected}
+                        tabIndex={rovingTabIndex(
+                          i,
+                          current?.answer_index as number | undefined,
+                          (q.body.options as unknown[]).length,
+                        )}
                         onChange={() => setAnswer(q.id, { answer_index: i })}
                         style={{ marginTop: 3 }}
                       />
