@@ -9,6 +9,7 @@ import type { Config } from '../config.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
 import { getBankStats } from '../repositories/bank-stats.js';
 import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
+import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
 
 /**
  * Admin console API — Sprint 1.8d.
@@ -526,6 +527,24 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   router.get('/v1/admin/calibration-coverage', auth, async (_req: Request, res, next) => {
     try {
       res.json(await getCalibrationCoverage(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/reference-panel-volume ────────────────────────────
+  // Per-skill-family reference-panel ingestion VOLUME for the admin console
+  // (N8) and the calibration-volume program (N19). Complements
+  // /v1/admin/calibration-coverage (which counts items WITH any empirical data)
+  // by reporting how MUCH panel data has actually been collected per family —
+  // total panel responses, how many released items each family's panel data now
+  // touches, and the platform-wide distinct panelist count — so the operator can
+  // target calibration-volume work at the cold-loop families. Aggregate bank
+  // shape only — no tenant data, no question content, no PII; no audit row (no
+  // state change). Mounted at /v1.
+  router.get('/v1/admin/reference-panel-volume', auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getReferencePanelVolume(deps.pool));
     } catch (err) {
       next(err);
     }
