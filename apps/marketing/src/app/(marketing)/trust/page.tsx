@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { TrustHubPage } from '@/components/marketing/TrustShellPages';
 import { ItemListJsonLd, WebPageJsonLd } from '@/components/seo/JsonLd';
+import { ProofDatasetJsonLd } from '@/components/seo/ProofDatasetJsonLd';
 import { siteConfig } from '@/content/site.config';
 import { trustHub } from '@/content/trust';
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/trust' },
 };
 
-export default function TrustPage() {
+export default async function TrustPage() {
   return (
     <>
       <WebPageJsonLd
@@ -29,6 +30,15 @@ export default function TrustPage() {
           description: item.description,
         }))}
       />
+      {/*
+        Live, aggregate, anonymous proof Dataset JSON-LD pulled from the QOrium
+        API so AI answer engines and crawlers can discover and cite QOrium's
+        real psychometric-coverage and assessment-activity funnels without
+        scraping HTML. Each renders null if its endpoint is unreachable, so the
+        trust page never breaks on a proof-API hiccup.
+      */}
+      <ProofDatasetJsonLd path="/v1/proof/psychometrics.jsonld" />
+      <ProofDatasetJsonLd path="/v1/proof/stats.jsonld" />
       <TrustHubPage />
     </>
   );
