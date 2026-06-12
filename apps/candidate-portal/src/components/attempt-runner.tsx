@@ -7,6 +7,7 @@ import { buildResumePlan, progressPercent } from '../lib/resume-state';
 import { buildTimeWarning } from '../lib/time-warning';
 import { buildResumeToast } from '../lib/resume-toast';
 import { buildA11yStatus } from '../lib/a11y-status';
+import { buildRadiogroupLabel, optionPrefix } from '../lib/option-a11y';
 
 interface QuestionPayload {
   idx: number;
@@ -400,7 +401,11 @@ export function AttemptRunner({
             </p>
 
             {isMcq(q.format) && Array.isArray(q.body.options) ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
+              <div
+                role="radiogroup"
+                aria-label={buildRadiogroupLabel((q.body.options as unknown[]).length)}
+                style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}
+              >
                 {(q.body.options as unknown[]).map((opt, i) => {
                   const selected = (current?.answer_index as number | undefined) === i;
                   return (
@@ -425,6 +430,9 @@ export function AttemptRunner({
                         style={{ marginTop: 3 }}
                       />
                       <span style={{ fontSize: 14.5, color: COLORS.ink }}>
+                        <span style={{ fontWeight: 600, color: COLORS.teal, marginRight: 6 }}>
+                          {optionPrefix(i)}
+                        </span>
                         {typeof opt === 'string' ? opt : JSON.stringify(opt)}
                       </span>
                     </label>
