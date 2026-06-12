@@ -17,6 +17,7 @@ import { getProofRecord } from '../repositories/proof.js';
 import { getProofStats } from '../repositories/proof-stats.js';
 import { getPsychometricsCoverage } from '../repositories/psychometrics-stats.js';
 import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
+import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -83,6 +84,25 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).send(JSON.stringify(buildProofStatsJsonLd(stats)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable psychometrics coverage (N14 AEO / N19). The same
+  // aggregate coverage as /v1/proof/psychometrics re-expressed as schema.org
+  // Dataset JSON-LD so AI answer engines and crawlers can discover and cite how
+  // calibrated QOrium's live bank is without scraping HTML. Mints nothing, so it
+  // is available regardless of proof-code config and is edge-cacheable.
+  // Registered BEFORE the /:code route so "psychometrics.jsonld" is never read
+  // as a proof code.
+  router.get('/v1/proof/psychometrics.jsonld', async (_req, res, next) => {
+    try {
+      const coverage = await getPsychometricsCoverage(deps.pool);
+      res.setHeader('Content-Type', 'application/ld+json; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(JSON.stringify(buildPsychometricsJsonLd(coverage)));
     } catch (err) {
       next(err);
     }
