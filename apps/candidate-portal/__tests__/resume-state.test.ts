@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildResumePlan } from '../src/lib/resume-state';
+import { buildResumePlan, progressPercent } from '../src/lib/resume-state';
 
 const FRESH = {
   ok: false,
@@ -7,6 +7,7 @@ const FRESH = {
   remainingSec: null,
   expired: false,
   answeredCount: 0,
+  answeredIndices: [],
   totalQuestions: 0,
 };
 
@@ -126,5 +127,47 @@ describe('buildResumePlan', () => {
       remaining_sec: 'lots',
     });
     expect(plan.remainingSec).toBeNull();
+  });
+});
+
+describe('answeredIndices parsing', () => {
+  it('keeps only in-range finite integers, de-duplicated and sorted', () => {
+    const plan = buildResumePlan({
+      total_questions: 5,
+      resume_idx: 3,
+      answered_count: 3,
+      answered_indices: [2, 0, 2, 1, 9, -1, 3.7, 'x', null],
+    });
+    expect(plan.answeredIndices).toEqual([0, 1, 2, 3]);
+  });
+
+  it('degrades a non-array answered_indices to an empty list', () => {
+    const plan = buildResumePlan({ total_questions: 4, answered_indices: 'nope' as unknown });
+    expect(plan.answeredIndices).toEqual([]);
+  });
+
+  it('returns [] for answeredIndices on a fresh-start plan', () => {
+    expect(buildResumePlan(null).answeredIndices).toEqual([]);
+  });
+});
+
+describe('progressPercent', () => {
+  it('computes a rounded whole percentage', () => {
+    expect(progressPercent(0, 5)).toBe(0);
+    expect(progressPercent(2, 5)).toBe(40);
+    expect(progressPercent(5, 5)).toBe(100);
+    expect(progressPercent(1, 3)).toBe(33);
+  });
+
+  it('clamps over-count and ignores negatives', () => {
+    expect(progressPercent(9, 5)).toBe(100);
+    expect(progressPercent(-3, 5)).toBe(0);
+  });
+
+  it('returns 0 for a non-positive or non-finite total', () => {
+    expect(progressPercent(2, 0)).toBe(0);
+    expect(progressPercent(2, -4)).toBe(0);
+    expect(progressPercent(2, Number.NaN)).toBe(0);
+    expect(progressPercent(Number.POSITIVE_INFINITY, 5)).toBe(0);
   });
 });
