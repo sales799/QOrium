@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { buildResumePlan, progressPercent } from '../lib/resume-state';
 import { buildTimeWarning } from '../lib/time-warning';
+import { buildResumeToast } from '../lib/resume-toast';
 
 interface QuestionPayload {
   idx: number;
@@ -51,6 +52,10 @@ export function AttemptRunner({
   const [submitting, setSubmitting] = useState(false);
   const [remaining, setRemaining] = useState(timeLimitSec);
   const [answeredIdx, setAnsweredIdx] = useState<Set<number>>(() => new Set());
+  const [resumeToast, setResumeToast] = useState<{ show: boolean; message: string }>({
+    show: false,
+    message: '',
+  });
   const integrity = useRef({
     tab_switches: 0,
     paste_events: 0,
@@ -136,6 +141,7 @@ export function AttemptRunner({
           setIdx(startIdx);
           setAnsweredIdx(new Set(plan.answeredIndices));
           if (plan.remainingSec !== null) setRemaining(plan.remainingSec);
+          setResumeToast(buildResumeToast(plan));
         }
       }
     } catch {
@@ -238,6 +244,43 @@ export function AttemptRunner({
           {mm}:{ss}
         </span>
       </header>
+
+      {resumeToast.show && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '8px 20px',
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#065f46',
+            background: '#d1fae5',
+            borderBottom: `1px solid ${COLORS.line}`,
+          }}
+        >
+          <span>{resumeToast.message}</span>
+          <button
+            type="button"
+            onClick={() => setResumeToast({ show: false, message: '' })}
+            aria-label="Dismiss resume notice"
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: '#065f46',
+              fontWeight: 700,
+              fontSize: 16,
+              lineHeight: 1,
+              cursor: 'pointer',
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {timeWarning.level !== 'none' && (
         <div
