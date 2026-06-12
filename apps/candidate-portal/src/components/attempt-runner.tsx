@@ -9,6 +9,7 @@ import { buildResumeToast } from '../lib/resume-toast';
 import { buildA11yStatus } from '../lib/a11y-status';
 import { buildRadiogroupLabel, optionPrefix } from '../lib/option-a11y';
 import { nextRovingIndex, rovingTabIndex } from '../lib/option-roving';
+import { isExplicitSelectKey, resolveSelectIndex, focusRing } from '../lib/option-select';
 
 interface QuestionPayload {
   idx: number;
@@ -67,6 +68,7 @@ export function AttemptRunner({
   });
   const submittedRef = useRef(false);
   const optionRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [focusedOption, setFocusedOption] = useState<number | null>(null);
   const totalQ = payload?.total ?? total;
 
   const loadQuestion = useCallback(
@@ -411,7 +413,16 @@ export function AttemptRunner({
                   const total = (q.body.options as unknown[]).length;
                   const from = (current?.answer_index as number | undefined) ?? -1;
                   const to = nextRovingIndex(from, total, e.key);
-                  if (to === null) return;
+                  if (to === null) {
+                    if (isExplicitSelectKey(e.key)) {
+                      const pick = resolveSelectIndex(focusedOption, total);
+                      if (pick !== null) {
+                        e.preventDefault();
+                        setAnswer(q.id, { answer_index: pick });
+                      }
+                    }
+                    return;
+                  }
                   e.preventDefault();
                   setAnswer(q.id, { answer_index: to });
                   optionRefs.current[to]?.focus();
@@ -431,6 +442,7 @@ export function AttemptRunner({
                         borderRadius: 10,
                         padding: '12px 14px',
                         cursor: 'pointer',
+                        boxShadow: focusRing(focusedOption, i),
                       }}
                     >
                       <input
@@ -446,6 +458,8 @@ export function AttemptRunner({
                           (q.body.options as unknown[]).length,
                         )}
                         onChange={() => setAnswer(q.id, { answer_index: i })}
+                        onFocus={() => setFocusedOption(i)}
+                        onBlur={() => setFocusedOption((prev) => (prev === i ? null : prev))}
                         style={{ marginTop: 3 }}
                       />
                       <span style={{ fontSize: 14.5, color: COLORS.ink }}>
