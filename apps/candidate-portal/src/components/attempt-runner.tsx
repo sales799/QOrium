@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { buildResumePlan } from '../lib/resume-state';
+
 interface QuestionPayload {
   idx: number;
   total: number;
@@ -72,10 +74,6 @@ export function AttemptRunner({
     [attemptId, token],
   );
 
-  useEffect(() => {
-    void loadQuestion(0);
-  }, [loadQuestion]);
-
   // anti-cheat signals
   useEffect(() => {
     const onVis = () => {
@@ -113,6 +111,39 @@ export function AttemptRunner({
     });
     router.push(`/attempt/${attemptId}/result?token=${encodeURIComponent(token)}`);
   }, [attemptId, token, router]);
+
+  // Resume-after-disconnect: on (re)mount fetch the leak-safe attempt state
+  // and jump to the first unanswered question, restoring the countdown. If the
+  // attempt is already over we finalize instead of re-entering it. Any failure
+  // degrades to a fresh start (question 0, default clock).
+  const bootstrap = useCallback(async () => {
+    let startIdx = 0;
+    try {
+      const r = await fetch(
+        `/api/v1/attempts/${attemptId}/state?token=${encodeURIComponent(token)}`,
+        { cache: 'no-store' },
+      );
+      if (r.ok) {
+        const plan = buildResumePlan(await r.json());
+        if (plan.ok) {
+          if (plan.expired) {
+            void doSubmit();
+            return;
+          }
+          startIdx = plan.startIdx;
+          setIdx(startIdx);
+          if (plan.remainingSec !== null) setRemaining(plan.remainingSec);
+        }
+      }
+    } catch {
+      // network/parse failure -> fall through to a fresh start
+    }
+    await loadQuestion(startIdx);
+  }, [attemptId, token, loadQuestion, doSubmit]);
+
+  useEffect(() => {
+    void bootstrap();
+  }, [bootstrap]);
 
   // countdown
   useEffect(() => {
