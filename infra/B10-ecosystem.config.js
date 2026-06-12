@@ -260,6 +260,12 @@ module.exports = {
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
         NEXTAUTH_URL: 'https://admin.qorium.io',
         SENTRY_DSN: process.env.SENTRY_DSN,
+        // Sign-in allowlist + default tenant scope for tenant-scoped admin pages.
+        // Source-of-truth stays in /opt/qorium/.env so secrets never live in this file.
+        // Declaring them here makes them survive a clean `pm2 startOrReload` instead of
+        // relying on a sourced shell session (CTO Boot Report 2026-05-09 §12.6).
+        ADMIN_EMAIL_ALLOWLIST: productionEnv.ADMIN_EMAIL_ALLOWLIST ?? process.env.ADMIN_EMAIL_ALLOWLIST,
+        ADMIN_DEFAULT_TENANT_ID: productionEnv.ADMIN_DEFAULT_TENANT_ID ?? process.env.ADMIN_DEFAULT_TENANT_ID,
         LOG_LEVEL: 'info',
       },
 
