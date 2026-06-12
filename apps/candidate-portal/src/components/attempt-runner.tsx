@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { buildResumePlan } from '../lib/resume-state';
+import { buildResumePlan, progressPercent } from '../lib/resume-state';
 
 interface QuestionPayload {
   idx: number;
@@ -49,6 +49,7 @@ export function AttemptRunner({
   const [busy, setBusy] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [remaining, setRemaining] = useState(timeLimitSec);
+  const [answeredIdx, setAnsweredIdx] = useState<Set<number>>(() => new Set());
   const integrity = useRef({
     tab_switches: 0,
     paste_events: 0,
@@ -132,6 +133,7 @@ export function AttemptRunner({
           }
           startIdx = plan.startIdx;
           setIdx(startIdx);
+          setAnsweredIdx(new Set(plan.answeredIndices));
           if (plan.remainingSec !== null) setRemaining(plan.remainingSec);
         }
       }
@@ -182,7 +184,10 @@ export function AttemptRunner({
   async function go(delta: number) {
     if (!payload) return;
     const qid = payload.question.id;
-    if (answers[qid]) await saveAnswer(qid, answers[qid]!, idx);
+    if (answers[qid]) {
+      await saveAnswer(qid, answers[qid]!, idx);
+      setAnsweredIdx((prev) => new Set(prev).add(idx));
+    }
     const next = Math.min(Math.max(idx + delta, 0), totalQ - 1);
     setIdx(next);
     await loadQuestion(next);
@@ -191,10 +196,13 @@ export function AttemptRunner({
   async function finish() {
     if (payload && answers[payload.question.id]) {
       await saveAnswer(payload.question.id, answers[payload.question.id]!, idx);
+      setAnsweredIdx((prev) => new Set(prev).add(idx));
     }
     await doSubmit();
   }
 
+  const answeredCount = answeredIdx.size;
+  const pct = progressPercent(answeredCount, totalQ);
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
   const ss = String(remaining % 60).padStart(2, '0');
   const q = payload?.question;
@@ -228,6 +236,65 @@ export function AttemptRunner({
           {mm}:{ss}
         </span>
       </header>
+
+      <div
+        aria-label={`Answered ${answeredCount} of ${totalQ}`}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '8px 20px',
+          borderBottom: `1px solid ${COLORS.line}`,
+          background: '#fff',
+        }}
+      >
+        <span style={{ fontSize: 12, color: COLORS.sub, whiteSpace: 'nowrap' }}>
+          Answered {answeredCount} / {totalQ}
+        </span>
+        <div
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={pct}
+          style={{
+            flex: 1,
+            height: 6,
+            borderRadius: 999,
+            background: '#e5e7eb',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${pct}%`,
+              height: '100%',
+              background: COLORS.teal,
+              transition: 'width .2s',
+            }}
+          />
+        </div>
+        {totalQ <= 30 ? (
+          <div style={{ display: 'flex', gap: 4 }} aria-hidden="true">
+            {Array.from({ length: totalQ }, (_, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 999,
+                  background: answeredIdx.has(i) ? COLORS.teal : '#cbd5e1',
+                  outline: i === idx ? `2px solid ${COLORS.teal}` : 'none',
+                  outlineOffset: 1,
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <span style={{ fontSize: 12, color: COLORS.sub, fontVariantNumeric: 'tabular-nums' }}>
+            {pct}%
+          </span>
+        )}
+      </div>
 
       <section style={{ maxWidth: 760, margin: '28px auto', padding: '0 20px' }}>
         {busy && !q ? (

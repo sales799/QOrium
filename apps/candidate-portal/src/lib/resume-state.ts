@@ -15,6 +15,7 @@ export interface AttemptStateResponse {
   total_questions?: unknown;
   current_idx?: unknown;
   answered_count?: unknown;
+  answered_indices?: unknown;
   resume_idx?: unknown;
   remaining_sec?: unknown;
   time_limit_sec?: unknown;
@@ -35,6 +36,8 @@ export interface ResumePlan {
   /** The attempt is already over (timer elapsed or status terminal) — finalize, do not resume. */
   expired: boolean;
   answeredCount: number;
+  /** Positions (0-based) that already have a saved answer, sorted unique. */
+  answeredIndices: number[];
   totalQuestions: number;
 }
 
@@ -44,6 +47,7 @@ const FRESH: ResumePlan = {
   remainingSec: null,
   expired: false,
   answeredCount: 0,
+  answeredIndices: [],
   totalQuestions: 0,
 };
 
@@ -89,6 +93,7 @@ export function buildResumePlan(view: AttemptStateResponse | null | undefined): 
   const startIdx = Math.max(0, Math.min(target, lastIdx));
 
   const answeredCount = Math.max(0, intOrNull(view.answered_count) ?? 0);
+  const answeredIndices = parseAnsweredIndices(view.answered_indices, total);
 
   return {
     ok: true,
@@ -96,6 +101,34 @@ export function buildResumePlan(view: AttemptStateResponse | null | undefined): 
     remainingSec,
     expired,
     answeredCount,
+    answeredIndices,
     totalQuestions: total,
   };
+}
+
+/**
+ * Parse the leak-safe `answered_indices` array: keep only finite integers in
+ * `[0, total - 1]`, de-duplicated and sorted ascending. Any non-array or
+ * malformed entry is dropped, never thrown.
+ */
+function parseAnsweredIndices(value: unknown, total: number): number[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<number>();
+  for (const raw of value) {
+    const i = intOrNull(raw);
+    if (i !== null && i >= 0 && i < total) seen.add(i);
+  }
+  return Array.from(seen).sort((a, b) => a - b);
+}
+
+/**
+ * Whole-number completion percentage (0..100) for the runner's progress
+ * affordance. Defensive: a non-positive total or non-finite input yields a
+ * clamped 0..100 result, never NaN.
+ */
+export function progressPercent(answered: number, total: number): number {
+  if (!Number.isFinite(answered) || !Number.isFinite(total) || total <= 0) return 0;
+  const t = Math.trunc(total);
+  const a = Math.max(0, Math.min(Math.trunc(answered), t));
+  return Math.round((a / t) * 100);
 }
