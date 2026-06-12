@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { buildResumePlan, progressPercent } from '../lib/resume-state';
 import { buildTimeWarning } from '../lib/time-warning';
 import { buildResumeToast } from '../lib/resume-toast';
+import { buildA11yStatus } from '../lib/a11y-status';
 
 interface QuestionPayload {
   idx: number;
@@ -215,6 +216,12 @@ export function AttemptRunner({
   const ss = String(remaining % 60).padStart(2, '0');
   const q = payload?.question;
   const current = q ? answers[q.id] : undefined;
+  const a11yStatus = buildA11yStatus({
+    idx,
+    total: totalQ,
+    format: q?.format ?? null,
+    answered: answeredIdx.has(idx),
+  });
 
   return (
     <main
@@ -244,6 +251,25 @@ export function AttemptRunner({
           {mm}:{ss}
         </span>
       </header>
+
+      {/* WCAG SC 4.1.3: visually-hidden polite live region announcing navigation context. */}
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          position: 'absolute',
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: 'hidden',
+          clip: 'rect(0 0 0 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}
+      >
+        {a11yStatus}
+      </div>
 
       {resumeToast.show && (
         <div
