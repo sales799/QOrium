@@ -15,6 +15,7 @@ import { HttpProblem } from '../middleware/problem.js';
 import { verifyProofCode } from '../lib/proof-code.js';
 import { getProofRecord } from '../repositories/proof.js';
 import { getProofStats } from '../repositories/proof-stats.js';
+import { getPsychometricsCoverage } from '../repositories/psychometrics-stats.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -47,6 +48,22 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       const stats = await getProofStats(deps.pool);
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).json(stats);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public psychometrics-coverage surface (N19). Aggregate, non-sensitive proof
+  // of how calibrated the live bank actually is - released item count plus IRT /
+  // empirical / refit-ready coverage. Like /stats it mints nothing, so it is
+  // available regardless of proof-code config and is edge-cacheable. Registered
+  // BEFORE the /:code route so the literal "psychometrics" segment is never read
+  // as a proof code.
+  router.get('/v1/proof/psychometrics', async (_req, res, next) => {
+    try {
+      const coverage = await getPsychometricsCoverage(deps.pool);
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).json(coverage);
     } catch (err) {
       next(err);
     }
