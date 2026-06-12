@@ -16,6 +16,7 @@ import { verifyProofCode } from '../lib/proof-code.js';
 import { getProofRecord } from '../repositories/proof.js';
 import { getProofStats } from '../repositories/proof-stats.js';
 import { getPsychometricsCoverage } from '../repositories/psychometrics-stats.js';
+import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -64,6 +65,24 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       const coverage = await getPsychometricsCoverage(deps.pool);
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).json(coverage);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable proof funnel (N14 AEO). The same aggregate counts as
+  // /v1/proof/stats re-expressed as schema.org Dataset JSON-LD so AI answer
+  // engines and crawlers can discover and cite QOrium's real assessment activity
+  // without scraping HTML. Mints nothing, so it is available regardless of
+  // proof-code config and is edge-cacheable. Registered (with the other literal
+  // segments) BEFORE the /:code route so "stats.jsonld" is never read as a code.
+  router.get('/v1/proof/stats.jsonld', async (_req, res, next) => {
+    try {
+      const stats = await getProofStats(deps.pool);
+      res.setHeader('Content-Type', 'application/ld+json; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(JSON.stringify(buildProofStatsJsonLd(stats)));
     } catch (err) {
       next(err);
     }
