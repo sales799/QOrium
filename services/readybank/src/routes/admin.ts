@@ -9,6 +9,7 @@ import type { Config } from '../config.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
 import { getBankStats } from '../repositories/bank-stats.js';
 import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
+import { calibrationCoverageToCsv } from '../lib/calibration-coverage-csv.js';
 import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
 
 /**
@@ -527,6 +528,24 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   router.get('/v1/admin/calibration-coverage', auth, async (_req: Request, res, next) => {
     try {
       res.json(await getCalibrationCoverage(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-coverage.csv ──────────────────────────
+  // RFC 4180 CSV export of the SAME per-skill-family calibration-coverage
+  // report served as JSON above, so the operator can pull the cold-loop family
+  // breakdown into a spreadsheet for calibration-volume planning (N8 + N19).
+  // Aggregate bank shape only — no tenant data, no question content, no PII;
+  // read-only, no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-coverage.csv', auth, async (_req: Request, res, next) => {
+    try {
+      const csv = calibrationCoverageToCsv(await getCalibrationCoverage(deps.pool));
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'attachment; filename="calibration-coverage.csv"');
+      res.send(csv);
     } catch (err) {
       next(err);
     }
