@@ -16,6 +16,8 @@ import { verifyProofCode } from '../lib/proof-code.js';
 import { getProofRecord } from '../repositories/proof.js';
 import { getProofStats } from '../repositories/proof-stats.js';
 import { getPsychometricsCoverage } from '../repositories/psychometrics-stats.js';
+import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
+import { computeCalibrationProgress } from '../lib/calibration-progress.js';
 import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
 import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
@@ -103,6 +105,28 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).send(JSON.stringify(buildPsychometricsJsonLd(coverage)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public calibration-PROGRESS surface (N19 / N13). Where /v1/proof/psychometrics
+  // reports how calibrated the bank is, this reports the honest "actively
+  // calibrating" signal: of the items that are calibration-eligible (released
+  // AND carrying an IRT parameter), how many are already seeded with empirical
+  // responses versus how many remain a cold backlog, plus seeded / cold
+  // percentages. Aggregate, no-PII, no question content - it reuses the same
+  // released + readybank universe as the admin per-family backlog so the public
+  // figure reconciles exactly with the operator view. Mints nothing, so it is
+  // available regardless of proof-code config and is edge-cacheable. Registered
+  // BEFORE the /:code route so the literal "calibration" segment is never read
+  // as a proof code.
+  router.get('/v1/proof/calibration', async (_req, res, next) => {
+    try {
+      const backlog = await getCalibrationBacklog(deps.pool);
+      const progress = computeCalibrationProgress(backlog);
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).json(progress);
     } catch (err) {
       next(err);
     }
