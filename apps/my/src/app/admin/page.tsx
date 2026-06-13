@@ -114,6 +114,54 @@ type BankStats = {
   generated_at: string;
 };
 
+type FamilyCoverage = {
+  family: string;
+  family_name: string;
+  released: number;
+  with_irt_params: number;
+  with_empirical_data: number;
+  refit_ready: number;
+  irt_params_pct: number;
+  empirical_pct: number;
+  refit_ready_pct: number;
+};
+
+type CalibrationCoverage = {
+  families: FamilyCoverage[];
+  totals: {
+    released: number;
+    with_irt_params: number;
+    with_empirical_data: number;
+    refit_ready: number;
+    irt_params_pct: number;
+    empirical_pct: number;
+    refit_ready_pct: number;
+  };
+  generated_at: string;
+};
+
+type FamilyBacklog = {
+  family: string;
+  family_name: string;
+  released: number;
+  calibratable: number;
+  seeded: number;
+  cold_backlog: number;
+  cold_pct: number;
+};
+
+type CalibrationBacklog = {
+  families: FamilyBacklog[];
+  totals: {
+    released: number;
+    calibratable: number;
+    seeded: number;
+    cold_backlog: number;
+    cold_pct: number;
+  };
+  generated_at: string;
+};
+
 const C = { teal: '#0d9488', ink: '#0f172a', sub: '#64748b', line: '#e2e8f0', bg: '#f8fafc' };
 const n = (x: number) => x.toLocaleString('en-IN');
 const dt = (s: string | null) => (s ? new Date(s).toLocaleString('en-IN') : '—');
@@ -125,7 +173,15 @@ const RISK_COLOR: Record<Integrity['risk_level'], string> = {
   high: '#b91c1c',
 };
 
-const TABS = ['Overview', 'Assessments', 'Attempts', 'Grades', 'Audit', 'Bank'] as const;
+const TABS = [
+  'Overview',
+  'Assessments',
+  'Attempts',
+  'Grades',
+  'Audit',
+  'Calibration',
+  'Bank',
+] as const;
 type Tab = (typeof TABS)[number];
 
 const th = {
@@ -324,6 +380,229 @@ function FilterBar({
   );
 }
 
+// Cold-backlog colour ramp: hotter cold_pct = redder (worst-first seeding target).
+function coldColor(pct: number): string {
+  if (pct >= 67) return '#b91c1c';
+  if (pct >= 34) return '#d97706';
+  return '#16a34a';
+}
+
+function CalibrationPanel({
+  coverage,
+  backlog,
+}: {
+  coverage: CalibrationCoverage | null;
+  backlog: CalibrationBacklog | null;
+}) {
+  if (!coverage || !backlog)
+    return <p style={{ color: C.sub, fontSize: 13 }}>Loading calibration health…</p>;
+
+  const ct = coverage.totals;
+  const bt = backlog.totals;
+  const kpis = [
+    { label: 'Released items', value: ct.released },
+    { label: 'With IRT params', value: ct.with_irt_params },
+    { label: 'With empirical data', value: ct.with_empirical_data },
+    { label: 'Refit-ready (n≥30)', value: ct.refit_ready },
+    { label: 'Calibratable', value: bt.calibratable },
+    { label: 'Cold backlog', value: bt.cold_backlog },
+  ];
+
+  return (
+    <>
+      <p style={{ color: C.sub, fontSize: 13 }}>
+        Coverage generated {new Date(coverage.generated_at).toLocaleString('en-IN')} · backlog{' '}
+        {new Date(backlog.generated_at).toLocaleString('en-IN')}
+      </p>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))',
+          gap: 12,
+          marginBottom: 20,
+        }}
+      >
+        {kpis.map((k) => (
+          <div
+            key={k.label}
+            style={{
+              padding: 16,
+              background: '#fff',
+              border: `1px solid ${C.line}`,
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink }}>{n(k.value)}</div>
+            <div style={{ fontSize: 13, color: C.sub }}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          padding: 16,
+          background: '#fff',
+          border: `1px solid ${C.line}`,
+          borderRadius: 12,
+          marginBottom: 28,
+        }}
+      >
+        <div style={{ fontSize: 13, color: C.sub, marginBottom: 6 }}>
+          Empirical coverage (released items carrying any empirical response data)
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, height: 10, background: C.line, borderRadius: 999 }}>
+            <div
+              style={{
+                width: `${Math.min(ct.empirical_pct, 100)}%`,
+                height: 10,
+                background: C.teal,
+                borderRadius: 999,
+              }}
+            />
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.ink }}>{ct.empirical_pct}%</div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 10,
+        }}
+      >
+        <h2 style={{ fontSize: 16, color: C.ink, margin: 0 }}>
+          Cold backlog by family (worst-first) — seed responses here
+        </h2>
+        <ExportButton
+          count={backlog.families.length}
+          onClick={() =>
+            downloadCsv(
+              `qorium-calibration-backlog-${today()}.csv`,
+              toCsv(
+                ['Family', 'Released', 'Calibratable', 'Seeded', 'ColdBacklog', 'ColdPct'],
+                backlog.families.map((f) => [
+                  f.family_name,
+                  f.released,
+                  f.calibratable,
+                  f.seeded,
+                  f.cold_backlog,
+                  f.cold_pct,
+                ]),
+              ),
+            )
+          }
+        />
+      </div>
+      <Card>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <thead>
+            <tr>
+              <th style={th}>Family</th>
+              <th style={th}>Released</th>
+              <th style={th}>Calibratable</th>
+              <th style={th}>Seeded</th>
+              <th style={th}>Cold backlog</th>
+              <th style={th}>Cold %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {backlog.families.map((f) => (
+              <tr key={f.family}>
+                <td style={td}>{f.family_name}</td>
+                <td style={td}>{n(f.released)}</td>
+                <td style={td}>{n(f.calibratable)}</td>
+                <td style={td}>{n(f.seeded)}</td>
+                <td style={{ ...td, fontWeight: 600, color: coldColor(f.cold_pct) }}>
+                  {n(f.cold_backlog)}
+                </td>
+                <td style={{ ...td, fontWeight: 600, color: coldColor(f.cold_pct) }}>
+                  {f.cold_pct}%
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 10,
+          marginTop: 28,
+        }}
+      >
+        <h2 style={{ fontSize: 16, color: C.ink, margin: 0 }}>Calibration coverage by family</h2>
+        <ExportButton
+          count={coverage.families.length}
+          onClick={() =>
+            downloadCsv(
+              `qorium-calibration-coverage-${today()}.csv`,
+              toCsv(
+                [
+                  'Family',
+                  'Released',
+                  'WithIrtParams',
+                  'WithEmpiricalData',
+                  'RefitReady',
+                  'IrtParamsPct',
+                  'EmpiricalPct',
+                  'RefitReadyPct',
+                ],
+                coverage.families.map((f) => [
+                  f.family_name,
+                  f.released,
+                  f.with_irt_params,
+                  f.with_empirical_data,
+                  f.refit_ready,
+                  f.irt_params_pct,
+                  f.empirical_pct,
+                  f.refit_ready_pct,
+                ]),
+              ),
+            )
+          }
+        />
+      </div>
+      <Card>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <thead>
+            <tr>
+              <th style={th}>Family</th>
+              <th style={th}>Released</th>
+              <th style={th}>IRT params</th>
+              <th style={th}>Empirical</th>
+              <th style={th}>Refit-ready</th>
+              <th style={th}>Empirical %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {coverage.families.map((f) => (
+              <tr key={f.family}>
+                <td style={td}>{f.family_name}</td>
+                <td style={td}>{n(f.released)}</td>
+                <td style={td}>
+                  {n(f.with_irt_params)} ({f.irt_params_pct}%)
+                </td>
+                <td style={td}>{n(f.with_empirical_data)}</td>
+                <td style={td}>{n(f.refit_ready)}</td>
+                <td style={td}>{f.empirical_pct}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </>
+  );
+}
+
 function BankPanel({ stats }: { stats: BankStats | null }) {
   if (!stats) return <p style={{ color: C.sub, fontSize: 13 }}>Loading bank health…</p>;
   const kpis = [
@@ -446,6 +725,8 @@ export default function AdminPage() {
   const [events, setEvents] = useState<AuditEvent[] | null>(null);
   const [gradeDecisions, setGradeDecisions] = useState<GradeDecision[] | null>(null);
   const [bankStats, setBankStats] = useState<BankStats | null>(null);
+  const [calCoverage, setCalCoverage] = useState<CalibrationCoverage | null>(null);
+  const [calBacklog, setCalBacklog] = useState<CalibrationBacklog | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   // Client-side filter state (per tab).
@@ -498,12 +779,23 @@ export default function AdminPage() {
         .then((d) => setGradeDecisions(d.grade_decisions))
         .catch((e) => setErr(String(e)));
     }
+    if (tab === 'Calibration' && calCoverage === null) {
+      Promise.all([
+        getJson<CalibrationCoverage>('/api/v1/admin/calibration-coverage'),
+        getJson<CalibrationBacklog>('/api/v1/admin/calibration-backlog'),
+      ])
+        .then(([cov, bk]) => {
+          setCalCoverage(cov);
+          setCalBacklog(bk);
+        })
+        .catch((e) => setErr(String(e)));
+    }
     if (tab === 'Bank' && bankStats === null) {
       getJson<BankStats>('/api/v1/admin/bank-stats')
         .then((d) => setBankStats(d))
         .catch((e) => setErr(String(e)));
     }
-  }, [tab, assessments, attempts, events, gradeDecisions, bankStats]);
+  }, [tab, assessments, attempts, events, gradeDecisions, bankStats, calCoverage]);
 
   if (err)
     return (
@@ -1041,6 +1333,8 @@ export default function AdminPage() {
             )}
           </>
         )}
+
+        {tab === 'Calibration' && <CalibrationPanel coverage={calCoverage} backlog={calBacklog} />}
 
         {tab === 'Bank' && <BankPanel stats={bankStats} />}
       </section>
