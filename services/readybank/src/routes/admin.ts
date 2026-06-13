@@ -9,6 +9,7 @@ import type { Config } from '../config.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
 import { getBankStats } from '../repositories/bank-stats.js';
 import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
+import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
 import { calibrationCoverageToCsv } from '../lib/calibration-coverage-csv.js';
 import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
 import { getBillingOverview } from '../repositories/billing-overview.js';
@@ -565,6 +566,23 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   router.get('/v1/admin/reference-panel-volume', auth, async (_req: Request, res, next) => {
     try {
       res.json(await getReferencePanelVolume(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-backlog ────────────────────────────
+  // Per-skill-family calibration BACKLOG for the admin console (N8) and the
+  // calibration-volume program (N19). The inverse of /v1/admin/calibration-
+  // coverage: instead of counting items that HAVE empirical data, it counts the
+  // calibration-ELIGIBLE items (released AND carrying an IRT parameter) that
+  // still have ZERO empirical responses — the actionable cold backlog, ranked
+  // worst-first so reference-panel seeding effort targets the families with the
+  // largest gap. Aggregate bank shape only — no tenant data, no question
+  // content, no PII; no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-backlog', auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getCalibrationBacklog(deps.pool));
     } catch (err) {
       next(err);
     }
