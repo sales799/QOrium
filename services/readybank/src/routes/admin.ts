@@ -13,6 +13,7 @@ import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
 import { getCalibrationReadiness } from '../repositories/calibration-readiness.js';
 import { calibrationCoverageToCsv } from '../lib/calibration-coverage-csv.js';
 import { calibrationBacklogToCsv } from '../lib/calibration-backlog-csv.js';
+import { calibrationReadinessToCsv } from '../lib/calibration-readiness-csv.js';
 import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
 import { getBillingOverview } from '../repositories/billing-overview.js';
 
@@ -623,6 +624,26 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   router.get('/v1/admin/calibration-readiness', auth, async (_req: Request, res, next) => {
     try {
       res.json(await getCalibrationReadiness(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-readiness.csv ───────
+  // RFC 4180 CSV export of the SAME worst-first per-skill-family calibration
+  // READINESS report served as JSON above, so the operator can pull the
+  // calibrated / thin / cold tier split (against the BR-4 refit threshold) and
+  // the actionable needs_responses backlog into a spreadsheet for reference-
+  // panel / calibration-volume planning (N8 + N19). Aggregate bank shape only
+  // — no tenant data, no question content, no PII; read-only, no audit row (no
+  // state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-readiness.csv', auth, async (_req: Request, res, next) => {
+    try {
+      const csv = calibrationReadinessToCsv(await getCalibrationReadiness(deps.pool));
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'attachment; filename="calibration-readiness.csv"');
+      res.send(csv);
     } catch (err) {
       next(err);
     }
