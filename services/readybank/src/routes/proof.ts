@@ -21,6 +21,7 @@ import { computeCalibrationProgress } from '../lib/calibration-progress.js';
 import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
 import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
 import { buildCalibrationJsonLd } from '../lib/calibration-jsonld.js';
+import { calibrationProgressToCsv } from '../lib/calibration-progress-csv.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -150,6 +151,30 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).send(JSON.stringify(buildCalibrationJsonLd(progress)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable calibration progress as CSV (N19 / N14). The same
+  // aggregate as /v1/proof/calibration re-expressed as an RFC 4180 CSV so an
+  // anonymous verifier, analyst, or crawler can pull the live calibration
+  // snapshot straight into a spreadsheet — completing the public proof export
+  // trio (JSON + JSON-LD + CSV) for the calibration surface. Reuses the same
+  // released + readybank universe as the admin per-family backlog, so it
+  // reconciles exactly with the JSON and JSON-LD surfaces and the operator view.
+  // Mints nothing, so it is available regardless of proof-code config and is
+  // edge-cacheable. Registered BEFORE the /:code route so "calibration.csv" is
+  // never read as a proof code.
+  router.get('/v1/proof/calibration.csv', async (_req, res, next) => {
+    try {
+      const backlog = await getCalibrationBacklog(deps.pool);
+      const progress = computeCalibrationProgress(backlog);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'inline; filename="qorium-calibration-progress.csv"');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(calibrationProgressToCsv(progress));
     } catch (err) {
       next(err);
     }
