@@ -10,6 +10,7 @@ import { summarizeIntegrity } from '../lib/integrity.js';
 import { getBankStats } from '../repositories/bank-stats.js';
 import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
 import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
+import { getCalibrationReadiness } from '../repositories/calibration-readiness.js';
 import { calibrationCoverageToCsv } from '../lib/calibration-coverage-csv.js';
 import { calibrationBacklogToCsv } from '../lib/calibration-backlog-csv.js';
 import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
@@ -603,6 +604,25 @@ export function adminRouter(deps: AdminRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Content-Disposition', 'attachment; filename="calibration-backlog.csv"');
       res.send(csv);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-readiness ───────────────
+  // Per-skill-family calibration READINESS for the calibration-volume program
+  // (N19). Where /v1/admin/calibration-backlog answers the binary cold-vs-seeded
+  // question, this tiers each family's calibration-ELIGIBLE items against the
+  // BR-4 IRT-refit threshold (calibration_n >= 30) into calibrated / thin
+  // (0 < n < 30) / cold (n == 0), and surfaces the actionable
+  // needs_responses = cold + thin per family, ranked worst-first. This exposes
+  // families whose items are all lightly seeded (cold_backlog 0 yet zero
+  // calibrated) that the cold-only backlog view misses. Aggregate bank shape
+  // only — no tenant data, no question content, no PII; read-only, no audit row
+  // (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-readiness', auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getCalibrationReadiness(deps.pool));
     } catch (err) {
       next(err);
     }
