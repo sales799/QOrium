@@ -23,6 +23,7 @@ import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
 import { buildCalibrationJsonLd } from '../lib/calibration-jsonld.js';
 import { calibrationProgressToCsv } from '../lib/calibration-progress-csv.js';
 import { proofStatsToCsv } from '../lib/proof-stats-csv.js';
+import { psychometricsCoverageToCsv } from '../lib/psychometrics-coverage-csv.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -128,6 +129,27 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).send(JSON.stringify(buildPsychometricsJsonLd(coverage)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable psychometrics coverage as CSV (N19 / N14). The same
+  // aggregate as /v1/proof/psychometrics re-expressed as an RFC 4180 CSV so an
+  // anonymous verifier, analyst, or crawler can pull the live psychometrics
+  // coverage snapshot straight into a spreadsheet — completing the public proof
+  // export trio (JSON + JSON-LD + CSV) for the psychometrics surface, matching
+  // the stats and calibration surfaces. Mints nothing, so it is available
+  // regardless of proof-code config and is edge-cacheable. Registered BEFORE the
+  // /:code route so "psychometrics.csv" is never read as a proof code.
+  router.get('/v1/proof/psychometrics.csv', async (_req, res, next) => {
+    try {
+      const coverage = await getPsychometricsCoverage(deps.pool);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'inline; filename="qorium-proof-psychometrics.csv"');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(psychometricsCoverageToCsv(coverage));
     } catch (err) {
       next(err);
     }
