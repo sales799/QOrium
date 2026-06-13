@@ -20,6 +20,7 @@ import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
 import { computeCalibrationProgress } from '../lib/calibration-progress.js';
 import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
 import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
+import { buildCalibrationJsonLd } from '../lib/calibration-jsonld.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -127,6 +128,28 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       const progress = computeCalibrationProgress(backlog);
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).json(progress);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable calibration progress (N14 AEO / N19). The same
+  // aggregate as /v1/proof/calibration re-expressed as schema.org Dataset
+  // JSON-LD so AI answer engines and crawlers can discover and cite how actively
+  // QOrium is calibrating its live bank without scraping HTML. Reuses the same
+  // released + readybank universe as the admin per-family backlog, so it
+  // reconciles exactly with the JSON surface and the operator view. Mints
+  // nothing, so it is available regardless of proof-code config and is
+  // edge-cacheable. Registered BEFORE the /:code route so "calibration.jsonld"
+  // is never read as a proof code.
+  router.get('/v1/proof/calibration.jsonld', async (_req, res, next) => {
+    try {
+      const backlog = await getCalibrationBacklog(deps.pool);
+      const progress = computeCalibrationProgress(backlog);
+      res.setHeader('Content-Type', 'application/ld+json; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(JSON.stringify(buildCalibrationJsonLd(progress)));
     } catch (err) {
       next(err);
     }
