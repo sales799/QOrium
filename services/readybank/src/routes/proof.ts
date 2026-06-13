@@ -22,6 +22,7 @@ import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
 import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
 import { buildCalibrationJsonLd } from '../lib/calibration-jsonld.js';
 import { calibrationProgressToCsv } from '../lib/calibration-progress-csv.js';
+import { proofStatsToCsv } from '../lib/proof-stats-csv.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -88,6 +89,26 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).send(JSON.stringify(buildProofStatsJsonLd(stats)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public Customer-Zero proof funnel as CSV (N19 / N14). The same aggregate as
+  // /v1/proof/stats re-expressed as an RFC 4180 CSV so an anonymous verifier,
+  // analyst, or crawler can pull the live proof funnel straight into a
+  // spreadsheet - completing the public proof export trio (JSON + JSON-LD + CSV)
+  // for the stats surface, matching the calibration surface. Mints nothing, so
+  // it is available regardless of proof-code config and is edge-cacheable.
+  // Registered BEFORE the /:code route so "stats.csv" is never read as a code.
+  router.get('/v1/proof/stats.csv', async (_req, res, next) => {
+    try {
+      const stats = await getProofStats(deps.pool);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'inline; filename="qorium-proof-stats.csv"');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(proofStatsToCsv(stats));
     } catch (err) {
       next(err);
     }
