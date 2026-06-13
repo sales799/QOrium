@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/trust' },
 };
 
+// Render at request time, not build time. The ProofDatasetJsonLd children
+// below each perform a build-unsafe live fetch() to the QOrium proof API;
+// forcing dynamic rendering keeps `next build` from blocking on those
+// fetches during static generation while preserving live, edge-cached
+// (revalidate: 300) proof JSON-LD at request time.
+export const dynamic = 'force-dynamic';
+
 export default async function TrustPage() {
   return (
     <>
