@@ -5,6 +5,8 @@ import {
   type StatusCountRow,
   type TierCountRow,
   type ProviderCountRow,
+  type CurrencyCountRow,
+  type LiveAmountRow,
 } from '../src/lib/billing-overview.js';
 
 describe('computeBillingOverview', () => {
@@ -17,6 +19,9 @@ describe('computeBillingOverview', () => {
     for (const s of BILLING_STATUSES) expect(r.by_status[s]).toBe(0);
     expect(r.by_tier).toEqual({});
     expect(r.by_provider).toEqual({});
+    // New N8 fields default to empty maps when no currency/amount rows are given.
+    expect(r.by_currency).toEqual({});
+    expect(r.estimated_mrr_cents).toEqual({});
   });
 
   it('aggregates status counts and computes total + live (trial+active)', () => {
@@ -63,5 +68,38 @@ describe('computeBillingOverview', () => {
   it('reflects the active provider env switch razorpay <-> cashfree', () => {
     expect(computeBillingOverview('razorpay', [], [], []).active_provider).toBe('razorpay');
     expect(computeBillingOverview('cashfree', [], [], []).active_provider).toBe('cashfree');
+  });
+
+  it('builds a currency count map, upper-casing codes and folding blanks into unknown', () => {
+    const currency: CurrencyCountRow[] = [
+      { currency: 'inr', count: 7 },
+      { currency: 'USD', count: 2 },
+      { currency: '', count: 1 },
+    ];
+    const r = computeBillingOverview('razorpay', [], [], [], currency);
+    expect(r.by_currency).toEqual({ INR: 7, USD: 2, UNKNOWN: 1 });
+  });
+
+  it('normalises committed amounts to a monthly MRR estimate per currency by cycle', () => {
+    const live: LiveAmountRow[] = [
+      // 2 monthly subs at 499900 paise each -> 999800/mo
+      { currency: 'INR', billing_cycle: 'monthly', unit_amount_cents: 999800, count: 1 },
+      // 1 annual sub at 1200000 paise -> 100000/mo
+      { currency: 'INR', billing_cycle: 'annual', unit_amount_cents: 1200000, count: 1 },
+      // 1 quarterly USD sub at 30000 cents -> 10000/mo
+      { currency: 'usd', billing_cycle: 'quarterly', unit_amount_cents: 30000, count: 1 },
+    ];
+    const r = computeBillingOverview('razorpay', [], [], [], [], live);
+    expect(r.estimated_mrr_cents).toEqual({ INR: 1099800, USD: 10000 });
+  });
+
+  it('excludes usage-cycle and unknown-cycle rows from the MRR estimate', () => {
+    const live: LiveAmountRow[] = [
+      { currency: 'INR', billing_cycle: 'monthly', unit_amount_cents: 50000, count: 1 },
+      { currency: 'INR', billing_cycle: 'usage', unit_amount_cents: 999999, count: 1 },
+      { currency: 'INR', billing_cycle: 'weekly', unit_amount_cents: 999999, count: 1 },
+    ];
+    const r = computeBillingOverview('cashfree', [], [], [], [], live);
+    expect(r.estimated_mrr_cents).toEqual({ INR: 50000 });
   });
 });
