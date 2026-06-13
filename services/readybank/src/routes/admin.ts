@@ -11,6 +11,7 @@ import { getBankStats } from '../repositories/bank-stats.js';
 import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
 import { calibrationCoverageToCsv } from '../lib/calibration-coverage-csv.js';
 import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
+import { getBillingOverview } from '../repositories/billing-overview.js';
 
 /**
  * Admin console API — Sprint 1.8d.
@@ -564,6 +565,22 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   router.get('/v1/admin/reference-panel-volume', auth, async (_req: Request, res, next) => {
     try {
       res.json(await getReferencePanelVolume(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/billing-overview --------------------------------
+  // Aggregate subscription health for the admin console (N8). Reports the
+  // active payment provider (runtime env selector), the total readybank
+  // subscription count, and 0-filled breakdowns by status
+  // (trial/active/past_due/canceled/paused), by plan tier, and by payment
+  // provider, plus live_subscriptions (trial+active). Pure aggregate read over
+  // the billing schema -- no tenant identity, no PII, no question content; no
+  // audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/billing-overview', auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getBillingOverview(deps.pool));
     } catch (err) {
       next(err);
     }
