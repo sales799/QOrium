@@ -4,7 +4,9 @@
 // this-month usage, lets them upgrade (redirects to Razorpay short_url) or cancel.
 // Talks to readybank via the existing cookie-forwarding /api/v1/[...path] proxy.
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { loginUrl } from '@/lib/auth-navigation';
 
 type Catalog = {
   id: string;
@@ -27,19 +29,28 @@ const inr = (n: number) => (n === 0 ? '—' : `₹${n.toLocaleString('en-IN')}/m
 const lim = (n: number) => (n < 0 ? 'Unlimited' : n.toLocaleString('en-IN'));
 
 export default function BillingPage() {
+  const router = useRouter();
   const [data, setData] = useState<Status | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  const load = () =>
-    fetch('/api/v1/recruiter/billing/status', { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`status ${r.status}`))))
-      .then(setData)
-      .catch((e) => setErr(String(e)));
+  const load = useCallback(async () => {
+    try {
+      const r = await fetch('/api/v1/recruiter/billing/status', { credentials: 'include' });
+      if (r.status === 401) {
+        router.push(loginUrl('/billing'));
+        return;
+      }
+      if (!r.ok) throw new Error(`status ${r.status}`);
+      setData((await r.json()) as Status);
+    } catch (e) {
+      setErr(String(e));
+    }
+  }, [router]);
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   async function subscribe(plan: string) {
     setBusy(plan);
@@ -51,6 +62,10 @@ export default function BillingPage() {
         credentials: 'include',
         body: JSON.stringify({ plan }),
       });
+      if (r.status === 401) {
+        router.push(loginUrl('/billing'));
+        return;
+      }
       const body = await r.json();
       if (!r.ok) throw new Error(body?.title ?? `status ${r.status}`);
       if (body.checkoutUrl) window.location.href = body.checkoutUrl;

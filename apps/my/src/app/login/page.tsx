@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { nextPathFromSearch } from '@/lib/auth-navigation';
 
 const card: React.CSSProperties = {
   maxWidth: 380,
@@ -31,6 +32,17 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  async function readProblemMessage(response: Response): Promise<string | null> {
+    try {
+      const body = (await response.json()) as { detail?: unknown; title?: unknown };
+      if (typeof body.detail === 'string' && body.detail.trim()) return body.detail;
+      if (typeof body.title === 'string' && body.title.trim()) return body.title;
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -42,11 +54,13 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       if (r.ok) {
-        router.push('/dashboard');
+        router.push(nextPathFromSearch(window.location.search));
         return;
       }
+      const message = await readProblemMessage(r);
       if (r.status === 423) setError('Account locked after too many attempts. Try again shortly.');
-      else setError('Invalid email or password.');
+      else if (r.status === 403 && message) setError(message);
+      else setError(message ?? 'Invalid email or password.');
     } catch {
       setError('Network error. Please try again.');
     }
@@ -68,7 +82,9 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={busy}
             autoComplete="username"
+            autoFocus
           />
         </label>
         <label style={{ fontSize: 13, color: '#475569' }}>
@@ -79,6 +95,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={busy}
             autoComplete="current-password"
           />
         </label>
