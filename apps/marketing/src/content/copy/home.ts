@@ -63,17 +63,17 @@ export const homeCopy = {
     cards: [
       {
         label: 'Platforms',
-        href: '/solutions/platforms' as const,
+        href: '/solutions/assessment-platforms' as const,
         copy: 'HackerRank, Mettl, HackerEarth, Adaface tier. Stop spending $1.2M/yr on a content team — license the API.',
       },
       {
         label: 'Enterprises & GCCs',
-        href: '/solutions/enterprises' as const,
+        href: '/solutions/enterprises-gcc' as const,
         copy: 'Bosch, TCS, Infosys, JPMC India. Build your stack-aligned library, watermarked, exclusive.',
       },
       {
         label: 'Staffing firms',
-        href: '/solutions/staffing' as const,
+        href: '/solutions/staffing-firms' as const,
         copy: 'Talpro India is Customer Zero. ₹4,999–₹49,999/mo subscription. Per-JD packs on demand.',
       },
     ],
