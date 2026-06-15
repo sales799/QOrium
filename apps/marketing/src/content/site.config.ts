@@ -42,21 +42,21 @@ export const siteConfig = {
       },
       {
         label: 'Solutions',
-        href: '/solutions/platforms',
+        href: '/solutions/assessment-platforms',
         children: [
           {
             label: 'For platforms',
-            href: '/solutions/platforms',
+            href: '/solutions/assessment-platforms',
             description: 'HackerRank/Mettl-tier integrations via API.',
           },
           {
             label: 'For enterprises & GCCs',
-            href: '/solutions/enterprises',
+            href: '/solutions/enterprises-gcc',
             description: 'Stack-Vault for enterprises, GCCs, and BFSI majors.',
           },
           {
             label: 'For staffing firms',
-            href: '/solutions/staffing',
+            href: '/solutions/staffing-firms',
             description: 'Per-JD packs and recruiter subscriptions.',
           },
         ],

@@ -89,6 +89,21 @@ const nextConfig = {
       { source: '/product/api', destination: '/platform/api', permanent: true },
       { source: '/product/assessment-library', destination: '/library', permanent: true },
       {
+        source: '/solutions/platforms',
+        destination: '/solutions/assessment-platforms',
+        permanent: true,
+      },
+      {
+        source: '/solutions/enterprises',
+        destination: '/solutions/enterprises-gcc',
+        permanent: true,
+      },
+      {
+        source: '/solutions/staffing',
+        destination: '/solutions/staffing-firms',
+        permanent: true,
+      },
+      {
         source: '/solutions/role/:slug-:n(\\d+)',
         destination: '/solutions/role/:slug',
         permanent: true,

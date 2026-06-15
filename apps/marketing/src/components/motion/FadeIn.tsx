@@ -17,7 +17,7 @@ export function FadeIn({ children, delay = 0, className, as = 'div' }: FadeInPro
   const variants: Variants = reduce
     ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: 12 },
+        hidden: { opacity: 1, y: 12 },
         visible: {
           opacity: 1,
           y: 0,

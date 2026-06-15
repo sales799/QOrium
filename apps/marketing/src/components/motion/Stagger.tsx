@@ -50,7 +50,7 @@ export function StaggerItem({
   const variants: Variants = reduce
     ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
     : {
-        hidden: { opacity: 0, y: 12 },
+        hidden: { opacity: 1, y: 12 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } },
       };
 
