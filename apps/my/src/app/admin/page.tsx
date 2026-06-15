@@ -7,7 +7,9 @@
 // Client-side filter/search controls (search box, status filter, flagged-only)
 // operate on the already-fetched rows — no new endpoints, no DB change.
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { loginUrl } from '@/lib/auth-navigation';
 
 type Overview = {
   generated_at: string;
@@ -208,9 +210,19 @@ const fld = {
 } as const;
 
 function getJson<T>(path: string): Promise<T> {
-  return fetch(path, { credentials: 'include' }).then((r) =>
-    r.ok ? (r.json() as Promise<T>) : Promise.reject(new Error(`${path}: status ${r.status}`)),
-  );
+  return fetch(path, { credentials: 'include' }).then((r) => {
+    if (!r.ok) throw new ApiError(path, r.status);
+    return r.json() as Promise<T>;
+  });
+}
+
+class ApiError extends Error {
+  constructor(
+    readonly path: string,
+    readonly status: number,
+  ) {
+    super(`${path}: status ${status}`);
+  }
 }
 
 function uniqSorted(values: (string | null | undefined)[]): string[] {
@@ -717,6 +729,7 @@ function BankPanel({ stats }: { stats: BankStats | null }) {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>('Overview');
   const [ov, setOv] = useState<Overview | null>(null);
   const [tenants, setTenants] = useState<Tenant[] | null>(null);
@@ -745,6 +758,17 @@ export default function AdminPage() {
   const [gdSource, setGdSource] = useState('');
   const [gdSort, setGdSort] = useState<'desc' | 'asc'>('desc');
 
+  const handleApiError = useCallback(
+    (e: unknown) => {
+      if (e instanceof ApiError && e.status === 401) {
+        router.push(loginUrl('/admin'));
+        return;
+      }
+      setErr(String(e));
+    },
+    [router],
+  );
+
   useEffect(() => {
     Promise.all([
       getJson<Overview>('/api/v1/admin/overview'),
@@ -754,30 +778,30 @@ export default function AdminPage() {
         setOv(o);
         setTenants(t.tenants);
       })
-      .catch((e) => setErr(String(e)));
-  }, []);
+      .catch(handleApiError);
+  }, [handleApiError]);
 
   // Lazy-load each tab's data on first open.
   useEffect(() => {
     if (tab === 'Assessments' && assessments === null) {
       getJson<{ assessments: Assessment[] }>('/api/v1/admin/assessments?limit=200')
         .then((d) => setAssessments(d.assessments))
-        .catch((e) => setErr(String(e)));
+        .catch(handleApiError);
     }
     if (tab === 'Attempts' && attempts === null) {
       getJson<{ attempts: Attempt[] }>('/api/v1/admin/attempts?limit=200')
         .then((d) => setAttempts(d.attempts))
-        .catch((e) => setErr(String(e)));
+        .catch(handleApiError);
     }
     if (tab === 'Audit' && events === null) {
       getJson<{ events: AuditEvent[] }>('/api/v1/admin/audit-events?limit=200')
         .then((d) => setEvents(d.events))
-        .catch((e) => setErr(String(e)));
+        .catch(handleApiError);
     }
     if (tab === 'Grades' && gradeDecisions === null) {
       getJson<{ grade_decisions: GradeDecision[] }>('/api/v1/admin/grade-decisions?limit=200')
         .then((d) => setGradeDecisions(d.grade_decisions))
-        .catch((e) => setErr(String(e)));
+        .catch(handleApiError);
     }
     if (tab === 'Calibration' && calCoverage === null) {
       Promise.all([
@@ -788,14 +812,14 @@ export default function AdminPage() {
           setCalCoverage(cov);
           setCalBacklog(bk);
         })
-        .catch((e) => setErr(String(e)));
+        .catch(handleApiError);
     }
     if (tab === 'Bank' && bankStats === null) {
       getJson<BankStats>('/api/v1/admin/bank-stats')
         .then((d) => setBankStats(d))
-        .catch((e) => setErr(String(e)));
+        .catch(handleApiError);
     }
-  }, [tab, assessments, attempts, events, gradeDecisions, bankStats, calCoverage]);
+  }, [tab, assessments, attempts, events, gradeDecisions, bankStats, calCoverage, handleApiError]);
 
   if (err)
     return (

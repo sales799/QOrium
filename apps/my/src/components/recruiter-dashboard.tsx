@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginUrl } from '@/lib/auth-navigation';
 
 interface Skill {
   id: string;
@@ -83,6 +84,7 @@ export function RecruiterDashboard() {
   const [links, setLinks] = useState<Record<string, string>>({});
   const [review, setReview] = useState<Record<string, ReviewItem[]>>({});
   const [integrity, setIntegrity] = useState<Record<string, IntegritySummary>>({});
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const loadAssessments = useCallback(async () => {
     const r = await api('/recruiter/assessments');
@@ -93,7 +95,7 @@ export function RecruiterDashboard() {
     (async () => {
       const who = await api('/auth/whoami');
       if (!who.ok) {
-        router.push('/login');
+        router.push(loginUrl('/dashboard'));
         return;
       }
       setMe((await who.json()).recruiter);
@@ -106,6 +108,15 @@ export function RecruiterDashboard() {
       await loadAssessments();
     })();
   }, [router, loadAssessments]);
+
+  async function logout() {
+    setLoggingOut(true);
+    try {
+      await api('/auth/logout', { method: 'POST' });
+    } finally {
+      router.push('/login');
+    }
+  }
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -192,6 +203,21 @@ export function RecruiterDashboard() {
           <a href="/admin" style={{ color: C.teal }}>
             Admin
           </a>
+          <button
+            type="button"
+            onClick={() => void logout()}
+            disabled={loggingOut}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              color: loggingOut ? C.sub : C.teal,
+              fontSize: 13,
+              cursor: loggingOut ? 'default' : 'pointer',
+            }}
+          >
+            {loggingOut ? 'Signing out...' : 'Sign out'}
+          </button>
           <span style={{ color: C.sub }}>{me?.email}</span>
         </span>
       </header>

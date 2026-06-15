@@ -15,8 +15,9 @@ import type { Config } from '../src/config.js';
 
 /**
  * N17 test-storm -- route-level coverage for the admin-console /v1/admin/*
- * endpoints' DB-free gates. Every branch asserted here rejects a request
- * BEFORE any repository / pool.query call, so Postgres is never touched:
+ * endpoints' DB-free gates. Authenticated branches allow the single internal
+ * tenant lookup required by the admin session guard, then reject the request
+ * BEFORE any repository query:
  *
  *   GET  /v1/admin/leak-alerts                  -> 401 (no session cookie)
  *   POST /v1/admin/leak-alerts/:id/review       -> 401 (no session cookie)
@@ -34,8 +35,8 @@ import type { Config } from '../src/config.js';
  * The admin router reuses the same cookie-based recruiterAuth() session gate
  * as the recruiter portal (admin == recruiter; RBAC sub-roles deferred), so
  * this suite mints a real HS256 qor_session token to reach the validation
- * gates while the DB stays untouched. A throwing stub Pool proves every gate
- * above short-circuits before Postgres. adminRouter surfaces problems via
+ * gates while the route-data DB stays untouched. A guarded stub Pool proves
+ * every gate above short-circuits before handler queries. adminRouter surfaces problems via
  * next(HttpProblem) / thrown HttpProblem, so problemHandler() is mounted, and
  * a tiny inline Cookie-header parser mirrors the production parseCookieHeader
  * so req.cookies is populated exactly as the live server does. First
@@ -47,10 +48,25 @@ import type { Config } from '../src/config.js';
 
 const TEST_JWT_SECRET = 'route-gate-test-secret-admin';
 
-// A pool that fails loudly if any handler reaches the DB on these gate paths.
-const throwingPool = {
-  query: async () => {
-    throw new Error('DB must not be queried on the /v1/admin auth/validation gates');
+const ADMIN_TENANT_ID = '00000000-0000-4000-8000-0000000000b1';
+
+function isAdminTenantLookup(sql: unknown): boolean {
+  return (
+    typeof sql === 'string' &&
+    sql.includes('FROM app.tenants') &&
+    sql.includes('WHERE id = $1') &&
+    sql.includes('LIMIT 1')
+  );
+}
+
+// A pool that only permits the admin auth tenant lookup. If any handler reaches
+// a route-data query on these validation paths, the test fails loudly.
+const guardedPool = {
+  query: async (sql: unknown, params?: unknown[]) => {
+    if (isAdminTenantLookup(sql) && params?.[0] === ADMIN_TENANT_ID) {
+      return { rows: [{ type: 'internal', status: 'active' }] };
+    }
+    throw new Error('Route data DB must not be queried on the /v1/admin validation gates');
   },
 } as unknown as Pool;
 
@@ -94,7 +110,7 @@ function buildApp(): express.Express {
   const app = express();
   app.use(express.json());
   app.use(cookieParser());
-  app.use(adminRouter({ pool: throwingPool, config }));
+  app.use(adminRouter({ pool: guardedPool, config }));
   app.use(problemHandler());
   return app;
 }
@@ -103,7 +119,7 @@ function buildApp(): express.Express {
 function validSessionToken(): string {
   return jwt.sign(
     {
-      tenant_id: '00000000-0000-4000-8000-0000000000b1',
+      tenant_id: ADMIN_TENANT_ID,
       email: 'admin@example.com',
       name: 'Test Admin',
       role: 'recruiter',
