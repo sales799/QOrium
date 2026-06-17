@@ -220,3 +220,25 @@ Archive note: Phase 1 code is branch-ready. Production deploy still requires bra
 | Sitemap QA | DONE | Local built app on port 3107 returned sitemap count 171; sitemap includes `/platform/api`, `/compare/qorium-vs-vervoe`, and `/solutions/role/software`; excludes `/vs/`, `/product/api`, `/product/assessment-library`, and `/solutions/role/software-2`. |
 | Verification | DONE | `pnpm --filter @qorium/marketing copy:audit` PASS 228 files; `typecheck` PASS after `pnpm run build:packages`; `test` PASS 64/64; `build` PASS 236 pages; `test:e2e` PASS 11/11; Playwright visual smoke PASS desktop/mobile no horizontal overflow. |
 | Deploy gate | BLOCKED | Remote deploy is still gated by cross-account review and merge. Author did not self-approve or self-merge. |
+
+## Codex Closeout Addendum - QOrium.online Design Audit Fixes - 2026-06-14
+
+| Item | Status | Evidence |
+|---|---|---|
+| Design audit fixes | DONE | PR #225 `https://github.com/sales799/QOrium/pull/225` contains motion reveal no-JS/full-page-capture hardening, compact cookie consent placement, canonical solution redirects/sitemap cleanup, and the audit report `audits/qorium-online-design-audit-2026-06-14.md`. |
+| Branch and commit | DONE | Branch `codex/qorium-online-design-fixes-20260614`; commit `1da015d`; clean worktree at `/tmp/qorium-online-design-fixes-20260614`. |
+| Local verification | DONE | `pnpm install --frozen-lockfile`, `pnpm run build:packages`, marketing `test` 78/78, `typecheck`, `lint`, and `build` PASS; built local app redirect/sitemap checks PASS; Playwright screenshots captured for desktop home, mobile home, and pricing. |
+| GitHub verification | DONE | PR #225 `https://github.com/sales799/QOrium/pull/225` was merged to `main` as merge commit `37de79d39f56799612b7941320fa08f914457b5a`; PR checks PASS: Lighthouse CI, Playwright E2E smoke, axe-core a11y, lint, secret-scan, security-audit, typecheck, test, and build. |
+| Production deploy | DONE | `Deploy marketing site` run `https://github.com/sales799/QOrium/actions/runs/27518407001` PASS on commit `37de79d39f56799612b7941320fa08f914457b5a`; atomic deploy and live URL smoke steps completed successfully. |
+| Post-deploy verification | DONE | Independent live checks PASS for `/`, `/platform`, `/pricing`, `/security`, `/changelog`, `/press-kit`, `/solutions/role/software`, `/compare/qorium-vs-vervoe`, and `/platform/api`; legacy redirects PASS; live sitemap has 168 URLs and excludes legacy `/solutions/platforms`, `/solutions/enterprises`, and `/solutions/staffing`. |
+| Main CI after merge | DONE | `QOrium CI/CD` run `https://github.com/sales799/QOrium/actions/runs/27518406990` PASS: lint, secret-scan, security-audit, test, typecheck, build, and staging placeholder deploy. |
+
+## Codex Closeout Addendum - Admin One-Console B0/B1/B3/B5 - 2026-06-16
+
+| Item | Status | Evidence |
+|---|---|---|
+| Repo reality | DONE | Branch `codex/admin-one-console-b0b1b3b5`; `apps/my/src/app/admin/page.tsx` is the real admin route; `apps/admin` is absent in this checkout, so the one-console implementation remains on `apps/my/admin`. |
+| Server gate and shell states | DONE | `/admin` now server-calls `GET /v1/admin/overview` with forwarded cookies; 401 redirects through `/login?next=/admin`; 403 and API failures render explicit forbidden/degraded states. |
+| Operator actions | DONE | `AdminConsole.tsx` wires leak-alert review and reference-panel token mint actions through existing `/api/v1/admin/*` proxy paths; billing writes remain parked. |
+| Verification | DONE | `apps/my` admin tests/typecheck/lint/build PASS; ReadyBank admin route tests and typecheck PASS; local `http://localhost:5118/admin` renders the degraded gate when ReadyBank is stopped; screenshot saved at `outputs/playwright/qorium-admin-degraded-gate.png`. |
+| Queue note | WARNING | Canonical `_shared/QUEUE.md` is absent in this checkout; only duplicate `QUEUE 2.md` files were found, so no queue mutation was made. |

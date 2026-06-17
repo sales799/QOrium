@@ -1,4 +1,4 @@
-import { Router, type Request } from 'express';
+import { Router, type Request, type RequestHandler } from 'express';
 import { randomBytes, createHmac } from 'node:crypto';
 import { z } from 'zod';
 import type { Pool } from '@qorium/db';
@@ -16,8 +16,9 @@ import { getReferencePanelVolume } from '../repositories/reference-panel-volume.
  *
  * Surfaces SME review queue, IRT calibration outcomes, anti-leak
  * detection inbox, and reference-panel token issuance to the existing
- * recruiter-auth cookie session. No new auth scheme; admin = recruiter
- * (RBAC sub-roles deferred to Sprint 3.3 alongside SAML/SSO claim mapping).
+ * recruiter-auth cookie session plus an internal-tenant guard. This keeps the
+ * admin console on the shared login module while preventing ordinary customer
+ * recruiter sessions from reading cross-tenant control-plane data.
  *
  * Every state-changing endpoint audit-logs to `audit.events` per
  * Constitutional Article XI / SO-9 forensic requirements.
@@ -28,6 +29,48 @@ import { getReferencePanelVolume } from '../repositories/reference-panel-volume.
 export interface AdminRouterDeps {
   pool: Pool;
   config: Config;
+}
+
+interface AdminTenantRow {
+  type: string;
+  status: string;
+}
+
+function internalTenantAdminAuth(pool: Pool): RequestHandler {
+  return async (req, _res, next) => {
+    try {
+      const recruiter = (req as RecruiterRequest).recruiter;
+      if (!recruiter?.tenantId) {
+        throw new HttpProblem({
+          status: 401,
+          type: 'https://qorium.io/problems/auth/missing-session',
+          title: 'Unauthorized',
+          detail: 'Session cookie missing. Sign in again.',
+        });
+      }
+
+      const tenant = await pool.query<AdminTenantRow>(
+        `SELECT type, status
+           FROM app.tenants
+          WHERE id = $1
+          LIMIT 1`,
+        [recruiter.tenantId],
+      );
+      const row = tenant.rows[0];
+      if (!row || row.type !== 'internal' || row.status !== 'active') {
+        throw new HttpProblem({
+          status: 403,
+          type: 'https://qorium.io/problems/auth/admin-forbidden',
+          title: 'Forbidden',
+          detail: 'Admin console requires an active internal tenant session.',
+        });
+      }
+
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
 }
 
 // ─── GET /v1/admin/leak-alerts ─────────────────────────────────────────
@@ -151,13 +194,16 @@ const AdminGradeDecisionsQuerySchema = z.object({
 
 export function adminRouter(deps: AdminRouterDeps): Router {
   const router = Router();
-  const auth = recruiterAuth({
-    jwtSecret: deps.config.jwtSecret ?? '',
-    cookieSecure: deps.config.cookieSecure,
-  });
+  const auth = [
+    recruiterAuth({
+      jwtSecret: deps.config.jwtSecret ?? '',
+      cookieSecure: deps.config.cookieSecure,
+    }),
+    internalTenantAdminAuth(deps.pool),
+  ] as const;
 
   // GET /v1/admin/leak-alerts ────────────────────────────────────────
-  router.get('/v1/admin/leak-alerts', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/leak-alerts', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = LeakAlertQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -202,7 +248,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   });
 
   // POST /v1/admin/leak-alerts/:id/review ───────────────────────────
-  router.post('/v1/admin/leak-alerts/:id/review', auth, async (req: Request, res, next) => {
+  router.post('/v1/admin/leak-alerts/:id/review', ...auth, async (req: Request, res, next) => {
     try {
       const idRaw = req.params['id'];
       const id = typeof idRaw === 'string' ? idRaw : '';
@@ -254,7 +300,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   });
 
   // GET /v1/admin/sme-queue ────────────────────────────────────────
-  router.get('/v1/admin/sme-queue', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/sme-queue', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = SmeQueueQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -281,7 +327,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   });
 
   // GET /v1/admin/calibration ─────────────────────────────────────
-  router.get('/v1/admin/calibration', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/calibration', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = CalibrationQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -331,7 +377,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   });
 
   // POST /v1/admin/panel-tokens ───────────────────────────────────
-  router.post('/v1/admin/panel-tokens', auth, async (req: Request, res, next) => {
+  router.post('/v1/admin/panel-tokens', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = MintTokenSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -424,7 +470,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   // assessments → invitations → attempts → responses → grade_decisions
   // alongside bank calibration coverage and active billing subscriptions
   // in one place. Mounted (with the rest of this router) at /v1.
-  router.get('/v1/admin/overview', auth, async (_req: Request, res, next) => {
+  router.get('/v1/admin/overview', ...auth, async (_req: Request, res, next) => {
     try {
       const [totals, attemptsByStatus, invitationsByStatus] = await Promise.all([
         deps.pool.query<{
@@ -501,7 +547,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   // shape only — totals, status/SKU breakdown, calibration coverage, and how
   // many consolidated skill families carry released items. No tenant data, no
   // question content, no PII; no audit row (no state change). Mounted at /v1.
-  router.get('/v1/admin/bank-stats', auth, async (_req: Request, res, next) => {
+  router.get('/v1/admin/bank-stats', ...auth, async (_req: Request, res, next) => {
     try {
       res.json(await getBankStats(deps.pool));
     } catch (err) {
@@ -524,7 +570,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   // so the operator can see which families are starved of real responses (the
   // cold-loop). Aggregate bank shape only — no tenant data, no question content,
   // no PII; no audit row (no state change). Mounted at /v1.
-  router.get('/v1/admin/calibration-coverage', auth, async (_req: Request, res, next) => {
+  router.get('/v1/admin/calibration-coverage', ...auth, async (_req: Request, res, next) => {
     try {
       res.json(await getCalibrationCoverage(deps.pool));
     } catch (err) {
@@ -542,7 +588,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   // target calibration-volume work at the cold-loop families. Aggregate bank
   // shape only — no tenant data, no question content, no PII; no audit row (no
   // state change). Mounted at /v1.
-  router.get('/v1/admin/reference-panel-volume', auth, async (_req: Request, res, next) => {
+  router.get('/v1/admin/reference-panel-volume', ...auth, async (_req: Request, res, next) => {
     try {
       res.json(await getReferencePanelVolume(deps.pool));
     } catch (err) {
@@ -550,7 +596,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
-  router.get('/v1/admin/tenants', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/tenants', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = TenantsQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -627,7 +673,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
-  router.get('/v1/admin/assessments', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/assessments', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = AdminAssessmentsQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -682,7 +728,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
-  router.get('/v1/admin/attempts', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/attempts', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = AdminAttemptsQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -769,7 +815,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
-  router.get('/v1/admin/audit-events', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/audit-events', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = AdminAuditEventsQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -825,7 +871,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   });
 
   // GET /v1/admin/grade-decisions ────────────────
-  router.get('/v1/admin/grade-decisions', auth, async (req: Request, res, next) => {
+  router.get('/v1/admin/grade-decisions', ...auth, async (req: Request, res, next) => {
     try {
       const parsed = AdminGradeDecisionsQuerySchema.safeParse(req.query);
       if (!parsed.success) {

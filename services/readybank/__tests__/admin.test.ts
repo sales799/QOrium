@@ -15,6 +15,8 @@ const silent = pino({ level: 'silent' });
 const PEPPER = 'test_admin_pepper_at_least_thirty_two_chars_long_xxxx';
 const JWT_SECRET = 'test_jwt_secret_at_least_thirty_two_characters_long_xx';
 const TENANT_REF_ID = '00000000-0000-0000-0000-000000000001';
+const ADMIN_TENANT_ID = '99999999-9999-9999-9999-999999999999';
+const CUSTOMER_TENANT_ID = '88888888-8888-8888-8888-888888888888';
 const RECRUITER_ID = '11111111-1111-1111-1111-111111111111';
 
 function testConfig(overrides: Partial<Config> = {}): Config {
@@ -79,6 +81,21 @@ interface StubPool {
   };
 }
 
+function isAdminTenantLookup(sql: string): boolean {
+  return sql.includes('FROM app.tenants') && sql.includes('WHERE id = $1');
+}
+
+function adminTenantLookup(params: unknown[] = []) {
+  const tenantId = params[0];
+  if (tenantId === ADMIN_TENANT_ID) {
+    return { rows: [{ type: 'internal', status: 'active' }], rowCount: 1 };
+  }
+  if (tenantId === CUSTOMER_TENANT_ID) {
+    return { rows: [{ type: 'customer-recruiter', status: 'active' }], rowCount: 1 };
+  }
+  return { rows: [], rowCount: 0 };
+}
+
 function buildStub(): StubPool {
   const queries: StubPool['queries'] = [];
   const state: StubPool['state'] = {
@@ -134,6 +151,10 @@ function buildStub(): StubPool {
   const pool = {
     async query(sql: string, params: unknown[] = []) {
       queries.push({ sql, params });
+
+      if (isAdminTenantLookup(sql)) {
+        return adminTenantLookup(params);
+      }
 
       if (sql.includes('FROM content.leak_alerts')) {
         let rows = [...state.leakAlerts];
@@ -321,11 +342,11 @@ function buildStub(): StubPool {
   return { pool, queries, state };
 }
 
-function adminCookie(): string {
+function adminCookie(tenantId = ADMIN_TENANT_ID): string {
   const token = jwt.sign(
     {
       sub: RECRUITER_ID,
-      tenant_id: '99999999-9999-9999-9999-999999999999',
+      tenant_id: tenantId,
       email: 'admin@qorium.test',
       name: 'Admin Recruiter',
     },
@@ -366,6 +387,21 @@ describe('GET /v1/admin/leak-alerts', () => {
     expect(Array.isArray(res.body.alerts)).toBe(true);
     expect(res.body.alerts.length).toBeGreaterThan(0);
     expect(typeof res.body.alerts[0].similarity_score).toBe('number');
+  });
+
+  it('rejects customer recruiter sessions for admin APIs (403)', async () => {
+    const stub = buildStub();
+    const { app } = createServer({
+      config: testConfig(),
+      pool: stub.pool,
+      logger: silent,
+      authMiddleware: (_req, _res, next) => next(),
+    });
+    const res = await request(app)
+      .get('/v1/admin/leak-alerts')
+      .set('Cookie', adminCookie(CUSTOMER_TENANT_ID));
+    expect(res.status).toBe(403);
+    expect(res.body.type).toBe('https://qorium.io/problems/auth/admin-forbidden');
   });
 
   it('filters by status when query param is set', async () => {
@@ -753,7 +789,10 @@ describe('GET /v1/admin/attempts', () => {
 
 function poolWithIntegrity(): Pool {
   return {
-    async query(sql: string) {
+    async query(sql: string, params: unknown[] = []) {
+      if (isAdminTenantLookup(sql)) {
+        return adminTenantLookup(params);
+      }
       if (sql.includes('FROM content.attempts at')) {
         return {
           rows: [
@@ -916,6 +955,9 @@ describe('GET /v1/admin/audit-events', () => {
 function poolWithGradeDecisions(): Pool {
   return {
     async query(sql: string, params: unknown[] = []) {
+      if (isAdminTenantLookup(sql)) {
+        return adminTenantLookup(params);
+      }
       if (sql.includes('FROM content.grade_decisions gd')) {
         const rows = [
           {
