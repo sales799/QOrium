@@ -50,6 +50,8 @@ export function JdForgeDemo({
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
   const [email, setEmail] = React.useState('');
   const [pdfState, setPdfState] = React.useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
+  const normalizedEmail = email.trim();
+  const canRequestPdf = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
 
   const phrases = React.useMemo(
     () => result.skills.flatMap((skill) => skill.sourcePhrases),
@@ -67,6 +69,7 @@ export function JdForgeDemo({
       const payload = (await response.json()) as { ok: boolean; data?: JdForgeDemoResult };
       if (!response.ok || !payload.data) throw new Error('demo failed');
       setResult(payload.data);
+      setPdfState('idle');
       setStatus('idle');
     } catch {
       setStatus('error');
@@ -74,13 +77,13 @@ export function JdForgeDemo({
   }
 
   async function requestPdf() {
-    if (!email) return;
+    if (!canRequestPdf) return;
     setPdfState('loading');
     try {
       const response = await fetch('/v1/jd-forge/demo/plan-pdf', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, plan_id: result.planId }),
+        body: JSON.stringify({ email: normalizedEmail, plan_id: result.planId }),
       });
       if (!response.ok) throw new Error('pdf failed');
       setPdfState('sent');
@@ -122,6 +125,7 @@ export function JdForgeDemo({
                 onClick={() => {
                   setJdText(sample.body);
                   setResult(runJdForgeDemo(sample.body));
+                  setPdfState('idle');
                 }}
                 className={cn(
                   'rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors',
@@ -140,7 +144,10 @@ export function JdForgeDemo({
           <textarea
             id="jd-demo-textarea"
             value={jdText}
-            onChange={(event) => setJdText(event.target.value)}
+            onChange={(event) => {
+              setJdText(event.target.value);
+              setPdfState('idle');
+            }}
             className={cn(
               'mt-2 min-h-44 w-full resize-y rounded-md border p-3 text-sm leading-6 outline-none focus:ring-2',
               dark
@@ -281,7 +288,10 @@ export function JdForgeDemo({
             <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
               <input
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setPdfState('idle');
+                }}
                 type="email"
                 placeholder="work email"
                 className={cn(
@@ -291,12 +301,13 @@ export function JdForgeDemo({
                     : 'border-border bg-background focus:ring-secondary',
                 )}
                 aria-label="Work email for assessment PDF"
+                aria-describedby="jd-demo-pdf-help"
               />
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => void requestPdf()}
-                disabled={!email || pdfState === 'loading'}
+                disabled={!canRequestPdf || pdfState === 'loading'}
               >
                 {pdfState === 'loading' ? (
                   <Loader2 className="size-4 animate-spin" />
@@ -306,14 +317,23 @@ export function JdForgeDemo({
                 PDF
               </Button>
             </div>
-            {pdfState === 'sent' ? (
-              <p className={cn('text-xs', dark ? 'text-shell-muted' : 'text-muted-foreground')}>
-                Plan PDF queued for email delivery.
-              </p>
-            ) : null}
-            {pdfState === 'error' ? (
-              <p className="text-xs text-danger">Could not queue the PDF.</p>
-            ) : null}
+            <p
+              id="jd-demo-pdf-help"
+              className={cn(
+                'text-xs',
+                pdfState === 'error'
+                  ? 'text-danger'
+                  : dark
+                    ? 'text-shell-muted'
+                    : 'text-muted-foreground',
+              )}
+            >
+              {pdfState === 'sent'
+                ? 'Plan PDF queued for email delivery.'
+                : pdfState === 'error'
+                  ? 'Could not queue the PDF.'
+                  : 'Enter a valid work email to enable PDF delivery.'}
+            </p>
           </div>
           <div
             className={cn(

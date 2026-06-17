@@ -157,7 +157,13 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Frontend engineering',
     stackFamily: 'React',
     libraryHref: '/library/react',
-    patterns: [/\bperformance\b/i, /\bprofiler\b/i, /\bmemo\b/i],
+    patterns: [
+      /\bclient performance\b/i,
+      /\bfrontend performance\b/i,
+      /\bperformance profiling\b/i,
+      /\bprofiler\b/i,
+      /\bmemo(?:ization)?\b/i,
+    ],
   },
   {
     name: 'Kubernetes operations',

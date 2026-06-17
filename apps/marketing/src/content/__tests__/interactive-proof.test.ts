@@ -24,12 +24,20 @@ describe('interactive proof fixtures', () => {
 
   it('returns a real JD-Forge assessment plan with linked skills', () => {
     const demo = runJdForgeDemo(sampleJds[0]!.body);
+    const skillNames = demo.skills.map((skill) => skill.name);
 
     expect(demo.ok).toBe(true);
     expect(demo.skills.length).toBeGreaterThanOrEqual(5);
+    expect(skillNames).not.toContain('Client performance debugging');
     expect(demo.assessment.itemCount).toBe(20);
     expect(demo.lowConfidenceReason).toBeUndefined();
     expect(demo.skills.every((skill) => skill.libraryHref.startsWith('/library/'))).toBe(true);
+  });
+
+  it('keeps frontend performance extraction scoped to frontend JDs', () => {
+    const demo = runJdForgeDemo(sampleJds[1]!.body);
+
+    expect(demo.skills.map((skill) => skill.name)).toContain('Client performance debugging');
   });
 
   it('uses an honest low-confidence state instead of padding weak extractions', () => {
