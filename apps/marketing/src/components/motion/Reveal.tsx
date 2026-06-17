@@ -35,7 +35,7 @@ export function Reveal({
   const variants: Variants = reduce
     ? { hidden: { opacity: 1, x: 0, y: 0 }, visible: { opacity: 1, x: 0, y: 0 } }
     : {
-        hidden: { opacity: 0, x, y },
+        hidden: { opacity: 1, x, y },
         visible: {
           opacity: 1,
           x: 0,

@@ -5,6 +5,8 @@
 // GET /v1/recruiter/skill-families endpoint via the cookie-forwarding proxy.
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { loginUrl } from '@/lib/auth-navigation';
 
 type Family = {
   id: string;
@@ -18,15 +20,26 @@ const C = { teal: '#0d9488', ink: '#0f172a', sub: '#64748b', line: '#e2e8f0', bg
 const n = (x: number) => x.toLocaleString('en-IN');
 
 export default function SkillsPage() {
+  const router = useRouter();
   const [families, setFamilies] = useState<Family[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/v1/recruiter/skill-families', { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`status ${r.status}`))))
-      .then((d) => setFamilies(d.families as Family[]))
-      .catch((e) => setErr(String(e)));
-  }, []);
+    (async () => {
+      try {
+        const r = await fetch('/api/v1/recruiter/skill-families', { credentials: 'include' });
+        if (r.status === 401) {
+          router.push(loginUrl('/skills'));
+          return;
+        }
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        const d = (await r.json()) as { families: Family[] };
+        setFamilies(d.families);
+      } catch (e) {
+        setErr(String(e));
+      }
+    })();
+  }, [router]);
 
   if (err)
     return (

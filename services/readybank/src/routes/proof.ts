@@ -16,8 +16,14 @@ import { verifyProofCode } from '../lib/proof-code.js';
 import { getProofRecord } from '../repositories/proof.js';
 import { getProofStats } from '../repositories/proof-stats.js';
 import { getPsychometricsCoverage } from '../repositories/psychometrics-stats.js';
+import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
+import { computeCalibrationProgress } from '../lib/calibration-progress.js';
 import { buildProofStatsJsonLd } from '../lib/proof-jsonld.js';
 import { buildPsychometricsJsonLd } from '../lib/psychometrics-jsonld.js';
+import { buildCalibrationJsonLd } from '../lib/calibration-jsonld.js';
+import { calibrationProgressToCsv } from '../lib/calibration-progress-csv.js';
+import { proofStatsToCsv } from '../lib/proof-stats-csv.js';
+import { psychometricsCoverageToCsv } from '../lib/psychometrics-coverage-csv.js';
 import { renderProofPage, scoreBand } from '../lib/proof-page.js';
 import { renderProofBadgeSvg } from '../lib/proof-badge.js';
 
@@ -89,6 +95,26 @@ export function proofRouter(deps: ProofRouterDeps): Router {
     }
   });
 
+  // Public Customer-Zero proof funnel as CSV (N19 / N14). The same aggregate as
+  // /v1/proof/stats re-expressed as an RFC 4180 CSV so an anonymous verifier,
+  // analyst, or crawler can pull the live proof funnel straight into a
+  // spreadsheet - completing the public proof export trio (JSON + JSON-LD + CSV)
+  // for the stats surface, matching the calibration surface. Mints nothing, so
+  // it is available regardless of proof-code config and is edge-cacheable.
+  // Registered BEFORE the /:code route so "stats.csv" is never read as a code.
+  router.get('/v1/proof/stats.csv', async (_req, res, next) => {
+    try {
+      const stats = await getProofStats(deps.pool);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'inline; filename="qorium-proof-stats.csv"');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(proofStatsToCsv(stats));
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // Public machine-readable psychometrics coverage (N14 AEO / N19). The same
   // aggregate coverage as /v1/proof/psychometrics re-expressed as schema.org
   // Dataset JSON-LD so AI answer engines and crawlers can discover and cite how
@@ -103,6 +129,95 @@ export function proofRouter(deps: ProofRouterDeps): Router {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).send(JSON.stringify(buildPsychometricsJsonLd(coverage)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable psychometrics coverage as CSV (N19 / N14). The same
+  // aggregate as /v1/proof/psychometrics re-expressed as an RFC 4180 CSV so an
+  // anonymous verifier, analyst, or crawler can pull the live psychometrics
+  // coverage snapshot straight into a spreadsheet — completing the public proof
+  // export trio (JSON + JSON-LD + CSV) for the psychometrics surface, matching
+  // the stats and calibration surfaces. Mints nothing, so it is available
+  // regardless of proof-code config and is edge-cacheable. Registered BEFORE the
+  // /:code route so "psychometrics.csv" is never read as a proof code.
+  router.get('/v1/proof/psychometrics.csv', async (_req, res, next) => {
+    try {
+      const coverage = await getPsychometricsCoverage(deps.pool);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'inline; filename="qorium-proof-psychometrics.csv"');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(psychometricsCoverageToCsv(coverage));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public calibration-PROGRESS surface (N19 / N13). Where /v1/proof/psychometrics
+  // reports how calibrated the bank is, this reports the honest "actively
+  // calibrating" signal: of the items that are calibration-eligible (released
+  // AND carrying an IRT parameter), how many are already seeded with empirical
+  // responses versus how many remain a cold backlog, plus seeded / cold
+  // percentages. Aggregate, no-PII, no question content - it reuses the same
+  // released + readybank universe as the admin per-family backlog so the public
+  // figure reconciles exactly with the operator view. Mints nothing, so it is
+  // available regardless of proof-code config and is edge-cacheable. Registered
+  // BEFORE the /:code route so the literal "calibration" segment is never read
+  // as a proof code.
+  router.get('/v1/proof/calibration', async (_req, res, next) => {
+    try {
+      const backlog = await getCalibrationBacklog(deps.pool);
+      const progress = computeCalibrationProgress(backlog);
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).json(progress);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable calibration progress (N14 AEO / N19). The same
+  // aggregate as /v1/proof/calibration re-expressed as schema.org Dataset
+  // JSON-LD so AI answer engines and crawlers can discover and cite how actively
+  // QOrium is calibrating its live bank without scraping HTML. Reuses the same
+  // released + readybank universe as the admin per-family backlog, so it
+  // reconciles exactly with the JSON surface and the operator view. Mints
+  // nothing, so it is available regardless of proof-code config and is
+  // edge-cacheable. Registered BEFORE the /:code route so "calibration.jsonld"
+  // is never read as a proof code.
+  router.get('/v1/proof/calibration.jsonld', async (_req, res, next) => {
+    try {
+      const backlog = await getCalibrationBacklog(deps.pool);
+      const progress = computeCalibrationProgress(backlog);
+      res.setHeader('Content-Type', 'application/ld+json; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(JSON.stringify(buildCalibrationJsonLd(progress)));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Public machine-readable calibration progress as CSV (N19 / N14). The same
+  // aggregate as /v1/proof/calibration re-expressed as an RFC 4180 CSV so an
+  // anonymous verifier, analyst, or crawler can pull the live calibration
+  // snapshot straight into a spreadsheet — completing the public proof export
+  // trio (JSON + JSON-LD + CSV) for the calibration surface. Reuses the same
+  // released + readybank universe as the admin per-family backlog, so it
+  // reconciles exactly with the JSON and JSON-LD surfaces and the operator view.
+  // Mints nothing, so it is available regardless of proof-code config and is
+  // edge-cacheable. Registered BEFORE the /:code route so "calibration.csv" is
+  // never read as a proof code.
+  router.get('/v1/proof/calibration.csv', async (_req, res, next) => {
+    try {
+      const backlog = await getCalibrationBacklog(deps.pool);
+      const progress = computeCalibrationProgress(backlog);
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'inline; filename="qorium-calibration-progress.csv"');
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.status(200).send(calibrationProgressToCsv(progress));
     } catch (err) {
       next(err);
     }

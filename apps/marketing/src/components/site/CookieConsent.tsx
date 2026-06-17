@@ -27,7 +27,7 @@ export function CookieConsent() {
     <div
       role="dialog"
       aria-label="Cookie consent"
-      className="fixed bottom-4 right-4 z-50 max-w-sm rounded-xl border border-border bg-background/95 p-4 shadow-lg backdrop-blur-sm"
+      className="fixed inset-x-3 bottom-3 z-50 rounded-lg border border-border bg-background/95 p-3 shadow-lg backdrop-blur-sm sm:left-1/2 sm:right-auto sm:w-[min(calc(100vw-2rem),44rem)] sm:-translate-x-1/2 sm:p-4"
     >
       <button
         onClick={() => close('declined')}
@@ -36,25 +36,27 @@ export function CookieConsent() {
       >
         <X className="h-4 w-4" />
       </button>
-      <p className="pr-6 text-sm text-muted-foreground">
-        We use privacy-friendly analytics (Plausible). No personal data is collected.{' '}
-        <Link href="/cookie-policy" className="underline hover:text-foreground">
-          Cookie Policy
-        </Link>
-      </p>
-      <div className="mt-3 flex gap-2">
-        <button
-          onClick={() => close('accepted')}
-          className="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Accept
-        </button>
-        <button
-          onClick={() => close('declined')}
-          className="rounded-md border border-border px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-        >
-          Decline
-        </button>
+      <div className="flex flex-col gap-3 pr-6 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          We use privacy-friendly analytics (Plausible). No personal data is collected.{' '}
+          <Link href="/cookie-policy" className="underline hover:text-foreground">
+            Cookie Policy
+          </Link>
+        </p>
+        <div className="flex shrink-0 gap-2">
+          <button
+            onClick={() => close('accepted')}
+            className="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Accept
+          </button>
+          <button
+            onClick={() => close('declined')}
+            className="rounded-md border border-border px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+          >
+            Decline
+          </button>
+        </div>
       </div>
     </div>
   );

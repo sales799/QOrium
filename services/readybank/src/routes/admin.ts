@@ -9,7 +9,14 @@ import type { Config } from '../config.js';
 import { summarizeIntegrity } from '../lib/integrity.js';
 import { getBankStats } from '../repositories/bank-stats.js';
 import { getCalibrationCoverage } from '../repositories/calibration-coverage.js';
+import { getCalibrationBacklog } from '../repositories/calibration-backlog.js';
+import { getCalibrationReadiness } from '../repositories/calibration-readiness.js';
+import { calibrationCoverageToCsv } from '../lib/calibration-coverage-csv.js';
+import { calibrationBacklogToCsv } from '../lib/calibration-backlog-csv.js';
+import { calibrationReadinessToCsv } from '../lib/calibration-readiness-csv.js';
+import { referencePanelVolumeToCsv } from '../lib/reference-panel-volume-csv.js';
 import { getReferencePanelVolume } from '../repositories/reference-panel-volume.js';
+import { getBillingOverview } from '../repositories/billing-overview.js';
 
 /**
  * Admin console API — Sprint 1.8d.
@@ -578,6 +585,24 @@ export function adminRouter(deps: AdminRouterDeps): Router {
     }
   });
 
+  // GET /v1/admin/calibration-coverage.csv ──────────────────────────
+  // RFC 4180 CSV export of the SAME per-skill-family calibration-coverage
+  // report served as JSON above, so the operator can pull the cold-loop family
+  // breakdown into a spreadsheet for calibration-volume planning (N8 + N19).
+  // Aggregate bank shape only — no tenant data, no question content, no PII;
+  // read-only, no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-coverage.csv', ...auth, async (_req: Request, res, next) => {
+    try {
+      const csv = calibrationCoverageToCsv(await getCalibrationCoverage(deps.pool));
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'attachment; filename="calibration-coverage.csv"');
+      res.send(csv);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // GET /v1/admin/reference-panel-volume ────────────────────────────
   // Per-skill-family reference-panel ingestion VOLUME for the admin console
   // (N8) and the calibration-volume program (N19). Complements
@@ -591,6 +616,117 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   router.get('/v1/admin/reference-panel-volume', ...auth, async (_req: Request, res, next) => {
     try {
       res.json(await getReferencePanelVolume(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/reference-panel-volume.csv ────────────
+  // RFC 4180 CSV export of the SAME per-skill-family reference-panel
+  // ingestion VOLUME report served as JSON above, so the operator can pull
+  // the per-family panel-data progress meter (total panel responses +
+  // released items touched per family + platform-wide distinct panelists on
+  // the TOTAL row) into a spreadsheet for calibration-volume planning
+  // (N8 + N19). Aggregate bank shape only — no tenant data, no question
+  // content, no PII; read-only, no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/reference-panel-volume.csv', ...auth, async (_req: Request, res, next) => {
+    try {
+      const csv = referencePanelVolumeToCsv(await getReferencePanelVolume(deps.pool));
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'attachment; filename="reference-panel-volume.csv"');
+      res.send(csv);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-backlog ────────────────────────────
+  // Per-skill-family calibration BACKLOG for the admin console (N8) and the
+  // calibration-volume program (N19). The inverse of /v1/admin/calibration-
+  // coverage: instead of counting items that HAVE empirical data, it counts the
+  // calibration-ELIGIBLE items (released AND carrying an IRT parameter) that
+  // still have ZERO empirical responses — the actionable cold backlog, ranked
+  // worst-first so reference-panel seeding effort targets the families with the
+  // largest gap. Aggregate bank shape only — no tenant data, no question
+  // content, no PII; no audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-backlog', ...auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getCalibrationBacklog(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-backlog.csv ────────────────────────────
+  // RFC 4180 CSV export of the SAME worst-first per-skill-family calibration
+  // BACKLOG report served as JSON above, so the operator can pull the cold-
+  // backlog seeding to-do list into a spreadsheet for reference-panel /
+  // calibration-volume planning (N8 + N19). Aggregate bank shape only — no
+  // tenant data, no question content, no PII; read-only, no audit row (no
+  // state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-backlog.csv', ...auth, async (_req: Request, res, next) => {
+    try {
+      const csv = calibrationBacklogToCsv(await getCalibrationBacklog(deps.pool));
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'attachment; filename="calibration-backlog.csv"');
+      res.send(csv);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-readiness ───────────────
+  // Per-skill-family calibration READINESS for the calibration-volume program
+  // (N19). Where /v1/admin/calibration-backlog answers the binary cold-vs-seeded
+  // question, this tiers each family's calibration-ELIGIBLE items against the
+  // BR-4 IRT-refit threshold (calibration_n >= 30) into calibrated / thin
+  // (0 < n < 30) / cold (n == 0), and surfaces the actionable
+  // needs_responses = cold + thin per family, ranked worst-first. This exposes
+  // families whose items are all lightly seeded (cold_backlog 0 yet zero
+  // calibrated) that the cold-only backlog view misses. Aggregate bank shape
+  // only — no tenant data, no question content, no PII; read-only, no audit row
+  // (no state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-readiness', ...auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getCalibrationReadiness(deps.pool));
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/calibration-readiness.csv ───────
+  // RFC 4180 CSV export of the SAME worst-first per-skill-family calibration
+  // READINESS report served as JSON above, so the operator can pull the
+  // calibrated / thin / cold tier split (against the BR-4 refit threshold) and
+  // the actionable needs_responses backlog into a spreadsheet for reference-
+  // panel / calibration-volume planning (N8 + N19). Aggregate bank shape only
+  // — no tenant data, no question content, no PII; read-only, no audit row (no
+  // state change). Mounted at /v1.
+  router.get('/v1/admin/calibration-readiness.csv', ...auth, async (_req: Request, res, next) => {
+    try {
+      const csv = calibrationReadinessToCsv(await getCalibrationReadiness(deps.pool));
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Disposition', 'attachment; filename="calibration-readiness.csv"');
+      res.send(csv);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /v1/admin/billing-overview --------------------------------
+  // Aggregate subscription health for the admin console (N8). Reports the
+  // active payment provider (runtime env selector), the total readybank
+  // subscription count, and 0-filled breakdowns by status
+  // (trial/active/past_due/canceled/paused), by plan tier, and by payment
+  // provider, plus live_subscriptions (trial+active). Pure aggregate read over
+  // the billing schema -- no tenant identity, no PII, no question content; no
+  // audit row (no state change). Mounted at /v1.
+  router.get('/v1/admin/billing-overview', ...auth, async (_req: Request, res, next) => {
+    try {
+      res.json(await getBillingOverview(deps.pool));
     } catch (err) {
       next(err);
     }
