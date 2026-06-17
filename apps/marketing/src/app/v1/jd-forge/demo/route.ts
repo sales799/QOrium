@@ -1,11 +1,16 @@
 import { z } from 'zod';
 
-import { runJdForgeDemo } from '@/content/interactive-proof';
+import { runJdForgeDemo, runJdForgeFromJobTitle } from '@/content/interactive-proof';
 import { ok, problem, rateLimitResponse, readJsonBody } from '../../_proof-response';
 
-const DemoBodySchema = z.object({
-  jd_text: z.string().min(20).max(12_000),
-});
+const DemoBodySchema = z
+  .object({
+    jd_text: z.string().min(20).max(12_000).optional(),
+    job_title: z.string().min(3).max(160).optional(),
+  })
+  .refine((body) => Boolean(body.jd_text || body.job_title), {
+    message: 'Body must include jd_text or job_title.',
+  });
 
 export async function POST(request: Request) {
   const limited =
@@ -18,10 +23,12 @@ export async function POST(request: Request) {
     return problem(
       400,
       'Bad Request',
-      'Body must include jd_text between 20 and 12000 characters.',
+      'Body must include jd_text between 20 and 12000 characters or job_title between 3 and 160 characters.',
     );
   }
 
-  const demo = runJdForgeDemo(parsed.data.jd_text);
+  const demo = parsed.data.jd_text
+    ? runJdForgeDemo(parsed.data.jd_text)
+    : runJdForgeFromJobTitle(parsed.data.job_title!);
   return ok(demo);
 }

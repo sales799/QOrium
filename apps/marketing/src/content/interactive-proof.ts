@@ -19,6 +19,14 @@ export type JdForgeDemoResult = {
   planId: string;
   inputHash: string;
   roleTitle: string;
+  source: {
+    mode: 'sample-jd' | 'pasted-jd' | 'job-title';
+    label: string;
+    jobTitle?: string;
+    generatedJd: string;
+    researchProvider: string;
+    researchSignals: string[];
+  };
   skills: ProofSkill[];
   assessment: {
     itemCount: number;
@@ -34,6 +42,16 @@ export type JdForgeDemoResult = {
     generatedAt: string;
   };
   lowConfidenceReason?: string;
+};
+
+export type JdForgeTitleResearch = {
+  jobTitle: string;
+  generatedJd: string;
+  roleFamily: string;
+  domain: string;
+  seniority: string;
+  researchProvider: string;
+  researchSignals: string[];
 };
 
 export type GraderAuditMeta = {
@@ -511,6 +529,702 @@ export const sampleJds: SampleJd[] = [
   },
 ];
 
+type RoleResearchTemplate = {
+  id: string;
+  match: RegExp;
+  roleFamily: string;
+  domain: string;
+  researchSignals: string[];
+  responsibilities: string[];
+  requiredSkills: string[];
+  preferredSkills: string[];
+  assessmentFocus: string[];
+};
+
+const defaultRoleTemplate: RoleResearchTemplate = {
+  id: 'professional-role',
+  match: /.*/,
+  roleFamily: 'Role-specific operations',
+  domain: 'Professional services',
+  researchSignals: ['role-title decomposition', 'transferable skill benchmark'],
+  responsibilities: [
+    'Own the core outcomes attached to the role and translate ambiguous requests into executable work.',
+    'Coordinate with stakeholders, document decisions, and keep delivery risks visible.',
+    'Use role-specific tools, reporting, and operating cadence to improve quality and speed.',
+    'Review edge cases, escalate blockers, and continuously improve repeatable workflows.',
+  ],
+  requiredSkills: [
+    'Domain knowledge',
+    'Workflow analysis',
+    'Stakeholder communication',
+    'Documentation',
+    'Reporting and dashboards',
+    'Quality control',
+    'Problem solving',
+    'Process improvement',
+  ],
+  preferredSkills: ['Automation awareness', 'Data interpretation', 'Compliance awareness'],
+  assessmentFocus: [
+    'Practical scenario judgment',
+    'Role-specific problem diagnosis',
+    'Communication clarity',
+    'Quality and risk tradeoffs',
+  ],
+};
+
+const roleResearchTemplates: RoleResearchTemplate[] = [
+  {
+    id: 'frontend-engineering',
+    match: /\b(frontend|front-end|react|ui engineer|next\.?js|web engineer)\b/i,
+    roleFamily: 'Frontend engineering',
+    domain: 'Web product engineering',
+    researchSignals: [
+      'frontend role benchmark',
+      'web accessibility baseline',
+      'performance review',
+    ],
+    responsibilities: [
+      'Build production React and TypeScript interfaces from product requirements and design-system patterns.',
+      'Debug rendering, state, accessibility, and client performance issues across desktop and mobile.',
+      'Collaborate with product, design, backend, and QA teams to ship reliable user-facing workflows.',
+      'Review UI changes for semantic HTML, keyboard behavior, visual polish, and regression risk.',
+    ],
+    requiredSkills: [
+      'React component architecture',
+      'TypeScript application design',
+      'Next.js App Router',
+      'Frontend performance debugging',
+      'Accessibility testing',
+      'Design-system workflows',
+      'API integration',
+      'Git pull-request review',
+    ],
+    preferredSkills: [
+      'Playwright testing',
+      'Analytics instrumentation',
+      'Motion and micro-interactions',
+    ],
+    assessmentFocus: [
+      'Component debugging',
+      'State and rendering tradeoffs',
+      'Accessible interaction design',
+      'Production UI review',
+    ],
+  },
+  {
+    id: 'backend-engineering',
+    match:
+      /\b(backend|back-end|java|python|node|api engineer|full stack|software engineer|developer)\b/i,
+    roleFamily: 'Software engineering',
+    domain: 'Application engineering',
+    researchSignals: [
+      'backend role benchmark',
+      'production reliability baseline',
+      'code-review signals',
+    ],
+    responsibilities: [
+      'Design and maintain APIs, services, data models, and integrations for production systems.',
+      'Debug correctness, latency, security, and reliability issues using logs, tests, and code review.',
+      'Write maintainable code with clear error handling, observability, and deployment discipline.',
+      'Collaborate with frontend, product, QA, and platform teams to ship customer-facing features.',
+    ],
+    requiredSkills: [
+      'Python production engineering',
+      'Java 21 concurrency',
+      'Spring Boot services',
+      'SQL data modeling',
+      'Microservices resilience',
+      'AWS production systems',
+      'API design',
+      'Automated testing',
+    ],
+    preferredSkills: ['Kubernetes operations', 'Terraform infrastructure', 'Security review'],
+    assessmentFocus: [
+      'Code reasoning',
+      'API and data-model design',
+      'Failure-mode diagnosis',
+      'Production tradeoff explanation',
+    ],
+  },
+  {
+    id: 'data',
+    match:
+      /\b(data analyst|data engineer|analytics engineer|bi analyst|data scientist|machine learning|ml engineer)\b/i,
+    roleFamily: 'Data',
+    domain: 'Data and analytics',
+    researchSignals: ['data role benchmark', 'analytics workflow baseline', 'data-quality review'],
+    responsibilities: [
+      'Build reliable datasets, reports, pipelines, and decision-support artifacts for business teams.',
+      'Diagnose data-quality, lineage, metric-definition, and performance issues across the analytics flow.',
+      'Translate stakeholder questions into clear analysis, dashboards, and documented assumptions.',
+      'Partner with engineering and operations teams on data contracts, automation, and governance.',
+    ],
+    requiredSkills: [
+      'SQL data modeling',
+      'Python production engineering',
+      'Data pipeline orchestration',
+      'Analytics engineering with dbt',
+      'Cloud data warehousing',
+      'Data quality checks',
+      'Dashboard storytelling',
+      'Experiment analysis',
+    ],
+    preferredSkills: [
+      'AWS production systems',
+      'Machine learning evaluation',
+      'Cost-aware query tuning',
+    ],
+    assessmentFocus: [
+      'SQL and data-model correctness',
+      'Pipeline failure diagnosis',
+      'Metric interpretation',
+      'Analytical communication',
+    ],
+  },
+  {
+    id: 'devops-cloud-sre',
+    match:
+      /\b(devops|sre|site reliability|platform engineer|cloud engineer|kubernetes|aws|azure|gcp)\b/i,
+    roleFamily: 'DevOps / SRE',
+    domain: 'Cloud infrastructure',
+    researchSignals: [
+      'cloud operations benchmark',
+      'incident response review',
+      'infra-as-code baseline',
+    ],
+    responsibilities: [
+      'Operate cloud infrastructure, deployment workflows, observability, and incident response practices.',
+      'Automate infrastructure changes while controlling reliability, security, cost, and rollback risk.',
+      'Partner with engineering teams on service readiness, SLOs, capacity, and production diagnostics.',
+      'Maintain operational documentation, runbooks, and post-incident improvement loops.',
+    ],
+    requiredSkills: [
+      'Kubernetes operations',
+      'Terraform infrastructure',
+      'AWS production systems',
+      'Observability and incident response',
+      'SLO ownership',
+      'CI/CD operations',
+      'Security groups and IAM',
+      'Runbook documentation',
+    ],
+    preferredSkills: [
+      'Cost optimization',
+      'Disaster recovery planning',
+      'Platform developer experience',
+    ],
+    assessmentFocus: [
+      'Incident triage',
+      'Infrastructure design',
+      'Reliability tradeoffs',
+      'Operational communication',
+    ],
+  },
+  {
+    id: 'it-infrastructure',
+    match:
+      /\b(network|it infrastructure|system administrator|systems administrator|desktop support|it support|helpdesk|windows server|microsoft 365|active directory)\b/i,
+    roleFamily: 'IT infrastructure',
+    domain: 'Infrastructure and support operations',
+    researchSignals: [
+      'IT infrastructure benchmark',
+      'service operations baseline',
+      'security controls review',
+    ],
+    responsibilities: [
+      'Support users, endpoints, access, networking, cloud workspaces, and on-premise infrastructure.',
+      'Troubleshoot service issues across identity, network, endpoint, server, and cloud layers.',
+      'Maintain documentation, runbooks, change records, backup routines, and incident logs.',
+      'Coordinate with vendors, security teams, and business stakeholders to protect uptime and data access.',
+    ],
+    requiredSkills: [
+      'Remote desktop and endpoint support',
+      'Identity and access administration',
+      'Microsoft 365 administration',
+      'Network infrastructure troubleshooting',
+      'Windows Server administration',
+      'AWS production systems',
+      'Backup and disaster recovery',
+      'Security compliance operations',
+      'ITIL service operations',
+      'IT operations automation',
+    ],
+    preferredSkills: ['Cisco networking', 'PowerShell scripting', 'Network monitoring tools'],
+    assessmentFocus: [
+      'Troubleshooting sequence',
+      'Access-control judgment',
+      'Incident documentation',
+      'Infrastructure risk handling',
+    ],
+  },
+  {
+    id: 'security',
+    match: /\b(security|soc analyst|cyber|grc|compliance|information security|appsec)\b/i,
+    roleFamily: 'Security',
+    domain: 'Security operations',
+    researchSignals: [
+      'security operations benchmark',
+      'control-evidence review',
+      'incident response baseline',
+    ],
+    responsibilities: [
+      'Monitor, investigate, and document security events, vulnerabilities, access risks, and control gaps.',
+      'Support policy, audit, compliance, incident response, and remediation workflows.',
+      'Collaborate with IT, engineering, legal, and business teams on security-by-design decisions.',
+      'Maintain evidence, runbooks, metrics, and executive-ready risk summaries.',
+    ],
+    requiredSkills: [
+      'Security compliance operations',
+      'Identity and access administration',
+      'Incident response',
+      'Threat modeling',
+      'Endpoint security',
+      'Vulnerability triage',
+      'Audit evidence management',
+      'Technical Communication',
+    ],
+    preferredSkills: ['SOC 2', 'ISO 27001', 'Cloud security posture management'],
+    assessmentFocus: [
+      'Security scenario judgment',
+      'Control mapping',
+      'Incident triage',
+      'Risk communication',
+    ],
+  },
+  {
+    id: 'product',
+    match: /\b(product manager|product owner|program manager|project manager|scrum master)\b/i,
+    roleFamily: 'Product',
+    domain: 'Product and delivery',
+    researchSignals: ['product role benchmark', 'roadmap review', 'customer-discovery baseline'],
+    responsibilities: [
+      'Turn customer, market, and operational signals into clear product requirements and delivery priorities.',
+      'Write PRDs, define success metrics, manage roadmaps, and coordinate cross-functional execution.',
+      'Run discovery, experiments, launch reviews, and feedback loops with design, engineering, sales, and support.',
+      'Communicate tradeoffs, risks, and decisions with enough clarity for teams to act.',
+    ],
+    requiredSkills: [
+      'Product discovery',
+      'Roadmap prioritization',
+      'PRD writing',
+      'User research',
+      'Product analytics',
+      'Experiment design',
+      'Stakeholder communication',
+      'API collaboration',
+    ],
+    preferredSkills: ['AI Prompt Engineering', 'SQL data modeling', 'Go-to-market planning'],
+    assessmentFocus: [
+      'Prioritization judgment',
+      'Requirement clarity',
+      'Metric reasoning',
+      'Cross-functional tradeoffs',
+    ],
+  },
+  {
+    id: 'design',
+    match: /\b(product designer|ux|ui designer|visual designer|design lead|researcher)\b/i,
+    roleFamily: 'Design',
+    domain: 'Product design',
+    researchSignals: ['design role benchmark', 'usability review', 'accessibility baseline'],
+    responsibilities: [
+      'Design flows, interfaces, prototypes, and research plans that solve user problems clearly.',
+      'Translate product requirements and user evidence into accessible, testable design decisions.',
+      'Partner with engineering on implementation details, design-system components, and QA review.',
+      'Communicate design rationale, tradeoffs, and usability risks to stakeholders.',
+    ],
+    requiredSkills: [
+      'User research',
+      'Interaction design',
+      'Information architecture',
+      'Figma prototyping',
+      'Accessibility testing',
+      'Design-system workflows',
+      'Usability analysis',
+      'Stakeholder communication',
+    ],
+    preferredSkills: ['Frontend collaboration', 'Product analytics', 'Content design'],
+    assessmentFocus: [
+      'UX critique',
+      'Accessibility judgment',
+      'Design-system reasoning',
+      'Research synthesis',
+    ],
+  },
+  {
+    id: 'sales',
+    match:
+      /\b(sales|account executive|business development|bdm|customer success|solutions consultant)\b/i,
+    roleFamily: 'Sales',
+    domain: 'Revenue operations',
+    researchSignals: ['sales role benchmark', 'pipeline review', 'buyer-discovery baseline'],
+    responsibilities: [
+      'Prospect, qualify, discover, negotiate, and close opportunities with clear buyer-value articulation.',
+      'Manage CRM hygiene, forecast accuracy, deal risks, and handoffs across marketing, product, and delivery.',
+      'Run discovery calls, demos, proposals, objection handling, and renewal or expansion workflows.',
+      'Document customer context and communicate next steps with urgency and accuracy.',
+    ],
+    requiredSkills: [
+      'Discovery calls',
+      'CRM pipeline management',
+      'Consultative selling',
+      'Proposal writing',
+      'Forecasting',
+      'Objection handling',
+      'Stakeholder communication',
+      'Commercial negotiation',
+    ],
+    preferredSkills: ['SaaS metrics', 'Account planning', 'Sales automation'],
+    assessmentFocus: [
+      'Discovery quality',
+      'Deal-risk judgment',
+      'Commercial communication',
+      'Pipeline discipline',
+    ],
+  },
+  {
+    id: 'marketing',
+    match:
+      /\b(marketing|growth|seo|performance marketer|content marketer|brand manager|demand generation)\b/i,
+    roleFamily: 'Marketing',
+    domain: 'Growth and marketing',
+    researchSignals: ['marketing role benchmark', 'campaign analytics review', 'funnel baseline'],
+    responsibilities: [
+      'Plan, launch, measure, and improve acquisition, lifecycle, content, brand, or demand-generation programs.',
+      'Translate audience, channel, funnel, and campaign data into prioritized growth actions.',
+      'Coordinate creative, sales, product, analytics, and agency workflows with clear briefs and reporting.',
+      'Own experiment quality, budget discipline, and post-campaign learning loops.',
+    ],
+    requiredSkills: [
+      'Google Analytics',
+      'SEO content',
+      'Paid acquisition',
+      'Lifecycle email',
+      'A/B testing',
+      'HubSpot CRM',
+      'Campaign reporting',
+      'Funnel optimization',
+    ],
+    preferredSkills: ['Marketing automation', 'Conversion copywriting', 'Attribution modeling'],
+    assessmentFocus: [
+      'Campaign diagnosis',
+      'Funnel math',
+      'Audience-message fit',
+      'Experiment design',
+    ],
+  },
+  {
+    id: 'recruiting-hr',
+    match: /\b(recruiter|talent acquisition|hr|human resources|people ops|sourcer|staffing)\b/i,
+    roleFamily: 'People operations',
+    domain: 'Hiring and HR operations',
+    researchSignals: [
+      'recruiting role benchmark',
+      'candidate funnel review',
+      'compliance baseline',
+    ],
+    responsibilities: [
+      'Source, screen, coordinate, and close candidates against role requirements and hiring-manager priorities.',
+      'Maintain ATS hygiene, interview scheduling, candidate communication, and recruitment reporting.',
+      'Partner with business teams on scorecards, offers, onboarding, and process improvement.',
+      'Protect candidate experience, data privacy, fairness, and compliance in hiring workflows.',
+    ],
+    requiredSkills: [
+      'Candidate sourcing',
+      'Screening interviews',
+      'ATS workflow management',
+      'Job description calibration',
+      'Stakeholder communication',
+      'Offer coordination',
+      'Recruitment analytics',
+      'Candidate experience',
+    ],
+    preferredSkills: ['LinkedIn Recruiter', 'Boolean search', 'HR compliance'],
+    assessmentFocus: [
+      'Screening judgment',
+      'Funnel prioritization',
+      'Candidate communication',
+      'Hiring process quality',
+    ],
+  },
+  {
+    id: 'enterprise-apps',
+    match: /\b(sap|abap|salesforce|oracle|hcm|finacle|flexcube|erp|crm consultant)\b/i,
+    roleFamily: 'Enterprise apps',
+    domain: 'Enterprise systems',
+    researchSignals: [
+      'enterprise-app role benchmark',
+      'configuration review',
+      'integration baseline',
+    ],
+    responsibilities: [
+      'Configure, extend, test, and support enterprise workflows across business processes and integrations.',
+      'Translate user requirements into configuration, data, reports, controls, and change-management plans.',
+      'Debug defects across permissions, master data, workflow, integration, and reporting layers.',
+      'Document functional decisions and coordinate UAT, release, and support handoffs.',
+    ],
+    requiredSkills: [
+      'SAP ABAP',
+      'SAP integration diagnostics',
+      'Salesforce Apex',
+      'SOQL data access',
+      'Oracle HCM Cloud',
+      'Finacle / Flexcube core banking',
+      'Business process mapping',
+      'UAT coordination',
+    ],
+    preferredSkills: ['Data migration', 'Role and permission design', 'Release management'],
+    assessmentFocus: [
+      'Configuration reasoning',
+      'Integration diagnosis',
+      'Business-process judgment',
+      'User-support communication',
+    ],
+  },
+  {
+    id: 'finance',
+    match:
+      /\b(accountant|finance|financial analyst|accounts payable|accounts receivable|controller)\b/i,
+    roleFamily: 'Finance',
+    domain: 'Finance operations',
+    researchSignals: ['finance role benchmark', 'controls review', 'reporting baseline'],
+    responsibilities: [
+      'Prepare, reconcile, analyze, and report financial data with accuracy, controls, and clear audit trails.',
+      'Support month-end close, variance analysis, billing, collections, payables, and compliance routines.',
+      'Partner with operations and leadership on forecasts, budgets, cash-flow visibility, and process improvement.',
+      'Maintain documentation and escalate exceptions before they become reporting or control failures.',
+    ],
+    requiredSkills: [
+      'Financial analysis',
+      'Excel modeling',
+      'Reconciliation',
+      'ERP workflows',
+      'Variance analysis',
+      'Compliance documentation',
+      'Reporting and dashboards',
+      'Process controls',
+    ],
+    preferredSkills: ['SQL data modeling', 'Automation awareness', 'Audit support'],
+    assessmentFocus: [
+      'Numerical accuracy',
+      'Control judgment',
+      'Exception handling',
+      'Financial communication',
+    ],
+  },
+  {
+    id: 'healthcare',
+    match: /\b(nurse|doctor|medical|clinical|clinic|healthcare|pharmacist|physiotherapist)\b/i,
+    roleFamily: 'Healthcare operations',
+    domain: 'Clinical and healthcare support',
+    researchSignals: [
+      'healthcare role benchmark',
+      'patient-safety baseline',
+      'documentation review',
+    ],
+    responsibilities: [
+      'Deliver role-appropriate clinical or healthcare support while protecting patient safety and privacy.',
+      'Assess needs, follow protocols, document care or service activity, and escalate risk promptly.',
+      'Coordinate with clinicians, operations, patients, families, and administrative teams.',
+      'Maintain compliance with healthcare documentation, hygiene, quality, and communication standards.',
+    ],
+    requiredSkills: [
+      'Clinical protocol adherence',
+      'Patient communication',
+      'Triage judgment',
+      'EMR documentation',
+      'Care coordination',
+      'Compliance awareness',
+      'Incident escalation',
+      'Quality control',
+    ],
+    preferredSkills: ['Healthcare analytics', 'Telehealth workflow', 'Training and mentoring'],
+    assessmentFocus: [
+      'Patient-safety judgment',
+      'Protocol reasoning',
+      'Documentation accuracy',
+      'Escalation decisions',
+    ],
+  },
+];
+
+const titleAddOns: Array<{
+  match: RegExp;
+  researchSignals: string[];
+  responsibilities: string[];
+  requiredSkills: string[];
+  preferredSkills: string[];
+  assessmentFocus: string[];
+}> = [
+  {
+    match: /\b(ai|llm|genai|generative ai|machine learning|ml)\b/i,
+    researchSignals: ['AI-era skill overlay', 'model-evaluation baseline'],
+    responsibilities: [
+      'Evaluate AI-assisted workflows for quality, safety, cost, and failure modes before release.',
+    ],
+    requiredSkills: [
+      'AI Prompt Engineering',
+      'LLM evaluation',
+      'Responsible AI review',
+      'AI Tool-Use Judgment',
+    ],
+    preferredSkills: ['RAG workflow awareness', 'Model-cost analysis'],
+    assessmentFocus: ['AI output critique', 'Human-in-the-loop judgment'],
+  },
+  {
+    match: /\b(aws|azure|gcp|cloud)\b/i,
+    researchSignals: ['cloud-platform overlay'],
+    responsibilities: [
+      'Account for cloud security, cost, deployment, and operational readiness in delivery.',
+    ],
+    requiredSkills: ['AWS production systems', 'Cloud cost awareness', 'IAM and access control'],
+    preferredSkills: ['Terraform infrastructure', 'Observability and incident response'],
+    assessmentFocus: ['Cloud tradeoff reasoning'],
+  },
+  {
+    match: /\b(lead|manager|head|principal|staff|senior)\b/i,
+    researchSignals: ['seniority and leadership overlay'],
+    responsibilities: [
+      'Mentor team members, raise operating standards, and make tradeoffs visible.',
+    ],
+    requiredSkills: ['Leadership communication', 'Review and coaching', 'Decision documentation'],
+    preferredSkills: ['Hiring support', 'Operating cadence design'],
+    assessmentFocus: ['Leadership judgment'],
+  },
+];
+
+function uniqueMerge(...groups: string[][]): string[] {
+  const seen = new Set<string>();
+  const merged: string[] = [];
+  for (const group of groups) {
+    for (const item of group) {
+      const normalized = item.trim();
+      const key = normalized.toLowerCase();
+      if (!normalized || seen.has(key)) continue;
+      seen.add(key);
+      merged.push(normalized);
+    }
+  }
+  return merged;
+}
+
+function normalizeJobTitle(jobTitle: string): string {
+  return jobTitle
+    .replace(/\s+/g, ' ')
+    .replace(/[^\w\s/&.+#()-]/g, '')
+    .trim()
+    .slice(0, 160);
+}
+
+function titleCaseJobTitle(jobTitle: string): string {
+  const keepUpper = new Set([
+    'ai',
+    'api',
+    'aws',
+    'azure',
+    'bi',
+    'crm',
+    'erp',
+    'gcp',
+    'hr',
+    'it',
+    'llm',
+    'ml',
+    'mm',
+    'qa',
+    'sap',
+    'seo',
+    'sre',
+    'ui',
+    'ux',
+  ]);
+  return normalizeJobTitle(jobTitle)
+    .split(' ')
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (keepUpper.has(lower.replace(/[^a-z0-9]/g, ''))) return word.toUpperCase();
+      return lower.replace(/(^|[(/&+-])([a-z])/g, (_, prefix: string, char: string) => {
+        return `${prefix}${char.toUpperCase()}`;
+      });
+    })
+    .join(' ');
+}
+
+function inferSeniorityFromTitle(jobTitle: string): string {
+  if (/\b(principal|head|director|vp|chief)\b/i.test(jobTitle)) return 'Principal / leadership';
+  if (/\b(staff|architect)\b/i.test(jobTitle)) return 'Staff / architect';
+  if (/\b(senior|lead|manager)\b/i.test(jobTitle)) return 'Senior';
+  if (/\b(junior|associate|trainee|intern)\b/i.test(jobTitle)) return 'Junior';
+  return 'Mid-level';
+}
+
+export function researchJobTitleForJdForge(jobTitle: string): JdForgeTitleResearch {
+  const normalizedTitle = titleCaseJobTitle(jobTitle);
+  if (normalizedTitle.length < 3) {
+    throw new Error('Job title must be at least 3 characters.');
+  }
+
+  const primary =
+    roleResearchTemplates.find((template) => template.match.test(normalizedTitle)) ??
+    defaultRoleTemplate;
+  const matchingAddOns = titleAddOns.filter((addOn) => addOn.match.test(normalizedTitle));
+  const responsibilities = uniqueMerge(
+    primary.responsibilities,
+    ...matchingAddOns.map((addOn) => addOn.responsibilities),
+  ).slice(0, 7);
+  const requiredSkills = uniqueMerge(
+    primary.requiredSkills,
+    ...matchingAddOns.map((addOn) => addOn.requiredSkills),
+  ).slice(0, 16);
+  const preferredSkills = uniqueMerge(
+    primary.preferredSkills,
+    ...matchingAddOns.map((addOn) => addOn.preferredSkills),
+  ).slice(0, 8);
+  const assessmentFocus = uniqueMerge(
+    primary.assessmentFocus,
+    ...matchingAddOns.map((addOn) => addOn.assessmentFocus),
+  ).slice(0, 8);
+  const researchSignals = uniqueMerge(
+    primary.researchSignals,
+    ...matchingAddOns.map((addOn) => addOn.researchSignals),
+  );
+  const seniority = inferSeniorityFromTitle(normalizedTitle);
+
+  const numberedResponsibilities = responsibilities
+    .map((item, index) => `${index + 1}. ${item}`)
+    .join('\n');
+
+  const generatedJd = [
+    'Job description',
+    normalizedTitle,
+    '',
+    `Seniority: ${seniority}`,
+    `Domain: ${primary.domain}`,
+    `Role family: ${primary.roleFamily}`,
+    '',
+    'Research basis',
+    `QOrium role-title research synthesized this JD from: ${researchSignals.join(', ')}.`,
+    '',
+    'Key Responsibilities',
+    numberedResponsibilities,
+    '',
+    `Technical Skills Required: ${requiredSkills.join(', ')}.`,
+    `Technical Skills Preferred: ${preferredSkills.join(', ')}.`,
+    '',
+    `Assessment Focus: ${assessmentFocus.join(', ')}.`,
+  ].join('\n');
+
+  return {
+    jobTitle: normalizedTitle,
+    generatedJd,
+    roleFamily: primary.roleFamily,
+    domain: primary.domain,
+    seniority,
+    researchProvider: 'qorium-title-research-v1',
+    researchSignals,
+  };
+}
+
 export function slugifyProof(value: string): string {
   return value
     .toLowerCase()
@@ -573,7 +1287,7 @@ const genericHeadingLabels = [
 const genericSkillSection =
   /\b(?:technical skills?|required skills?|preferred skills?|tools?|technologies|stack)\b/i;
 const jobSignal =
-  /\b(?:engineer|developer|administrator|admin|support|analyst|consultant|architect|specialist|manager|lead|scientist|designer|technician|operator)\b/i;
+  /\b(?:engineer|developer|administrator|admin|support|analyst|consultant|architect|specialist|manager|lead|scientist|designer|technician|operator|recruiter|sourcer|marketer|accountant|nurse|doctor|coordinator|executive|officer|owner|associate)\b/i;
 const responsibilitySignal =
   /\b(?:responsibilities|requirements|skills?|experience|support|manage|administer|configure|monitor|troubleshoot|design|develop|maintain)\b/i;
 
@@ -622,6 +1336,51 @@ function classifyDerivedSkill(
       roleFamily: 'Software engineering',
       stackFamily: 'Programming and automation',
       libraryHref: '/library/python',
+    };
+  }
+  if (
+    /\b(?:product|roadmap|prd|user research|experiment|go-to-market|prioritization)\b/i.test(name)
+  ) {
+    return {
+      roleFamily: 'Product',
+      stackFamily: 'Product management',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  if (
+    /\b(?:marketing|seo|paid acquisition|campaign|funnel|hubspot|lifecycle email|a\/b)\b/i.test(
+      name,
+    )
+  ) {
+    return {
+      roleFamily: 'Marketing',
+      stackFamily: 'Growth operations',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  if (/\b(?:recruit|candidate|ats|sourcing|screening|offer|hiring|boolean search)\b/i.test(name)) {
+    return {
+      roleFamily: 'People operations',
+      stackFamily: 'Recruiting operations',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  if (
+    /\b(?:finance|financial|accounting|reconciliation|erp|variance|audit support|controls)\b/i.test(
+      name,
+    )
+  ) {
+    return {
+      roleFamily: 'Finance',
+      stackFamily: 'Finance operations',
+      libraryHref: '/library/sql',
+    };
+  }
+  if (/\b(?:clinical|patient|triage|emr|care coordination|healthcare|protocol)\b/i.test(name)) {
+    return {
+      roleFamily: 'Healthcare operations',
+      stackFamily: 'Clinical operations',
+      libraryHref: '/library/technical-communication',
     };
   }
   if (/\b(?:network|cisco|router|switch|firewall|vpn|vlan|dns|dhcp|bandwidth|qos)\b/i.test(name)) {
@@ -790,6 +1549,19 @@ function inferRoleTitle(text: string): string {
   return 'Custom role assessment';
 }
 
+function sourceForJd(normalized: string): JdForgeDemoResult['source'] {
+  const sample = sampleJds.find((jd) => jd.body === normalized);
+  return {
+    mode: sample ? 'sample-jd' : 'pasted-jd',
+    label: sample ? sample.title : 'Pasted job description',
+    generatedJd: normalized,
+    researchProvider: 'qorium-jd-extractor-v1',
+    researchSignals: sample
+      ? ['seeded demo role graph', sample.roleFamily]
+      : ['pasted JD skill extraction', 'structured heading parser'],
+  };
+}
+
 function formatPlan(skills: ProofSkill[]): JdForgeDemoResult['assessment'] {
   const itemCount = skills.length >= 3 ? 20 : 10;
   const durationMinutes = skills.length >= 3 ? Math.min(60, 24 + skills.length * 4) : 18;
@@ -819,7 +1591,10 @@ function formatPlan(skills: ProofSkill[]): JdForgeDemoResult['assessment'] {
   };
 }
 
-export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
+export function runJdForgeDemo(
+  jdText: string,
+  options: { roleTitle?: string; source?: JdForgeDemoResult['source'] } = {},
+): JdForgeDemoResult {
   const normalized = jdText.trim();
   const mappedSkills = skillRules
     .map((rule, index) => {
@@ -850,7 +1625,8 @@ export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
     ok: true,
     planId: `jdplan_${stableHash(normalized).slice(0, 7)}`,
     inputHash: `sha256:${stableHash(normalized).repeat(8).slice(0, 64)}`,
-    roleTitle: inferRoleTitle(normalized),
+    roleTitle: options.roleTitle ?? inferRoleTitle(normalized),
+    source: options.source ?? sourceForJd(normalized),
     skills,
     assessment: formatPlan(skills),
     audit: {
@@ -865,6 +1641,29 @@ export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
     return { ...result, lowConfidenceReason };
   }
   return result;
+}
+
+export function runJdForgeFromJobTitle(jobTitle: string): JdForgeDemoResult {
+  const research = researchJobTitleForJdForge(jobTitle);
+  const result = runJdForgeDemo(research.generatedJd, {
+    roleTitle: `${research.jobTitle} assessment`,
+    source: {
+      mode: 'job-title',
+      label: `Job title: ${research.jobTitle}`,
+      jobTitle: research.jobTitle,
+      generatedJd: research.generatedJd,
+      researchProvider: research.researchProvider,
+      researchSignals: research.researchSignals,
+    },
+  });
+
+  return {
+    ...result,
+    audit: {
+      ...result.audit,
+      confidence: Math.max(result.audit.confidence, 0.82),
+    },
+  };
 }
 
 function audit(id: string): GraderAuditMeta {

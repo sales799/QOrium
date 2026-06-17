@@ -8,13 +8,20 @@ import {
   FileText,
   Loader2,
   PencilLine,
+  Search,
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { type JdForgeDemoResult, runJdForgeDemo, sampleJds } from '@/content/interactive-proof';
+import {
+  type JdForgeDemoResult,
+  runJdForgeFromJobTitle,
+  sampleJds,
+} from '@/content/interactive-proof';
 import { cn } from '@/lib/cn';
+
+const DEFAULT_JOB_TITLE = 'Network Engineer / IT Infrastructure & Support';
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -51,19 +58,26 @@ export function JdForgeDemo({
   compact?: boolean;
   dark?: boolean;
 }) {
-  const [jdText, setJdText] = React.useState(sampleJds[0]!.body);
-  const [generatedText, setGeneratedText] = React.useState(sampleJds[0]!.body);
-  const [result, setResult] = React.useState<JdForgeDemoResult>(() =>
-    runJdForgeDemo(sampleJds[0]!.body),
-  );
+  const initialResult = React.useMemo(() => runJdForgeFromJobTitle(DEFAULT_JOB_TITLE), []);
+  const [inputMode, setInputMode] = React.useState<'job-title' | 'jd'>('job-title');
+  const [jobTitle, setJobTitle] = React.useState(DEFAULT_JOB_TITLE);
+  const [generatedJobTitle, setGeneratedJobTitle] = React.useState(DEFAULT_JOB_TITLE);
+  const [jdText, setJdText] = React.useState(initialResult.source.generatedJd);
+  const [generatedText, setGeneratedText] = React.useState(initialResult.source.generatedJd);
+  const [result, setResult] = React.useState<JdForgeDemoResult>(initialResult);
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
   const [email, setEmail] = React.useState('');
   const [pdfState, setPdfState] = React.useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const normalizedEmail = email.trim();
+  const normalizedJobTitle = jobTitle.trim();
   const normalizedJdText = jdText.trim();
-  const canGenerate = normalizedJdText.length >= 20;
-  const isDraftStale = normalizedJdText !== generatedText.trim();
+  const canGenerate =
+    inputMode === 'job-title' ? normalizedJobTitle.length >= 3 : normalizedJdText.length >= 20;
+  const isDraftStale =
+    inputMode === 'job-title'
+      ? normalizedJobTitle !== generatedJobTitle.trim()
+      : normalizedJdText !== generatedText.trim();
   const canRequestPdf = !isDraftStale && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
 
   const phrases = React.useMemo(
@@ -72,26 +86,45 @@ export function JdForgeDemo({
   );
 
   function updateDraft(nextText: string) {
+    setInputMode('jd');
     setJdText(nextText);
     setStatus('idle');
     setPdfState('idle');
   }
 
-  async function runDemo(nextText = jdText) {
-    const submittedText = nextText.trim();
-    if (submittedText.length < 20) return;
+  function updateJobTitle(nextTitle: string) {
+    setJobTitle(nextTitle);
+    setStatus('idle');
+    setPdfState('idle');
+  }
+
+  async function runDemo() {
+    const submittedTitle = normalizedJobTitle;
+    const submittedText = normalizedJdText;
+    if (inputMode === 'job-title' && submittedTitle.length < 3) return;
+    if (inputMode === 'jd' && submittedText.length < 20) return;
 
     setStatus('loading');
     try {
       const response = await fetch('/v1/jd-forge/demo', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jd_text: submittedText }),
+        body: JSON.stringify(
+          inputMode === 'job-title' ? { job_title: submittedTitle } : { jd_text: submittedText },
+        ),
       });
       const payload = (await response.json()) as { ok: boolean; data?: JdForgeDemoResult };
       if (!response.ok || !payload.data) throw new Error('demo failed');
       setResult(payload.data);
-      setGeneratedText(submittedText);
+      if (inputMode === 'job-title') {
+        const generatedJd = payload.data.source.generatedJd;
+        setGeneratedJobTitle(submittedTitle);
+        setJdText(generatedJd);
+        setGeneratedText(generatedJd);
+      } else {
+        setGeneratedText(submittedText);
+        setGeneratedJobTitle('');
+      }
       setPdfState('idle');
       setStatus('idle');
     } catch {
@@ -137,15 +170,79 @@ export function JdForgeDemo({
                 dark ? 'text-signal-300' : 'text-secondary',
               )}
             >
-              Live JD to test
+              Build plan
             </p>
           </div>
+          <div
+            className={cn(
+              'mt-4 grid grid-cols-2 rounded-md border p-1 text-xs font-semibold',
+              dark ? 'border-white/10 bg-black/20' : 'border-border bg-background',
+            )}
+            role="tablist"
+            aria-label="JD-Forge input mode"
+          >
+            {[
+              { id: 'job-title' as const, label: 'Job title' },
+              { id: 'jd' as const, label: 'Paste JD' },
+            ].map((mode) => (
+              <button
+                key={mode.id}
+                type="button"
+                role="tab"
+                aria-selected={inputMode === mode.id}
+                onClick={() => {
+                  setInputMode(mode.id);
+                  setStatus('idle');
+                  setPdfState('idle');
+                }}
+                className={cn(
+                  'rounded px-2 py-1.5 transition-colors',
+                  inputMode === mode.id
+                    ? dark
+                      ? 'bg-signal-300/15 text-white'
+                      : 'bg-secondary/10 text-foreground'
+                    : dark
+                      ? 'text-shell-muted hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
+          {inputMode === 'job-title' ? (
+            <>
+              <label className="mt-4 block text-sm font-medium" htmlFor="jd-demo-title">
+                Job title
+              </label>
+              <input
+                id="jd-demo-title"
+                value={jobTitle}
+                onChange={(event) => {
+                  updateJobTitle(event.target.value);
+                }}
+                placeholder="Network Engineer, AI Product Manager, SAP MM Consultant"
+                className={cn(
+                  'mt-2 min-h-11 w-full rounded-md border px-3 text-sm outline-none focus:ring-2',
+                  dark
+                    ? 'border-white/10 bg-black/20 text-white focus:ring-signal-300'
+                    : 'border-border bg-background focus:ring-secondary',
+                )}
+              />
+              {normalizedJobTitle.length > 0 && normalizedJobTitle.length < 3 ? (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Add at least 3 characters to research the role.
+                </p>
+              ) : null}
+            </>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {sampleJds.map((sample) => (
               <button
                 key={sample.id}
                 type="button"
                 onClick={() => {
+                  setInputMode('jd');
                   updateDraft(sample.body);
                 }}
                 className={cn(
@@ -184,7 +281,7 @@ export function JdForgeDemo({
             </button>
           </div>
           <label className="mt-4 block text-sm font-medium" htmlFor="jd-demo-textarea">
-            Job description
+            {inputMode === 'job-title' ? 'Generated job description' : 'Job description'}
           </label>
           <textarea
             ref={textareaRef}
@@ -193,7 +290,11 @@ export function JdForgeDemo({
             onChange={(event) => {
               updateDraft(event.target.value);
             }}
-            placeholder="Paste a job description with role, skills, stack, tools, and seniority."
+            placeholder={
+              inputMode === 'job-title'
+                ? 'Research output appears here after the title is generated.'
+                : 'Paste a job description with role, skills, stack, tools, and seniority.'
+            }
             className={cn(
               'mt-2 min-h-44 w-full resize-y rounded-md border p-3 text-sm leading-6 outline-none focus:ring-2',
               dark
@@ -209,12 +310,16 @@ export function JdForgeDemo({
           >
             {status === 'loading' ? (
               <Loader2 className="size-4 animate-spin" />
+            ) : inputMode === 'job-title' ? (
+              <Search className="size-4" />
             ) : (
               <Sparkles className="size-4" />
             )}
-            Generate assessment plan
+            {inputMode === 'job-title'
+              ? 'Research title and publish plan'
+              : 'Generate assessment plan'}
           </Button>
-          {normalizedJdText.length > 0 && !canGenerate ? (
+          {inputMode === 'jd' && normalizedJdText.length > 0 && !canGenerate ? (
             <p className="mt-2 text-sm text-muted-foreground">
               Add at least 20 characters to generate an assessment plan.
             </p>
@@ -240,6 +345,12 @@ export function JdForgeDemo({
           >
             Extracted skills
           </p>
+          {!isDraftStale && result.source.mode === 'job-title' ? (
+            <div className="mt-3 rounded-md border border-secondary/40 bg-secondary/10 p-3 text-sm">
+              Research draft published from {result.source.jobTitle}. Signals:{' '}
+              {result.source.researchSignals.slice(0, 3).join(', ')}.
+            </div>
+          ) : null}
           {isDraftStale ? (
             <div className="mt-3 rounded-md border border-secondary/40 bg-secondary/10 p-3 text-sm">
               Draft changed. Generate assessment plan to refresh the extracted skills.
@@ -287,6 +398,7 @@ export function JdForgeDemo({
           >
             Your assessment
           </p>
+          <h2 className="mt-2 text-base font-semibold">{result.roleTitle}</h2>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
             <div
               className={cn(
@@ -406,7 +518,7 @@ export function JdForgeDemo({
             )}
           >
             <FileText className="size-3.5" />
-            Plan ID {result.planId} / input {result.inputHash.slice(0, 18)}
+            Plan ID {result.planId} / {result.source.label} / input {result.inputHash.slice(0, 18)}
           </div>
         </div>
       </div>

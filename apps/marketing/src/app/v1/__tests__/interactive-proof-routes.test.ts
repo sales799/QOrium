@@ -79,6 +79,26 @@ describe('interactive proof public routes', () => {
     expect(payload.data.lowConfidenceReason).toBeUndefined();
   });
 
+  it('POST /v1/jd-forge/demo researches a job title when no JD is pasted', async () => {
+    const response = await postJdDemo(
+      jsonRequest('https://qorium.test/v1/jd-forge/demo', {
+        job_title: 'AI Product Manager',
+      }),
+    );
+    const payload = await response.json();
+    const skillNames = payload.data.skills.map((skill: { name: string }) => skill.name);
+
+    expect(response.status).toBe(200);
+    expect(payload.data.roleTitle).toBe('AI Product Manager assessment');
+    expect(payload.data.source.mode).toBe('job-title');
+    expect(payload.data.source.generatedJd).toContain('Technical Skills Required');
+    expect(skillNames).toEqual(
+      expect.arrayContaining(['AI Prompt Engineering', 'Product discovery', 'PRD writing']),
+    );
+    expect(payload.data.skills.length).toBeGreaterThanOrEqual(10);
+    expect(payload.data.lowConfidenceReason).toBeUndefined();
+  });
+
   it('POST /v1/jd-forge/demo/plan-pdf is email gated', async () => {
     const response = await postPlanPdf(
       jsonRequest('https://qorium.test/v1/jd-forge/demo/plan-pdf', {

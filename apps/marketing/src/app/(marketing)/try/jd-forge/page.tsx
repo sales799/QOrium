@@ -7,7 +7,8 @@ import { MaxWidth } from '@/components/site/MaxWidth';
 
 export const metadata: Metadata = {
   title: 'Try JD-Forge',
-  description: 'Paste a job description and see QOrium map it into a defensible assessment plan.',
+  description:
+    'Enter a job title or paste a job description and see QOrium map it into a defensible assessment plan.',
   alternates: { canonical: '/try/jd-forge' },
 };
 
@@ -21,11 +22,12 @@ export default function TryJdForgePage() {
               Try JD-Forge
             </p>
             <h1 className="mt-4 max-w-5xl text-balance text-5xl font-semibold text-white md:text-7xl">
-              Paste a JD. Watch the assessment plan take shape.
+              Enter a role. Watch the assessment plan take shape.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-shell-muted">
-              This public proof surface uses QOrium's seeded role graph and shows the honest
-              low-confidence state when a job description does not map cleanly.
+              This public proof surface researches a job title into a JD draft, maps pasted JDs into
+              QOrium's role graph, and shows the honest low-confidence state when text does not map
+              cleanly.
             </p>
           </FadeIn>
         </MaxWidth>

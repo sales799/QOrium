@@ -6,6 +6,7 @@ import {
   listGraderExemplars,
   listSamplePacks,
   runJdForgeDemo,
+  runJdForgeFromJobTitle,
   sampleJds,
 } from '../interactive-proof';
 import { getLibrarySkill, getRolePage, getStackPage } from '../seo-graph';
@@ -138,6 +139,50 @@ describe('interactive proof fixtures', () => {
       ]),
     );
     expect(demo.skills.length).toBeGreaterThanOrEqual(5);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('researches a job title into a generated JD and published assessment plan', () => {
+    const demo = runJdForgeFromJobTitle('AI Product Manager');
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(demo.roleTitle).toBe('AI Product Manager assessment');
+    expect(demo.source.mode).toBe('job-title');
+    expect(demo.source.jobTitle).toBe('AI Product Manager');
+    expect(demo.source.generatedJd).toContain('Research basis');
+    expect(demo.source.generatedJd).toContain('Technical Skills Required');
+    expect(demo.source.researchSignals).toEqual(
+      expect.arrayContaining(['product role benchmark', 'AI-era skill overlay']),
+    );
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'AI Prompt Engineering',
+        'Product discovery',
+        'Roadmap prioritization',
+        'PRD writing',
+        'Product analytics',
+      ]),
+    );
+    expect(demo.skills.length).toBeGreaterThanOrEqual(10);
+    expect(demo.assessment.itemCount).toBe(20);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('researches non-technology job titles without requiring a pasted JD', () => {
+    const demo = runJdForgeFromJobTitle('Healthcare Recruiter');
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(demo.source.mode).toBe('job-title');
+    expect(demo.source.generatedJd).toContain('Healthcare Recruiter');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Candidate sourcing',
+        'Screening interviews',
+        'ATS workflow management',
+        'Recruitment analytics',
+      ]),
+    );
+    expect(demo.skills.length).toBeGreaterThanOrEqual(8);
     expect(demo.lowConfidenceReason).toBeUndefined();
   });
 

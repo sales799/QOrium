@@ -111,7 +111,21 @@ test.describe('Critical-route smoke', () => {
   test('/try/jd-forge — generates plan and queues email-gated PDF', async ({ page }) => {
     await page.goto('/try/jd-forge');
 
-    await expect(page.getByRole('heading', { name: /Paste a JD/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Enter a role/i })).toBeVisible();
+    await page.getByLabel('Job title').fill('AI Product Manager');
+    await expect(page.locator('body')).toContainText(/Draft changed/i);
+
+    await page.getByRole('button', { name: /Research title and publish plan/i }).click();
+    await expect(page.locator('body')).toContainText(/AI Product Manager assessment/);
+    await expect(page.locator('body')).toContainText(/AI Prompt Engineering/);
+    await expect(page.locator('body')).toContainText(/Product discovery/);
+    await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
+
+    await page.getByLabel(/Work email for assessment PDF/i).fill('buyer@example.com');
+    await page.getByRole('button', { name: /^PDF$/i }).click();
+    await expect(page.locator('body')).toContainText(/Plan PDF queued/i);
+
+    await page.getByRole('tab', { name: /Paste JD/i }).click();
     await page.getByRole('button', { name: /Custom JD/i }).click();
     await page
       .getByLabel('Job description')
@@ -126,10 +140,6 @@ test.describe('Critical-route smoke', () => {
     await expect(page.locator('body')).toContainText(/Windows Server administration/);
     await expect(page.locator('body')).toContainText(/Backup and disaster recovery/);
     await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
-
-    await page.getByLabel(/Work email for assessment PDF/i).fill('buyer@example.com');
-    await page.getByRole('button', { name: /^PDF$/i }).click();
-    await expect(page.locator('body')).toContainText(/Plan PDF queued/i);
   });
 
   test('/try/graded-answer — shows rubric audit trail and records feedback', async ({ page }) => {
