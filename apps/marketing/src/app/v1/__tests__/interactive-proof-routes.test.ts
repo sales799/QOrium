@@ -32,6 +32,28 @@ describe('interactive proof public routes', () => {
     expect(payload.data.assessment.itemCount).toBe(20);
   });
 
+  it('POST /v1/jd-forge/demo supports newly pasted data engineering JDs', async () => {
+    const response = await postJdDemo(
+      jsonRequest('https://qorium.test/v1/jd-forge/demo', {
+        jd_text:
+          'Senior Python data engineer with Python, SQL, Airflow, dbt, Snowflake, data modeling, AWS Glue, and production data pipeline ownership.',
+      }),
+    );
+    const payload = await response.json();
+    const skillNames = payload.data.skills.map((skill: { name: string }) => skill.name);
+
+    expect(response.status).toBe(200);
+    expect(payload.data.roleTitle).toBe('Data engineering assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Python production engineering',
+        'Data pipeline orchestration',
+        'Cloud data warehousing',
+      ]),
+    );
+    expect(payload.data.lowConfidenceReason).toBeUndefined();
+  });
+
   it('POST /v1/jd-forge/demo/plan-pdf is email gated', async () => {
     const response = await postPlanPdf(
       jsonRequest('https://qorium.test/v1/jd-forge/demo/plan-pdf', {

@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Download, FileText, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  ArrowRight,
+  Download,
+  FileText,
+  Loader2,
+  PencilLine,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { type JdForgeDemoResult, runJdForgeDemo, sampleJds } from '@/content/interactive-proof';
@@ -44,31 +52,46 @@ export function JdForgeDemo({
   dark?: boolean;
 }) {
   const [jdText, setJdText] = React.useState(sampleJds[0]!.body);
+  const [generatedText, setGeneratedText] = React.useState(sampleJds[0]!.body);
   const [result, setResult] = React.useState<JdForgeDemoResult>(() =>
     runJdForgeDemo(sampleJds[0]!.body),
   );
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
   const [email, setEmail] = React.useState('');
   const [pdfState, setPdfState] = React.useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const normalizedEmail = email.trim();
-  const canRequestPdf = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+  const normalizedJdText = jdText.trim();
+  const canGenerate = normalizedJdText.length >= 20;
+  const isDraftStale = normalizedJdText !== generatedText.trim();
+  const canRequestPdf = !isDraftStale && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
 
   const phrases = React.useMemo(
     () => result.skills.flatMap((skill) => skill.sourcePhrases),
     [result.skills],
   );
 
+  function updateDraft(nextText: string) {
+    setJdText(nextText);
+    setStatus('idle');
+    setPdfState('idle');
+  }
+
   async function runDemo(nextText = jdText) {
+    const submittedText = nextText.trim();
+    if (submittedText.length < 20) return;
+
     setStatus('loading');
     try {
       const response = await fetch('/v1/jd-forge/demo', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jd_text: nextText }),
+        body: JSON.stringify({ jd_text: submittedText }),
       });
       const payload = (await response.json()) as { ok: boolean; data?: JdForgeDemoResult };
       if (!response.ok || !payload.data) throw new Error('demo failed');
       setResult(payload.data);
+      setGeneratedText(submittedText);
       setPdfState('idle');
       setStatus('idle');
     } catch {
@@ -123,31 +146,54 @@ export function JdForgeDemo({
                 key={sample.id}
                 type="button"
                 onClick={() => {
-                  setJdText(sample.body);
-                  setResult(runJdForgeDemo(sample.body));
-                  setPdfState('idle');
+                  updateDraft(sample.body);
                 }}
                 className={cn(
                   'rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors',
-                  dark
-                    ? 'border-white/10 bg-white/[0.04] text-shell-muted hover:text-white'
-                    : 'border-border bg-background text-muted-foreground hover:text-foreground',
+                  sample.body === jdText
+                    ? dark
+                      ? 'border-signal-300/50 bg-signal-300/10 text-white'
+                      : 'border-secondary/60 bg-secondary/10 text-foreground'
+                    : dark
+                      ? 'border-white/10 bg-white/[0.04] text-shell-muted hover:text-white'
+                      : 'border-border bg-background text-muted-foreground hover:text-foreground',
                 )}
               >
                 {sample.title}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                updateDraft('');
+                window.requestAnimationFrame(() => textareaRef.current?.focus());
+              }}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors',
+                jdText.length === 0
+                  ? dark
+                    ? 'border-signal-300/50 bg-signal-300/10 text-white'
+                    : 'border-secondary/60 bg-secondary/10 text-foreground'
+                  : dark
+                    ? 'border-white/10 bg-white/[0.04] text-shell-muted hover:text-white'
+                    : 'border-border bg-background text-muted-foreground hover:text-foreground',
+              )}
+            >
+              <PencilLine className="size-3.5" />
+              Custom JD
+            </button>
           </div>
           <label className="mt-4 block text-sm font-medium" htmlFor="jd-demo-textarea">
             Job description
           </label>
           <textarea
+            ref={textareaRef}
             id="jd-demo-textarea"
             value={jdText}
             onChange={(event) => {
-              setJdText(event.target.value);
-              setPdfState('idle');
+              updateDraft(event.target.value);
             }}
+            placeholder="Paste a job description with role, skills, stack, tools, and seniority."
             className={cn(
               'mt-2 min-h-44 w-full resize-y rounded-md border p-3 text-sm leading-6 outline-none focus:ring-2',
               dark
@@ -159,7 +205,7 @@ export function JdForgeDemo({
             className="mt-3 w-full"
             type="button"
             onClick={() => void runDemo()}
-            disabled={status === 'loading'}
+            disabled={status === 'loading' || !canGenerate}
           >
             {status === 'loading' ? (
               <Loader2 className="size-4 animate-spin" />
@@ -168,6 +214,11 @@ export function JdForgeDemo({
             )}
             Generate assessment plan
           </Button>
+          {normalizedJdText.length > 0 && !canGenerate ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Add at least 20 characters to generate an assessment plan.
+            </p>
+          ) : null}
           {status === 'error' ? (
             <p className="mt-2 text-sm text-danger">
               The live demo endpoint did not respond. Try again.
@@ -189,13 +240,17 @@ export function JdForgeDemo({
           >
             Extracted skills
           </p>
-          {result.lowConfidenceReason ? (
+          {isDraftStale ? (
+            <div className="mt-3 rounded-md border border-secondary/40 bg-secondary/10 p-3 text-sm">
+              Draft changed. Generate assessment plan to refresh the extracted skills.
+            </div>
+          ) : result.lowConfidenceReason ? (
             <div className="mt-3 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
               {result.lowConfidenceReason}
             </div>
           ) : null}
           <div className="mt-4 max-h-[26rem] overflow-y-auto pr-1">
-            <HighlightedJd text={jdText} phrases={phrases} />
+            <HighlightedJd text={generatedText} phrases={phrases} />
           </div>
           <div className="mt-4 grid gap-2">
             {result.skills.map((skill) => (
@@ -278,13 +333,20 @@ export function JdForgeDemo({
             ))}
           </div>
           <div className="mt-5 flex flex-col gap-2">
-            <Link
-              href={`/demo?plan=${result.planId}`}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-            >
-              Book a demo with this plan
-              <ArrowRight className="size-4" />
-            </Link>
+            {isDraftStale ? (
+              <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-muted px-4 py-2.5 text-sm font-semibold text-muted-foreground">
+                Book a demo with this plan
+                <ArrowRight className="size-4" />
+              </span>
+            ) : (
+              <Link
+                href={`/demo?plan=${result.planId}`}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                Book a demo with this plan
+                <ArrowRight className="size-4" />
+              </Link>
+            )}
             <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
               <input
                 value={email}
@@ -332,7 +394,9 @@ export function JdForgeDemo({
                 ? 'Plan PDF queued for email delivery.'
                 : pdfState === 'error'
                   ? 'Could not queue the PDF.'
-                  : 'Enter a valid work email to enable PDF delivery.'}
+                  : isDraftStale
+                    ? 'Generate the current draft to enable PDF delivery.'
+                    : 'Enter a valid work email to enable PDF delivery.'}
             </p>
           </div>
           <div

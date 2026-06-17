@@ -118,6 +118,34 @@ const skillRules: SkillRule[] = [
     patterns: [/\bjpa\b/i, /\bhibernate\b/i, /\borg mapping\b/i],
   },
   {
+    name: 'Python production engineering',
+    roleFamily: 'Software engineering',
+    stackFamily: 'Python',
+    libraryHref: '/library/python',
+    patterns: [/\bpython\b/i, /\bpytest\b/i, /\bpandas\b/i],
+  },
+  {
+    name: 'Data pipeline orchestration',
+    roleFamily: 'Data',
+    stackFamily: 'Data Engineering',
+    libraryHref: '/library/data-engineering',
+    patterns: [/\bairflow\b/i, /\bdag\b/i, /\bdata pipelines?\b/i, /\betl\b/i, /\bglue\b/i],
+  },
+  {
+    name: 'Analytics engineering with dbt',
+    roleFamily: 'Data',
+    stackFamily: 'Data Engineering',
+    libraryHref: '/library/data-engineering',
+    patterns: [/\bdbt\b/i, /\banalytics engineering\b/i, /\bdata models?\b/i, /\bdata modeling\b/i],
+  },
+  {
+    name: 'Cloud data warehousing',
+    roleFamily: 'Data',
+    stackFamily: 'Data Engineering',
+    libraryHref: '/library/data-engineering',
+    patterns: [/\bsnowflake\b/i, /\bredshift\b/i, /\bbigquery\b/i, /\bdata warehouse\b/i],
+  },
+  {
     name: 'SQL data modeling',
     roleFamily: 'Data',
     stackFamily: 'SQL',
@@ -198,14 +226,14 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
     libraryHref: '/library/salesforce',
-    patterns: [/\bapex\b/i, /\bgovernor limits?\b/i],
+    patterns: [/\bsalesforce\b/i, /\bapex\b/i, /\btriggers?\b/i, /\bgovernor limits?\b/i],
   },
   {
     name: 'Salesforce LWC',
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
     libraryHref: '/library/salesforce',
-    patterns: [/\blwc\b/i, /\blightning web components?\b/i],
+    patterns: [/\blwc\b/i, /\blightning web components?\b/i, /\bflow\b/i, /\bservice cloud\b/i],
   },
   {
     name: 'SOQL data access',
@@ -255,6 +283,38 @@ const skillRules: SkillRule[] = [
     stackFamily: 'SAP',
     libraryHref: '/library/sap-abap',
     patterns: [/\bidoc\b/i, /\bbapi\b/i, /\brfc\b/i, /\bfiori\b/i],
+  },
+  {
+    name: 'Oracle HCM Cloud',
+    roleFamily: 'Enterprise apps',
+    stackFamily: 'Oracle',
+    libraryHref: '/library/oracle-hcm-cloud',
+    patterns: [/\boracle hcm\b/i, /\bfast formulas?\b/i, /\botbi\b/i, /\bhcm extracts?\b/i],
+  },
+  {
+    name: 'Finacle / Flexcube core banking',
+    roleFamily: 'BFSI',
+    stackFamily: 'Core banking',
+    libraryHref: '/library/finacle-flexcube',
+    patterns: [/\bfinacle\b/i, /\bflexcube\b/i, /\bcore banking\b/i, /\beod\b/i, /\bbod\b/i],
+  },
+  {
+    name: 'AI Prompt Engineering',
+    roleFamily: 'AI-era',
+    stackFamily: 'AI',
+    libraryHref: '/library/ai-prompt-engineering',
+    patterns: [/\bprompt engineering\b/i, /\bprompt design\b/i, /\bllm\b/i, /\bgenai\b/i],
+  },
+  {
+    name: 'Technical Communication',
+    roleFamily: 'Applied judgment',
+    stackFamily: 'Communication',
+    libraryHref: '/library/technical-communication',
+    patterns: [
+      /\btechnical communication\b/i,
+      /\bstakeholder communication\b/i,
+      /\bdocumentation\b/i,
+    ],
   },
 ];
 
@@ -328,6 +388,10 @@ function inferRoleTitle(text: string): string {
   const sample = sampleJds.find((jd) => jd.body === text);
   if (sample) return sample.title;
   if (/salesforce/i.test(text)) return 'Salesforce assessment';
+  if (/data engineer|analytics engineer|airflow|dbt|snowflake|data pipelines?/i.test(text)) {
+    return 'Data engineering assessment';
+  }
+  if (/python/i.test(text)) return 'Python assessment';
   if (/react|frontend|next/i.test(text)) return 'Frontend assessment';
   if (/kubernetes|sre|devops/i.test(text)) return 'DevOps assessment';
   if (/sap|abap/i.test(text)) return 'SAP ABAP assessment';
@@ -385,8 +449,8 @@ export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
 
   const confidence = Math.min(0.97, skills.length === 0 ? 0.18 : 0.48 + skills.length * 0.07);
   const lowConfidenceReason =
-    skills.length < 3
-      ? 'JD-Forge could not extract enough mapped QOrium skills from this text. The public demo is showing the honest low-confidence state instead of padding the result.'
+    skills.length === 0
+      ? 'JD-Forge could not extract mapped QOrium skills from this text. The public demo is showing the honest low-confidence state instead of padding the result.'
       : undefined;
 
   const result: JdForgeDemoResult = {

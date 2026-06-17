@@ -40,12 +40,42 @@ describe('interactive proof fixtures', () => {
     expect(demo.skills.map((skill) => skill.name)).toContain('Client performance debugging');
   });
 
-  it('uses an honest low-confidence state instead of padding weak extractions', () => {
+  it('generates a useful plan for a newly pasted data engineering JD', () => {
+    const demo = runJdForgeDemo(
+      'Senior Python data engineer with Python, SQL, Airflow, dbt, Snowflake, data modeling, AWS Glue, and production data pipeline ownership.',
+    );
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(demo.roleTitle).toBe('Data engineering assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Python production engineering',
+        'Data pipeline orchestration',
+        'Analytics engineering with dbt',
+        'Cloud data warehousing',
+        'SQL data modeling',
+        'AWS production systems',
+      ]),
+    );
+    expect(demo.skills.length).toBeGreaterThanOrEqual(6);
+    expect(demo.assessment.itemCount).toBe(20);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('uses an honest low-confidence state instead of padding unmapped text', () => {
     const demo = runJdForgeDemo('We need someone flexible who can help with internal projects.');
 
     expect(demo.ok).toBe(true);
-    expect(demo.skills.length).toBeLessThan(3);
+    expect(demo.skills).toHaveLength(0);
     expect(demo.lowConfidenceReason).toMatch(/could not extract/i);
+  });
+
+  it('still generates a partial plan for a sparse but mapped custom JD', () => {
+    const demo = runJdForgeDemo('Python engineer for production automation and internal tooling.');
+
+    expect(demo.skills.map((skill) => skill.name)).toContain('Python production engineering');
+    expect(demo.assessment.itemCount).toBe(10);
+    expect(demo.lowConfidenceReason).toBeUndefined();
   });
 
   it('seeds grader exemplars with reproducible audit metadata', () => {

@@ -112,8 +112,19 @@ test.describe('Critical-route smoke', () => {
     await page.goto('/try/jd-forge');
 
     await expect(page.getByRole('heading', { name: /Paste a JD/i })).toBeVisible();
+    await page.getByRole('button', { name: /Custom JD/i }).click();
+    await page
+      .getByLabel('Job description')
+      .fill(
+        'Senior Python data engineer with Python, SQL, Airflow, dbt, Snowflake, data modeling, AWS Glue, and production data pipeline ownership.',
+      );
+    await expect(page.locator('body')).toContainText(/Draft changed/i);
+
     await page.getByRole('button', { name: /Generate assessment plan/i }).click();
-    await expect(page.locator('body')).toContainText(/High coverage|Partial coverage/);
+    await expect(page.locator('body')).toContainText(/Python production engineering/);
+    await expect(page.locator('body')).toContainText(/Data pipeline orchestration/);
+    await expect(page.locator('body')).toContainText(/Cloud data warehousing/);
+    await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
 
     await page.getByLabel(/Work email for assessment PDF/i).fill('buyer@example.com');
     await page.getByRole('button', { name: /^PDF$/i }).click();
