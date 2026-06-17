@@ -95,6 +95,10 @@ describe('interactive proof public routes', () => {
     expect(skillNames).toEqual(
       expect.arrayContaining(['AI Prompt Engineering', 'Product discovery', 'PRD writing']),
     );
+    expect(skillNames).not.toContain('Seniority');
+    expect(skillNames).not.toContain('Domain');
+    expect(skillNames).not.toContain('Role family');
+    expect(skillNames).not.toContain('Microsoft 365 administration');
     expect(payload.data.skills.length).toBeGreaterThanOrEqual(10);
     expect(payload.data.lowConfidenceReason).toBeUndefined();
   });

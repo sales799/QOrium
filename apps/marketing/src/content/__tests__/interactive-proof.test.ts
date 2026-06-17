@@ -47,6 +47,16 @@ Technical Skills Required: PowerShell, Python, network monitoring, log analysis,
 runbooks, SOPs, change management.
 `;
 
+const generatedJdMetadataLabels = [
+  'Title',
+  'Seniority',
+  'Domain',
+  'Role family',
+  'Research basis',
+  'Assessment Focus',
+  'QOrium role-title research synthesized this JD from',
+];
+
 describe('interactive proof fixtures', () => {
   it('ships the six default JD-Forge sample JDs from the spec', () => {
     expect(sampleJds.map((sample) => sample.id)).toEqual([
@@ -163,6 +173,11 @@ describe('interactive proof fixtures', () => {
         'Product analytics',
       ]),
     );
+    for (const label of generatedJdMetadataLabels) {
+      expect(skillNames).not.toContain(label);
+    }
+    expect(skillNames).not.toContain('Microsoft 365 administration');
+    expect(skillNames).not.toContain('Remote desktop and endpoint support');
     expect(demo.skills.length).toBeGreaterThanOrEqual(10);
     expect(demo.assessment.itemCount).toBe(20);
     expect(demo.lowConfidenceReason).toBeUndefined();
@@ -182,7 +197,34 @@ describe('interactive proof fixtures', () => {
         'Recruitment analytics',
       ]),
     );
+    for (const label of generatedJdMetadataLabels) {
+      expect(skillNames).not.toContain(label);
+    }
+    expect(skillNames).not.toContain('Remote desktop and endpoint support');
+    expect(skillNames).not.toContain('Microsoft 365 administration');
     expect(demo.skills.length).toBeGreaterThanOrEqual(8);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('keeps enterprise-app job title research scoped to the named platform', () => {
+    const demo = runJdForgeFromJobTitle('SAP MM Consultant');
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(demo.roleTitle).toBe('SAP MM Consultant assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'SAP functional configuration',
+        'SAP integration diagnostics',
+        'Business process mapping',
+        'UAT coordination',
+      ]),
+    );
+    for (const label of generatedJdMetadataLabels) {
+      expect(skillNames).not.toContain(label);
+    }
+    expect(skillNames).not.toContain('Salesforce Apex');
+    expect(skillNames).not.toContain('SOQL data access');
+    expect(skillNames).not.toContain('Finacle / Flexcube core banking');
     expect(demo.lowConfidenceReason).toBeUndefined();
   });
 

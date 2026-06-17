@@ -263,7 +263,7 @@ const skillRules: SkillRule[] = [
       /\brdp\b/i,
       /\bworkstations?\b/i,
       /\blaptops?\b/i,
-      /\bonboarding\b/i,
+      /\b(?:workstation|endpoint|device) onboarding\b/i,
       /\bisp[-\s]?related\b/i,
     ],
   },
@@ -293,7 +293,8 @@ const skillRules: SkillRule[] = [
       /\bmicrosoft 365\b/i,
       /\bm365\b/i,
       /\bexchange online\b/i,
-      /\bteams\b/i,
+      /\bmicrosoft teams\b/i,
+      /\bteams admin(?:istration)?\b/i,
       /\bsharepoint\b/i,
       /\bonedrive\b/i,
     ],
@@ -401,7 +402,13 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
     libraryHref: '/library/salesforce',
-    patterns: [/\blwc\b/i, /\blightning web components?\b/i, /\bflow\b/i, /\bservice cloud\b/i],
+    patterns: [
+      /\blwc\b/i,
+      /\blightning web components?\b/i,
+      /\bsalesforce flow\b/i,
+      /\bflow builder\b/i,
+      /\bservice cloud\b/i,
+    ],
   },
   {
     name: 'SOQL data access',
@@ -964,16 +971,15 @@ const roleResearchTemplates: RoleResearchTemplate[] = [
       'Document functional decisions and coordinate UAT, release, and support handoffs.',
     ],
     requiredSkills: [
-      'SAP ABAP',
-      'SAP integration diagnostics',
-      'Salesforce Apex',
-      'SOQL data access',
-      'Oracle HCM Cloud',
-      'Finacle / Flexcube core banking',
       'Business process mapping',
       'UAT coordination',
+      'Configuration reasoning',
+      'Role and permission design',
+      'Data migration',
+      'Release management',
+      'User-support communication',
     ],
-    preferredSkills: ['Data migration', 'Role and permission design', 'Release management'],
+    preferredSkills: ['Regression testing', 'Master data governance', 'Change-management planning'],
     assessmentFocus: [
       'Configuration reasoning',
       'Integration diagnosis',
@@ -1056,6 +1062,64 @@ const titleAddOns: Array<{
   preferredSkills: string[];
   assessmentFocus: string[];
 }> = [
+  {
+    match: /\bsap\b/i,
+    researchSignals: ['SAP delivery overlay'],
+    responsibilities: [
+      'Map SAP business processes, master data, integration touchpoints, and UAT scenarios to operational outcomes.',
+    ],
+    requiredSkills: [
+      'SAP functional configuration',
+      'SAP integration diagnostics',
+      'Business process mapping',
+      'UAT coordination',
+      'Master data governance',
+    ],
+    preferredSkills: ['Role and permission design', 'Regression testing'],
+    assessmentFocus: ['SAP process diagnosis'],
+  },
+  {
+    match: /\babap\b/i,
+    researchSignals: ['SAP ABAP technical overlay'],
+    responsibilities: ['Debug ABAP, Open SQL, integration, and transport issues safely.'],
+    requiredSkills: ['SAP ABAP', 'SAP CDS and RAP', 'SAP integration diagnostics'],
+    preferredSkills: ['Performance tuning', 'Fiori authorization'],
+    assessmentFocus: ['ABAP code and integration reasoning'],
+  },
+  {
+    match: /\bsalesforce\b/i,
+    researchSignals: ['Salesforce delivery overlay'],
+    responsibilities: [
+      'Extend Salesforce safely across automation, UI, data access, and service workflows.',
+    ],
+    requiredSkills: ['Salesforce Apex', 'Salesforce LWC', 'SOQL data access'],
+    preferredSkills: ['Service Cloud', 'Governor-limit design'],
+    assessmentFocus: ['Salesforce platform reasoning'],
+  },
+  {
+    match: /\boracle hcm\b/i,
+    researchSignals: ['Oracle HCM delivery overlay'],
+    responsibilities: [
+      'Configure and diagnose Oracle HCM workflows, extracts, reports, and formula behavior.',
+    ],
+    requiredSkills: ['Oracle HCM Cloud', 'Business process mapping', 'UAT coordination'],
+    preferredSkills: ['OTBI reporting', 'Fast Formula debugging'],
+    assessmentFocus: ['HCM process and reporting diagnosis'],
+  },
+  {
+    match: /\b(finacle|flexcube)\b/i,
+    researchSignals: ['core-banking delivery overlay'],
+    responsibilities: [
+      'Operate and diagnose core-banking process, batch, product, and integration issues.',
+    ],
+    requiredSkills: [
+      'Finacle / Flexcube core banking',
+      'Business process mapping',
+      'UAT coordination',
+    ],
+    preferredSkills: ['Batch operations', 'Core banking reconciliation'],
+    assessmentFocus: ['Core-banking scenario diagnosis'],
+  },
   {
     match: /\b(ai|llm|genai|generative ai|machine learning|ml)\b/i,
     researchSignals: ['AI-era skill overlay', 'model-evaluation baseline'],
@@ -1261,7 +1325,15 @@ function skillWeight(matchCount: number, index: number, derived = false): number
 
 const genericHeadingLabels = [
   /^job description$/i,
+  /^title$/i,
+  /^job title$/i,
+  /^seniority$/i,
+  /^domain$/i,
+  /^role family$/i,
+  /^research basis$/i,
   /^key responsibilities$/i,
+  /^assessment focus$/i,
+  /^qorium role-title research synthesized this jd from$/i,
   /^qualifications?(&| and)? requirements?$/i,
   /^education$/i,
   /^experience$/i,
@@ -1290,6 +1362,8 @@ const jobSignal =
   /\b(?:engineer|developer|administrator|admin|support|analyst|consultant|architect|specialist|manager|lead|scientist|designer|technician|operator|recruiter|sourcer|marketer|accountant|nurse|doctor|coordinator|executive|officer|owner|associate)\b/i;
 const responsibilitySignal =
   /\b(?:responsibilities|requirements|skills?|experience|support|manage|administer|configure|monitor|troubleshoot|design|develop|maintain)\b/i;
+const skillHeadingSignal =
+  /\b(?:desktop|support|management|administration|engineering|operations|security|backup|recovery|network|server|identity|access|documentation|knowledge|analytics|automation|configuration|integration|diagnostics|mapping|coordination|communication|testing|acquisition|marketing|crm|sourcing|interviews|workflow|compliance|protocol|patient|triage|emr|care|financial|reconciliation|modeling|reporting|controls)\b/i;
 
 function normalizeCandidateLabel(value: string): string {
   return value
@@ -1308,6 +1382,12 @@ function isUsefulCandidateLabel(value: string): boolean {
   if (/^\d+[-\d./\s]*(?:years?|yrs?)?$/i.test(normalized)) return false;
   if (/^(full-time|remote|work from home|remote india)$/i.test(normalized)) return false;
   return /[a-z]/i.test(normalized);
+}
+
+function isLikelyNumberedSkillHeading(value: string): boolean {
+  const normalized = normalizeCandidateLabel(value);
+  if (/[.!?]$/.test(normalized)) return false;
+  return normalized.split(/\s+/).length <= 8;
 }
 
 function classifyDerivedSkill(
@@ -1471,7 +1551,9 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
   for (const line of lines) {
     const numberedHeading = line.match(/^\d+\.\s+(.{4,80})$/);
     if (numberedHeading?.[1]) {
-      appendCandidate(candidates, numberedHeading[1], numberedHeading[1]);
+      if (isLikelyNumberedSkillHeading(numberedHeading[1])) {
+        appendCandidate(candidates, numberedHeading[1], numberedHeading[1]);
+      }
       continue;
     }
 
@@ -1483,7 +1565,7 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
         .split(/[,;•]/)
         .map((item) => normalizeCandidateLabel(item))
         .filter((item) => item.length >= 3 && item.length <= 45)
-        .slice(0, 8)
+        .slice(0, MAX_EXTRACTED_SKILLS)
         .forEach((item) => appendCandidate(candidates, item, item));
       continue;
     }
@@ -1498,9 +1580,9 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
         .split(/[,;•]/)
         .map((item) => normalizeCandidateLabel(item))
         .filter((item) => item.length >= 3 && item.length <= 45)
-        .slice(0, 8)
+        .slice(0, MAX_EXTRACTED_SKILLS)
         .forEach((item) => appendCandidate(candidates, item, item));
-    } else {
+    } else if (skillHeadingSignal.test(heading)) {
       appendCandidate(candidates, heading, heading);
     }
   }
