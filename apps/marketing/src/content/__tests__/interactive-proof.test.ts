@@ -47,6 +47,28 @@ Technical Skills Required: PowerShell, Python, network monitoring, log analysis,
 runbooks, SOPs, change management.
 `;
 
+const openTextXpressionJd = `
+Job description
+We need an OpenText xPression Consultant with 8+ years of expertise in xPression development, platform upgrades, and migration projects across enterprise environments. Strong experience in template migration/remediation, performance tuning, troubleshooting, and working with SQL Server and Windows platforms, including hands-on exposure to xPression versions 4.7 and 23.4.
+
+Responsibilities:
+
+Lead OpenText xPression platform upgrade and migration activities.
+Perform template migration, remediation, and validation.
+Troubleshoot performance issues and optimize system efficiency.
+Collaborate with technical and business teams during implementation and support phases.
+Ensure smooth integration with SQL Server and Windows environments.
+Support deployment, testing, and post-migration stabilization activities.
+Must-Have Skills:
+
+8+ years of experience in OpenText xPression.
+Mandatory experience in xPression platform upgrades and migrations.
+Hands-on experience with xPression versions 4.7 and 23.4.
+Strong knowledge of template migration and remediation techniques.
+Expertise in performance tuning and troubleshooting.
+Experience working with SQL Server and Windows environments.
+`;
+
 const generatedJdMetadataLabels = [
   'Title',
   'Seniority',
@@ -129,6 +151,29 @@ describe('interactive proof fixtures', () => {
       ]),
     );
     expect(demo.skills.length).toBeGreaterThanOrEqual(10);
+    expect(demo.assessment.coverageBadge).toMatch(/High coverage/);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('generates a useful enterprise document-platform plan from an OpenText xPression JD', () => {
+    const demo = runJdForgeDemo(openTextXpressionJd);
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(demo.roleTitle).toBe('OpenText xPression assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'OpenText xPression development',
+        'xPression platform upgrade and migration',
+        'Template migration and remediation',
+        'Document platform performance tuning',
+        'SQL Server platform operations',
+        'Windows platform operations',
+        'Deployment testing and stabilization',
+      ]),
+    );
+    expect(skillNames).toContain('SQL data modeling');
+    expect(demo.skills.length).toBeGreaterThanOrEqual(8);
+    expect(demo.assessment.itemCount).toBe(20);
     expect(demo.assessment.coverageBadge).toMatch(/High coverage/);
     expect(demo.lowConfidenceReason).toBeUndefined();
   });

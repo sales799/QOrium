@@ -397,6 +397,78 @@ const skillRules: SkillRule[] = [
     patterns: [/\bpowershell\b/i, /\bautomation scripting\b/i, /\bit operations tasks?\b/i],
   },
   {
+    name: 'OpenText xPression development',
+    roleFamily: 'Enterprise apps',
+    stackFamily: 'OpenText xPression',
+    libraryHref: '/library/technical-communication',
+    patterns: [
+      /\bopentext\s+xpression\b/i,
+      /\bxpression\s+development\b/i,
+      /\bxpression\s+versions?\s+\d/i,
+    ],
+  },
+  {
+    name: 'xPression platform upgrade and migration',
+    roleFamily: 'Enterprise apps',
+    stackFamily: 'OpenText xPression',
+    libraryHref: '/library/technical-communication',
+    patterns: [
+      /\bxpression\s+platform\s+upgrades?\b/i,
+      /\bxpression[^.\n]{0,80}\bmigrations?\b/i,
+      /\bmigration projects?\b/i,
+      /\bpost-migration stabilization\b/i,
+    ],
+  },
+  {
+    name: 'Template migration and remediation',
+    roleFamily: 'Enterprise apps',
+    stackFamily: 'Document generation',
+    libraryHref: '/library/technical-communication',
+    patterns: [
+      /\btemplate migration\b/i,
+      /\btemplate remediation\b/i,
+      /\btemplate validation\b/i,
+      /\btemplate migration\/remediation\b/i,
+    ],
+  },
+  {
+    name: 'Document platform performance tuning',
+    roleFamily: 'Enterprise apps',
+    stackFamily: 'Document generation',
+    libraryHref: '/library/technical-communication',
+    patterns: [
+      /\bperformance tuning\b/i,
+      /\bperformance issues?\b/i,
+      /\boptimi[sz]e system efficiency\b/i,
+      /\btroubleshoot(?:ing)?\b/i,
+    ],
+  },
+  {
+    name: 'SQL Server platform operations',
+    roleFamily: 'Data',
+    stackFamily: 'SQL Server',
+    libraryHref: '/library/sql',
+    patterns: [/\bsql server\b/i, /\bt-sql\b/i],
+  },
+  {
+    name: 'Windows platform operations',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Windows',
+    libraryHref: '/library/devops-sre',
+    patterns: [/\bwindows platforms?\b/i, /\bwindows environments?\b/i],
+  },
+  {
+    name: 'Deployment testing and stabilization',
+    roleFamily: 'Enterprise apps',
+    stackFamily: 'Release support',
+    libraryHref: '/library/technical-communication',
+    patterns: [
+      /\bdeployment,?\s+testing,?\s+and\s+post-migration stabilization\b/i,
+      /\bpost-migration stabilization\b/i,
+      /\bimplementation and support phases\b/i,
+    ],
+  },
+  {
     name: 'Salesforce Apex',
     roleFamily: 'Enterprise apps',
     stackFamily: 'Salesforce',
@@ -961,6 +1033,45 @@ const roleResearchTemplates: RoleResearchTemplate[] = [
     ],
   },
   {
+    id: 'enterprise-document-platform',
+    match:
+      /\b(opentext|xpression|document generation|document composition|customer communications|ccm)\b/i,
+    roleFamily: 'Enterprise apps',
+    domain: 'Enterprise document generation',
+    researchSignals: [
+      'enterprise document-platform benchmark',
+      'migration readiness review',
+      'template remediation baseline',
+    ],
+    responsibilities: [
+      'Develop, upgrade, migrate, and support enterprise document-generation platforms across production environments.',
+      'Remediate templates, validate migrated output, and coordinate release testing with business and technical teams.',
+      'Diagnose performance, integration, deployment, and environment issues across database and Windows platform layers.',
+      'Document migration risks, rollback paths, stabilization steps, and post-go-live support evidence.',
+    ],
+    requiredSkills: [
+      'OpenText xPression development',
+      'xPression platform upgrade and migration',
+      'Template migration and remediation',
+      'Document platform performance tuning',
+      'SQL Server platform operations',
+      'Windows platform operations',
+      'Deployment testing and stabilization',
+      'Technical Communication',
+    ],
+    preferredSkills: [
+      'Output validation',
+      'Release coordination',
+      'Enterprise implementation support',
+    ],
+    assessmentFocus: [
+      'Migration scenario diagnosis',
+      'Template remediation judgment',
+      'Performance troubleshooting',
+      'Deployment stabilization planning',
+    ],
+  },
+  {
     id: 'enterprise-apps',
     match: /\b(sap|abap|salesforce|oracle|hcm|finacle|flexcube|erp|crm consultant)\b/i,
     roleFamily: 'Enterprise apps',
@@ -1363,13 +1474,13 @@ const genericHeadingLabels = [
 ];
 
 const genericSkillSection =
-  /\b(?:technical skills?|required skills?|preferred skills?|tools?|technologies|stack)\b/i;
+  /\b(?:technical skills?|required skills?|preferred skills?|must[-\s]?have skills?|mandatory skills?|tools?|technologies|stack)\b/i;
 const jobSignal =
   /\b(?:engineer|developer|administrator|admin|support|analyst|consultant|architect|specialist|manager|lead|scientist|designer|technician|operator|recruiter|sourcer|marketer|accountant|nurse|doctor|coordinator|executive|officer|owner|associate)\b/i;
 const responsibilitySignal =
   /\b(?:responsibilities|requirements|skills?|experience|support|manage|administer|configure|monitor|troubleshoot|design|develop|maintain)\b/i;
 const skillHeadingSignal =
-  /\b(?:desktop|support|management|administration|engineering|operations|security|backup|recovery|network|server|identity|access|documentation|knowledge|analytics|automation|configuration|integration|diagnostics|mapping|coordination|communication|testing|acquisition|marketing|crm|sourcing|interviews|workflow|compliance|protocol|patient|triage|emr|care|financial|reconciliation|modeling|reporting|controls)\b/i;
+  /\b(?:desktop|support|management|administration|engineering|operations|security|backup|recovery|network|server|identity|access|documentation|knowledge|analytics|automation|configuration|integration|diagnostics|mapping|coordination|communication|testing|acquisition|marketing|crm|sourcing|interviews|workflow|compliance|protocol|patient|triage|emr|care|financial|reconciliation|modeling|reporting|controls|platform|upgrade|migration|remediation|validation|template|performance|tuning|troubleshooting|deployment|stabilization|implementation)\b/i;
 
 function normalizeCandidateLabel(value: string): string {
   return value
@@ -1400,6 +1511,45 @@ function isLikelyNumberedSkillHeading(value: string): boolean {
 function classifyDerivedSkill(
   name: string,
 ): Pick<ProofSkill, 'roleFamily' | 'stackFamily' | 'libraryHref'> {
+  if (/\b(?:opentext|xpression|template migration|template remediation)\b/i.test(name)) {
+    return {
+      roleFamily: 'Enterprise apps',
+      stackFamily: 'Enterprise document generation',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  if (
+    /\b(?:platform upgrade|migration|remediation|stabilization|implementation support)\b/i.test(
+      name,
+    )
+  ) {
+    return {
+      roleFamily: 'Enterprise apps',
+      stackFamily: 'Migration and release support',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  if (/\b(?:performance tuning|troubleshooting|system efficiency)\b/i.test(name)) {
+    return {
+      roleFamily: 'Enterprise apps',
+      stackFamily: 'Performance diagnostics',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  if (/\b(?:sql server|t-sql)\b/i.test(name)) {
+    return {
+      roleFamily: 'Data',
+      stackFamily: 'SQL Server',
+      libraryHref: '/library/sql',
+    };
+  }
+  if (/\b(?:windows platform|windows environment)\b/i.test(name)) {
+    return {
+      roleFamily: 'IT infrastructure',
+      stackFamily: 'Windows',
+      libraryHref: '/library/devops-sre',
+    };
+  }
   if (/\b(?:aws|ec2|s3|iam|vpc|cloud|workspaces?)\b/i.test(name)) {
     return {
       roleFamily: 'Cloud engineering',
@@ -1526,6 +1676,21 @@ function appendCandidate(
   candidates.set(key, { label: normalized, phrases: new Set([sourcePhrase.trim()]) });
 }
 
+function candidateFromSkillSentence(line: string): string {
+  return normalizeCandidateLabel(line)
+    .replace(/^\d+\+?\s*years?\s+of\s+experience\s+(?:in|with)\s+/i, '')
+    .replace(/^mandatory\s+experience\s+(?:in|with)\s+/i, '')
+    .replace(/^hands-on\s+experience\s+(?:in|with)\s+/i, '')
+    .replace(/^strong\s+knowledge\s+of\s+/i, '')
+    .replace(/^expertise\s+in\s+/i, '')
+    .replace(/^experience\s+working\s+with\s+/i, '')
+    .replace(/^experience\s+(?:in|with)\s+/i, '')
+    .replace(/^knowledge\s+of\s+/i, '')
+    .replace(/\s+techniques$/i, '')
+    .replace(/\s+activities$/i, '')
+    .trim();
+}
+
 function isDuplicateDerivedSkill(candidate: string, mappedSkill: ProofSkill): boolean {
   const candidateSlug = slugifyProof(candidate);
   if (candidateSlug === slugifyProof(mappedSkill.name)) return true;
@@ -1554,8 +1719,23 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
     .split(/\n+/)
     .map((line) => line.trim())
     .filter(Boolean);
+  let activeSkillSection = false;
 
   for (const line of lines) {
+    const bareHeading = normalizeCandidateLabel(line.replace(/:$/, ''));
+    if (genericSkillSection.test(bareHeading) && line.endsWith(':')) {
+      activeSkillSection = true;
+      continue;
+    }
+    if (
+      activeSkillSection &&
+      /^(responsibilities|key responsibilities|job description|education|location)$/i.test(
+        bareHeading,
+      )
+    ) {
+      activeSkillSection = false;
+    }
+
     const numberedHeading = line.match(/^\d+\.\s+(.{4,80})$/);
     if (numberedHeading?.[1]) {
       if (isLikelyNumberedSkillHeading(numberedHeading[1])) {
@@ -1565,7 +1745,7 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
     }
 
     const inlineSkillList = line.match(
-      /\b(?:technical skills?|required skills?|preferred skills?|tools?|technologies|stack)[^:]{0,40}:\s*(.+)$/i,
+      /\b(?:technical skills?|required skills?|preferred skills?|must[-\s]?have skills?|mandatory skills?|tools?|technologies|stack)[^:]{0,40}:\s*(.+)$/i,
     );
     if (inlineSkillList?.[1]) {
       inlineSkillList[1]
@@ -1574,6 +1754,14 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
         .filter((item) => item.length >= 3 && item.length <= 45)
         .slice(0, MAX_EXTRACTED_SKILLS)
         .forEach((item) => appendCandidate(candidates, item, item));
+      continue;
+    }
+
+    if (activeSkillSection) {
+      const skillSentence = candidateFromSkillSentence(line);
+      if (skillSentence.length >= 3 && skillSentence.length <= 70) {
+        appendCandidate(candidates, skillSentence, line);
+      }
       continue;
     }
 
@@ -1618,6 +1806,7 @@ function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSk
 function inferRoleTitle(text: string): string {
   const sample = sampleJds.find((jd) => jd.body === text);
   if (sample) return sample.title;
+  if (/opentext|xpression/i.test(text)) return 'OpenText xPression assessment';
   if (/salesforce/i.test(text)) return 'Salesforce assessment';
   if (
     /network engineer|it infrastructure|end-user support|remote desktop|active directory|azure entra|microsoft 365|windows server|cisco|vpn|vlan|\bdns\b|\bdhcp\b/i.test(

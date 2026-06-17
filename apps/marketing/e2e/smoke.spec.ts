@@ -140,6 +140,20 @@ test.describe('Critical-route smoke', () => {
     await expect(page.locator('body')).toContainText(/Windows Server administration/);
     await expect(page.locator('body')).toContainText(/Backup and disaster recovery/);
     await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
+
+    await page
+      .getByLabel('Job description')
+      .fill(
+        'OpenText xPression Consultant with 8+ years of xPression development, platform upgrades, migration projects, template migration/remediation, performance tuning, troubleshooting, SQL Server, Windows platforms, and xPression versions 4.7 and 23.4. Must-Have Skills: Mandatory experience in xPression platform upgrades and migrations. Strong knowledge of template migration and remediation techniques. Expertise in performance tuning and troubleshooting. Experience working with SQL Server and Windows environments.',
+      );
+    await expect(page.locator('body')).toContainText(/Draft changed/i);
+
+    await page.getByRole('button', { name: /Generate assessment plan/i }).click();
+    await expect(page.locator('body')).toContainText(/OpenText xPression assessment/);
+    await expect(page.locator('body')).toContainText(/OpenText xPression development/);
+    await expect(page.locator('body')).toContainText(/xPression platform upgrade and migration/);
+    await expect(page.locator('body')).toContainText(/Template migration and remediation/);
+    await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
   });
 
   test('/try/graded-answer — shows rubric audit trail and records feedback', async ({ page }) => {

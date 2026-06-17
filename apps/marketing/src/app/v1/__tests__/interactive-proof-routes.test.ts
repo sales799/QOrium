@@ -79,6 +79,33 @@ describe('interactive proof public routes', () => {
     expect(payload.data.lowConfidenceReason).toBeUndefined();
   });
 
+  it('POST /v1/jd-forge/demo supports niche enterprise product migration JDs', async () => {
+    const response = await postJdDemo(
+      jsonRequest('https://qorium.test/v1/jd-forge/demo', {
+        jd_text:
+          'OpenText xPression Consultant with 8+ years of xPression development, platform upgrades, migration projects, template migration/remediation, performance tuning, troubleshooting, SQL Server, Windows platforms, xPression versions 4.7 and 23.4. Must-Have Skills: Mandatory experience in xPression platform upgrades and migrations. Strong knowledge of template migration and remediation techniques. Expertise in performance tuning and troubleshooting. Experience working with SQL Server and Windows environments.',
+      }),
+    );
+    const payload = await response.json();
+    const skillNames = payload.data.skills.map((skill: { name: string }) => skill.name);
+
+    expect(response.status).toBe(200);
+    expect(payload.data.roleTitle).toBe('OpenText xPression assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'OpenText xPression development',
+        'xPression platform upgrade and migration',
+        'Template migration and remediation',
+        'Document platform performance tuning',
+        'SQL Server platform operations',
+        'Windows platform operations',
+      ]),
+    );
+    expect(payload.data.skills.length).toBeGreaterThanOrEqual(7);
+    expect(payload.data.assessment.itemCount).toBe(20);
+    expect(payload.data.lowConfidenceReason).toBeUndefined();
+  });
+
   it('POST /v1/jd-forge/demo researches a job title when no JD is pasted', async () => {
     const response = await postJdDemo(
       jsonRequest('https://qorium.test/v1/jd-forge/demo', {
