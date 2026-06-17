@@ -94,6 +94,7 @@ type SkillRule = {
 };
 
 const GENERATED_AT = '2026-06-01T00:00:00.000Z';
+const MAX_EXTRACTED_SKILLS = 16;
 
 const skillRules: SkillRule[] = [
   {
@@ -219,7 +220,156 @@ const skillRules: SkillRule[] = [
     roleFamily: 'Cloud engineering',
     stackFamily: 'AWS',
     libraryHref: '/library/aws',
-    patterns: [/\baws\b/i, /\blambda\b/i, /\bs3\b/i, /\becs\b/i, /\beks\b/i],
+    patterns: [
+      /\baws\b/i,
+      /\blambda\b/i,
+      /\bs3\b/i,
+      /\bec2\b/i,
+      /\biam\b/i,
+      /\bvpc\b/i,
+      /\bworkspaces?\b/i,
+      /\becs\b/i,
+      /\beks\b/i,
+      /\bsecurity groups?\b/i,
+    ],
+  },
+  {
+    name: 'Remote desktop and endpoint support',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Endpoint support',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bremote desktop\b/i,
+      /\bend-user support\b/i,
+      /\banydesk\b/i,
+      /\brdp\b/i,
+      /\bworkstations?\b/i,
+      /\blaptops?\b/i,
+      /\bonboarding\b/i,
+      /\bisp[-\s]?related\b/i,
+    ],
+  },
+  {
+    name: 'Identity and access administration',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Identity and access',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bidentity (?:and|&) access\b/i,
+      /\bazure entra id\b/i,
+      /\bazure ad\b/i,
+      /\bactive directory\b/i,
+      /\bad ds\b/i,
+      /\brbac\b/i,
+      /\bconditional access\b/i,
+      /\bgroup polic(?:y|ies)\b/i,
+      /\bleast-privilege\b/i,
+    ],
+  },
+  {
+    name: 'Microsoft 365 administration',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Microsoft 365',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bmicrosoft 365\b/i,
+      /\bm365\b/i,
+      /\bexchange online\b/i,
+      /\bteams\b/i,
+      /\bsharepoint\b/i,
+      /\bonedrive\b/i,
+    ],
+  },
+  {
+    name: 'Network infrastructure troubleshooting',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Networking',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bnetwork infrastructure\b/i,
+      /\bnetwork support\b/i,
+      /\bconnectivity\b/i,
+      /\bcisco\b/i,
+      /\bswitches\b/i,
+      /\brouters\b/i,
+      /\bfirewalls?\b/i,
+      /\bdns\b/i,
+      /\bdhcp\b/i,
+      /\bvpn\b/i,
+      /\bvlan\b/i,
+      /\bqos\b/i,
+      /\bbandwidth\b/i,
+      /\bccna\b/i,
+    ],
+  },
+  {
+    name: 'Windows Server administration',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Windows Server',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bwindows server\b/i,
+      /\bfile servers?\b/i,
+      /\bapplication hosting servers?\b/i,
+      /\binternal email servers?\b/i,
+      /\bpatch management\b/i,
+      /\bcapacity planning\b/i,
+      /\bhealth checks?\b/i,
+      /\bmcse\b/i,
+    ],
+  },
+  {
+    name: 'Backup and disaster recovery',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Resilience',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bbackup\b/i,
+      /\bdisaster recovery\b/i,
+      /\bdr procedures?\b/i,
+      /\bbusiness continuity\b/i,
+      /\brecovery tools?\b/i,
+    ],
+  },
+  {
+    name: 'Security compliance operations',
+    roleFamily: 'Security',
+    stackFamily: 'Compliance operations',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\biso 27001\b/i,
+      /\bsoc 2\b/i,
+      /\bhipaa\b/i,
+      /\bgdpr\b/i,
+      /\bendpoint security\b/i,
+      /\bencryption\b/i,
+      /\bssl certificates?\b/i,
+      /\bsecurity audits?\b/i,
+      /\bsecurity incidents?\b/i,
+    ],
+  },
+  {
+    name: 'ITIL service operations',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Service operations',
+    libraryHref: '/library/devops-sre',
+    patterns: [
+      /\bitil\b/i,
+      /\bslas?\b/i,
+      /\bincident logs?\b/i,
+      /\brunbooks?\b/i,
+      /\bsops?\b/i,
+      /\bknowledge base\b/i,
+      /\bchange management\b/i,
+      /\bservice disruption\b/i,
+    ],
+  },
+  {
+    name: 'IT operations automation',
+    roleFamily: 'IT infrastructure',
+    stackFamily: 'Automation',
+    libraryHref: '/library/python',
+    patterns: [/\bpowershell\b/i, /\bautomation scripting\b/i, /\bit operations tasks?\b/i],
   },
   {
     name: 'Salesforce Apex',
@@ -314,6 +464,10 @@ const skillRules: SkillRule[] = [
       /\btechnical communication\b/i,
       /\bstakeholder communication\b/i,
       /\bdocumentation\b/i,
+      /\bnetwork diagrams?\b/i,
+      /\bknowledge base\b/i,
+      /\bnon-technical stakeholders?\b/i,
+      /\bwritten and verbal communication\b/i,
     ],
   },
 ];
@@ -384,10 +538,246 @@ function matchedPhrases(text: string, rule: SkillRule): string[] {
   return [...phrases];
 }
 
+function skillWeight(matchCount: number, index: number, derived = false): number {
+  const matchBoost = Math.min(0.28, matchCount * 0.065);
+  const orderPenalty = Math.min(0.1, index * 0.002);
+  const base = derived ? 0.58 : 0.64;
+  return Math.min(0.96, Math.max(0.56, base + matchBoost - orderPenalty));
+}
+
+const genericHeadingLabels = [
+  /^job description$/i,
+  /^key responsibilities$/i,
+  /^qualifications?(&| and)? requirements?$/i,
+  /^education$/i,
+  /^experience$/i,
+  /^employment type$/i,
+  /^department$/i,
+  /^location$/i,
+  /^technical skills? required$/i,
+  /^technical skills? preferred$/i,
+  /^certifications? ?(?:\(preferred\))?$/i,
+  /^soft skills$/i,
+  /^mandatory work-from-home equipment requirements$/i,
+  /^device type$/i,
+  /^operating system$/i,
+  /^screen size$/i,
+  /^screen resolution$/i,
+  /^processor$/i,
+  /^ram$/i,
+  /^internet speed$/i,
+  /^remote tool$/i,
+  /^power backup$/i,
+];
+
+const genericSkillSection =
+  /\b(?:technical skills?|required skills?|preferred skills?|tools?|technologies|stack)\b/i;
+const jobSignal =
+  /\b(?:engineer|developer|administrator|admin|support|analyst|consultant|architect|specialist|manager|lead|scientist|designer|technician|operator)\b/i;
+const responsibilitySignal =
+  /\b(?:responsibilities|requirements|skills?|experience|support|manage|administer|configure|monitor|troubleshoot|design|develop|maintain)\b/i;
+
+function normalizeCandidateLabel(value: string): string {
+  return value
+    .replace(/^\d+\.\s*/, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*[|–—-]\s*$/g, '')
+    .replace(/\s*\([^)]*\)\s*$/g, '')
+    .replace(/&/g, 'and')
+    .trim();
+}
+
+function isUsefulCandidateLabel(value: string): boolean {
+  const normalized = normalizeCandidateLabel(value);
+  if (normalized.length < 3 || normalized.length > 70) return false;
+  if (genericHeadingLabels.some((pattern) => pattern.test(normalized))) return false;
+  if (/^\d+[-\d./\s]*(?:years?|yrs?)?$/i.test(normalized)) return false;
+  if (/^(full-time|remote|work from home|remote india)$/i.test(normalized)) return false;
+  return /[a-z]/i.test(normalized);
+}
+
+function classifyDerivedSkill(
+  name: string,
+): Pick<ProofSkill, 'roleFamily' | 'stackFamily' | 'libraryHref'> {
+  if (/\b(?:aws|ec2|s3|iam|vpc|cloud|workspaces?)\b/i.test(name)) {
+    return {
+      roleFamily: 'Cloud engineering',
+      stackFamily: 'Cloud operations',
+      libraryHref: '/library/aws',
+    };
+  }
+  if (/\b(?:sql|database|data|etl|warehouse|analytics|reporting|tableau|power bi)\b/i.test(name)) {
+    return {
+      roleFamily: 'Data',
+      stackFamily: 'Data and analytics',
+      libraryHref: '/library/data-engineering',
+    };
+  }
+  if (
+    /\b(?:python|powershell|java|typescript|javascript|react|api|automation|scripting)\b/i.test(
+      name,
+    )
+  ) {
+    return {
+      roleFamily: 'Software engineering',
+      stackFamily: 'Programming and automation',
+      libraryHref: '/library/python',
+    };
+  }
+  if (/\b(?:network|cisco|router|switch|firewall|vpn|vlan|dns|dhcp|bandwidth|qos)\b/i.test(name)) {
+    return {
+      roleFamily: 'IT infrastructure',
+      stackFamily: 'Networking',
+      libraryHref: '/library/devops-sre',
+    };
+  }
+  if (/\b(?:identity|access|active directory|entra|microsoft 365|m365|rbac|policy)\b/i.test(name)) {
+    return {
+      roleFamily: 'IT infrastructure',
+      stackFamily: 'Identity and access',
+      libraryHref: '/library/devops-sre',
+    };
+  }
+  if (/\b(?:security|compliance|iso|soc|hipaa|gdpr|audit|encryption|ssl)\b/i.test(name)) {
+    return {
+      roleFamily: 'Security',
+      stackFamily: 'Security operations',
+      libraryHref: '/library/devops-sre',
+    };
+  }
+  if (
+    /\b(?:documentation|communication|stakeholder|knowledge|runbook|sop|change management)\b/i.test(
+      name,
+    )
+  ) {
+    return {
+      roleFamily: 'Applied judgment',
+      stackFamily: 'Communication',
+      libraryHref: '/library/technical-communication',
+    };
+  }
+  return {
+    roleFamily: 'Applied judgment',
+    stackFamily: 'Role-specific skill',
+    libraryHref: '/library/technical-communication',
+  };
+}
+
+function appendCandidate(
+  candidates: Map<string, { label: string; phrases: Set<string> }>,
+  label: string,
+  sourcePhrase = label,
+) {
+  const normalized = normalizeCandidateLabel(label);
+  if (!isUsefulCandidateLabel(normalized)) return;
+  const key = slugifyProof(normalized);
+  if (!key) return;
+  const existing = candidates.get(key);
+  if (existing) {
+    existing.phrases.add(sourcePhrase.trim());
+    return;
+  }
+  candidates.set(key, { label: normalized, phrases: new Set([sourcePhrase.trim()]) });
+}
+
+function isDuplicateDerivedSkill(candidate: string, mappedSkill: ProofSkill): boolean {
+  const candidateSlug = slugifyProof(candidate);
+  if (candidateSlug === slugifyProof(mappedSkill.name)) return true;
+
+  const candidateWords = new Set(candidateSlug.split('-').filter((word) => word.length > 3));
+  const mappedWords = new Set(
+    slugifyProof(mappedSkill.name)
+      .split('-')
+      .filter((word) => word.length > 3),
+  );
+  const sharedWordCount = [...candidateWords].filter((word) => mappedWords.has(word)).length;
+  if (sharedWordCount >= 2) return true;
+
+  const candidateLower = candidate.toLowerCase();
+  return mappedSkill.sourcePhrases.some(
+    (phrase) => phrase.length > 4 && candidateLower.includes(phrase.toLowerCase()),
+  );
+}
+
+function extractDerivedSkills(text: string, mappedSkills: ProofSkill[]): ProofSkill[] {
+  if (!jobSignal.test(text) || !responsibilitySignal.test(text)) return [];
+
+  const mappedKeys = new Set(mappedSkills.map((skill) => slugifyProof(skill.name)));
+  const candidates = new Map<string, { label: string; phrases: Set<string> }>();
+  const lines = text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  for (const line of lines) {
+    const numberedHeading = line.match(/^\d+\.\s+(.{4,80})$/);
+    if (numberedHeading?.[1]) {
+      appendCandidate(candidates, numberedHeading[1], numberedHeading[1]);
+      continue;
+    }
+
+    const inlineSkillList = line.match(
+      /\b(?:technical skills?|required skills?|preferred skills?|tools?|technologies|stack)[^:]{0,40}:\s*(.+)$/i,
+    );
+    if (inlineSkillList?.[1]) {
+      inlineSkillList[1]
+        .split(/[,;•]/)
+        .map((item) => normalizeCandidateLabel(item))
+        .filter((item) => item.length >= 3 && item.length <= 45)
+        .slice(0, 8)
+        .forEach((item) => appendCandidate(candidates, item, item));
+      continue;
+    }
+
+    const colonHeading = line.match(/^([A-Za-z][A-Za-z0-9/().+&\s-]{3,70}):\s*(.+)$/);
+    if (!colonHeading?.[1] || !colonHeading[2]) continue;
+
+    const heading = normalizeCandidateLabel(colonHeading[1]);
+    const value = colonHeading[2].trim();
+    if (genericSkillSection.test(heading)) {
+      value
+        .split(/[,;•]/)
+        .map((item) => normalizeCandidateLabel(item))
+        .filter((item) => item.length >= 3 && item.length <= 45)
+        .slice(0, 8)
+        .forEach((item) => appendCandidate(candidates, item, item));
+    } else {
+      appendCandidate(candidates, heading, heading);
+    }
+  }
+
+  return [...candidates.values()]
+    .filter(
+      (candidate) =>
+        !mappedKeys.has(slugifyProof(candidate.label)) &&
+        !mappedSkills.some((skill) => isDuplicateDerivedSkill(candidate.label, skill)),
+    )
+    .slice(0, MAX_EXTRACTED_SKILLS)
+    .map((candidate, index) => {
+      const classified = classifyDerivedSkill(candidate.label);
+      const phrases = [...candidate.phrases];
+      return {
+        name: candidate.label,
+        weight: skillWeight(phrases.length, index, true),
+        roleFamily: classified.roleFamily,
+        stackFamily: classified.stackFamily,
+        sourcePhrases: phrases,
+        libraryHref: classified.libraryHref,
+      } satisfies ProofSkill;
+    });
+}
+
 function inferRoleTitle(text: string): string {
   const sample = sampleJds.find((jd) => jd.body === text);
   if (sample) return sample.title;
   if (/salesforce/i.test(text)) return 'Salesforce assessment';
+  if (
+    /network engineer|it infrastructure|end-user support|remote desktop|active directory|azure entra|microsoft 365|windows server|cisco|vpn|vlan|\bdns\b|\bdhcp\b/i.test(
+      text,
+    )
+  ) {
+    return 'IT infrastructure assessment';
+  }
   if (/data engineer|analytics engineer|airflow|dbt|snowflake|data pipelines?/i.test(text)) {
     return 'Data engineering assessment';
   }
@@ -431,21 +821,24 @@ function formatPlan(skills: ProofSkill[]): JdForgeDemoResult['assessment'] {
 
 export function runJdForgeDemo(jdText: string): JdForgeDemoResult {
   const normalized = jdText.trim();
-  const skills = skillRules
+  const mappedSkills = skillRules
     .map((rule, index) => {
       const phrases = matchedPhrases(normalized, rule);
       if (phrases.length === 0) return null;
       return {
         name: rule.name,
-        weight: Math.max(0.62, 0.98 - index * 0.018),
+        weight: skillWeight(phrases.length, index),
         roleFamily: rule.roleFamily,
         stackFamily: rule.stackFamily,
         sourcePhrases: phrases,
         libraryHref: rule.libraryHref,
       } satisfies ProofSkill;
     })
-    .filter((skill): skill is ProofSkill => skill !== null)
-    .slice(0, 9);
+    .filter((skill): skill is ProofSkill => skill !== null);
+  const derivedSkills = extractDerivedSkills(normalized, mappedSkills);
+  const skills = [...mappedSkills, ...derivedSkills]
+    .sort((left, right) => right.weight - left.weight || left.name.localeCompare(right.name))
+    .slice(0, MAX_EXTRACTED_SKILLS);
 
   const confidence = Math.min(0.97, skills.length === 0 ? 0.18 : 0.48 + skills.length * 0.07);
   const lowConfidenceReason =

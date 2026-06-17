@@ -54,6 +54,31 @@ describe('interactive proof public routes', () => {
     expect(payload.data.lowConfidenceReason).toBeUndefined();
   });
 
+  it('POST /v1/jd-forge/demo supports broad IT infrastructure custom JDs', async () => {
+    const response = await postJdDemo(
+      jsonRequest('https://qorium.test/v1/jd-forge/demo', {
+        jd_text:
+          'Network Engineer / IT Infrastructure & Support. Responsibilities: remote desktop support with AnyDesk and RDP, Azure Entra ID, Active Directory, Microsoft 365, AWS EC2 S3 IAM VPC WorkSpaces, Cisco switches routers firewalls, DNS DHCP VPN VLAN QoS, Windows Server patch management, backup and disaster recovery, ISO 27001 SOC 2 HIPAA GDPR, runbooks SOPs ITIL SLAs, PowerShell and Python automation.',
+      }),
+    );
+    const payload = await response.json();
+    const skillNames = payload.data.skills.map((skill: { name: string }) => skill.name);
+
+    expect(response.status).toBe(200);
+    expect(payload.data.roleTitle).toBe('IT infrastructure assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Network infrastructure troubleshooting',
+        'Identity and access administration',
+        'Windows Server administration',
+        'Backup and disaster recovery',
+        'Security compliance operations',
+      ]),
+    );
+    expect(payload.data.skills.length).toBeGreaterThanOrEqual(10);
+    expect(payload.data.lowConfidenceReason).toBeUndefined();
+  });
+
   it('POST /v1/jd-forge/demo/plan-pdf is email gated', async () => {
     const response = await postPlanPdf(
       jsonRequest('https://qorium.test/v1/jd-forge/demo/plan-pdf', {

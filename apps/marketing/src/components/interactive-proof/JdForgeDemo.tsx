@@ -21,7 +21,7 @@ function escapeRegExp(value: string): string {
 }
 
 function HighlightedJd({ text, phrases }: { text: string; phrases: string[] }) {
-  const visiblePhrases = phrases.filter((phrase) => phrase.length > 2).slice(0, 14);
+  const visiblePhrases = phrases.filter((phrase) => phrase.length > 2).slice(0, 24);
   if (visiblePhrases.length === 0) {
     return <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{text}</p>;
   }

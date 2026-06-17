@@ -10,6 +10,42 @@ import {
 } from '../interactive-proof';
 import { getLibrarySkill, getRolePage, getStackPage } from '../seo-graph';
 
+const networkInfrastructureJd = `
+Job description
+Network Engineer / IT Infrastructure & Support
+
+Key Responsibilities
+
+1. Remote Desktop & End-User Support
+Resolve hardware, software, and network-related issues via AnyDesk and RDP. Support
+onboarding and configuration of Windows laptops for distributed teams.
+
+2. Identity & Access Management
+Manage Azure Entra ID, Active Directory, Microsoft 365 Admin Center, RBAC, group policies,
+conditional access, Exchange Online, Teams, SharePoint, and OneDrive.
+
+3. AWS Cloud Services Administration
+Configure and monitor AWS EC2, S3, IAM, VPC, AWS WorkSpaces, IAM policies, and security groups.
+
+4. Network Infrastructure & Cisco Hardware
+Troubleshoot Cisco switches, routers, firewalls, DNS, DHCP, VPN, VLAN, bandwidth, and QoS.
+
+5. On-Premises Server Administration
+Maintain Windows Server, file servers, AD DS, Group Policy, health checks, patch management,
+and capacity planning.
+
+6. Security, Backup & Disaster Recovery
+Support ISO 27001, SOC 2, HIPAA, GDPR, endpoint security, SSL certificates, backup schedules,
+disaster recovery procedures, security incidents, and security audits.
+
+7. Documentation & Knowledge Management
+Create network diagrams, SOPs, runbooks, incident logs, and knowledge base articles. Explain
+technical issues to non-technical stakeholders.
+
+Technical Skills Required: PowerShell, Python, network monitoring, log analysis, ITIL v4,
+runbooks, SOPs, change management.
+`;
+
 describe('interactive proof fixtures', () => {
   it('ships the six default JD-Forge sample JDs from the spec', () => {
     expect(sampleJds.map((sample) => sample.id)).toEqual([
@@ -59,6 +95,49 @@ describe('interactive proof fixtures', () => {
     );
     expect(demo.skills.length).toBeGreaterThanOrEqual(6);
     expect(demo.assessment.itemCount).toBe(20);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('generates a broad IT infrastructure plan from a pasted network engineer JD', () => {
+    const demo = runJdForgeDemo(networkInfrastructureJd);
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(demo.roleTitle).toBe('IT infrastructure assessment');
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Network infrastructure troubleshooting',
+        'Identity and access administration',
+        'Microsoft 365 administration',
+        'Windows Server administration',
+        'Backup and disaster recovery',
+        'Security compliance operations',
+        'ITIL service operations',
+        'IT operations automation',
+        'AWS production systems',
+        'Technical Communication',
+      ]),
+    );
+    expect(demo.skills.length).toBeGreaterThanOrEqual(10);
+    expect(demo.assessment.coverageBadge).toMatch(/High coverage/);
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('derives a useful plan from a non-seeded professional skill list', () => {
+    const demo = runJdForgeDemo(
+      'Growth marketing manager responsible for campaign reporting and funnel optimization. Technical skills required: Google Analytics, HubSpot CRM, lifecycle email, A/B testing, SEO content, paid acquisition.',
+    );
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Google Analytics',
+        'HubSpot CRM',
+        'lifecycle email',
+        'A/B testing',
+        'SEO content',
+      ]),
+    );
+    expect(demo.skills.length).toBeGreaterThanOrEqual(5);
     expect(demo.lowConfidenceReason).toBeUndefined();
   });
 

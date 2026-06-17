@@ -116,14 +116,15 @@ test.describe('Critical-route smoke', () => {
     await page
       .getByLabel('Job description')
       .fill(
-        'Senior Python data engineer with Python, SQL, Airflow, dbt, Snowflake, data modeling, AWS Glue, and production data pipeline ownership.',
+        'Network Engineer / IT Infrastructure & Support. Responsibilities: remote desktop support with AnyDesk and RDP, Azure Entra ID, Active Directory, Microsoft 365, AWS EC2 S3 IAM VPC WorkSpaces, Cisco switches routers firewalls, DNS DHCP VPN VLAN QoS, Windows Server patch management, backup and disaster recovery, ISO 27001 SOC 2 HIPAA GDPR, runbooks SOPs ITIL SLAs, PowerShell and Python automation.',
       );
     await expect(page.locator('body')).toContainText(/Draft changed/i);
 
     await page.getByRole('button', { name: /Generate assessment plan/i }).click();
-    await expect(page.locator('body')).toContainText(/Python production engineering/);
-    await expect(page.locator('body')).toContainText(/Data pipeline orchestration/);
-    await expect(page.locator('body')).toContainText(/Cloud data warehousing/);
+    await expect(page.locator('body')).toContainText(/Network infrastructure troubleshooting/);
+    await expect(page.locator('body')).toContainText(/Identity and access administration/);
+    await expect(page.locator('body')).toContainText(/Windows Server administration/);
+    await expect(page.locator('body')).toContainText(/Backup and disaster recovery/);
     await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
 
     await page.getByLabel(/Work email for assessment PDF/i).fill('buyer@example.com');
