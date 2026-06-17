@@ -231,7 +231,13 @@ const skillRules: SkillRule[] = [
     roleFamily: 'DevOps / SRE',
     stackFamily: 'Reliability',
     libraryHref: '/library/devops-sre',
-    patterns: [/\bobservability\b/i, /\bslo\b/i, /\bincident\b/i, /\bprometheus\b/i],
+    patterns: [
+      /\bobservability\b/i,
+      /\bslo\b/i,
+      /\bincident response\b/i,
+      /\bincident management\b/i,
+      /\bprometheus\b/i,
+    ],
   },
   {
     name: 'AWS production systems',
@@ -820,7 +826,7 @@ const roleResearchTemplates: RoleResearchTemplate[] = [
       'Stakeholder communication',
       'API collaboration',
     ],
-    preferredSkills: ['AI Prompt Engineering', 'SQL data modeling', 'Go-to-market planning'],
+    preferredSkills: ['AI Prompt Engineering', 'SQL analysis', 'Go-to-market planning'],
     assessmentFocus: [
       'Prioritization judgment',
       'Requirement clarity',
@@ -1370,6 +1376,7 @@ function normalizeCandidateLabel(value: string): string {
     .replace(/^\d+\.\s*/, '')
     .replace(/\s+/g, ' ')
     .replace(/\s*[|–—-]\s*$/g, '')
+    .replace(/\s*[.;:]+\s*$/g, '')
     .replace(/\s*\([^)]*\)\s*$/g, '')
     .replace(/&/g, 'and')
     .trim();

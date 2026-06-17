@@ -176,8 +176,10 @@ describe('interactive proof fixtures', () => {
     for (const label of generatedJdMetadataLabels) {
       expect(skillNames).not.toContain(label);
     }
+    expect(skillNames.every((skillName) => !/[.]$/.test(skillName))).toBe(true);
     expect(skillNames).not.toContain('Microsoft 365 administration');
     expect(skillNames).not.toContain('Remote desktop and endpoint support');
+    expect(skillNames).not.toContain('Analytics engineering with dbt');
     expect(demo.skills.length).toBeGreaterThanOrEqual(10);
     expect(demo.assessment.itemCount).toBe(20);
     expect(demo.lowConfidenceReason).toBeUndefined();
@@ -200,6 +202,7 @@ describe('interactive proof fixtures', () => {
     for (const label of generatedJdMetadataLabels) {
       expect(skillNames).not.toContain(label);
     }
+    expect(skillNames.every((skillName) => !/[.]$/.test(skillName))).toBe(true);
     expect(skillNames).not.toContain('Remote desktop and endpoint support');
     expect(skillNames).not.toContain('Microsoft 365 administration');
     expect(demo.skills.length).toBeGreaterThanOrEqual(8);
@@ -222,9 +225,27 @@ describe('interactive proof fixtures', () => {
     for (const label of generatedJdMetadataLabels) {
       expect(skillNames).not.toContain(label);
     }
+    expect(skillNames.every((skillName) => !/[.]$/.test(skillName))).toBe(true);
     expect(skillNames).not.toContain('Salesforce Apex');
     expect(skillNames).not.toContain('SOQL data access');
     expect(skillNames).not.toContain('Finacle / Flexcube core banking');
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
+  it('keeps healthcare operations titles focused on clinical and operational skills', () => {
+    const demo = runJdForgeFromJobTitle('Clinic Operations Manager');
+    const skillNames = demo.skills.map((skill) => skill.name);
+
+    expect(skillNames).toEqual(
+      expect.arrayContaining([
+        'Clinical protocol adherence',
+        'Patient communication',
+        'Care coordination',
+        'Quality control',
+      ]),
+    );
+    expect(skillNames.every((skillName) => !/[.]$/.test(skillName))).toBe(true);
+    expect(skillNames).not.toContain('Observability and incident response');
     expect(demo.lowConfidenceReason).toBeUndefined();
   });
 
