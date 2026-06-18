@@ -1422,6 +1422,10 @@ function stableHash(value: string): string {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+function publicDemoFingerprint(value: string): string {
+  return `demo:${stableHash(`${value}:public`)}${stableHash(`${value}:proof`)}`;
+}
+
 function matchedPhrases(text: string, rule: SkillRule): string[] {
   const phrases = new Set<string>();
   for (const pattern of rule.patterns) {
@@ -1945,12 +1949,11 @@ export function runJdForgeFromJobTitle(jobTitle: string): JdForgeDemoResult {
 }
 
 function audit(id: string): GraderAuditMeta {
-  const base = stableHash(id).repeat(8).slice(0, 64);
   return {
     rubricVersion: `rubric-${id.split('-')[0]}-2026-06`,
-    modelVersion: 'qorium-grader-v1-audit-fixture',
-    promptHash: `sha256:${base}`,
-    inputHash: `sha256:${stableHash(`${id}:input`).repeat(8).slice(0, 64)}`,
+    modelVersion: 'qorium-public-demo-grader-v1',
+    promptHash: publicDemoFingerprint(`${id}:prompt`),
+    inputHash: publicDemoFingerprint(`${id}:answer`),
     gradedAt: GENERATED_AT,
   };
 }

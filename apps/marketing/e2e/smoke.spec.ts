@@ -160,8 +160,9 @@ test.describe('Critical-route smoke', () => {
     await page.goto('/try/graded-answer');
 
     await expect(page.getByRole('heading', { name: /rubric, the score/i })).toBeVisible();
-    await expect(page.locator('body')).toContainText(/rubricVersion/);
-    await expect(page.locator('body')).toContainText(/promptHash/);
+    await expect(page.locator('body')).toContainText(/Rubric release/);
+    await expect(page.locator('body')).toContainText(/Prompt fingerprint/);
+    await expect(page.locator('body')).not.toContainText(/audit-fixture/);
 
     await page.getByRole('button', { name: /^Yes$/i }).click();
     await expect(page.locator('body')).toContainText(/Recorded/);

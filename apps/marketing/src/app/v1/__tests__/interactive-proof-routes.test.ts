@@ -160,7 +160,7 @@ describe('interactive proof public routes', () => {
     const detailPayload = await detailResponse.json();
 
     expect(listResponse.status).toBe(200);
-    expect(detailPayload.data.auditMeta.promptHash).toMatch(/^sha256:/);
+    expect(detailPayload.data.auditMeta.promptHash).toMatch(/^demo:[a-f0-9]{16}$/);
   });
 
   it('records grader fairness feedback without mutating the exemplar score', async () => {

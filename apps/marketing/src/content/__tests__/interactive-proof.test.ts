@@ -317,9 +317,9 @@ describe('interactive proof fixtures', () => {
     for (const summary of exemplars) {
       const full = getGraderExemplar(summary.id);
       expect(full?.auditMeta.rubricVersion).toMatch(/^rubric-/);
-      expect(full?.auditMeta.modelVersion).toBeTruthy();
-      expect(full?.auditMeta.promptHash).toMatch(/^sha256:/);
-      expect(full?.auditMeta.inputHash).toMatch(/^sha256:/);
+      expect(full?.auditMeta.modelVersion).toMatch(/^qorium-public-demo-grader-v/);
+      expect(full?.auditMeta.promptHash).toMatch(/^demo:[a-f0-9]{16}$/);
+      expect(full?.auditMeta.inputHash).toMatch(/^demo:[a-f0-9]{16}$/);
     }
   });
 

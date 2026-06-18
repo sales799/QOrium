@@ -14,6 +14,14 @@ import { cn } from '@/lib/cn';
 
 type ExemplarSummary = ReturnType<typeof listGraderExemplars>[number];
 
+const auditMetaRows = [
+  { key: 'rubricVersion', label: 'Rubric release' },
+  { key: 'modelVersion', label: 'Public grader build' },
+  { key: 'promptHash', label: 'Prompt fingerprint' },
+  { key: 'inputHash', label: 'Answer fingerprint' },
+  { key: 'gradedAt', label: 'Graded at' },
+] satisfies Array<{ key: keyof GraderExemplar['auditMeta']; label: string }>;
+
 export function GradedAnswerViewer({
   skillFilter,
   embedded = false,
@@ -178,15 +186,18 @@ export function GradedAnswerViewer({
                 ) : null}
 
                 <div className="mt-4 rounded-md border border-border bg-muted p-3 font-mono text-xs text-muted-foreground">
-                  {Object.entries(detail.auditMeta).map(([key, value]) => (
+                  {auditMetaRows.map(({ key, label }) => (
                     <div key={key} className="flex items-center justify-between gap-3 py-1">
-                      <span>{key}</span>
+                      <span>{label}</span>
                       <button
                         type="button"
-                        onClick={() => void navigator.clipboard?.writeText(String(value))}
+                        aria-label={`Copy ${label}`}
+                        onClick={() =>
+                          void navigator.clipboard?.writeText(String(detail.auditMeta[key]))
+                        }
                         className="inline-flex max-w-[13rem] items-center gap-1 truncate text-foreground"
                       >
-                        {String(value)}
+                        {String(detail.auditMeta[key])}
                         <Copy className="size-3" />
                       </button>
                     </div>
