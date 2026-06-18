@@ -50,7 +50,10 @@ export async function POST(request: Request) {
     return json({ ok: false, message: 'Could not read the form submission.' }, 400);
   }
 
-  const intent = raw.intent ?? new URL(request.url).searchParams.get('intent');
+  const intent =
+    raw.intent ??
+    request.headers.get('x-qorium-lead-intent') ??
+    new URL(request.url).searchParams.get('intent');
 
   if (intent === 'demo') {
     return json(await submitDemoLead(raw, { headers: request.headers }));

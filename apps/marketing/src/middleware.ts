@@ -130,7 +130,15 @@ function leadCaptureRewrite(request: NextRequest): NextResponse | null {
   const url = request.nextUrl.clone();
   url.pathname = '/api/lead-capture';
   url.searchParams.set('intent', intent);
-  return NextResponse.rewrite(url);
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-qorium-lead-intent', intent);
+
+  return NextResponse.rewrite(url, {
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 function rateLimitHeaders(limit: ReturnType<typeof checkRateLimit>) {
