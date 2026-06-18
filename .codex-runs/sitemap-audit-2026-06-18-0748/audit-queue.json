@@ -200,11 +200,11 @@
       "external": false,
       "asset_like": false,
       "status": "audited",
-      "issue_count": 0,
+      "issue_count": 1,
       "severity_summary": {
         "P0": 0,
         "P1": 0,
-        "P2": 0,
+        "P2": 1,
         "P3": 0
       },
       "fix_status": "no-code-change-required",
@@ -5842,10 +5842,10 @@
         "P2": 0,
         "P3": 0
       },
-      "fix_status": "no-code-change-required",
-      "qa_status": "reachability-200-before-deploy",
+      "fix_status": "fixed-in-working-tree",
+      "qa_status": "local-qa-pass-pending-deploy",
       "deployment_verification_status": "pending-deploy",
-      "final_notes": "Family: interactive proof template. Slow reachability returned HTTP 200. Covered by representative Playwright template regression.",
+      "final_notes": "P2 buyer-demo/design gap found: route passed API smoke but lagged the redesigned proof-lab standard, displayed raw-ish input hash copy, and title research normalized OpenText xPression casing incorrectly. Fixed page shell, demo-safe plan evidence, OpenText xPression casing, and regression coverage; pending deploy verification.",
       "duplicate_of": null
     },
     {

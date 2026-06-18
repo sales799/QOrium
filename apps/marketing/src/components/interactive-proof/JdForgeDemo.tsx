@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Download,
-  FileText,
+  Fingerprint,
   Loader2,
   PencilLine,
   Search,
@@ -19,6 +19,7 @@ import {
   runJdForgeFromJobTitle,
   sampleJds,
 } from '@/content/interactive-proof';
+import { analyticsEvents, trackPlausible } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 
 const DEFAULT_JOB_TITLE = 'Network Engineer / IT Infrastructure & Support';
@@ -49,6 +50,11 @@ function HighlightedJd({ text, phrases }: { text: string; phrases: string[] }) {
       )}
     </p>
   );
+}
+
+function formatInputFingerprint(value: string): string {
+  const fingerprint = value.replace(/^sha256:/, '');
+  return `${fingerprint.slice(0, 12)}...`;
 }
 
 export function JdForgeDemo({
@@ -105,6 +111,7 @@ export function JdForgeDemo({
     if (inputMode === 'jd' && submittedText.length < 20) return;
 
     setStatus('loading');
+    trackPlausible(analyticsEvents.jdForgeDemoStart, { mode: inputMode });
     try {
       const response = await fetch('/v1/jd-forge/demo', {
         method: 'POST',
@@ -127,6 +134,11 @@ export function JdForgeDemo({
       }
       setPdfState('idle');
       setStatus('idle');
+      trackPlausible(analyticsEvents.jdForgeDemoComplete, {
+        mode: inputMode,
+        skill_count: payload.data.skills.length,
+        item_count: payload.data.assessment.itemCount,
+      });
     } catch {
       setStatus('error');
     }
@@ -513,12 +525,19 @@ export function JdForgeDemo({
           </div>
           <div
             className={cn(
-              'mt-4 flex items-center gap-2 text-xs',
+              'mt-4 flex items-start gap-2 rounded-md border p-3 text-xs',
               dark ? 'text-shell-muted' : 'text-muted-foreground',
+              dark ? 'border-white/10 bg-white/[0.035]' : 'border-border bg-background',
             )}
           >
-            <FileText className="size-3.5" />
-            Plan ID {result.planId} / {result.source.label} / input {result.inputHash.slice(0, 18)}
+            <Fingerprint className="mt-0.5 size-3.5 shrink-0" />
+            <span>
+              <span className={cn('font-semibold', dark ? 'text-white' : 'text-foreground')}>
+                Plan evidence:
+              </span>{' '}
+              {result.planId} / {result.source.label} / input fingerprint{' '}
+              {formatInputFingerprint(result.inputHash)}
+            </span>
           </div>
         </div>
       </div>

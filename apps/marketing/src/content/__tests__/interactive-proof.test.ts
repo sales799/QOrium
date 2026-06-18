@@ -178,6 +178,22 @@ describe('interactive proof fixtures', () => {
     expect(demo.lowConfidenceReason).toBeUndefined();
   });
 
+  it('preserves OpenText xPression brand casing during job-title research', () => {
+    const demo = runJdForgeFromJobTitle('opentext xpression consultant');
+
+    expect(demo.roleTitle).toBe('OpenText xPression Consultant assessment');
+    expect(demo.source.jobTitle).toBe('OpenText xPression Consultant');
+    expect(demo.source.generatedJd).toContain('OpenText xPression Consultant');
+    expect(demo.skills.map((skill) => skill.name)).toEqual(
+      expect.arrayContaining([
+        'OpenText xPression development',
+        'xPression platform upgrade and migration',
+        'Template migration and remediation',
+      ]),
+    );
+    expect(demo.lowConfidenceReason).toBeUndefined();
+  });
+
   it('derives a useful plan from a non-seeded professional skill list', () => {
     const demo = runJdForgeDemo(
       'Growth marketing manager responsible for campaign reporting and funnel optimization. Technical skills required: Google Analytics, HubSpot CRM, lifecycle email, A/B testing, SEO content, paid acquisition.',

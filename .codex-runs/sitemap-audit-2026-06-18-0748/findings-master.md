@@ -30,6 +30,10 @@ Fast browser sampling flagged 21 short page descriptions. Root cause was several
 
 Manual buyer-demo review found the public AI grading demo displaying synthetic but raw-looking audit identifiers, grader labels, timestamps, and fingerprints. This was not a security leak because the values were public fixtures, but it created a buyer-trust and marketing-safety gap: the page could imply QOrium exposes production rubric, prompt, model, or candidate records.
 
+### P2 — `/try/jd-forge` buyer-demo polish and title-casing gap
+
+Route-specific JD-Forge review found the public demo engine passing representative custom-JD/API checks, but the page still lagged the redesigned proof-lab standard and exposed developer-shaped plan evidence copy. OpenText xPression job-title research also normalized the mixed-case product name incorrectly, reducing trust for niche enterprise-platform roles.
+
 ### Non-defect — Public rate limiting during fast crawl
 
 The fast browser crawl hit QOrium's public middleware rate limit. A slower one-request-at-a-time reachability pass returned 168/168 HTTP 200, so these 429s are documented as audit-tool pressure, not broken routes.

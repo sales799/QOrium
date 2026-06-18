@@ -38,3 +38,14 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 - Root production build: PASS.
 - GitHub Actions deployment run `27735942871`: PASS.
 - Live production Playwright desktop + mobile: PASS for `https://qorium.online/try/graded-answer`.
+
+## Latest JD-Forge Continuation QA
+
+- `/try/jd-forge` production API pre-check: PASS for Network Engineer JD, OpenText xPression pasted JD, and OpenText xPression job-title research.
+- Interactive proof fixture and route tests: PASS.
+- Marketing typecheck: PASS.
+- Marketing lint: PASS.
+- Marketing production build: PASS.
+- Focused Playwright `/try/jd-forge`: PASS.
+- Desktop/mobile visual audit: PASS, no overflow, one `<main>`, one H1, no console errors.
+- Deployment verification: pending.

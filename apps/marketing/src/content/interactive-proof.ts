@@ -1319,7 +1319,7 @@ function titleCaseJobTitle(jobTitle: string): string {
     'ui',
     'ux',
   ]);
-  return normalizeJobTitle(jobTitle)
+  const titled = normalizeJobTitle(jobTitle)
     .split(' ')
     .map((word) => {
       const lower = word.toLowerCase();
@@ -1329,6 +1329,8 @@ function titleCaseJobTitle(jobTitle: string): string {
       });
     })
     .join(' ');
+
+  return titled.replace(/\bOpentext\b/g, 'OpenText').replace(/\bXpression\b/g, 'xPression');
 }
 
 function inferSeniorityFromTitle(jobTitle: string): string {

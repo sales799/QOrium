@@ -194,7 +194,10 @@ test.describe('Critical-route smoke', () => {
   test('/try/jd-forge — generates plan and queues email-gated PDF', async ({ page }) => {
     await page.goto('/try/jd-forge');
 
-    await expect(page.getByRole('heading', { name: /Enter a role/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Turn any role/i })).toBeVisible();
+    await expect(page.locator('body')).toContainText(/JD-Forge proof lab/);
+    await expect(page.locator('body')).toContainText(/Live assessment planner/);
+    await expect(page.locator('body')).toContainText(/Demo-safe evidence/);
     await expect
       .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
       .toBe(1);
@@ -240,6 +243,8 @@ test.describe('Critical-route smoke', () => {
     await expect(page.locator('body')).toContainText(/xPression platform upgrade and migration/);
     await expect(page.locator('body')).toContainText(/Template migration and remediation/);
     await expect(page.locator('body')).not.toContainText(/could not extract enough/i);
+    await expect(page.locator('body')).toContainText(/Plan evidence/);
+    await expect(page.locator('body')).not.toContainText(/input sha256:/i);
   });
 
   test('/try/graded-answer — shows rubric audit trail and records feedback', async ({ page }) => {
