@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-06-18",
+  "scope": "critical static marketing pages plus sitemap/robots implementation",
+  "status": "patched",
+  "checksAdded": [
+    "critical static page metadata test for title, description, and canonical declarations",
+    "sitemap test for canonical solution routes only",
+    "sitemap duplicate URL test",
+    "robots sitemap partition test"
+  ],
+  "canonicalFixes": [
+    {
+      "issue": "Legacy solution routes were still in the live sitemap.",
+      "fix": "Local sitemap excludes /solutions/platforms, /solutions/enterprises, and /solutions/staffing while next.config.mjs redirects them to canonical routes.",
+      "test": "apps/marketing/src/app/__tests__/sitemap-robots.test.ts"
+    }
+  ],
+  "criticalRoutesSampled": [
+    "/",
+    "/pricing",
+    "/platform",
+    "/platform/api",
+    "/library",
+    "/resources",
+    "/blog",
+    "/try/jd-forge",
+    "/try/graded-answer",
+    "/security",
+    "/trust",
+    "/privacy",
+    "/terms",
+    "/dpa"
+  ],
+  "remainingRecommendations": [
+    "Centralize metadata in a shared buildMetadata helper during the next larger refactor.",
+    "Add Search Console validation after deploy to confirm legacy solution URLs leave the submitted sitemap.",
+    "Broaden unique-description checks to dynamic compare, library, role, and stack pages."
+  ]
+}

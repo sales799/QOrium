@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2026-06-18",
+  "tool": "Plausible",
+  "previousState": [
+    "Root layout loaded Plausible script.",
+    "No local event taxonomy or delegated click/submit listener was present."
+  ],
+  "patchedState": [
+    "Added apps/marketing/src/lib/analytics.ts with stable event names and prop cleaning.",
+    "Added apps/marketing/src/components/site/AnalyticsEvents.tsx for delegated click and submit tracking.",
+    "Instrumented home hero CTAs, pricing CTA, compare CTA, sample-pack unlock, JD-Forge demo start/complete, graded-answer interactions, contact/demo form submits, and Calendly outbound link."
+  ],
+  "eventTaxonomy": [
+    "hero_cta_click",
+    "pricing_cta_click",
+    "compare_page_cta_click",
+    "sample_pack_unlock",
+    "jd_forge_demo_start",
+    "jd_forge_demo_complete",
+    "graded_answer_demo_interaction",
+    "contact_form_submit",
+    "calendly_booking_outbound_click"
+  ],
+  "tests": ["apps/marketing/src/lib/__tests__/analytics.test.ts"],
+  "privacyNotes": [
+    "Events send only coarse page, surface, mode, count, and taxonomy props.",
+    "No candidate content, prompt text, email address, company name, or personal data is sent as analytics props."
+  ]
+}

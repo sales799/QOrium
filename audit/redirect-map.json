@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-06-18",
+  "canonicalDomain": "https://qorium.online",
+  "redirects": [
+    {
+      "source": "/product",
+      "destination": "/platform",
+      "status": 301,
+      "reason": "Collapse legacy product pillar into canonical platform surface."
+    },
+    {
+      "source": "/product/api",
+      "destination": "/platform/api",
+      "status": 301,
+      "reason": "Collapse legacy API page into canonical platform API route."
+    },
+    {
+      "source": "/product/assessment-library",
+      "destination": "/library",
+      "status": 301,
+      "reason": "Collapse legacy product library route into canonical library."
+    },
+    {
+      "source": "/features",
+      "destination": "/platform",
+      "status": 301,
+      "reason": "Collapse feature IA into platform IA."
+    },
+    {
+      "source": "/features/:slug",
+      "destination": "/platform/:slug",
+      "status": 301,
+      "reason": "Preserve old links while indexing platform pages."
+    },
+    {
+      "source": "/solutions/platforms",
+      "destination": "/solutions/assessment-platforms",
+      "status": 301,
+      "reason": "Remove duplicate solution intent from sitemap and navigation."
+    },
+    {
+      "source": "/solutions/enterprises",
+      "destination": "/solutions/enterprises-gcc",
+      "status": 301,
+      "reason": "Remove duplicate enterprise/GCC solution intent."
+    },
+    {
+      "source": "/solutions/staffing",
+      "destination": "/solutions/staffing-firms",
+      "status": 301,
+      "reason": "Remove duplicate staffing solution intent."
+    },
+    {
+      "source": "/vs/:slug",
+      "destination": "/compare/qorium-vs-:slug",
+      "status": 301,
+      "reason": "Consolidate comparison pages under canonical /compare route."
+    },
+    {
+      "source": "/library/:base-:n",
+      "destination": "/library/:base",
+      "status": 301,
+      "reason": "Retire legacy fragment pages from the old library generator."
+    }
+  ],
+  "liveGapBeforeDeploy": [
+    "/solutions/platforms returned 200 on production before this patch is deployed.",
+    "/solutions/enterprises returned 200 on production before this patch is deployed.",
+    "/solutions/staffing returned 200 on production before this patch is deployed."
+  ]
+}

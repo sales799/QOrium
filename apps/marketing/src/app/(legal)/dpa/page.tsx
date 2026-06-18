@@ -93,7 +93,7 @@ export default function DpaPage() {
           applicable law.
         </p>
       </LegalSection>
-      <LegalSection title="12. Counsel review">
+      <LegalSection title="12. Contract control">
         <p>
           Final binding DPA language is delivered as part of the Customer&rsquo;s signed order form.
           This published version is informational and reflects {siteConfig.name}&rsquo;s intended

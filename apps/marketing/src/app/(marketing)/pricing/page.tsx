@@ -15,6 +15,7 @@ import {
 } from '@/components/seo/JsonLd';
 import { phase4Faqs } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
+import { analyticsEvents } from '@/lib/analytics';
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -98,7 +99,12 @@ export default function PricingPage() {
           eyebrow="Pricing"
           title="Transparent INR pricing. Start free, scale when your volume is real."
           description="Customer-Zero is free forever. Growth is ₹4,999/mo and Scale is ₹19,999/mo, billed in INR. Enterprise is custom for high-volume and regulated teams. No hidden quote-only gate."
-          cta={{ label: 'Book pricing call', href: '/demo' }}
+          cta={{
+            label: 'Book pricing call',
+            href: '/demo',
+            event: analyticsEvents.pricingCtaClick,
+            eventProps: { surface: 'pricing_hero' },
+          }}
         />
         <SectionBand title="Plans">
           <CardGrid columns="md:grid-cols-4">

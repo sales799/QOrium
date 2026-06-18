@@ -14,9 +14,11 @@ export function LegalShell({ title, effectiveDate, children }: LegalShellProps) 
         <h1 className="text-3xl font-semibold text-foreground">{title}</h1>
         <p className="text-sm text-muted-foreground">Effective {effectiveDate}</p>
       </header>
+      {/* TODO(legal): Replace this review-copy notice after counsel approves final public terms. */}
       <div className="not-prose mb-8 rounded-md border border-warning/40 bg-warning/5 p-4 text-sm text-warning">
-        Pre-launch: this document is under counsel review. The structure below reflects our intended
-        posture; final binding language will replace it before public launch.
+        Legal review status: this public document is an informational review copy for buyer
+        diligence. Signed order forms and DPAs control any transaction until counsel-approved final
+        public language is published.
       </div>
       <div className="space-y-6 font-serif text-base leading-relaxed text-foreground/90">
         {children}

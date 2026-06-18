@@ -3,7 +3,15 @@ import type React from 'react';
 import { ArrowRight, CheckCircle2, Clock, FileText, ShieldCheck } from 'lucide-react';
 
 import { MaxWidth } from '@/components/site/MaxWidth';
+import { analyticsAttributes, type AnalyticsEventName, type AnalyticsProps } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
+
+type PageHeroCta = {
+  label: string;
+  href: string;
+  event?: AnalyticsEventName;
+  eventProps?: AnalyticsProps;
+};
 
 export function PageHero({
   eyebrow,
@@ -14,7 +22,7 @@ export function PageHero({
   eyebrow: string;
   title: string;
   description: string;
-  cta?: { label: string; href: string };
+  cta?: PageHeroCta;
 }) {
   return (
     <section className="w-full border-b border-border bg-background">
@@ -28,6 +36,11 @@ export function PageHero({
           {cta ? (
             <Link
               href={cta.href}
+              {...analyticsAttributes(cta.event, {
+                label: cta.label,
+                href: cta.href,
+                ...cta.eventProps,
+              })}
               className="mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               {cta.label}

@@ -10,6 +10,7 @@ import {
   getGraderExemplar,
   listGraderExemplars,
 } from '@/content/interactive-proof';
+import { analyticsEvents, trackPlausible } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 
 type ExemplarSummary = ReturnType<typeof listGraderExemplars>[number];
@@ -41,6 +42,10 @@ export function GradedAnswerViewer({
       const response = await fetch(`/v1/grader/exemplars/${exemplar.id}`);
       const payload = (await response.json()) as { data?: GraderExemplar };
       setDetail(payload.data ?? getGraderExemplar(exemplar.id)!);
+      trackPlausible(analyticsEvents.gradedAnswerDemoInteraction, {
+        action: 'select_exemplar',
+        exemplar_id: exemplar.id,
+      });
     } finally {
       setLoading(false);
     }
@@ -54,8 +59,18 @@ export function GradedAnswerViewer({
         body: JSON.stringify({ vote: voteValue }),
       });
       setVoteState(response.ok ? 'sent' : 'error');
+      trackPlausible(analyticsEvents.gradedAnswerDemoInteraction, {
+        action: 'feedback_vote',
+        vote: voteValue,
+        status: response.ok ? 'sent' : 'error',
+      });
     } catch {
       setVoteState('error');
+      trackPlausible(analyticsEvents.gradedAnswerDemoInteraction, {
+        action: 'feedback_vote',
+        vote: voteValue,
+        status: 'error',
+      });
     }
   }
 

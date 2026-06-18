@@ -99,7 +99,7 @@ jobs:
 
       - name: Start marketing app
         run: |
-          pnpm --filter @qorium/marketing start &
+          QORIUM_E2E=1 pnpm --filter @qorium/marketing start &
           echo $! > /tmp/marketing.pid
           # Wait for server (max 60s)
           for i in $(seq 1 60); do
@@ -115,11 +115,12 @@ jobs:
           mkdir -p axe-reports
           ROUTES=(
             "/"
-            "/product"
+            "/platform"
             "/pricing"
-            "/features/readybank"
-            "/features/jd-forge"
-            "/features/stack-vault"
+            "/platform/readybank"
+            "/platform/jd-forge"
+            "/platform/stack-vault"
+            "/try/jd-forge"
             "/security"
             "/about"
             "/contact"

@@ -34,6 +34,7 @@ import {
   type PlatformProduct,
   type ProductAccent,
 } from '@/content/copy/phase2';
+import { analyticsAttributes } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 
 const accentStyles: Record<
@@ -82,6 +83,11 @@ function CtaRow({ ctas, dark = false }: { ctas: readonly Cta[]; dark?: boolean }
         <Link
           key={cta.href}
           href={cta.href}
+          {...analyticsAttributes(cta.event, {
+            label: cta.label,
+            href: cta.href,
+            ...cta.eventProps,
+          })}
           className={cn(
             'inline-flex min-h-11 items-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors',
             index === 0
