@@ -12,6 +12,7 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 - Added `min-w-0` containment around trust evidence ledger/detail sections so wide tables scroll within their container instead of forcing page-level horizontal overflow.
 - Expanded safe public metadata descriptions across static pages and metadata generators for compare, guide, sample-pack, solution, legal, customer, and resource pages.
 - Added Playwright regression coverage for representative generated sitemap families, the trust mobile overflow case, and no-JavaScript HTML landmark behavior.
+- Rebuilt `/try/graded-answer` as a buyer-ready audit demo with demo-safe metadata formatting, explicit public-demo safety boundaries, structured SEO data, and smoke assertions preventing raw demo grader/timestamp leakage.
 
 ## Files Touched
 

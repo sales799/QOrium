@@ -25,11 +25,11 @@
       "external": false,
       "asset_like": false,
       "status": "audited",
-      "issue_count": 0,
+      "issue_count": 1,
       "severity_summary": {
         "P0": 0,
         "P1": 0,
-        "P2": 0,
+        "P2": 1,
         "P3": 0
       },
       "fix_status": "no-code-change-required",
@@ -5807,10 +5807,10 @@
         "P2": 0,
         "P3": 0
       },
-      "fix_status": "no-code-change-required",
-      "qa_status": "reachability-200-before-deploy",
+      "fix_status": "fixed-in-working-tree",
+      "qa_status": "local-qa-pass-pending-deploy",
       "deployment_verification_status": "pending-deploy",
-      "final_notes": "Family: interactive proof template. Slow reachability returned HTTP 200. Covered by representative Playwright template regression.",
+      "final_notes": "P2 buyer-trust/design gap found: public demo displayed raw-ish audit identifiers and a generic proof-page narrative. Fixed with demo-safe audit metadata formatting, explicit public-demo safety boundary, refreshed buyer-demo page design, updated smoke coverage, and local QA/build pass; pending deploy verification.",
       "duplicate_of": null
     },
     {

@@ -172,5 +172,5 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 | 164 | `/trust/security`                                         | Trust           |         200 | audited      | fixed-in-working-tree   | reachability-200-before-deploy |
 | 165 | `/trust/sub-processors`                                   | Trust           |         200 | audited      | fixed-in-working-tree   | reachability-200-before-deploy |
 | 166 | `/try`                                                    | Try             |         200 | audited      | no-code-change-required | reachability-200-before-deploy |
-| 167 | `/try/graded-answer`                                      | Try             |         200 | audited      | no-code-change-required | reachability-200-before-deploy |
+| 167 | `/try/graded-answer`                                      | Try             |         200 | audited      | fixed-in-working-tree   | local-qa-pass-pending-deploy   |
 | 168 | `/try/jd-forge`                                           | Try             |         200 | audited      | no-code-change-required | reachability-200-before-deploy |

@@ -245,13 +245,19 @@ test.describe('Critical-route smoke', () => {
   test('/try/graded-answer — shows rubric audit trail and records feedback', async ({ page }) => {
     await page.goto('/try/graded-answer');
 
-    await expect(page.getByRole('heading', { name: /audit ai grading/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /audit an ai grade/i })).toBeVisible();
+    await expect(page.locator('body')).toContainText(/AI grading audit lab/);
     await expect(page.locator('body')).toContainText(/Live audit packet/);
     await expect(page.locator('body')).toContainText(/Synthetic public sample/);
     await expect(page.locator('body')).toContainText(/What this proves/);
+    await expect(page.locator('body')).toContainText(/Demo-safe audit metadata/);
+    await expect(page.locator('body')).toContainText(/Public demo grader v1/);
+    await expect(page.locator('body')).toContainText(/Public-demo safety boundary/);
     await expect(page.locator('body')).toContainText(/Rubric release/);
     await expect(page.locator('body')).toContainText(/Prompt fingerprint/);
     await expect(page.locator('body')).not.toContainText(/audit-fixture/);
+    await expect(page.locator('body')).not.toContainText(/qorium-public-demo-grader-v1/);
+    await expect(page.locator('body')).not.toContainText(/2026-06-01T00:00:00\.000Z/);
     await expect
       .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
       .toBe(1);

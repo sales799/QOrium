@@ -26,6 +26,10 @@ Manual targeted Playwright inspection of `/anti-leak` at 390px found document wi
 
 Fast browser sampling flagged 21 short page descriptions. Root cause was several static pages and generated route metadata using terse internal descriptions.
 
+### P2 — `/try/graded-answer` raw-ish demo audit metadata
+
+Manual buyer-demo review found the public AI grading demo displaying synthetic but raw-looking audit identifiers, grader labels, timestamps, and fingerprints. This was not a security leak because the values were public fixtures, but it created a buyer-trust and marketing-safety gap: the page could imply QOrium exposes production rubric, prompt, model, or candidate records.
+
 ### Non-defect — Public rate limiting during fast crawl
 
 The fast browser crawl hit QOrium's public middleware rate limit. A slower one-request-at-a-time reachability pass returned 168/168 HTTP 200, so these 429s are documented as audit-tool pressure, not broken routes.

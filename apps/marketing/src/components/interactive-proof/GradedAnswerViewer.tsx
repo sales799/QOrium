@@ -26,12 +26,70 @@ import { cn } from '@/lib/cn';
 type ExemplarSummary = ReturnType<typeof listGraderExemplars>[number];
 
 const auditMetaRows = [
-  { key: 'rubricVersion', label: 'Rubric release' },
-  { key: 'modelVersion', label: 'Public grader build' },
-  { key: 'promptHash', label: 'Prompt fingerprint' },
-  { key: 'inputHash', label: 'Answer fingerprint' },
-  { key: 'gradedAt', label: 'Graded at' },
-] satisfies Array<{ key: keyof GraderExemplar['auditMeta']; label: string }>;
+  {
+    key: 'rubricVersion',
+    label: 'Rubric release',
+    note: 'Which public rubric family scored this sample.',
+  },
+  {
+    key: 'modelVersion',
+    label: 'Demo grader build',
+    note: 'A public demo build label, not a production model disclosure.',
+  },
+  {
+    key: 'promptHash',
+    label: 'Prompt fingerprint',
+    note: 'A stable demo fingerprint without revealing prompt text.',
+  },
+  {
+    key: 'inputHash',
+    label: 'Answer fingerprint',
+    note: 'A stable demo fingerprint without exposing private records.',
+  },
+  {
+    key: 'gradedAt',
+    label: 'Demo generated',
+    note: 'Timestamp for this synthetic public packet.',
+  },
+] satisfies Array<{ key: keyof GraderExemplar['auditMeta']; label: string; note: string }>;
+
+function titleCase(value: string) {
+  return value
+    .split('-')
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(' ');
+}
+
+function formatAuditMetaValue(key: keyof GraderExemplar['auditMeta'], value: string) {
+  if (key === 'rubricVersion') {
+    const match = value.match(/^rubric-(.+)-(\d{4})-(\d{2})$/);
+    if (match) return `${titleCase(match[1]!)} rubric · ${match[2]}.${match[3]}`;
+  }
+
+  if (key === 'modelVersion') {
+    const match = value.match(/^qorium-public-demo-grader-v(.+)$/);
+    if (match) return `Public demo grader v${match[1]}`;
+  }
+
+  if (key === 'promptHash' || key === 'inputHash') {
+    return value.length > 18 ? `${value.slice(0, 18)}…` : value;
+  }
+
+  if (key === 'gradedAt') {
+    const date = new Date(value);
+    if (!Number.isNaN(date.valueOf())) {
+      return `${date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',
+      })} UTC`;
+    }
+  }
+
+  return value;
+}
 
 export function GradedAnswerViewer({
   skillFilter,
@@ -266,34 +324,70 @@ export function GradedAnswerViewer({
                   </div>
                 ) : null}
 
-                <div className="mt-4 rounded-md border border-border bg-muted p-3 font-mono text-xs text-muted-foreground">
-                  <div className="mb-2 flex items-center gap-2 font-sans text-sm font-semibold text-foreground">
-                    <Fingerprint className="size-4 text-secondary" />
-                    Public audit metadata
-                  </div>
-                  {auditMetaRows.map(({ key, label }) => (
-                    <div key={key} className="flex items-center justify-between gap-3 py-1">
-                      <span>{label}</span>
-                      <button
-                        type="button"
-                        aria-label={`Copy ${label}`}
-                        onClick={() => copyAuditValue(key)}
-                        className="inline-flex max-w-[13rem] items-center gap-1 truncate text-foreground"
-                      >
-                        {String(detail.auditMeta[key])}
-                        {copyState?.key === key && copyState.status === 'copied' ? (
-                          <CopyCheck className="size-3 text-product-500" />
-                        ) : (
-                          <Copy className="size-3" />
-                        )}
-                      </button>
+                <div className="mt-4 rounded-md border border-product-500/25 bg-product-100/50 p-3 text-xs text-muted-foreground">
+                  <div className="mb-3 flex items-start gap-2 text-sm text-foreground">
+                    <Fingerprint className="mt-0.5 size-4 shrink-0 text-product-500" />
+                    <div>
+                      <p className="font-semibold">Demo-safe audit metadata</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        Public values are synthetic demo identifiers. Production audit records stay
+                        customer-owned and are not published here.
+                      </p>
                     </div>
-                  ))}
+                  </div>
+                  {auditMetaRows.map(({ key, label, note }) => {
+                    const rawValue = String(detail.auditMeta[key]);
+                    const displayValue = formatAuditMetaValue(key, rawValue);
+
+                    return (
+                      <div
+                        key={key}
+                        className="grid gap-1 border-t border-product-500/15 py-2 sm:grid-cols-[10rem_1fr]"
+                      >
+                        <div>
+                          <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">
+                            {label}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{note}</p>
+                        </div>
+                        <button
+                          type="button"
+                          aria-label={`Copy ${label} demo value`}
+                          onClick={() => copyAuditValue(key)}
+                          className="inline-flex min-w-0 items-center justify-start gap-1 rounded-md border border-product-500/20 bg-background px-2 py-1.5 font-mono text-xs text-foreground"
+                        >
+                          <span className="truncate">{displayValue}</span>
+                          {copyState?.key === key && copyState.status === 'copied' ? (
+                            <CopyCheck className="size-3 shrink-0 text-product-500" />
+                          ) : (
+                            <Copy className="size-3 shrink-0" />
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
                   {copyState ? (
-                    <p className="mt-2 font-sans text-xs text-muted-foreground" role="status">
+                    <p className="mt-2 text-xs text-muted-foreground" role="status">
                       {copyState.status === 'copied' ? 'Copied.' : 'Copy unavailable.'}
                     </p>
                   ) : null}
+                </div>
+
+                <div className="mt-4 rounded-md border border-border bg-muted p-3 text-sm leading-6 text-muted-foreground">
+                  <div className="mb-2 flex items-start gap-2 text-foreground">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-secondary" />
+                    <p className="font-semibold">Public-demo safety boundary</p>
+                  </div>
+                  <ul className="grid gap-2">
+                    <li>
+                      No real candidate answer, customer prompt, or production model identifier.
+                    </li>
+                    <li>Fingerprints prove replay shape without exposing raw private records.</li>
+                    <li>
+                      Production grading packets remain access-controlled inside the customer audit
+                      trail.
+                    </li>
+                  </ul>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
