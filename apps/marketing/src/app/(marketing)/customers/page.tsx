@@ -13,7 +13,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Customers',
-  description: 'How our Day-0 cohort uses QOrium today, and where we go next.',
+  description:
+    'See how QOrium is dogfooded through Talpro India customer-zero hiring workflows before external customer stories are published with permission.',
   alternates: { canonical: '/customers' },
 };
 

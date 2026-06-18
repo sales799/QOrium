@@ -12,7 +12,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Changelog',
-  description: 'What we shipped, when. Append-only, grounded in commits and ratified docs.',
+  description:
+    'Follow QOrium product releases, site updates, governance milestones, content-library changes, and evidence-backed platform progress in one append-only changelog.',
   alternates: { canonical: '/changelog' },
 };
 

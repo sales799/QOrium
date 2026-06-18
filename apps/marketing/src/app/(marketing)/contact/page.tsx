@@ -12,7 +12,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Send us a note. We respond within one business day.',
+  description:
+    'Contact QOrium to discuss ReadyBank, JD-Forge, Stack-Vault, assessment content licensing, anti-leak workflows, and India-first skills hiring needs.',
   alternates: { canonical: '/contact' },
 };
 

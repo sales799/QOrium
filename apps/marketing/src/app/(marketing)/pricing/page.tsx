@@ -93,7 +93,7 @@ export default function PricingPage() {
       />
       <OfferCatalogJsonLd url={`${siteConfig.url}/pricing`} offers={pricingOffers} />
       <FAQPageJsonLd questions={phase4Faqs} />
-      <main>
+      <>
         <PageHero
           eyebrow="Pricing"
           title="Transparent INR pricing. Start free, scale when your volume is real."
@@ -117,7 +117,7 @@ export default function PricingPage() {
             ))}
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

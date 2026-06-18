@@ -64,7 +64,7 @@ export default async function SkillPage({ params }: Props) {
         url={`${siteConfig.url}/skill/${slug}`}
       />
       <FAQPageJsonLd questions={faq} />
-      <main>
+      <>
         <PageHero
           eyebrow={`${skill.category} assessment`}
           title={`QOrium ${skill.name} Assessment`}
@@ -104,7 +104,7 @@ export default async function SkillPage({ params }: Props) {
             Back to assessment library
           </Link>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

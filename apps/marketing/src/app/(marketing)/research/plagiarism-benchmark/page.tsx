@@ -47,7 +47,7 @@ export default function PlagiarismBenchmarkPage() {
         author="QOrium"
       />
       <FAQPageJsonLd questions={benchmarkFaqs} />
-      <main>
+      <>
         <PageHero
           eyebrow="Research protocol"
           title="AI plagiarism claims stay gated until the benchmark evidence is real."
@@ -119,7 +119,7 @@ export default function PlagiarismBenchmarkPage() {
             </p>
           </div>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

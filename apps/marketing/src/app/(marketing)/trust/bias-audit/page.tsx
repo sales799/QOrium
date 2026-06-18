@@ -33,7 +33,7 @@ export default function BiasAuditPage() {
         url={`${siteConfig.url}/trust/bias-audit`}
         type="WebPage"
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Trust / Bias audit"
           title="Our bias-audit methodology — published before the audit, not after."
@@ -103,7 +103,7 @@ export default function BiasAuditPage() {
           Draft fairness copy — pending counsel / NYAYA review. Statuses stay
           &ldquo;scheduled&rdquo;/&ldquo;in progress&rdquo; until real auditor letters exist.
         </p>
-      </main>
+      </>
     </>
   );
 }

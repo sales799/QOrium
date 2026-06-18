@@ -7,13 +7,14 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Resources',
-  description: 'QOrium hiring resources, guides, job descriptions, and assessment templates.',
+  description:
+    'Explore QOrium hiring resources, buyer guides, job-description templates, sample packs, API docs, glossary terms, and assessment workflow references.',
   alternates: { canonical: '/resources' },
 };
 
 export default function ResourcesPage() {
   return (
-    <main>
+    <>
       <WebPageJsonLd
         name="QOrium resources"
         description="Guides, job-description templates, and assessment resources from QOrium."
@@ -76,6 +77,6 @@ export default function ResourcesPage() {
           ))}
         </CardGrid>
       </SectionBand>
-    </main>
+    </>
   );
 }

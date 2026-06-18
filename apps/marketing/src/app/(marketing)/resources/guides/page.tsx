@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function GuidesIndexPage() {
   return (
-    <main>
+    <>
       <PageHero
         eyebrow="Guides"
         title="Practical guides for defensible skills-first hiring."
@@ -31,6 +31,6 @@ export default function GuidesIndexPage() {
           ))}
         </CardGrid>
       </SectionBand>
-    </main>
+    </>
   );
 }

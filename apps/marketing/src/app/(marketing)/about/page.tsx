@@ -15,7 +15,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'About',
-  description: "QOrium's mission, founder note, and why we're based in India.",
+  description:
+    "Read QOrium's mission, founder note, India-first assessment-content strategy, anti-leak operating model, and customer-zero proof posture.",
   alternates: { canonical: '/about' },
 };
 

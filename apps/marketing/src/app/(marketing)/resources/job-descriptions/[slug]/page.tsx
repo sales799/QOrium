@@ -67,7 +67,7 @@ export default async function JobDescriptionPage({ params }: Props) {
         author="QOrium"
       />
       <FAQPageJsonLd questions={phase4Faqs.slice(0, 2)} />
-      <main>
+      <>
         <PageHero
           eyebrow={`${job.family} role template`}
           title={`${job.title} Job Description`}
@@ -99,7 +99,7 @@ export default async function JobDescriptionPage({ params }: Props) {
             Back to job-description library
           </Link>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

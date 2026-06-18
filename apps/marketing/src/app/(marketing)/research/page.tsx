@@ -23,7 +23,7 @@ const RESEARCH_ENTRIES = [
 
 export default function ResearchIndexPage() {
   return (
-    <main>
+    <>
       <WebPageJsonLd
         name="QOrium research"
         description="The psychometric and IRT research behind QOrium assessments."
@@ -49,6 +49,6 @@ export default function ResearchIndexPage() {
           ))}
         </CardGrid>
       </SectionBand>
-    </main>
+    </>
   );
 }

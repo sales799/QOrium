@@ -64,7 +64,7 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
         description={skill.seoMeta.description}
         url={`${siteConfig.url}${skill.path}`}
       />
-      <main>
+      <>
         <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
           <MaxWidth as="div">
             <p className="font-mono text-xs font-semibold uppercase text-signal-300">
@@ -192,7 +192,7 @@ export default async function LibrarySkillPage({ params }: LibraryPageProps) {
             ]}
           />
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

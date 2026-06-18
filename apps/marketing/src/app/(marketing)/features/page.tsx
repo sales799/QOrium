@@ -13,7 +13,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Features',
-  description: 'Three SKUs, one library: ReadyBank, JD-Forge, Stack-Vault.',
+  description:
+    'Explore QOrium features across ReadyBank, JD-Forge, and Stack-Vault, including assessment content delivery, anti-leak rotation, and role-based hiring workflows.',
   alternates: { canonical: '/features' },
 };
 

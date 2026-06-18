@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!page) return {};
   return {
     title: `QOrium vs ${page.competitor}`,
-    description: `${page.summary} Review an honesty-led comparison with visible proof rules.`,
+    description: `${page.summary} Review an honesty-led comparison of assessment coverage, anti-leak posture, pricing signals, buyer fit, and visible proof rules.`,
     alternates: { canonical: page.path },
   };
 }
@@ -70,7 +70,7 @@ export default async function ComparePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(comparisonJsonLd) }}
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Comparison"
           title={`QOrium vs ${page.competitor}`}
@@ -148,7 +148,7 @@ export default async function ComparePage({ params }: Props) {
         <SectionBand title="Source note">
           <SurfaceCard title="Claim discipline">{page.sourceNote}</SurfaceCard>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

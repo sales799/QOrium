@@ -59,7 +59,7 @@ export default async function RolePage({ params }: Props) {
         description={role.description}
         url={`${siteConfig.url}${role.path}`}
       />
-      <main>
+      <>
         <PageHero
           eyebrow={`${role.family} role`}
           title={`${role.name} hiring, with evidence your client can trust.`}
@@ -161,7 +161,7 @@ export default async function RolePage({ params }: Props) {
             ]}
           />
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

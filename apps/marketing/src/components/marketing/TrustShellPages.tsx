@@ -163,8 +163,8 @@ function ControlTable({ page }: { page: TrustPageContent }) {
   const hasFlags = page.rows.some((row) => Boolean(row.flag));
 
   return (
-    <section id="ledger" className="scroll-mt-24">
-      <Reveal>
+    <section id="ledger" className="min-w-0 scroll-mt-24">
+      <Reveal className="min-w-0">
         <div className="mb-6 max-w-3xl">
           <p className="font-mono text-xs font-semibold uppercase text-secondary">
             Evidence ledger
@@ -173,7 +173,7 @@ function ControlTable({ page }: { page: TrustPageContent }) {
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{page.rowsDescription}</p>
         </div>
       </Reveal>
-      <Reveal delay={0.08}>
+      <Reveal delay={0.08} className="min-w-0">
         <div className="max-w-full overflow-x-auto rounded-lg border border-border bg-card">
           <table className="w-full min-w-[56rem] text-left text-sm">
             <thead className="bg-muted">
@@ -249,7 +249,7 @@ function ControlTable({ page }: { page: TrustPageContent }) {
 
 function DetailSections({ page }: { page: TrustPageContent }) {
   return (
-    <section id="details" className="scroll-mt-24">
+    <section id="details" className="min-w-0 scroll-mt-24">
       <Stagger className="grid gap-4 md:grid-cols-3">
         {page.sections.map((section) => (
           <StaggerItem key={section.id}>
@@ -274,7 +274,10 @@ function DetailSections({ page }: { page: TrustPageContent }) {
 
 function CitationStrip({ citations }: { citations: readonly Citation[] }) {
   return (
-    <section id="sources" className="scroll-mt-24 rounded-lg border border-border bg-muted p-5">
+    <section
+      id="sources"
+      className="min-w-0 scroll-mt-24 rounded-lg border border-border bg-muted p-5"
+    >
       <p className="font-mono text-xs font-semibold uppercase text-muted-foreground">Sources</p>
       <ol className="mt-4 grid gap-3">
         {citations.map((citation, index) => (
@@ -377,7 +380,7 @@ export function TrustDetailPage({ page }: { page: TrustPageContent }) {
         <MaxWidth as="div" className="grid gap-8 lg:grid-cols-[17rem_1fr]">
           <TrustRail active={page.slug} />
           <div className="grid min-w-0 gap-12">
-            <Reveal>
+            <Reveal className="min-w-0">
               <div className="grid gap-4 rounded-lg border border-border bg-card p-5 md:grid-cols-[auto_1fr_auto] md:items-center">
                 <span
                   className="inline-flex size-12 items-center justify-center rounded-md border border-secondary/35 bg-signal-100 text-signal-700"

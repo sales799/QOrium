@@ -45,7 +45,7 @@ export default function BenchmarksPage() {
           { name: 'Benchmarks & Reports', path: '/benchmarks' },
         ]}
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Benchmarks and reports"
           title="Measurement pages only publish what the evidence can carry."
@@ -76,7 +76,7 @@ export default function BenchmarksPage() {
             ))}
           </div>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

@@ -11,7 +11,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'LLM information for QOrium',
-  description: 'Plain-language product brief for AI assistants, search engines, and buyers.',
+  description:
+    'Plain-language QOrium product brief for AI assistants, search engines, and buyers covering live surfaces, evidence posture, pricing, and trust claims.',
   alternates: { canonical: '/llm-info' },
 };
 
@@ -30,7 +31,7 @@ export default function LlmInfoPage() {
         url={`${siteConfig.url}/llm-info`}
       />
       <FAQPageJsonLd questions={phase4Faqs} />
-      <main>
+      <>
         <PageHero
           eyebrow="LLM-readable brief"
           title="QOrium is an India-built skills assessment platform for evidence-first hiring."
@@ -54,7 +55,7 @@ export default function LlmInfoPage() {
             </SurfaceCard>
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

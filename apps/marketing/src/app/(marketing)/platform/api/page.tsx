@@ -30,7 +30,7 @@ export default function PlatformApiPage() {
         ]}
       />
       <FAQPageJsonLd questions={phase4Faqs.slice(0, 2)} />
-      <main>
+      <>
         <PageHero
           eyebrow="Platform API"
           title="QOrium API docs are in beta."
@@ -108,7 +108,7 @@ export default function PlatformApiPage() {
             ]}
           />
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

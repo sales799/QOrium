@@ -5,7 +5,7 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Cookie Policy',
-  description: `Cookie Policy for ${siteConfig.name}.`,
+  description: `${siteConfig.name} cookie policy explaining the privacy-first analytics posture, cookie-free Plausible measurement, preferences, and contact process.`,
   alternates: { canonical: '/cookie-policy' },
 };
 

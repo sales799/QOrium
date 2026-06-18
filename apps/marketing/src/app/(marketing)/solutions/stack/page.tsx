@@ -39,7 +39,7 @@ export default function StackHubPage() {
           description: stack.description,
         }))}
       />
-      <main>
+      <>
         <PageHero
           eyebrow="India-stack solutions"
           title="Enterprise stacks generic libraries miss"
@@ -55,7 +55,7 @@ export default function StackHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

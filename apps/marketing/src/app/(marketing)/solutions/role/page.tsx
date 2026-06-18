@@ -38,7 +38,7 @@ export default function RoleHubPage() {
           description: role.description,
         }))}
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Role solutions"
           title="Assessment batteries by hiring role"
@@ -54,7 +54,7 @@ export default function RoleHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

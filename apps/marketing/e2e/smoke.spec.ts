@@ -137,6 +137,39 @@ test.describe('Critical-route smoke', () => {
     );
   });
 
+  test('/sitemap templates — render one main landmark without mobile overflow', async ({
+    page,
+  }) => {
+    const routes = [
+      '/compare/qorium-vs-hackerrank',
+      '/library/java',
+      '/resources/job-descriptions/java-developer',
+      '/solutions/role/java-developer',
+      '/solutions/stack/java',
+      '/solutions/by-industry/bfsi',
+      '/solutions/by-use-case/high-volume-hiring',
+      '/pricing',
+    ];
+
+    for (const route of routes) {
+      await page.goto(route);
+      await expect
+        .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
+        .toBe(1);
+      await expect(page.locator('h1')).toHaveCount(1);
+    }
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/anti-leak');
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        ),
+      )
+      .toBeLessThanOrEqual(2);
+  });
+
   test('/try/jd-forge — generates plan and queues email-gated PDF', async ({ page }) => {
     await page.goto('/try/jd-forge');
 

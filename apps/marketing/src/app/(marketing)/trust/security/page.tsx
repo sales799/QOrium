@@ -33,7 +33,7 @@ export default function TrustSecurityPage() {
         url={`${siteConfig.url}/trust/security`}
         type="WebPage"
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Trust / Security"
           title="Candidate data is stored in India (Mumbai region)."
@@ -101,7 +101,7 @@ export default function TrustSecurityPage() {
             </SurfaceCard>
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

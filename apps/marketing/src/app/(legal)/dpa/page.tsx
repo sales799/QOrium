@@ -4,7 +4,7 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Data Processing Addendum',
-  description: `Data Processing Addendum for ${siteConfig.name}.`,
+  description: `${siteConfig.name} data processing terms covering controller and processor roles, security measures, sub-processors, data subject requests, and breach notice commitments.`,
   alternates: { canonical: '/dpa' },
 };
 

@@ -38,7 +38,7 @@ export default function LibraryHubPage() {
           description: skill.seoMeta.description,
         }))}
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Assessment library"
           title="Skill pages with calibration shown in public"
@@ -67,7 +67,7 @@ export default function LibraryHubPage() {
             ))}
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

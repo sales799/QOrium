@@ -18,7 +18,7 @@ export async function generateSolutionMetadata({ params }: Props): Promise<Metad
   if (!page) return {};
   return {
     title: page.title,
-    description: page.audience,
+    description: `${page.audience} QOrium connects role evidence, assessment content, shortlist workflows, and audit-ready hiring decisions for this segment.`,
     alternates: { canonical: `/solutions/${page.axis}/${page.slug}` },
   };
 }
@@ -37,7 +37,7 @@ export default async function SolutionDetailPage({ params }: Props) {
         ]}
       />
       <FAQPageJsonLd questions={phase4Faqs.slice(0, 2)} />
-      <main>
+      <>
         <PageHero
           eyebrow="Solution"
           title={page.title}
@@ -54,7 +54,7 @@ export default async function SolutionDetailPage({ params }: Props) {
             ))}
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

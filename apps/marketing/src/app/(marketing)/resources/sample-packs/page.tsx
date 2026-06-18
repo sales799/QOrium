@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function SamplePacksPage() {
   return (
-    <main>
+    <>
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <FadeIn>
@@ -38,6 +38,6 @@ export default function SamplePacksPage() {
           </Reveal>
         </MaxWidth>
       </section>
-    </main>
+    </>
   );
 }

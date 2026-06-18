@@ -5,13 +5,14 @@ import { jobDescriptions, slugify } from '@/content/phase4';
 
 export const metadata: Metadata = {
   title: 'Job Description Library',
-  description: 'QOrium role templates with skills checklists and assessment links.',
+  description:
+    'Browse QOrium job-description templates that connect role responsibilities, required skills, seniority, and next-step assessment paths for hiring teams.',
   alternates: { canonical: '/resources/job-descriptions' },
 };
 
 export default function JobDescriptionsIndexPage() {
   return (
-    <main>
+    <>
       <PageHero
         eyebrow="Job-description library"
         title="Role templates that connect job requirements to skills assessments."
@@ -30,6 +31,6 @@ export default function JobDescriptionsIndexPage() {
           ))}
         </CardGrid>
       </SectionBand>
-    </main>
+    </>
   );
 }

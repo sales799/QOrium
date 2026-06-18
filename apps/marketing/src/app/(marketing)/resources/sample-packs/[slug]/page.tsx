@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: SamplePackPageProps): Promise
 
   return {
     title: pack.title,
-    description: pack.summary,
+    description: `${pack.summary} Preview QOrium sample items, calibration posture, role mapping, and buyer unlock paths for ${pack.role}.`,
     alternates: { canonical: `/resources/sample-packs/${pack.slug}` },
   };
 }
@@ -33,7 +33,7 @@ export default async function SamplePackDetailPage({ params }: SamplePackPagePro
   if (!pack) notFound();
 
   return (
-    <main>
+    <>
       <section className="surface-shell evidence-ledger border-b border-white/10 py-16 md:py-20">
         <MaxWidth as="div">
           <FadeIn>
@@ -54,6 +54,6 @@ export default async function SamplePackDetailPage({ params }: SamplePackPagePro
           </Reveal>
         </MaxWidth>
       </section>
-    </main>
+    </>
   );
 }

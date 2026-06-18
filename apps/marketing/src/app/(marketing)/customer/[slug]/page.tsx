@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (slug !== 'talpro-india') return {};
   return {
     title: 'Talpro India Customer Story',
-    description: 'Customer-zero story for QOrium and Talpro India.',
+    description:
+      'Read how Talpro India uses QOrium as the customer-zero workflow for evidence-first skills hiring, with quantified claims held until instrumentation is live.',
     alternates: { canonical: '/customer/talpro-india' },
   };
 }
@@ -40,7 +41,7 @@ export default async function CustomerStoryPage({ params }: Props) {
         datePublished="2026-05-31"
         author="QOrium"
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Customer zero"
           title="Talpro India is the founding customer-zero for QOrium."
@@ -56,7 +57,7 @@ export default async function CustomerStoryPage({ params }: Props) {
             ]}
           />
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

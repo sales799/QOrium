@@ -67,7 +67,7 @@ export default function SubProcessorsPage() {
         url={`${siteConfig.url}/trust/sub-processors`}
         type="WebPage"
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Trust / Sub-processors"
           title="The third parties that process data on our behalf."
@@ -96,7 +96,7 @@ export default function SubProcessorsPage() {
           bhaskar@talpro.in. We update this list before onboarding a new processor that touches
           personal data.
         </p>
-      </main>
+      </>
     </>
   );
 }

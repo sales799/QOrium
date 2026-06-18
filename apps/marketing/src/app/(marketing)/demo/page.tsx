@@ -15,7 +15,8 @@ const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL ?? '';
 
 export const metadata: Metadata = {
   title: 'Book a demo',
-  description: 'A 30-minute walk-through of the platform, the three SKUs, and one of your JDs.',
+  description:
+    'Book a QOrium demo to walk through ReadyBank, JD-Forge, Stack-Vault, pricing, API delivery, and live assessment-plan generation from one of your JDs.',
   alternates: { canonical: '/demo' },
 };
 

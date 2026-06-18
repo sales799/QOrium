@@ -73,7 +73,7 @@ export default function GlossaryPage() {
           description: item.definition,
         }))}
       />
-      <main>
+      <>
         <PageHero
           eyebrow="Glossary"
           title="Assessment terms without vendor fog."
@@ -94,7 +94,7 @@ export default function GlossaryPage() {
             ))}
           </CardGrid>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

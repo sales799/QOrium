@@ -9,7 +9,8 @@ import { FadeIn } from '@/components/motion/FadeIn';
 
 export const metadata: Metadata = {
   title: 'Sign in',
-  description: 'Workspace access for QOrium customers and pilots.',
+  description:
+    'Access QOrium customer and pilot workspaces through secure onboarding links, account-owner support, and private workspace walkthrough paths.',
   alternates: { canonical: '/signin' },
 };
 

@@ -14,7 +14,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Press kit',
-  description: 'Brand assets, boilerplate, founder note. Everything you need to mention us.',
+  description:
+    'Download QOrium brand assets, boilerplate, founder notes, media contact details, and product positioning for enterprise Question-Bank-as-a-Service coverage.',
   alternates: { canonical: '/press-kit' },
 };
 

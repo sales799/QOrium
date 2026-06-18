@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!guide) return {};
   return {
     title: guide.title,
-    description: guide.summary,
+    description: `${guide.summary} QOrium connects role evidence, scoring rubrics, DPDP-aware audit trails, and buyer-ready skills assessment workflows.`,
     alternates: { canonical: `/resources/guides/${slug}` },
   };
 }
@@ -44,7 +44,7 @@ export default async function GuidePage({ params }: Props) {
         author="QOrium"
       />
       <FAQPageJsonLd questions={phase4Faqs.slice(0, 2)} />
-      <main>
+      <>
         <PageHero
           eyebrow="Guide"
           title={guide.title}
@@ -63,7 +63,7 @@ export default async function GuidePage({ params }: Props) {
             </p>
           </div>
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

@@ -58,7 +58,7 @@ export default async function StackPage({ params }: Props) {
         description={stack.description}
         url={`${siteConfig.url}${stack.path}`}
       />
-      <main>
+      <>
         <PageHero
           eyebrow={`${stack.vendor} stack`}
           title={`${stack.name} assessment modules for real enterprise work.`}
@@ -149,7 +149,7 @@ export default async function StackPage({ params }: Props) {
             ]}
           />
         </SectionBand>
-      </main>
+      </>
     </>
   );
 }

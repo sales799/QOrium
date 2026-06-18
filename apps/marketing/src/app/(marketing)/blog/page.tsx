@@ -13,7 +13,8 @@ import { siteConfig } from '@/content/site.config';
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'Field notes from building the assessment-content layer.',
+  description:
+    'Field notes from QOrium on skills assessments, anti-leak question banks, role graphs, calibration, staffing workflows, and defensible hiring evidence.',
   alternates: { canonical: '/blog' },
 };
 
