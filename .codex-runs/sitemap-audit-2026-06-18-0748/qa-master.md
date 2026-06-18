@@ -48,4 +48,6 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 - Marketing production build: PASS.
 - Focused Playwright `/try/jd-forge`: PASS.
 - Desktop/mobile visual audit: PASS, no overflow, one `<main>`, one H1, no console errors.
-- Deployment verification: pending.
+- Lower proof-section contrast follow-up: PASS after focused page polish and after-wait visual verification.
+- GitHub Actions deployment run `27737497276`: PASS.
+- Live production Playwright: PASS for `https://qorium.online/try/jd-forge`, including job-title research, Network Engineer custom JD, OpenText xPression custom JD, email-gated PDF queue, sanitized evidence copy, canonical/meta checks, desktop/mobile overflow, and console/page-error checks.

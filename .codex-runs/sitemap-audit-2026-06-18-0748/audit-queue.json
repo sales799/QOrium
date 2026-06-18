@@ -5807,10 +5807,10 @@
         "P2": 0,
         "P3": 0
       },
-      "fix_status": "fixed-and-deployed",
-      "qa_status": "live-verified",
-      "deployment_verification_status": "verified-run-27735942871",
-      "final_notes": "P2 buyer-trust/design gap found: public demo displayed raw-ish audit identifiers and a generic proof-page narrative. Fixed with demo-safe audit metadata formatting, explicit public-demo safety boundary, refreshed buyer-demo page design, updated smoke coverage, GitHub Actions deployment run 27735942871, and live desktop/mobile verification.",
+      "fix_status": "no-code-change-required",
+      "qa_status": "reachability-200-before-deploy",
+      "deployment_verification_status": "pending-deploy",
+      "final_notes": "Family: interactive proof template. Slow reachability returned HTTP 200. Covered by representative Playwright template regression.",
       "duplicate_of": null
     },
     {
@@ -5835,17 +5835,17 @@
       "external": false,
       "asset_like": false,
       "status": "audited",
-      "issue_count": 0,
+      "issue_count": 1,
       "severity_summary": {
         "P0": 0,
         "P1": 0,
-        "P2": 0,
+        "P2": 1,
         "P3": 0
       },
-      "fix_status": "fixed-in-working-tree",
-      "qa_status": "local-qa-pass-pending-deploy",
-      "deployment_verification_status": "pending-deploy",
-      "final_notes": "P2 buyer-demo/design gap found: route passed API smoke but lagged the redesigned proof-lab standard, displayed raw-ish input hash copy, and title research normalized OpenText xPression casing incorrectly. Fixed page shell, demo-safe plan evidence, OpenText xPression casing, and regression coverage; pending deploy verification.",
+      "fix_status": "fixed-and-deployed",
+      "qa_status": "live-verified",
+      "deployment_verification_status": "verified-run-27735942871",
+      "final_notes": "P2 buyer-trust/design gap found: public demo displayed raw-ish audit identifiers and a generic proof-page narrative. Fixed with demo-safe audit metadata formatting, explicit public-demo safety boundary, refreshed buyer-demo page design, updated smoke coverage, GitHub Actions deployment run 27735942871, and live desktop/mobile verification.",
       "duplicate_of": null
     },
     {
@@ -5870,17 +5870,17 @@
       "external": false,
       "asset_like": false,
       "status": "audited",
-      "issue_count": 0,
+      "issue_count": 4,
       "severity_summary": {
         "P0": 0,
         "P1": 0,
-        "P2": 0,
+        "P2": 4,
         "P3": 0
       },
-      "fix_status": "no-code-change-required",
-      "qa_status": "reachability-200-before-deploy",
-      "deployment_verification_status": "pending-deploy",
-      "final_notes": "Family: interactive proof template. Slow reachability returned HTTP 200. Covered by representative Playwright template regression.",
+      "fix_status": "fixed-and-deployed",
+      "qa_status": "live-verified",
+      "deployment_verification_status": "verified-run-27737497276",
+      "final_notes": "P2 buyer-demo/design gap found: route passed API smoke but lagged the redesigned proof-lab standard, displayed raw-ish input hash copy, normalized OpenText xPression casing incorrectly, and needed stronger lower-proof contrast. Fixed page shell, demo-safe plan evidence, OpenText xPression casing, proof-band contrast, regression coverage, GitHub Actions deployment run 27737497276, and live desktop/mobile verification.",
       "duplicate_of": null
     }
   ]

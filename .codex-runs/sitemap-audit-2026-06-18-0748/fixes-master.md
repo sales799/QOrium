@@ -13,7 +13,7 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 - Expanded safe public metadata descriptions across static pages and metadata generators for compare, guide, sample-pack, solution, legal, customer, and resource pages.
 - Added Playwright regression coverage for representative generated sitemap families, the trust mobile overflow case, and no-JavaScript HTML landmark behavior.
 - Rebuilt `/try/graded-answer` as a buyer-ready audit demo with demo-safe metadata formatting, explicit public-demo safety boundaries, structured SEO data, and smoke assertions preventing raw demo grader/timestamp leakage.
-- Rebuilt `/try/jd-forge` as a buyer-ready proof lab, added demo-safe plan evidence copy, preserved OpenText xPression casing in title research, and added regression coverage for custom JD/title flows.
+- Rebuilt `/try/jd-forge` as a buyer-ready proof lab, added demo-safe plan evidence copy, preserved OpenText xPression casing in title research, tightened lower proof-section contrast, and added regression coverage for custom JD/title flows.
 
 ## Files Touched
 
