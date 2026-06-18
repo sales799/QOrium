@@ -1,19 +1,19 @@
 'use client';
 
 import * as React from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
 import { CircleCheck, CircleAlert, Calendar } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { submitDemo, type DemoResult } from '@/actions/demo';
+import {
+  initialLeadFormState,
+  submitLeadCaptureForm,
+  type LeadFormState,
+} from '@/components/site/lead-form-submit';
 
-const initialState: DemoResult = { ok: false, message: '' };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" variant="primary" disabled={pending} className="w-full">
       <Calendar className="size-4" />
@@ -23,10 +23,38 @@ function SubmitButton() {
 }
 
 export function DemoForm() {
-  const [state, formAction] = useFormState(submitDemo, initialState);
+  const [state, setState] = React.useState<LeadFormState>(initialLeadFormState);
+  const [pending, setPending] = React.useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) {
+      return;
+    }
+
+    const form = event.currentTarget;
+    setPending(true);
+    setState(initialLeadFormState);
+
+    try {
+      const result = await submitLeadCaptureForm('demo', form);
+      setState(result);
+      if (result.ok) {
+        form.reset();
+      }
+    } catch {
+      setState({
+        ok: false,
+        message: 'Could not send the form right now. Please email us directly.',
+      });
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="grid gap-5">
+    <form action="/api/lead-capture" method="post" onSubmit={handleSubmit} className="grid gap-5">
+      <input type="hidden" name="intent" value="demo" />
       <input
         type="text"
         name="website"
@@ -100,7 +128,7 @@ export function DemoForm() {
         />
       </div>
 
-      <SubmitButton />
+      <SubmitButton pending={pending} />
 
       {state.message ? (
         <p
