@@ -67,7 +67,7 @@ jobs:
         # first so cross-workspace types resolve. The marketing app does
         # not produce dist/ during build but its `next build` is heavier;
         # we run only declaration-emit for non-marketing here.
-        run: pnpm --filter '!@qorium/marketing' -r --workspace-concurrency=1 --if-present run build
+        run: pnpm run build:packages
       - name: TypeScript compiler
         run: pnpm typecheck
 
@@ -118,7 +118,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - name: Build workspace declarations
-        run: pnpm --filter '!@qorium/marketing' -r --workspace-concurrency=1 --if-present run build
+        run: pnpm run build:packages
       - name: Run database migrations (best-effort)
         run: pnpm --filter @qorium/db migrate:up || echo "migrations skipped"
         continue-on-error: true
