@@ -207,7 +207,7 @@ export default function TryJdForgePage() {
         </MaxWidth>
       </section>
 
-      <section className="surface-product border-t border-border py-16 md:py-20">
+      <section className="border-t border-border bg-background py-16 md:py-20">
         <MaxWidth as="div">
           <Reveal>
             <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
@@ -215,7 +215,7 @@ export default function TryJdForgePage() {
                 <p className="font-mono text-xs font-semibold uppercase text-secondary">
                   What this proves
                 </p>
-                <h2 className="mt-3 text-3xl font-semibold md:text-5xl">
+                <h2 className="mt-3 text-3xl font-semibold text-foreground md:text-5xl">
                   JD-specific tests need visible reasoning, not magic.
                 </h2>
                 <p className="mt-4 text-base leading-7 text-muted-foreground">
@@ -237,7 +237,7 @@ export default function TryJdForgePage() {
                           </span>
                           <Icon className="size-5 text-secondary" />
                         </div>
-                        <h3 className="mt-5 text-lg font-semibold">{step.title}</h3>
+                        <h3 className="mt-5 text-lg font-semibold text-foreground">{step.title}</h3>
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
                       </article>
                     </StaggerItem>
