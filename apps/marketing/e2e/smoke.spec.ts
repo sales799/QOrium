@@ -112,13 +112,16 @@ test.describe('Critical-route smoke', () => {
     await page.goto('/try');
 
     await expect(
-      page.getByRole('heading', { name: /try qorium proof surfaces before a sales call/i }),
+      page.getByRole('heading', { name: /try the qorium proof chain before the buyer call/i }),
     ).toBeVisible();
-    await expect(page.locator('body')).toContainText(/Interactive proof hub/);
-    await expect(page.locator('body')).toContainText(/Choose a proof surface/);
+    await expect(page.locator('body')).toContainText(/Public proof lab/);
+    await expect(page.locator('body')).toContainText(/Buyer validation path/);
+    await expect(page.locator('body')).toContainText(/Choose a proof lab/);
+    await expect(page.locator('body')).toContainText(/Two ways to test the promise/);
     await expect(page.locator('body')).toContainText(/JD-Forge/);
     await expect(page.locator('body')).toContainText(/Graded Answer Viewer/);
     await expect(page.locator('body')).toContainText(/No candidate PII required/);
+    await expect(page.locator('body')).toContainText(/Bring your own JD/);
     await expect
       .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
       .toBe(1);
