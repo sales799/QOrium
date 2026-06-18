@@ -13,6 +13,9 @@ import { siteConfig } from '@/content/site.config';
 
 const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL ?? '';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Book a demo',
   description: 'A 30-minute walk-through of the platform, the three SKUs, and one of your JDs.',
