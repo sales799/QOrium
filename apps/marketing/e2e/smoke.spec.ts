@@ -108,10 +108,42 @@ test.describe('Critical-route smoke', () => {
     await expect(honeypot).toHaveCount(1);
   });
 
+  test('/try — proof hub matches buyer-demo standard', async ({ page }) => {
+    await page.goto('/try');
+
+    await expect(
+      page.getByRole('heading', { name: /try qorium proof surfaces before a sales call/i }),
+    ).toBeVisible();
+    await expect(page.locator('body')).toContainText(/Interactive proof hub/);
+    await expect(page.locator('body')).toContainText(/Choose a proof surface/);
+    await expect(page.locator('body')).toContainText(/JD-Forge/);
+    await expect(page.locator('body')).toContainText(/Graded Answer Viewer/);
+    await expect(page.locator('body')).toContainText(/No candidate PII required/);
+    await expect
+      .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
+      .toBe(1);
+
+    await expect(page.getByRole('link', { name: /Build an assessment plan/i })).toHaveAttribute(
+      'href',
+      /\/try\/jd-forge/,
+    );
+    await expect(page.getByRole('link', { name: /Audit a graded answer/i })).toHaveAttribute(
+      'href',
+      /\/try\/graded-answer/,
+    );
+    await expect(page.getByRole('link', { name: /Book a demo/i }).last()).toHaveAttribute(
+      'href',
+      /\/demo/,
+    );
+  });
+
   test('/try/jd-forge — generates plan and queues email-gated PDF', async ({ page }) => {
     await page.goto('/try/jd-forge');
 
     await expect(page.getByRole('heading', { name: /Enter a role/i })).toBeVisible();
+    await expect
+      .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
+      .toBe(1);
     await page.getByLabel('Job title').fill('AI Product Manager');
     await expect(page.locator('body')).toContainText(/Draft changed/i);
 
