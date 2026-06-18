@@ -1,5 +1,7 @@
 import { isIP } from 'node:net';
-import { createPool, type Pool } from '@qorium/db';
+import pg from 'pg';
+
+const { Pool } = pg;
 
 export type MarketingLeadSource = 'demo' | 'contact';
 
@@ -40,7 +42,7 @@ export interface CaptureMarketingLeadResult {
   error?: string;
 }
 
-let leadCapturePool: Pool | null | undefined;
+let leadCapturePool: pg.Pool | null | undefined;
 
 function cleanOptional(value: string | undefined): string | null {
   const cleaned = value?.trim();
@@ -66,19 +68,40 @@ function hasDatabaseConfig(env: NodeJS.ProcessEnv = process.env): boolean {
   );
 }
 
+function resolveDatabaseUrl(env: NodeJS.ProcessEnv = process.env): string {
+  if (env.DATABASE_URL) {
+    return env.DATABASE_URL;
+  }
+
+  const host = env.POSTGRES_HOST;
+  const port = env.POSTGRES_PORT;
+  const user = env.POSTGRES_USER;
+  const password = env.POSTGRES_PASSWORD;
+  const database = env.POSTGRES_DB;
+
+  if (!host || !port || !user || !password || !database) {
+    throw new Error('Marketing lead capture database is not configured.');
+  }
+
+  return `postgresql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
+}
+
 function isLeadCaptureRequired(env: NodeJS.ProcessEnv = process.env): boolean {
   return env.QORIUM_LEAD_CAPTURE_REQUIRED === 'true' || env.NODE_ENV === 'production';
 }
 
-function getLeadCapturePool(): Pool | null {
+function getLeadCapturePool(): pg.Pool | null {
   if (!hasDatabaseConfig()) {
     return null;
   }
 
   if (leadCapturePool === undefined) {
-    leadCapturePool = createPool({
-      applicationName: 'qorium-marketing-lead-capture',
+    leadCapturePool = new Pool({
+      connectionString: resolveDatabaseUrl(),
       max: 3,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 5_000,
+      application_name: 'qorium-marketing-lead-capture',
     });
   }
 
