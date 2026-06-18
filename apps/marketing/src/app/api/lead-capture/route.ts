@@ -28,20 +28,35 @@ function json(result: LeadSubmissionResult, status = responseStatus(result)) {
   return NextResponse.json(result, { status, headers: noStoreHeaders });
 }
 
+function normalizeServerActionFields(raw: Record<string, unknown>): Record<string, unknown> {
+  const normalized = { ...raw };
+
+  for (const [key, value] of Object.entries(raw)) {
+    const match = /^_\d+_(.+)$/.exec(key);
+    if (match?.[1] && normalized[match[1]] === undefined) {
+      normalized[match[1]] = value;
+    }
+  }
+
+  return normalized;
+}
+
 export async function POST(request: Request) {
   let raw: Record<string, unknown>;
 
   try {
-    raw = Object.fromEntries((await request.formData()).entries());
+    raw = normalizeServerActionFields(Object.fromEntries((await request.formData()).entries()));
   } catch {
     return json({ ok: false, message: 'Could not read the form submission.' }, 400);
   }
 
-  if (raw.intent === 'demo') {
+  const intent = raw.intent ?? new URL(request.url).searchParams.get('intent');
+
+  if (intent === 'demo') {
     return json(await submitDemoLead(raw, { headers: request.headers }));
   }
 
-  if (raw.intent === 'contact') {
+  if (intent === 'contact') {
     return json(await submitContactLead(raw, { headers: request.headers }));
   }
 

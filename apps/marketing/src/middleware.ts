@@ -56,6 +56,14 @@ export function middleware(request: NextRequest) {
     );
   }
 
+  const staleLeadCaptureRewrite = leadCaptureRewrite(request);
+  if (staleLeadCaptureRewrite) {
+    for (const [key, value] of Object.entries(rateLimitHeaders(rateLimit))) {
+      staleLeadCaptureRewrite.headers.set(key, value);
+    }
+    return staleLeadCaptureRewrite;
+  }
+
   const response = NextResponse.next();
   for (const [key, value] of Object.entries(rateLimitHeaders(rateLimit))) {
     response.headers.set(key, value);
@@ -101,6 +109,28 @@ function clientKey(request: NextRequest): string {
   const realIp = request.headers.get('x-real-ip')?.trim();
   const cfIp = request.headers.get('cf-connecting-ip')?.trim();
   return cfIp || forwardedFor || realIp || 'unknown';
+}
+
+function leadCaptureRewrite(request: NextRequest): NextResponse | null {
+  if (request.method !== 'POST') {
+    return null;
+  }
+
+  const intent =
+    request.nextUrl.pathname === '/demo'
+      ? 'demo'
+      : request.nextUrl.pathname === '/contact'
+        ? 'contact'
+        : null;
+
+  if (!intent) {
+    return null;
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = '/api/lead-capture';
+  url.searchParams.set('intent', intent);
+  return NextResponse.rewrite(url);
 }
 
 function rateLimitHeaders(limit: ReturnType<typeof checkRateLimit>) {
