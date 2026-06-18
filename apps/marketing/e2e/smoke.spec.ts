@@ -159,10 +159,16 @@ test.describe('Critical-route smoke', () => {
   test('/try/graded-answer — shows rubric audit trail and records feedback', async ({ page }) => {
     await page.goto('/try/graded-answer');
 
-    await expect(page.getByRole('heading', { name: /rubric, the score/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /audit ai grading/i })).toBeVisible();
+    await expect(page.locator('body')).toContainText(/Live audit packet/);
+    await expect(page.locator('body')).toContainText(/Synthetic public sample/);
+    await expect(page.locator('body')).toContainText(/What this proves/);
     await expect(page.locator('body')).toContainText(/Rubric release/);
     await expect(page.locator('body')).toContainText(/Prompt fingerprint/);
     await expect(page.locator('body')).not.toContainText(/audit-fixture/);
+    await expect
+      .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
+      .toBe(1);
 
     await page.getByRole('button', { name: /^Yes$/i }).click();
     await expect(page.locator('body')).toContainText(/Recorded/);
