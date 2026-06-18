@@ -5807,10 +5807,10 @@
         "P2": 0,
         "P3": 0
       },
-      "fix_status": "fixed-in-working-tree",
-      "qa_status": "local-qa-pass-pending-deploy",
-      "deployment_verification_status": "pending-deploy",
-      "final_notes": "P2 buyer-trust/design gap found: public demo displayed raw-ish audit identifiers and a generic proof-page narrative. Fixed with demo-safe audit metadata formatting, explicit public-demo safety boundary, refreshed buyer-demo page design, updated smoke coverage, and local QA/build pass; pending deploy verification.",
+      "fix_status": "fixed-and-deployed",
+      "qa_status": "live-verified",
+      "deployment_verification_status": "verified-run-27735942871",
+      "final_notes": "P2 buyer-trust/design gap found: public demo displayed raw-ish audit identifiers and a generic proof-page narrative. Fixed with demo-safe audit metadata formatting, explicit public-demo safety boundary, refreshed buyer-demo page design, updated smoke coverage, GitHub Actions deployment run 27735942871, and live desktop/mobile verification.",
       "duplicate_of": null
     },
     {

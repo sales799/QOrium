@@ -36,8 +36,10 @@ Slow reachability before deploy: HTTP 200 (154ms)
 - Accessibility sanity: PASS one `<main>`, one H1, semantic sections, keyboard-safe buttons/links
 - SEO sanity: PASS route metadata + canonical + WebPage/Breadcrumb JSON-LD
 - Local typecheck/lint/test/build: PASS
-- Deployment verification: pending
+- Deployment verification: PASS
+- GitHub Actions deploy: PASS, run `27735942871`, commit `8fc2a04`
+- Live production Playwright: PASS, desktop + mobile against `https://qorium.online/try/graded-answer`
 
 ## Notes
 
-Family: interactive proof template. Slow reachability returned HTTP 200. This item now has a focused code fix and must be live-verified after deployment.
+Family: interactive proof template. Slow reachability returned HTTP 200. Focused code fix is committed, deployed, and live-verified.
