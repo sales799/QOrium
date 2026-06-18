@@ -11,13 +11,14 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 - Marketing typecheck after final sweep: PASS.
 - Marketing lint after final sweep: PASS, with known Next.js deprecation/workspace-root warnings only.
 - Marketing build after final sweep: PASS; 237 marketing routes prerendered.
-- Targeted Playwright after final sweep: PASS, 4/4 for `sitemap templates|/try`.
+- Targeted Playwright after final sweep: PASS, 5/5 for `sitemap templates|/try`, including no-JavaScript landmark regression.
 - Root typecheck: PASS.
 - Root tests: PASS.
 - Root lint: PASS, with 19 pre-existing console warnings outside this change.
 - Secret scan: PASS; no leaks found.
 - Production dependency audit at high threshold: PASS; 3 moderate vulnerabilities remain as non-blocking dependency warnings.
 - Root production build: PASS.
+- Post-deploy verification of commit `243f8ee`: deployment succeeded, but no-JavaScript live HTML still exposed duplicate main landmarks from `loading.tsx`; second fix prepared and local gates rerun.
 
 ## Pending Quality Gates
 

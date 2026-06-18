@@ -8,9 +8,10 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 
 - Removed nested page-level `<main>` wrappers from marketing pages and generated templates so the layout owns the only main landmark.
 - Replaced the remaining shared solution-template `<main>` with a fragment, covering industry, use-case, and company-type solution pages.
+- Replaced the global loading fallback `<main>` with an ARIA status container so no-JavaScript and streamed HTML crawlers also see only one main landmark.
 - Added `min-w-0` containment around trust evidence ledger/detail sections so wide tables scroll within their container instead of forcing page-level horizontal overflow.
 - Expanded safe public metadata descriptions across static pages and metadata generators for compare, guide, sample-pack, solution, legal, customer, and resource pages.
-- Added Playwright regression coverage for representative generated sitemap families and the trust mobile overflow case.
+- Added Playwright regression coverage for representative generated sitemap families, the trust mobile overflow case, and no-JavaScript HTML landmark behavior.
 
 ## Files Touched
 

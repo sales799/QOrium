@@ -170,6 +170,24 @@ test.describe('Critical-route smoke', () => {
       .toBeLessThanOrEqual(2);
   });
 
+  test('/sitemap templates — keep one main landmark in no-JS HTML', async ({
+    browser,
+  }, testInfo) => {
+    const baseURL = String(testInfo.project.use.baseURL);
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
+    for (const route of ['/anti-leak', '/compare/qorium-vs-hackerrank', '/try']) {
+      await page.goto(new URL(route, baseURL).toString(), { waitUntil: 'domcontentloaded' });
+      await expect
+        .poll(async () => page.evaluate(() => document.querySelectorAll('main').length))
+        .toBe(1);
+      await expect(page.locator('h1')).toHaveCount(1);
+    }
+
+    await context.close();
+  });
+
   test('/try/jd-forge — generates plan and queues email-gated PDF', async ({ page }) => {
     await page.goto('/try/jd-forge');
 

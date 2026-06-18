@@ -16,7 +16,7 @@ Source sitemap CSV: `/Users/talprouniversepro/Downloads/QOrium Complete Sitemap 
 
 ### P1 — Duplicate main landmarks on generated marketing templates
 
-Fast browser sampling found 81 sampled pages rendering two `<main>` landmarks. Root cause was page-level `<main>` wrappers inside the shared marketing layout, plus the shared solution template. This is an accessibility and semantic-structure defect affecting screen-reader navigation and automated quality scoring.
+Fast browser sampling found 81 sampled pages rendering two `<main>` landmarks. Root cause was page-level `<main>` wrappers inside the shared marketing layout, plus the shared solution template. Post-deploy no-JavaScript verification also exposed the global `loading.tsx` fallback as a second landmark source in streamed HTML. This is an accessibility and semantic-structure defect affecting screen-reader navigation and automated quality scoring.
 
 ### P1 — Trust detail mobile overflow risk
 
