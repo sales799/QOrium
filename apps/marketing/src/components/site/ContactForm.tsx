@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { submitContact, type ContactResult } from '@/actions/contact';
+import { analyticsAttributes, analyticsEvents } from '@/lib/analytics';
 
 const initialState: ContactResult = { ok: false, message: '' };
 
@@ -26,7 +27,11 @@ export function ContactForm() {
   const [state, formAction] = useFormState(submitContact, initialState);
 
   return (
-    <form action={formAction} className="grid gap-5">
+    <form
+      action={formAction}
+      className="grid gap-5"
+      {...analyticsAttributes(analyticsEvents.contactFormSubmit, { form: 'contact' })}
+    >
       {/* Honeypot — hidden from users, picked up by bots */}
       <input
         type="text"

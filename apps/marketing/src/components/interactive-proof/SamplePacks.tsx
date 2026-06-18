@@ -6,6 +6,7 @@ import { ArrowRight, Download, Filter, Loader2, LockKeyhole, ShieldCheck } from 
 
 import { Button } from '@/components/ui/button';
 import { type SamplePack, listSamplePacks } from '@/content/interactive-proof';
+import { analyticsEvents, trackPlausible } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 
 export function SamplePackHub() {
@@ -89,6 +90,10 @@ export function SamplePackDetail({ pack }: { pack: SamplePack }) {
       const payload = (await response.json()) as { data?: { pack: SamplePack } };
       if (!response.ok || !payload.data?.pack) throw new Error('unlock failed');
       setUnlocked(payload.data.pack);
+      trackPlausible(analyticsEvents.samplePackUnlock, {
+        pack_slug: pack.slug,
+        pack_family: pack.family,
+      });
       setStatus('idle');
     } catch {
       setStatus('error');

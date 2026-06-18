@@ -1,20 +1,21 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "pnpm --filter @qorium/marketing start",
+      "startServerCommand": "QORIUM_E2E=1 pnpm --filter @qorium/marketing start",
       "startServerReadyPattern": "Ready in",
       "startServerReadyTimeout": 60000,
       "url": [
         "http://localhost:3000/",
-        "http://localhost:3000/product",
         "http://localhost:3000/pricing",
-        "http://localhost:3000/features/readybank",
+        "http://localhost:3000/platform",
+        "http://localhost:3000/library",
+        "http://localhost:3000/try/jd-forge",
         "http://localhost:3000/security"
       ],
       "numberOfRuns": 1,
       "settings": {
         "preset": "desktop",
-        "skipAudits": ["uses-http2", "canonical"],
+        "skipAudits": ["uses-http2"],
         "chromeFlags": "--no-sandbox --headless=new"
       }
     },
@@ -25,6 +26,12 @@
         "categories:accessibility": ["warn", { "minScore": 0.9 }],
         "categories:best-practices": ["warn", { "minScore": 0.9 }],
         "categories:seo": ["warn", { "minScore": 0.9 }],
+        "csp-xss": ["warn", { "minScore": 0.9 }],
+        "total-byte-weight": ["warn", { "minScore": 0.9 }],
+        "installable-manifest": "off",
+        "maskable-icon": "off",
+        "splash-screen": "off",
+        "themed-omnibox": "off",
         "uses-text-compression": "off",
         "unused-javascript": "off",
         "unused-css-rules": "off",

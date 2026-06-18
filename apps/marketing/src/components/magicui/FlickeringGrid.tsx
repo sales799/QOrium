@@ -28,6 +28,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = React.useState(false);
+  const [reduceMotion, setReduceMotion] = React.useState(false);
   const [canvasSize, setCanvasSize] = React.useState({ width: 0, height: 0 });
 
   const memoizedColor = React.useMemo(() => getRGBA(color), [color]);
@@ -88,6 +89,17 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   );
 
   React.useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduceMotion(query.matches);
+
+    const updatePreference = (event: MediaQueryListEvent) => {
+      setReduceMotion(event.matches);
+    };
+    query.addEventListener('change', updatePreference);
+    return () => query.removeEventListener('change', updatePreference);
+  }, []);
+
+  React.useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -110,7 +122,9 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       if (!isInView) return;
       const dt = (time - lastTime) / 1000;
       lastTime = time;
-      updateSquares(gridParams.squares, dt);
+      if (!reduceMotion) {
+        updateSquares(gridParams.squares, dt);
+      }
       drawGrid(
         ctx,
         canvas.width,
@@ -120,6 +134,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
         gridParams.squares,
         gridParams.dpr,
       );
+      if (reduceMotion) return;
       raf = requestAnimationFrame(animate);
     };
 
@@ -141,10 +156,10 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       ro.disconnect();
       io.disconnect();
     };
-  }, [setupCanvas, updateSquares, drawGrid, width, height, isInView]);
+  }, [setupCanvas, updateSquares, drawGrid, width, height, isInView, reduceMotion]);
 
   return (
-    <div ref={containerRef} className={cn('h-full w-full', className)} {...props}>
+    <div ref={containerRef} className={cn('h-full w-full', className)} {...props} aria-hidden>
       <canvas
         ref={canvasRef}
         className="pointer-events-none"

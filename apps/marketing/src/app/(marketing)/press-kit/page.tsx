@@ -24,7 +24,7 @@ const LOCKED_USP =
 
 // SOURCE: Blueprint §1 + Investor Brief §1
 const BOILERPLATE =
-  'QOrium is the world’s first enterprise-grade Question-Bank-as-a-Service, headquartered in India. We supply IRT-calibrated, anti-leak-rotated question libraries to assessment platforms, enterprise hiring teams, and recruiters — across general tech, India-stack, and AI-era assessment formats. The Talpro Universe network is our distribution and SME pool from Day 1.';
+  'QOrium is an India-built enterprise Question-Bank-as-a-Service. We supply IRT-calibrated, anti-leak-rotated question libraries to assessment platforms, enterprise hiring teams, and recruiters across general tech, India-stack, and AI-era assessment formats. The Talpro Universe network is our distribution and SME pool from Day 1.';
 
 // SOURCE: Investor Brief §1 — founder paragraph
 const FOUNDER_NOTE =
@@ -90,6 +90,12 @@ export default function PressKitPage() {
             <blockquote className="mt-8 rounded-lg border border-border bg-surface-1 p-6 font-serif text-xl leading-relaxed text-foreground text-balance">
               &ldquo;{LOCKED_USP}&rdquo;
             </blockquote>
+            <div className="mt-4 rounded-md border border-warning/40 bg-warning/5 p-4 text-sm leading-6 text-muted-foreground">
+              <strong className="text-foreground">Claim-use guardrail:</strong> the
+              &ldquo;world&apos;s first&rdquo; phrase is locked constitutional positioning. Treat it
+              as approved product language, not as an independently verified market-ranking claim,
+              until a counsel-reviewed evidence memo exists.
+            </div>
           </FadeIn>
         </MaxWidth>
       </section>

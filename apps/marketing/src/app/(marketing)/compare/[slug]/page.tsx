@@ -15,6 +15,7 @@ import { BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { competitorPages, getCompetitorPage, legacyCompareSlugToVsSlug } from '@/content/seo-graph';
 import { phase4Faqs } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
+import { analyticsEvents } from '@/lib/analytics';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -78,6 +79,8 @@ export default async function ComparePage({ params }: Props) {
           cta={{
             label: `Plan migration from ${page.competitor}`,
             href: `/demo?from=${page.competitor.toLowerCase().replaceAll(' ', '-')}`,
+            event: analyticsEvents.comparePageCtaClick,
+            eventProps: { competitor: page.slug },
           }}
         />
         <SectionBand title={`${page.competitor} is strong where it is proven`}>

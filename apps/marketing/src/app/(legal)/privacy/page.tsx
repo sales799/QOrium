@@ -71,7 +71,8 @@ export default function PrivacyPage() {
       <LegalSection title="8. Contact">
         <p>
           Privacy queries: <EmailText address={siteConfig.contactEmail} />. Grievance officer
-          details and DPO contact will be published prior to public launch.
+          details are provided in signed customer documents and will be kept current on public legal
+          pages as the counsel-reviewed version is approved.
         </p>
       </LegalSection>
     </LegalShell>

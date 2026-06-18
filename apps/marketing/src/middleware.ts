@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 120;
 const RATE_LIMIT_BURST = 30;
+const IS_E2E = process.env['QORIUM_E2E'] === '1';
 
 type Bucket = {
   count: number;
@@ -68,6 +69,17 @@ export const config = {
 };
 
 function checkRateLimit(request: NextRequest) {
+  if (IS_E2E) {
+    const limit = RATE_LIMIT_MAX + RATE_LIMIT_BURST;
+    return {
+      allowed: true,
+      limit,
+      remaining: limit,
+      resetSeconds: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000),
+      retryAfterSeconds: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000),
+    };
+  }
+
   const now = Date.now();
   const key = clientKey(request);
   const current = buckets.get(key);

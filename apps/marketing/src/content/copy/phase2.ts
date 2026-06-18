@@ -1,9 +1,12 @@
 import type { EvidenceFlag } from '@/content/marketing-ia';
+import { analyticsEvents, type AnalyticsEventName, type AnalyticsProps } from '@/lib/analytics';
 
 export type Cta = {
   label: string;
   href: string;
   flag?: EvidenceFlag;
+  event?: AnalyticsEventName;
+  eventProps?: AnalyticsProps;
 };
 
 export type PricingTable = {
@@ -76,8 +79,18 @@ export const homeV2 = {
     title: 'Skills assessments you can defend in an audit.',
     description:
       'Move from resume-first shortlists to skills evidence you can defend: calibrated question libraries, tests shaped to a real job description, and private banks for your own stack.',
-    primaryCta: { label: 'Book a 20-min walkthrough', href: '/demo' },
-    secondaryCta: { label: 'Explore the library', href: '/library' },
+    primaryCta: {
+      label: 'Book a 20-min walkthrough',
+      href: '/demo',
+      event: analyticsEvents.heroCtaClick,
+      eventProps: { surface: 'home_hero', tier: 'primary' },
+    },
+    secondaryCta: {
+      label: 'Explore the library',
+      href: '/library',
+      event: analyticsEvents.heroCtaClick,
+      eventProps: { surface: 'home_hero', tier: 'secondary' },
+    },
   },
   ledgerRows: [
     ['Proof', 'Status', 'What you see'],

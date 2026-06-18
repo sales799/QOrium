@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { submitDemo, type DemoResult } from '@/actions/demo';
+import { analyticsAttributes, analyticsEvents } from '@/lib/analytics';
 
 const initialState: DemoResult = { ok: false, message: '' };
 
@@ -26,7 +27,11 @@ export function DemoForm() {
   const [state, formAction] = useFormState(submitDemo, initialState);
 
   return (
-    <form action={formAction} className="grid gap-5">
+    <form
+      action={formAction}
+      className="grid gap-5"
+      {...analyticsAttributes(analyticsEvents.contactFormSubmit, { form: 'demo' })}
+    >
       <input
         type="text"
         name="website"

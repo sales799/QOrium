@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-06-18",
+  "project": {
+    "name": "QOrium",
+    "app": "@qorium/marketing",
+    "type": "marketing website",
+    "domain": "https://qorium.online",
+    "appPath": "apps/marketing"
+  },
+  "stack": {
+    "packageManager": "pnpm@10.33.0",
+    "framework": "Next.js 15 App Router",
+    "language": "TypeScript",
+    "styling": "Tailwind CSS v4, shadcn-style primitives, Motion 12",
+    "analytics": "Plausible script plus local event taxonomy",
+    "deployment": "safe-deploy qorium-marketing, with infra/marketing-deploy.sh as bootstrap path"
+  },
+  "commands": {
+    "install": "pnpm install",
+    "lint": "pnpm --filter @qorium/marketing lint",
+    "typecheck": "pnpm --filter @qorium/marketing typecheck",
+    "test": "pnpm --filter @qorium/marketing test",
+    "build": "pnpm --filter @qorium/marketing build",
+    "e2e": "pnpm --filter @qorium/marketing test:e2e",
+    "deploy": "safe-deploy qorium-marketing"
+  },
+  "keyFiles": {
+    "routes": "apps/marketing/src/app",
+    "globalMetadata": "apps/marketing/src/app/layout.tsx",
+    "sitemap": "apps/marketing/src/app/sitemap.ts",
+    "robots": "apps/marketing/src/app/robots.ts",
+    "headers": "apps/marketing/next.config.mjs",
+    "analytics": [
+      "apps/marketing/src/lib/analytics.ts",
+      "apps/marketing/src/components/site/AnalyticsEvents.tsx"
+    ],
+    "ci": [".github/workflows/ci.yml", ".github/workflows/marketing-quality.yml"],
+    "lighthouse": "apps/marketing/lighthouserc.json",
+    "playwright": "apps/marketing/e2e/smoke.spec.ts"
+  },
+  "observedRouteFamilies": [
+    "core",
+    "platform",
+    "solutions",
+    "library",
+    "resources",
+    "try",
+    "compare",
+    "trust",
+    "legal"
+  ],
+  "liveFindings": [
+    "https://qorium.online/ returned 200 on 2026-06-18 with HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy.",
+    "robots.txt advertises sitemap partitions and Cloudflare-managed AI crawler rules.",
+    "live sitemap.xml still lists legacy /solutions/platforms, /solutions/enterprises, and /solutions/staffing URLs.",
+    "live legal pages still showed the old pre-launch/counsel-review wording before this patch."
+  ]
+}
