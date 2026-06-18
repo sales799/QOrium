@@ -49,8 +49,9 @@ For long-lived feature work that won't merge for weeks, **reserve** a slot by ad
 | 0020   | `drafts/0020_rls_tenant_isolation.sql`      | RESERVED | codex/qorium-bhima-phase-a-d-g-drafts-20260603 (BHIMA — DRAFT, DO NOT APPLY; lives in drafts/ off the runner path, needs app SET LOCAL wiring + staging verify) |
 | 0021   | `0021_assessment_delivery.sql`             | pending  | codex/qorium-assessment-br1-db-migration-20260603 |
 | 0022   | `0022_skill_families.sql`                  | pending  | codex/qorium-n7-skill-families-migration-20260611 |
+| 0023   | `0023_marketing_leads.sql`                | pending  | codex/qorium-durable-lead-capture-20260618 |
 
-**Next available number: 0023.**
+**Next available number: 0024.**
 
 ### WITHDRAWN 0018
 

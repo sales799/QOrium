@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers';
 import { z } from 'zod';
+import { captureMarketingLead, recordMarketingLeadMailResult } from '@/lib/lead-capture';
 import { sendMail } from '@/lib/mailer';
 import { rateLimit } from '@/lib/rate-limit';
 
@@ -36,6 +37,7 @@ export async function submitContact(_prev: unknown, formData: FormData): Promise
   const hdrs = await headers();
   const ip =
     hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? hdrs.get('x-real-ip') ?? 'unknown';
+  const userAgent = hdrs.get('user-agent') ?? undefined;
   const rl = rateLimit(`contact:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 });
   if (!rl.allowed) {
     return {
@@ -45,6 +47,24 @@ export async function submitContact(_prev: unknown, formData: FormData): Promise
   }
 
   const { name, email, company, role, message } = parsed.data;
+  const lead = await captureMarketingLead({
+    source: 'contact',
+    name,
+    email,
+    ...(company ? { company } : {}),
+    ...(role ? { role } : {}),
+    message,
+    ipAddress: ip,
+    ...(userAgent ? { userAgent } : {}),
+  });
+
+  if (!lead.ok) {
+    return {
+      ok: false,
+      message: 'Could not save your message right now. Please email us directly.',
+    };
+  }
+
   const subject = `[Qorium] Contact from ${name}${company ? ` (${company})` : ''}`;
   const text = [
     `Name: ${name}`,
@@ -59,8 +79,13 @@ export async function submitContact(_prev: unknown, formData: FormData): Promise
     .join('\n');
 
   const result = await sendMail({ subject, text, replyTo: email });
+  await recordMarketingLeadMailResult(lead.id, result);
+
   if (!result.ok) {
-    return { ok: false, message: 'Could not send right now. Please email us directly.' };
+    return {
+      ok: true,
+      message: 'Thanks. Your message was saved; we will follow up directly.',
+    };
   }
 
   return {

@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers';
 import { z } from 'zod';
+import { captureMarketingLead, recordMarketingLeadMailResult } from '@/lib/lead-capture';
 import { sendMail } from '@/lib/mailer';
 import { rateLimit } from '@/lib/rate-limit';
 
@@ -36,12 +37,40 @@ export async function submitDemo(_prev: unknown, formData: FormData): Promise<De
   const hdrs = await headers();
   const ip =
     hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? hdrs.get('x-real-ip') ?? 'unknown';
+  const userAgent = hdrs.get('user-agent') ?? undefined;
   const rl = rateLimit(`demo:${ip}`, { max: 5, windowMs: 60 * 60 * 1000 });
   if (!rl.allowed) {
     return { ok: false, message: 'Too many submissions. Try again later.' };
   }
 
   const { name, email, company, role, hiringVolume, primarySku, message } = parsed.data;
+  const metadata: Record<string, string> = {};
+  if (hiringVolume) {
+    metadata.hiringVolume = hiringVolume;
+  }
+  if (primarySku) {
+    metadata.primarySku = primarySku;
+  }
+
+  const lead = await captureMarketingLead({
+    source: 'demo',
+    name,
+    email,
+    company,
+    ...(role ? { role } : {}),
+    ...(message ? { message } : {}),
+    ipAddress: ip,
+    ...(userAgent ? { userAgent } : {}),
+    metadata,
+  });
+
+  if (!lead.ok) {
+    return {
+      ok: false,
+      message: 'Could not save your demo request right now. Please email us directly.',
+    };
+  }
+
   const subject = `[Qorium] Demo request — ${company} (${name})`;
   const text = [
     `Name: ${name}`,
@@ -58,8 +87,13 @@ export async function submitDemo(_prev: unknown, formData: FormData): Promise<De
     .join('\n');
 
   const result = await sendMail({ subject, text, replyTo: email });
+  await recordMarketingLeadMailResult(lead.id, result);
+
   if (!result.ok) {
-    return { ok: false, message: 'Could not send right now. Please email us directly.' };
+    return {
+      ok: true,
+      message: 'Thanks. Your demo request was saved; we will follow up directly.',
+    };
   }
 
   return {
