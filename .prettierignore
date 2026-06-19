@@ -7,6 +7,9 @@ coverage/
 pnpm-lock.yaml
 *.tsbuildinfo
 infra/docker/data/
+infra/auto-bootstrap/.terraform*/
+*.tfstate
+*.tfstate.*
 
 # Cowork-authored specs (read-only per handoff §6 coordination protocol).
 # Reformatting would be an edit to Cowork's owned files.
@@ -39,4 +42,3 @@ infra/B7-postgres-migrations/
 infra/B10-ecosystem.config.js
 *.docx
 *.xlsx
-
