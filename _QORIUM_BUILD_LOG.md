@@ -367,3 +367,17 @@ Still missing for full Phase 1 IdeaForge re-gate:
 - Sprint 5 — JD-Forge service (per `infra/JD-Forge-v0-Design.md`)
 - Role-graph traversal endpoints (`/v1/role-graph/search`, `?role=` filter)
 - Tags filter (needs schema decision: `body_json.tags` vs `content.tags`)
+
+---
+
+## Codex Session Closer - Drive-to-Done Evidence - 2026-06-19
+
+| Item                                    | Status  | Evidence                                                                                                                                                                                                                                                                                 |
+| --------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project lock                            | DONE    | `PROJECT=QOrium`; root `/Users/bhaskar_universe/QOrium`; remote `https://github.com/sales799/QOrium.git`; branch `main`; live URL read from repo as `https://qorium.online`.                                                                                                             |
+| Current commit deployed before closeout | DONE    | Commit `b583e2db2b21594106bc8b63d52d275a0a6a1c56`; deploy workflow `https://github.com/sales799/QOrium/actions/runs/27816333910` completed successfully on `main`.                                                                                                                       |
+| Local quality gates                     | DONE    | `pnpm install --frozen-lockfile` PASS; `pnpm lint` PASS with two existing ReadyBank console warnings; `pnpm typecheck` PASS; `pnpm test` PASS; `pnpm build` PASS; `pnpm format:check` PASS.                                                                                              |
+| Browser smoke                           | DONE    | `pnpm --filter @qorium/marketing test:e2e` PASS, 11/11 Chromium critical-route tests.                                                                                                                                                                                                    |
+| Live verification                       | DONE    | `https://qorium.online/`, `/platform/api`, `/pricing`, `/security`, `/openapi.json`, `/v1/sample-packs`, `/v1/science/quality-gate`, and `/v1/responsible-ai/status` all returned HTTP 200 with HSTS, nosniff, frame-deny, referrer-policy, permissions-policy, and CSP headers present. |
+| Watchdog                                | BLOCKED | Uptime workflow exists but manual dispatch is disabled by GitHub Actions (`HTTP 422: Cannot trigger a workflow_dispatch on a disabled workflow`). Independent live curl checks above substitute for this closeout.                                                                       |
+| Known external blocker                  | OPEN    | `https://api.qorium.online/openapi.json` still returns HTTP 404 from the API host. Marketing `https://qorium.online/openapi.json` is healthy; API host routing remains separate infra work.                                                                                              |
