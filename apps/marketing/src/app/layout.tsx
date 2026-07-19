@@ -4,6 +4,7 @@ import { Bricolage_Grotesque, IBM_Plex_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
 import { AnalyticsEvents } from '@/components/site/AnalyticsEvents';
 import { CookieConsent } from '@/components/site/CookieConsent';
+import { CanonicalOpenGraphSync } from '@/components/seo/CanonicalOpenGraphSync';
 import { siteConfig } from '@/content/site.config';
 import './globals.css';
 
@@ -101,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </ThemeProvider>
         <AnalyticsEvents />
+        <CanonicalOpenGraphSync />
         <CookieConsent />
         <script
           type="application/ld+json"
