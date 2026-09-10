@@ -12,7 +12,7 @@ import {
   skills,
   type AuditRecord
 } from "@qorium/db";
-import { libraryQuestions, skillNodes, type LibraryQuestion, type QuestionType, type SkillNode } from "@qorium/taxonomy";
+import { getLibraryCards as getSeedLibraryCards, selectLibraryCards, libraryQuestions, skillNodes, type LibraryQuestion, type QuestionType, type SkillNode } from "@qorium/taxonomy";
 
 export interface Assessment {
   id: string;
@@ -98,13 +98,7 @@ class MemoryRepository implements QoriumRepository {
   }
 
   async getLibraryCards() {
-    return skillNodes
-      .filter((node) => node.kind === "skill")
-      .slice(0, 25)
-      .map((skill) => ({
-        skill,
-        questionCount: libraryQuestions.filter((question) => question.skillId === skill.id).length
-      }));
+    return getSeedLibraryCards();
   }
 
   async listLibraryQuestions(skillId?: string) {
@@ -229,12 +223,9 @@ class PostgresRepository implements QoriumRepository {
 
   async getLibraryCards() {
     await this.ensureSeeded();
-    const skillRows = await this.db.select().from(skills).where(eq(skills.kind, "skill")).limit(25);
+    const skillRows = await this.db.select().from(skills).where(eq(skills.kind, "skill"));
     const counts = await this.questionCounts(skillRows.map((skill) => skill.id));
-    return skillRows.map((skill) => ({
-      skill: dbSkillToNode(skill),
-      questionCount: counts.get(skill.id) ?? 0
-    }));
+    return selectLibraryCards(skillRows.map(dbSkillToNode), counts);
   }
 
   async listLibraryQuestions(skillId?: string) {

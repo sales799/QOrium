@@ -48,12 +48,21 @@ export function getSkillStats() {
   };
 }
 
-export function getLibraryCards() {
-  return skillNodes
-    .filter((node) => node.kind === "skill")
+/** Select populated skills before applying the display cap; seed order stays familiar. */
+export function selectLibraryCards(nodes: SkillNode[], counts: ReadonlyMap<string, number>) {
+  const seedOrder = new Map(skillNodes.map((skill, index) => [skill.id, index]));
+  return nodes
+    .filter((node) => node.kind === "skill" && (counts.get(node.id) ?? 0) > 0)
+    .sort((left, right) => {
+      const rank = (seedOrder.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (seedOrder.get(right.id) ?? Number.MAX_SAFE_INTEGER);
+      return rank || (left.id < right.id ? -1 : left.id > right.id ? 1 : 0);
+    })
     .slice(0, 25)
-    .map((skill) => ({
-      skill,
-      questionCount: libraryQuestions.filter((question) => question.skillId === skill.id).length
-    }));
+    .map((skill) => ({ skill, questionCount: counts.get(skill.id)! }));
+}
+
+export function getLibraryCards() {
+  const counts = new Map<string, number>();
+  for (const question of libraryQuestions) counts.set(question.skillId, (counts.get(question.skillId) ?? 0) + 1);
+  return selectLibraryCards(skillNodes, counts);
 }

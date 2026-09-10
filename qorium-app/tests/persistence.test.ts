@@ -32,6 +32,23 @@ describe.skipIf(!url)("PostgreSQL persistence", () => {
     }
     vi.unstubAllEnvs();
   });
+  it("fills library cards from nonempty skills regardless of database insertion order", async () => {
+    // Simulate a restored catalog where empty taxonomy rows precede populated skills.
+    await db`TRUNCATE skill CASCADE`;
+    for (let index = 0; index < 30; index++) {
+      await db`INSERT INTO skill (id, kind, name, slug) VALUES (${`empty-${index}`}, 'skill', 'Empty fixture', ${`empty-${index}`})`;
+    }
+    await repository.close();
+    repository = createRepository();
+    const cards = await repository.getLibraryCards();
+    expect(cards).toHaveLength(25);
+    expect(cards.every((card) => card.questionCount > 0)).toBe(true);
+    expect(await repository.getLibraryCards()).toEqual(cards);
+    vi.stubEnv("DATABASE_URL", "");
+    const memory = createRepository();
+    try { expect(cards).toEqual(await memory.getLibraryCards()); }
+    finally { await memory.close(); vi.stubEnv("DATABASE_URL", databaseUrl); }
+  });
   it("round trips complete question payloads and submitted answer order", async () => {
     const code = libraryQuestions.find((question) => question.type === "code-question")!;
     const persisted = await repository.listLibraryQuestions(code.skillId);
