@@ -110,9 +110,11 @@ export function buildServer() {
   app.post("/api/v1/assessments", async (request, reply) => {
     const recruiter = authenticateRecruiter(request, reply);
     if (!recruiter) return reply;
+    if (!recruiter.scopes.includes("assessment:write")) return reply.code(403).send({ error: "Assessment write permission required" });
     const input = createAssessmentSchema.parse(request.body);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const assessment = await repository.createAssessment({
+      orgId: recruiter.orgId,
       title: input.title,
       candidateEmail: input.candidateEmail,
       skillIds: input.skillIds,
@@ -120,18 +122,20 @@ export function buildServer() {
       expiresAt
     });
     const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
-    await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: recruiter.recruiterId });
+    await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: recruiter.recruiterId }, recruiter.orgId);
     return reply.code(201).send({ assessment: publicAssessment(assessment), shareUrl: `/candidate/${token}`, token });
   });
 
   app.post("/api/v1/assessments/clone", async (request, reply) => {
     const recruiter = authenticateRecruiter(request, reply);
     if (!recruiter) return reply;
+    if (!recruiter.scopes.includes("assessment:write")) return reply.code(403).send({ error: "Assessment write permission required" });
     const input = z.object({ skillId: z.string(), candidateEmail: z.string().email().default("candidate@example.com") }).parse(request.body);
     const skill = await repository.getSkill(input.skillId);
     if (!skill) return reply.code(404).send({ error: "Skill not found" });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const assessment = await repository.createAssessmentFromSkill({
+      orgId: recruiter.orgId,
       skillId: input.skillId,
       title: `${skill.name} assessment`,
       candidateEmail: input.candidateEmail,
@@ -140,7 +144,7 @@ export function buildServer() {
     });
     if (!assessment) return reply.code(404).send({ error: "Skill not found" });
     const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
-    await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: recruiter.recruiterId });
+    await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: recruiter.recruiterId }, recruiter.orgId);
     return reply.code(201).send({ assessment: publicAssessment(assessment), shareUrl: `/candidate/${token}`, token });
   });
 
@@ -204,7 +208,8 @@ export function buildServer() {
         "answer.graded",
         { questionId: question.id, score: result.score, confidence: result.confidence, reasoningTraceRef },
         { assessmentId: assessment.id, questionId: question.id },
-        { type: "worker", id: "grade-answer" }
+        { type: "worker", id: "grade-answer" },
+        assessment.orgId
       );
     }
 
@@ -213,7 +218,7 @@ export function buildServer() {
       candidateEmail: input.candidateEmail,
       answers: graded
     });
-    await repository.audit("attempt.submitted", { answerCount: graded.length }, { assessmentId: assessment.id, attemptId: attempt.id }, { type: "candidate", id: input.candidateEmail });
+    await repository.audit("attempt.submitted", { answerCount: graded.length }, { assessmentId: assessment.id, attemptId: attempt.id }, { type: "candidate", id: input.candidateEmail }, assessment.orgId);
     return reply.code(201).send({ attempt: publicAttemptReceipt(attempt) });
   }
 
@@ -236,7 +241,7 @@ export function buildServer() {
     const recruiter = authenticateRecruiter(request, reply);
     if (!recruiter) return reply;
     if (!recruiter.scopes.includes("audit:read")) return reply.code(403).send({ error: "Audit read permission required" });
-    return { data: await repository.getAuditSample(10) };
+    return { data: await repository.getAuditSample(10, recruiter.orgId) };
   });
 
   return app;

@@ -40,6 +40,7 @@ export interface QoriumRepository {
   getLibraryCards(): Promise<Array<{ skill: SkillNode; questionCount: number }>>;
   listLibraryQuestions(skillId?: string): Promise<LibraryQuestion[]>;
   createAssessment(input: {
+    orgId?: string;
     title: string;
     candidateEmail: string;
     skillIds: string[];
@@ -48,6 +49,7 @@ export interface QoriumRepository {
   }): Promise<Assessment>;
   getSkill(id: string): Promise<SkillNode | null>;
   createAssessmentFromSkill(input: {
+    orgId?: string;
     skillId: string;
     title: string;
     candidateEmail: string;
@@ -61,8 +63,8 @@ export interface QoriumRepository {
     answers: Attempt["answers"];
   }): Promise<Attempt>;
   getAttempt(id: string): Promise<Attempt | null>;
-  audit(event: string, payload: unknown, refs?: Record<string, string>, actor?: AuditActor): Promise<AuditRecord>;
-  getAuditSample(limit?: number): Promise<AuditRecord[]>;
+  audit(event: string, payload: unknown, refs?: Record<string, string>, actor?: AuditActor, orgId?: string): Promise<AuditRecord>;
+  getAuditSample(limit?: number, orgId?: string): Promise<AuditRecord[]>;
   close(): Promise<void>;
 }
 
@@ -112,6 +114,7 @@ class MemoryRepository implements QoriumRepository {
   }
 
   async createAssessment(input: {
+    orgId?: string;
     title: string;
     candidateEmail: string;
     skillIds: string[];
@@ -121,7 +124,7 @@ class MemoryRepository implements QoriumRepository {
     const selected = input.skillIds.flatMap((skillId) =>
       libraryQuestions.filter((question) => question.skillId === skillId).slice(0, input.questionsPerSkill)
     );
-    return this.saveAssessment(input.title, input.candidateEmail, selected, input.expiresAt);
+    return this.saveAssessment(input.title, input.candidateEmail, selected, input.expiresAt, input.orgId);
   }
 
   async getSkill(id: string) {
@@ -129,6 +132,7 @@ class MemoryRepository implements QoriumRepository {
   }
 
   async createAssessmentFromSkill(input: {
+    orgId?: string;
     skillId: string;
     title: string;
     candidateEmail: string;
@@ -138,7 +142,7 @@ class MemoryRepository implements QoriumRepository {
     const skill = await this.getSkill(input.skillId);
     if (!skill) return null;
     const selected = libraryQuestions.filter((question) => question.skillId === input.skillId).slice(0, input.questionLimit);
-    return this.saveAssessment(input.title, input.candidateEmail, selected, input.expiresAt);
+    return this.saveAssessment(input.title, input.candidateEmail, selected, input.expiresAt, input.orgId);
   }
 
   async getAssessment(id: string) {
@@ -161,24 +165,24 @@ class MemoryRepository implements QoriumRepository {
     return this.attemptStore.get(id) ?? null;
   }
 
-  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }) {
-    const record = makeAuditRecord({ orgId: "demo-org", event, actor, payload, refs });
+  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }, orgId = "demo-org") {
+    const record = makeAuditRecord({ orgId, event, actor, payload, refs });
     this.auditStore.push(record);
     return record;
   }
 
-  async getAuditSample(limit = 10) {
-    return this.auditStore.slice(-limit);
+  async getAuditSample(limit = 10, orgId?: string) {
+    return this.auditStore.filter((row) => orgId === undefined || row.orgId === orgId).slice(-limit);
   }
 
   async close() {
     // No resources to release for the local fallback.
   }
 
-  private saveAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
+  private saveAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date, orgId = "demo-org") {
     const assessment: Assessment = {
       id: crypto.randomUUID(),
-      orgId: "demo-org",
+      orgId,
       title,
       candidateEmail,
       questions: selected,
@@ -246,6 +250,7 @@ class PostgresRepository implements QoriumRepository {
   }
 
   async createAssessment(input: {
+    orgId?: string;
     title: string;
     candidateEmail: string;
     skillIds: string[];
@@ -258,7 +263,7 @@ class PostgresRepository implements QoriumRepository {
         this.db.select().from(questions).where(eq(questions.skillId, skillId)).limit(input.questionsPerSkill)
       ))
     ).flat();
-    return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt);
+    return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt, input.orgId);
   }
 
   async getSkill(id: string) {
@@ -268,6 +273,7 @@ class PostgresRepository implements QoriumRepository {
   }
 
   async createAssessmentFromSkill(input: {
+    orgId?: string;
     skillId: string;
     title: string;
     candidateEmail: string;
@@ -278,7 +284,7 @@ class PostgresRepository implements QoriumRepository {
     const skill = await this.getSkill(input.skillId);
     if (!skill) return null;
     const selected = await this.db.select().from(questions).where(eq(questions.skillId, input.skillId)).limit(input.questionLimit);
-    return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt);
+    return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt, input.orgId);
   }
 
   async getAssessment(id: string) {
@@ -346,8 +352,8 @@ class PostgresRepository implements QoriumRepository {
     };
   }
 
-  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }) {
-    const record = makeAuditRecord({ orgId: "demo-org", event, actor, payload, refs });
+  async audit(event: string, payload: unknown, refs: Record<string, string> = {}, actor: AuditActor = { type: "system", id: "api" }, orgId = "demo-org") {
+    const record = makeAuditRecord({ orgId, event, actor, payload, refs });
     await this.db.insert(auditLog).values({
       id: record.id,
       orgId: record.orgId,
@@ -361,8 +367,8 @@ class PostgresRepository implements QoriumRepository {
     return record;
   }
 
-  async getAuditSample(limit = 10) {
-    const rows = await this.db.select().from(auditLog).orderBy(desc(auditLog.createdAt)).limit(limit);
+  async getAuditSample(limit = 10, orgId?: string) {
+    const rows = await this.db.select().from(auditLog).where(orgId === undefined ? undefined : eq(auditLog.orgId, orgId)).orderBy(desc(auditLog.createdAt)).limit(limit);
     return rows.reverse().map((row) => ({
       id: row.id,
       orgId: row.orgId,
@@ -379,10 +385,10 @@ class PostgresRepository implements QoriumRepository {
     await this.client.end({ timeout: 5 });
   }
 
-  private async insertAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
+  private async insertAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date, orgId = "demo-org") {
     const [assessment] = await this.db
       .insert(assessments)
-      .values({ title, candidateEmail, expiresAt, status: "draft" })
+      .values({ orgId, title, candidateEmail, expiresAt, status: "draft" })
       .returning();
     if (!assessment) throw new Error("Failed to persist assessment");
     if (selected.length > 0) {
