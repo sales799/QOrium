@@ -17,7 +17,10 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
   const cookie = req.headers.get('cookie');
   if (cookie) headers['cookie'] = cookie;
   const init: RequestInit = {
-    method: req.method, headers, cache: 'no-store', signal: AbortSignal.timeout(15_000),
+    method: req.method,
+    headers,
+    cache: 'no-store',
+    signal: AbortSignal.timeout(15_000),
   };
   if (req.method !== 'GET' && req.method !== 'HEAD') init.body = await req.text();
 
@@ -42,13 +45,17 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
     for (const c of setCookies) out.append('set-cookie', c);
     return new Response(body, { status: r.status, headers: out });
   } catch (error) {
-    const timedOut = (error instanceof Error && error.name === 'TimeoutError') ||
+    const timedOut =
+      (error instanceof Error && error.name === 'TimeoutError') ||
       (init.signal?.aborted && init.signal.reason?.name === 'TimeoutError');
     const status = timedOut ? 504 : 502;
-    return new Response(JSON.stringify({ title: timedOut ? 'Gateway Timeout' : 'Bad Gateway', status }), {
-      status,
-      headers: { 'content-type': 'application/problem+json', 'cache-control': 'no-store' },
-    });
+    return new Response(
+      JSON.stringify({ title: timedOut ? 'Gateway Timeout' : 'Bad Gateway', status }),
+      {
+        status,
+        headers: { 'content-type': 'application/problem+json', 'cache-control': 'no-store' },
+      },
+    );
   }
 }
 
