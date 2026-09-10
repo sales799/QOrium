@@ -12,8 +12,9 @@ import {
 } from "@qorium/auth";
 import { gradeAnswer } from "@qorium/grader-worker";
 import { z } from "zod";
+import type { LibraryQuestion } from "@qorium/taxonomy";
 import { createReasoningTraceStore } from "./reasoning-trace-store.js";
-import { createRepository, type Assessment } from "./store.js";
+import { createRepository, type Assessment, type Attempt } from "./store.js";
 
 const RECRUITER_TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
 const RECRUITER_TOKEN_TTL_SECONDS = RECRUITER_TOKEN_TTL_MS / 1000;
@@ -35,7 +36,7 @@ const submitSchema = z.object({
 });
 
 export function buildServer() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({ logger: true, routerOptions: { maxParamLength: 512 } });
   const repository = createRepository();
   const reasoningTraces = createReasoningTraceStore();
   void app.register(cors, { origin: true, credentials: true });
@@ -102,7 +103,7 @@ export function buildServer() {
   app.get("/api/v1/library/questions", async (request) => {
     const query = request.query as { skillId?: string };
     return {
-      data: await repository.listLibraryQuestions(query.skillId)
+      data: (await repository.listLibraryQuestions(query.skillId)).map(publicQuestion)
     };
   });
 
@@ -120,7 +121,7 @@ export function buildServer() {
     });
     const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
     await repository.audit("assessment.created", input, { assessmentId: assessment.id }, { type: "recruiter", id: recruiter.recruiterId });
-    return reply.code(201).send({ assessment, shareUrl: `/candidate/${token}`, token });
+    return reply.code(201).send({ assessment: publicAssessment(assessment), shareUrl: `/candidate/${token}`, token });
   });
 
   app.post("/api/v1/assessments/clone", async (request, reply) => {
@@ -140,7 +141,7 @@ export function buildServer() {
     if (!assessment) return reply.code(404).send({ error: "Skill not found" });
     const token = signAssessmentLink({ assessmentId: assessment.id, exp: expiresAt.getTime() });
     await repository.audit("assessment.cloned_from_library", input, { assessmentId: assessment.id, skillId: input.skillId }, { type: "recruiter", id: recruiter.recruiterId });
-    return reply.code(201).send({ assessment, shareUrl: `/candidate/${token}`, token });
+    return reply.code(201).send({ assessment: publicAssessment(assessment), shareUrl: `/candidate/${token}`, token });
   });
 
   app.get("/api/v1/assessments/by-token/:token", async (request, reply) => {
@@ -158,7 +159,7 @@ export function buildServer() {
       const payload = verifyAssessmentToken(token);
       const assessment = await repository.getAssessment(payload.assessmentId);
       if (!assessment) return reply.code(404).send({ error: "Assessment not found" });
-      return { assessment: sanitizeAssessmentForCandidate(assessment) };
+      return { assessment: publicAssessment(assessment) };
     } catch (error) {
       return reply.code(401).send({ error: error instanceof Error ? error.message : "Invalid token" });
     }
@@ -213,23 +214,30 @@ export function buildServer() {
       answers: graded
     });
     await repository.audit("attempt.submitted", { answerCount: graded.length }, { assessmentId: assessment.id, attemptId: attempt.id }, { type: "candidate", id: input.candidateEmail });
-    return reply.code(201).send({ attempt });
+    return reply.code(201).send({ attempt: publicAttemptReceipt(attempt) });
   }
 
   app.get("/api/v1/attempts/:id/result", async (request, reply) => {
     const { id } = request.params as { id: string };
     const attempt = await repository.getAttempt(id);
     if (!attempt) return reply.code(404).send({ error: "Attempt not found" });
-    const answers = await Promise.all(attempt.answers.map(async (answer) => ({
-      ...answer,
-      reasoning: answer.reasoning ?? (answer.reasoningTraceRef ? await reasoningTraces.readReasoning(answer.reasoningTraceRef) ?? undefined : undefined)
-    })));
-    const hydratedAttempt = { ...attempt, answers };
-    const average = hydratedAttempt.answers.reduce((sum, answer) => sum + (answer.grade ?? 0), 0) / Math.max(hydratedAttempt.answers.length, 1);
-    return { attempt: hydratedAttempt, result: { score: Number(average.toFixed(2)), confidenceBand: average >= 0.75 ? "high" : average >= 0.45 ? "medium" : "low" } };
+    return {
+      attempt: publicAttemptReceipt(attempt),
+      result: {
+        status: "received",
+        headline: "Assessment received",
+        summary: "Your responses have been recorded. Evaluation details remain private.",
+        highlights: ["Your submission is saved.", "Your hiring team can continue its review."]
+      }
+    };
   });
 
-  app.get("/api/v1/audit-log/sample", async () => ({ data: await repository.getAuditSample(10) }));
+  app.get("/api/v1/audit-log/sample", async (request, reply) => {
+    const recruiter = authenticateRecruiter(request, reply);
+    if (!recruiter) return reply;
+    if (!recruiter.scopes.includes("audit:read")) return reply.code(403).send({ error: "Audit read permission required" });
+    return { data: await repository.getAuditSample(10) };
+  });
 
   return app;
 }
@@ -287,22 +295,19 @@ function recruiterCookieSecure() {
   return process.env.QORIUM_RECRUITER_COOKIE_SECURE !== "false";
 }
 
-function sanitizeAssessmentForCandidate(assessment: Assessment) {
-  return {
-    ...assessment,
-    questions: assessment.questions.map((question) => {
-      const {
-        correctAnswer: _correctAnswer,
-        explanation: _explanation,
-        irt: _irt,
-        rubric: _rubric,
-        tags: _tags,
-        testExpectation: _testExpectation,
-        ...candidateQuestion
-      } = question;
-      return candidateQuestion;
-    })
-  };
+// Explicit public contracts prevent newly added internal fields from leaking.
+function publicQuestion(question: LibraryQuestion) {
+  return { id: question.id, skillId: question.skillId, type: question.type,
+    stem: question.stem, options: question.options, starterCode: question.starterCode };
+}
+
+function publicAssessment(assessment: Assessment) {
+  return { id: assessment.id, title: assessment.title, candidateEmail: assessment.candidateEmail,
+    questions: assessment.questions.map(publicQuestion), expiresAt: assessment.expiresAt, createdAt: assessment.createdAt };
+}
+
+function publicAttemptReceipt(attempt: Attempt) {
+  return { id: attempt.id, answerCount: attempt.answers.length, submittedAt: attempt.submittedAt };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

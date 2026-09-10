@@ -1,3 +1,4 @@
+import { signRecruiterToken } from "@qorium/auth";
 import { buildServer as buildApi } from "../apps/api/src/server.js";
 import { runCode } from "../apps/sandbox-bridge/src/runner.js";
 import { readFile } from "node:fs/promises";
@@ -81,12 +82,17 @@ const submitted = JSON.parse(submit.body) as { attempt: { id: string } };
 
 const result = await api.inject({ method: "GET", url: `/api/v1/attempts/${submitted.attempt.id}/result` });
 assertEqual(result.statusCode, 200, "attempt result");
-const resultBody = JSON.parse(result.body) as { attempt: { answers: Array<{ reasoning?: string; reasoningTraceRef?: string }> } };
-if (!resultBody.attempt.answers.every((answer) => answer.reasoningTraceRef)) throw new Error("Expected persisted reasoning trace refs");
-if (!resultBody.attempt.answers.every((answer) => answer.reasoning)) throw new Error("Expected hydrated reasoning text");
-
-const audit = await api.inject({ method: "GET", url: "/api/v1/audit-log/sample" });
-assertEqual(audit.statusCode, 200, "audit sample");
+const resultBody = JSON.parse(result.body) as { attempt: { answerCount: number }; result: { status: string } };
+if (resultBody.attempt.answerCount !== created.assessment.questions.length) throw new Error("Receipt count mismatch");
+if (resultBody.result.status !== "received") throw new Error("Expected a submission receipt");
+for (const key of ["reasoning", "reasoningTraceRef", "grade", "confidence", "correctAnswer", "response"]) {
+  if (result.body.includes(`"${key}":`)) throw new Error(`Public result leaked ${key}`);
+}
+const deniedAudit = await api.inject({ method: "GET", url: "/api/v1/audit-log/sample" });
+assertEqual(deniedAudit.statusCode, 401, "public audit sample denied");
+const auditToken = signRecruiterToken({ recruiterId: "test-operator", email: "operator@example.test", orgId: "demo-org", scopes: ["audit:read"], exp: Date.now() + 60_000 });
+const audit = await api.inject({ method: "GET", url: "/api/v1/audit-log/sample", headers: { authorization: `Bearer ${auditToken}` } });
+assertEqual(audit.statusCode, 200, "privileged audit sample");
 if ((JSON.parse(audit.body) as { data: unknown[] }).data.length < 2) throw new Error("Expected audit rows");
 
 const securityText = await readFile(new URL("../apps/web/public/.well-known/security.txt", import.meta.url), "utf8");

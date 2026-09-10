@@ -43,9 +43,9 @@ test("recruiter builds an assessment, candidate submits it, and result renders",
   }
 
   await page.getByRole("button", { name: "Submit" }).click();
-  await page.getByRole("link", { name: "View graded result" }).click();
-  await expect(page.getByRole("heading", { name: "Graded result" })).toBeVisible();
-  await expect(page.getByText("candidate@example.com")).toBeVisible();
-  await expect(page.getByText("Score", { exact: true })).toBeVisible();
-  await expect(page.getByText("Confidence", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "View confirmation" }).click();
+  await expect(page.getByRole("heading", { name: "Assessment received" })).toBeVisible();
+  await expect(page.getByText("Responses captured", { exact: true })).toBeVisible();
+  await expect(page.getByText("Score", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Confidence", { exact: true })).toHaveCount(0);
 });
