@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import {
+  assertProductionSigningConfiguration,
   clearRecruiterCookie,
   readCookie,
   recruiterCookie,
@@ -36,6 +37,7 @@ const submitSchema = z.object({
 });
 
 export function buildServer() {
+  assertProductionConfiguration();
   const app = Fastify({ logger: true, routerOptions: { maxParamLength: 512 } });
   const repository = createRepository();
   const reasoningTraces = createReasoningTraceStore();
@@ -259,6 +261,20 @@ function authenticateRecruiter(request: FastifyRequest, reply: FastifyReply) {
     reply.code(401).send({ error: error instanceof Error ? error.message : "Invalid recruiter token" });
     return null;
   }
+}
+
+function assertProductionConfiguration() {
+  if (process.env.NODE_ENV !== "production") return;
+  assertProductionSigningConfiguration();
+  const { QORIUM_RECRUITER_EMAIL: email, QORIUM_RECRUITER_PASSWORD: password, QORIUM_RECRUITER_ORG_ID: orgId } = process.env;
+  if (!email || !z.string().email().safeParse(email).success || email.toLowerCase() === "recruiter@example.com") {
+    throw new Error("QORIUM_RECRUITER_EMAIL must be explicitly configured in production");
+  }
+  if (!password || password.trim().length < 16 || password === "dev-recruiter-password") {
+    throw new Error("QORIUM_RECRUITER_PASSWORD must be explicitly configured with at least 16 characters in production");
+  }
+  if (!orgId?.trim()) throw new Error("QORIUM_RECRUITER_ORG_ID must be explicitly configured in production");
+  if (process.env.QORIUM_RECRUITER_COOKIE_SECURE === "false") throw new Error("Production recruiter cookies must be secure");
 }
 
 function validRecruiterCredentials(email: string, password: string) {
