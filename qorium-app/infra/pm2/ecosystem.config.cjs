@@ -31,6 +31,7 @@ module.exports = {
         PORT: apiPort,
         DATABASE_URL: process.env.DATABASE_URL,
         REDIS_URL: process.env.REDIS_URL,
+        GIT_SHA: process.env.GIT_SHA,
         QORIUM_SIGNING_SECRET: process.env.QORIUM_SIGNING_SECRET,
         QORIUM_RECRUITER_JWT_SECRET: process.env.QORIUM_RECRUITER_JWT_SECRET,
         QORIUM_RECRUITER_EMAIL: process.env.QORIUM_RECRUITER_EMAIL,

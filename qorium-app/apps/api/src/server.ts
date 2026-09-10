@@ -65,7 +65,17 @@ export function buildServer() {
     }
   });
 
-  app.get("/health", async () => ({ ok: true, service: "qorium-api", version: "phase1" }));
+  async function health(_request: FastifyRequest, reply: FastifyReply) {
+    const checks = await repository.checkHealth();
+    const ok = checks.db === "ok" || (checks.db === "memory-fallback" && process.env.NODE_ENV !== "production");
+    const revision = process.env.GIT_SHA ?? "";
+    return reply.code(ok ? 200 : 503).header("Cache-Control", "no-store").send({
+      ok, service: "qorium-api", version: "phase1",
+      git_sha: /^[a-f0-9]{40}$/i.test(revision) ? revision : "unknown", checks
+    });
+  }
+  app.get("/health", health);
+  app.get("/healthz", health);
 
   app.post("/api/v1/recruiter/login", async (request, reply) => {
     const input = recruiterLoginSchema.parse(request.body);

@@ -34,7 +34,10 @@ export interface Attempt {
 
 export type AuditActor = { type: "system" | "recruiter" | "candidate" | "worker"; id: string };
 
+export type RepositoryHealth = { db: "ok" | "unavailable" | "memory-fallback" };
+
 export interface QoriumRepository {
+  checkHealth(): Promise<RepositoryHealth>;
   getSkillStats(): Promise<{ total: number; categories: number; skills: number; subSkills: number }>;
   listSkills(limit: number, offset: number): Promise<{ data: SkillNode[]; nextCursor: string | null }>;
   getLibraryCards(): Promise<Array<{ skill: SkillNode; questionCount: number }>>;
@@ -74,6 +77,7 @@ export function createRepository(): QoriumRepository {
 }
 
 class MemoryRepository implements QoriumRepository {
+  async checkHealth(): Promise<RepositoryHealth> { return { db: "memory-fallback" }; }
   private readonly assessmentStore = new Map<string, Assessment>();
   private readonly attemptStore = new Map<string, Attempt>();
   private readonly auditStore: AuditRecord[] = [];
@@ -201,9 +205,37 @@ class PostgresRepository implements QoriumRepository {
   private readonly db: Database;
   private seeded: Promise<void> | null = null;
 
-  constructor(databaseUrl: string) {
+  private healthInFlight: Promise<RepositoryHealth> | null = null;
+
+  constructor(private readonly databaseUrl: string) {
     this.client = postgres(databaseUrl, { max: 5 });
     this.db = drizzle(this.client);
+  }
+
+  checkHealth(): Promise<RepositoryHealth> {
+    this.healthInFlight ??= this.readHealth().finally(() => { this.healthInFlight = null; });
+    return this.healthInFlight;
+  }
+
+  private async readHealth(): Promise<RepositoryHealth> {
+    // A separate read-only connection cannot seed data or alter application timeouts.
+    const probe = postgres(this.databaseUrl, {
+      max: 1, connect_timeout: 2, onnotice: () => {},
+      connection: { application_name: "qorium-readiness", default_transaction_read_only: true, statement_timeout: 2000, lock_timeout: 2000 }
+    });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        probe`SELECT id FROM public.skill LIMIT 1`,
+        new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("Readiness deadline")), 2500); })
+      ]);
+      return { db: "ok" };
+    } catch {
+      return { db: "unavailable" };
+    } finally {
+      clearTimeout(timer);
+      await probe.end({ timeout: 0.5 }).catch(() => {});
+    }
   }
 
   async getSkillStats() {
