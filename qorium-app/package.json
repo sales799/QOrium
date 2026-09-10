@@ -13,7 +13,9 @@
     "lint": "turbo run lint",
     "smoke": "tsx tests/smoke.ts",
     "e2e": "playwright test",
-    "production:gate": "node scripts/production-gates.mjs"
+    "production:gate": "node scripts/production-gates.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "test:migrations": "node --test tests/migrations.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { asc, desc, eq, inArray, sql } from "drizzle-orm";
 import postgres from "postgres";
 import {
   assessmentQuestions,
@@ -219,7 +219,7 @@ class PostgresRepository implements QoriumRepository {
 
   async listSkills(limit: number, offset: number) {
     await this.ensureSeeded();
-    const rows = await this.db.select().from(skills).limit(limit + 1).offset(offset);
+    const rows = await this.db.select().from(skills).orderBy(asc(skills.id)).limit(limit + 1).offset(offset);
     const data = rows.slice(0, limit).map(dbSkillToNode);
     return {
       data,
@@ -240,8 +240,8 @@ class PostgresRepository implements QoriumRepository {
   async listLibraryQuestions(skillId?: string) {
     await this.ensureSeeded();
     const rows = skillId
-      ? await this.db.select().from(questions).where(eq(questions.skillId, skillId))
-      : await this.db.select().from(questions);
+      ? await this.db.select().from(questions).where(eq(questions.skillId, skillId)).orderBy(asc(questions.id))
+      : await this.db.select().from(questions).orderBy(asc(questions.id));
     return rows.map(dbQuestionToLibraryQuestion);
   }
 
@@ -255,7 +255,7 @@ class PostgresRepository implements QoriumRepository {
     await this.ensureSeeded();
     const selected = (
       await Promise.all(input.skillIds.map((skillId) =>
-        this.db.select().from(questions).where(eq(questions.skillId, skillId)).limit(input.questionsPerSkill)
+        this.db.select().from(questions).where(eq(questions.skillId, skillId)).orderBy(asc(questions.id)).limit(input.questionsPerSkill)
       ))
     ).flat();
     return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt);
@@ -277,7 +277,7 @@ class PostgresRepository implements QoriumRepository {
     await this.ensureSeeded();
     const skill = await this.getSkill(input.skillId);
     if (!skill) return null;
-    const selected = await this.db.select().from(questions).where(eq(questions.skillId, input.skillId)).limit(input.questionLimit);
+    const selected = await this.db.select().from(questions).where(eq(questions.skillId, input.skillId)).orderBy(asc(questions.id)).limit(input.questionLimit);
     return this.insertAssessment(input.title, input.candidateEmail, selected.map(dbQuestionToLibraryQuestion), input.expiresAt);
   }
 
@@ -303,34 +303,38 @@ class PostgresRepository implements QoriumRepository {
   }
 
   async createAttempt(input: { assessmentId: string; candidateEmail: string; answers: Attempt["answers"] }) {
-    const [attempt] = await this.db
-      .insert(attempts)
-      .values({ assessmentId: input.assessmentId, candidateEmail: input.candidateEmail, submittedAt: new Date() })
-      .returning();
-    if (!attempt) throw new Error("Failed to persist attempt");
-    if (input.answers.length > 0) {
-      await this.db.insert(answers).values(input.answers.map((answer) => ({
-        attemptId: attempt.id,
-        questionId: answer.questionId,
-        response: answer.response,
-        grade: answer.grade,
-        confidence: answer.confidence,
-        reasoningTraceRef: answer.reasoningTraceRef ?? answer.reasoning
-      })));
-    }
-    return {
-      id: attempt.id,
-      assessmentId: attempt.assessmentId,
-      candidateEmail: attempt.candidateEmail,
-      answers: input.answers,
-      submittedAt: attempt.submittedAt?.toISOString() ?? new Date().toISOString()
-    };
+    await this.ensureSeeded();
+    return this.db.transaction(async (tx) => {
+      const [attempt] = await tx
+        .insert(attempts)
+        .values({ assessmentId: input.assessmentId, candidateEmail: input.candidateEmail, submittedAt: new Date() })
+        .returning();
+      if (!attempt) throw new Error("Failed to persist attempt");
+      if (input.answers.length > 0) {
+        await tx.insert(answers).values(input.answers.map((answer, position) => ({
+          position,
+          attemptId: attempt.id,
+          questionId: answer.questionId,
+          response: answer.response,
+          grade: answer.grade,
+          confidence: answer.confidence,
+          reasoningTraceRef: answer.reasoningTraceRef ?? answer.reasoning
+        })));
+      }
+      return {
+        id: attempt.id,
+        assessmentId: attempt.assessmentId,
+        candidateEmail: attempt.candidateEmail,
+        answers: input.answers,
+        submittedAt: attempt.submittedAt?.toISOString() ?? new Date().toISOString()
+      };
+    });
   }
 
   async getAttempt(id: string) {
     const [attempt] = await this.db.select().from(attempts).where(eq(attempts.id, id)).limit(1);
     if (!attempt) return null;
-    const answerRows = await this.db.select().from(answers).where(eq(answers.attemptId, id));
+    const answerRows = await this.db.select().from(answers).where(eq(answers.attemptId, id)).orderBy(asc(answers.position), asc(answers.id));
     return {
       id: attempt.id,
       assessmentId: attempt.assessmentId,
@@ -380,27 +384,29 @@ class PostgresRepository implements QoriumRepository {
   }
 
   private async insertAssessment(title: string, candidateEmail: string, selected: LibraryQuestion[], expiresAt: Date) {
-    const [assessment] = await this.db
-      .insert(assessments)
-      .values({ title, candidateEmail, expiresAt, status: "draft" })
-      .returning();
-    if (!assessment) throw new Error("Failed to persist assessment");
-    if (selected.length > 0) {
-      await this.db.insert(assessmentQuestions).values(selected.map((question, index) => ({
-        assessmentId: assessment.id,
-        questionId: question.id,
-        position: index
-      })));
-    }
-    return {
-      id: assessment.id,
-      orgId: assessment.orgId,
-      title: assessment.title,
-      candidateEmail: assessment.candidateEmail,
-      questions: selected,
-      expiresAt: assessment.expiresAt.toISOString(),
-      createdAt: assessment.createdAt.toISOString()
-    };
+    return this.db.transaction(async (tx) => {
+      const [assessment] = await tx
+        .insert(assessments)
+        .values({ title, candidateEmail, expiresAt, status: "draft" })
+        .returning();
+      if (!assessment) throw new Error("Failed to persist assessment");
+      if (selected.length > 0) {
+        await tx.insert(assessmentQuestions).values(selected.map((question, index) => ({
+          assessmentId: assessment.id,
+          questionId: question.id,
+          position: index
+        })));
+      }
+      return {
+        id: assessment.id,
+        orgId: assessment.orgId,
+        title: assessment.title,
+        candidateEmail: assessment.candidateEmail,
+        questions: selected,
+        expiresAt: assessment.expiresAt.toISOString(),
+        createdAt: assessment.createdAt.toISOString()
+      };
+    });
   }
 
   private async questionCounts(skillIds: string[]) {
@@ -435,6 +441,12 @@ class PostgresRepository implements QoriumRepository {
         id: question.id,
         skillId: question.skillId,
         type: toDbQuestionType(question.type),
+        difficulty: question.difficulty,
+        tags: question.tags,
+        rubric: question.rubric,
+        languageHints: question.languageHints,
+        starterCode: question.starterCode,
+        testExpectation: question.testExpectation,
         stem: question.stem,
         options: question.options,
         correctAnswer: question.correctAnswer,
@@ -463,11 +475,15 @@ function dbQuestionToLibraryQuestion(row: typeof questions.$inferSelect): Librar
     id: row.id,
     skillId: row.skillId,
     type: fromDbQuestionType(row.type),
-    difficulty: 1,
+    difficulty: row.difficulty,
     stem: row.stem,
     explanation: row.explanation,
     irt: { a: row.irtA, b: row.irtB, c: row.irtC },
-    tags: [],
+    tags: row.tags,
+    rubric: row.rubric ?? undefined,
+    languageHints: row.languageHints ?? undefined,
+    starterCode: row.starterCode ?? undefined,
+    testExpectation: row.testExpectation ?? undefined,
     options: row.options ?? undefined,
     correctAnswer: row.correctAnswer
   };

@@ -1,4 +1,4 @@
-import { integer, jsonb, pgEnum, pgTable, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgEnum, pgTable, primaryKey, real, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const questionType = pgEnum("question_type", ["mcq", "multi_select", "short_answer", "code_question"]);
 export const auditActorType = pgEnum("audit_actor_type", ["system", "recruiter", "candidate", "worker"]);
@@ -32,7 +32,9 @@ export const assessmentQuestions = pgTable("assessment_question", {
   assessmentId: uuid("assessment_id").notNull().references(() => assessments.id),
   questionId: text("question_id").notNull().references(() => questions.id),
   position: integer("position").notNull()
-});
+}, (table) => ({
+  pk: primaryKey({ columns: [table.assessmentId, table.questionId] })
+}));
 
 export const sections = pgTable("section", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -46,10 +48,16 @@ export const questions = pgTable("question", {
   sectionId: uuid("section_id").references(() => sections.id),
   skillId: text("skill_id").notNull().references(() => skills.id),
   type: questionType("type").notNull(),
+  difficulty: integer("difficulty").notNull().default(1),
   stem: text("stem").notNull(),
   options: jsonb("options").$type<string[]>(),
   correctAnswer: jsonb("correct_answer"),
   explanation: text("explanation").notNull(),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  rubric: jsonb("rubric").$type<string[]>(),
+  languageHints: jsonb("language_hints").$type<string[]>(),
+  starterCode: jsonb("starter_code").$type<Record<string, string>>(),
+  testExpectation: text("test_expectation"),
   irtA: real("irt_a").notNull().default(1),
   irtB: real("irt_b").notNull().default(0),
   irtC: real("irt_c").notNull().default(0.25)
@@ -66,6 +74,7 @@ export const answers = pgTable("answer", {
   id: uuid("id").defaultRandom().primaryKey(),
   attemptId: uuid("attempt_id").notNull().references(() => attempts.id),
   questionId: text("question_id").notNull().references(() => questions.id),
+  position: integer("position").notNull().default(0),
   response: jsonb("response").notNull(),
   grade: real("grade"),
   confidence: real("confidence"),
