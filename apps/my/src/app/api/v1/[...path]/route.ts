@@ -16,15 +16,22 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
   const headers: Record<string, string> = { 'content-type': 'application/json' };
   const cookie = req.headers.get('cookie');
   if (cookie) headers['cookie'] = cookie;
-  const init: RequestInit = { method: req.method, headers, cache: 'no-store' };
+  const init: RequestInit = {
+    method: req.method, headers, cache: 'no-store', signal: AbortSignal.timeout(15_000),
+  };
   if (req.method !== 'GET' && req.method !== 'HEAD') init.body = await req.text();
 
   try {
     const r = await fetch(target, init);
-    const body = await r.text();
+    const body = [204, 205, 304].includes(r.status) ? null : await r.arrayBuffer();
     const out = new Headers({
       'content-type': r.headers.get('content-type') ?? 'application/json',
+      'cache-control': 'no-store',
     });
+    for (const name of ['content-disposition', 'retry-after', 'www-authenticate']) {
+      const value = r.headers.get(name);
+      if (value) out.set(name, value);
+    }
     const setCookies =
       typeof (r.headers as { getSetCookie?: () => string[] }).getSetCookie === 'function'
         ? (r.headers as { getSetCookie: () => string[] }).getSetCookie()
@@ -34,10 +41,13 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
           })();
     for (const c of setCookies) out.append('set-cookie', c);
     return new Response(body, { status: r.status, headers: out });
-  } catch {
-    return new Response(JSON.stringify({ title: 'Bad Gateway', status: 502 }), {
-      status: 502,
-      headers: { 'content-type': 'application/problem+json' },
+  } catch (error) {
+    const timedOut = (error instanceof Error && error.name === 'TimeoutError') ||
+      (init.signal?.aborted && init.signal.reason?.name === 'TimeoutError');
+    const status = timedOut ? 504 : 502;
+    return new Response(JSON.stringify({ title: timedOut ? 'Gateway Timeout' : 'Bad Gateway', status }), {
+      status,
+      headers: { 'content-type': 'application/problem+json', 'cache-control': 'no-store' },
     });
   }
 }
