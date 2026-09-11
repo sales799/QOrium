@@ -28,6 +28,23 @@ interface RecruiterSessionClaims extends JwtPayload {
   role: 'recruiter';
 }
 
+function isRecruiterSessionClaims(value: string | JwtPayload): value is RecruiterSessionClaims {
+  if (typeof value !== 'object' || value === null) return false;
+  return (
+    typeof value.sub === 'string' &&
+    value.sub.trim().length > 0 &&
+    typeof value.tenant_id === 'string' &&
+    value.tenant_id.trim().length > 0 &&
+    typeof value.email === 'string' &&
+    value.email.trim().length > 0 &&
+    typeof value.name === 'string' &&
+    value.role === 'recruiter' &&
+    typeof value.exp === 'number' &&
+    Number.isSafeInteger(value.exp) &&
+    value.exp > Math.floor(Date.now() / 1000)
+  );
+}
+
 export interface RecruiterAuthOptions {
   jwtSecret: string;
   cookieSecure: boolean;
@@ -100,11 +117,13 @@ export function recruiterAuth(options: RecruiterAuthOptions): RequestHandler {
 
     let claims: RecruiterSessionClaims;
     try {
-      claims = jwt.verify(token, options.jwtSecret, {
+      const verified = jwt.verify(token, options.jwtSecret, {
         algorithms: ['HS256'],
         issuer: JWT_ISSUER,
         audience: JWT_AUDIENCE,
-      }) as RecruiterSessionClaims;
+      });
+      if (!isRecruiterSessionClaims(verified)) throw new Error('Invalid session claims');
+      claims = verified;
     } catch {
       clearSessionCookie(res, options);
       next(

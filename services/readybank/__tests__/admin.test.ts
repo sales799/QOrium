@@ -349,6 +349,7 @@ function adminCookie(tenantId = ADMIN_TENANT_ID): string {
       tenant_id: tenantId,
       email: 'admin@qorium.test',
       name: 'Admin Recruiter',
+      role: 'recruiter',
     },
     JWT_SECRET,
     {
