@@ -6,9 +6,9 @@ import type { QuestionCursor } from '../types/cursor.js';
 /**
  * Read-only repository over `content.questions`.
  *
- * Queries restrict to `status = 'released'` and `sku = 'readybank'` so that
- * draft / SME-review / calibrating items and ephemeral JD-Forge questions
- * are never visible via the public API surface.
+ * Queries restrict to released ReadyBank rows without a private tenant tag.
+ * Draft, review, calibrating, JD-Forge and tenant-private questions stay out
+ * of shared delivery, even if a private row's SKU label is stale.
  */
 
 export interface SearchFilters {
@@ -88,7 +88,7 @@ export async function getQuestionByUuid(pool: Pool, uuid: string): Promise<Quest
             difficulty_b, discrimination_a, empirical_pass_rate,
             released_at, created_at
      FROM content.questions
-     WHERE id = $1 AND status = 'released' AND sku = 'readybank'
+     WHERE id = $1 AND status = 'released' AND sku = 'readybank' AND stack_vault_tenant_id IS NULL
      LIMIT 1`,
     [uuid],
   );
@@ -102,7 +102,11 @@ const DEFAULT_LIMIT = 20;
 export async function searchQuestions(pool: Pool, filters: SearchFilters): Promise<SearchResult> {
   const limit = Math.min(Math.max(filters.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
 
-  const conditions: string[] = [`q.status = 'released'`, `q.sku = 'readybank'`];
+  const conditions: string[] = [
+    `q.status = 'released'`,
+    `q.sku = 'readybank'`,
+    `q.stack_vault_tenant_id IS NULL`,
+  ];
   const params: unknown[] = [];
 
   if (filters.format) {

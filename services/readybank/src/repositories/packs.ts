@@ -134,7 +134,7 @@ export async function* streamPackQuestions(
               difficulty_b, discrimination_a, empirical_pass_rate,
               released_at, created_at
        FROM content.questions
-       WHERE id = ANY($1::uuid[]) AND status = 'released' AND sku = 'readybank'`,
+       WHERE id = ANY($1::uuid[]) AND status = 'released' AND sku = 'readybank' AND stack_vault_tenant_id IS NULL`,
       [slice],
     );
 
