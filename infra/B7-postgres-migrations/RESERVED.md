@@ -50,7 +50,9 @@ For long-lived feature work that won't merge for weeks, **reserve** a slot by ad
 | 0021   | `0021_assessment_delivery.sql`             | pending  | codex/qorium-assessment-br1-db-migration-20260603 |
 | 0022   | `0022_skill_families.sql`                  | pending  | codex/qorium-n7-skill-families-migration-20260611 |
 
-**Next available number: 0023.**
+| 0023   | `0023_recruiter_session_invalidation.sql` | pending | nirantar/qorium-session-integration-20260911 |
+
+**Next available number: 0024.**
 
 ### WITHDRAWN 0018
 

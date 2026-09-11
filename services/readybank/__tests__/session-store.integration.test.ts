@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { syntheticIdp } from '../../../packages/saml/__tests__/helpers/signed-assertion';
 import { POST as samlAcs } from '../../../apps/marketing/src/app/v1/auth/saml/acs/route';
 import { GET as samlLogin } from '../../../apps/marketing/src/app/v1/auth/saml/login/route';
@@ -29,6 +30,7 @@ const url = process.env.QORIUM_SESSION_TEST_DATABASE_URL;
 describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
   let admin: Pool, pool: Pool, readonlyPool: Pool;
   let created = false;
+  let migrationApplied = false;
   let idp: ReturnType<typeof syntheticIdp>;
   const proofTenant = getSamlProofTenant('acme')!;
   const originalProofConfig = { ...proofTenant.config };
@@ -74,6 +76,18 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
         expires_at timestamptz NOT NULL,revoked_at timestamptz,created_at timestamptz NOT NULL DEFAULT now(),last_seen_at timestamptz NOT NULL DEFAULT now());`);
     await pool.query(`CREATE TABLE app.saml_authn_request_state(request_id_hash bytea PRIMARY KEY,tenant_id uuid NOT NULL REFERENCES app.tenants(id),relay_state text NOT NULL,expires_at timestamptz NOT NULL,consumed_at timestamptz);
       CREATE TABLE app.saml_assertions_seen(assertion_id_hash bytea PRIMARY KEY,tenant_id uuid NOT NULL REFERENCES app.tenants(id),kind text NOT NULL,expires_at timestamptz NOT NULL);`);
+    {
+      await pool.query(
+        readFileSync(
+          new URL(
+            '../../../infra/B7-postgres-migrations/0023_recruiter_session_invalidation.sql',
+            import.meta.url,
+          ),
+          'utf8',
+        ),
+      );
+      migrationApplied = true;
+    }
     await pool.query('INSERT INTO app.tenants VALUES($1),($2)', [tenant, other]);
     await pool.query(
       "INSERT INTO app.recruiters(id,tenant_id,email,name,status) VALUES($1,$2,'synthetic@example.test','Synthetic','active')",
@@ -88,6 +102,42 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     }
     vi.unstubAllEnvs();
     if (readonlyPool) await readonlyPool.end();
+    if (migrationApplied) {
+      const before = Number(
+        (
+          await pool.query(
+            'SELECT count(*) FROM app.recruiter_sessions WHERE revoked_at IS NOT NULL',
+          )
+        ).rows[0].count,
+      );
+      const migration = readFileSync(
+        new URL(
+          '../../../infra/B7-postgres-migrations/0023_recruiter_session_invalidation.sql',
+          import.meta.url,
+        ),
+        'utf8',
+      );
+      const rollback = [...migration.matchAll(/^-- (BEGIN;|DROP[^\n]*;|COMMIT;)$/gm)]
+        .map((match) => match[1])
+        .join('\n');
+      await pool.query(rollback);
+      expect(
+        Number(
+          (
+            await pool.query(
+              'SELECT count(*) FROM app.recruiter_sessions WHERE revoked_at IS NOT NULL',
+            )
+          ).rows[0].count,
+        ),
+      ).toBe(before);
+      expect(
+        (
+          await pool.query(
+            "SELECT 1 FROM pg_trigger WHERE tgname='recruiter_sessions_invalidate_on_change'",
+          )
+        ).rows,
+      ).toHaveLength(0);
+    }
     if (pool) await pool.end();
     if (admin) {
       if (created) await admin.query(`DROP DATABASE ${database}`);
@@ -400,6 +450,96 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     );
     await service.revoke(issued.token);
     await expect(service.renew(renewed.token)).rejects.toBeInstanceOf(InvalidRecruiterSession);
+  });
+  it.each([
+    ['password_hash', 'replacement-synthetic-hash'],
+    ['status', 'disabled'],
+    ['external_sso_id', 'replacement-subject'],
+    ['email', 'changed@example.test'],
+    ['tenant_id', other],
+    ['auth_source', 'scim'],
+  ])('security change to %s revokes password and SAML rows', async (field, value) => {
+    const store = createSessionStore(pool, hash),
+      a = key(),
+      b = { ...key(), method: 'saml' as const };
+    await store.create(a);
+    await store.create(b);
+    const original = (
+      await pool.query(`SELECT ${field} AS value FROM app.recruiters WHERE id=$1`, [recruiter])
+    ).rows[0].value;
+    try {
+      await pool.query(`UPDATE app.recruiters SET ${field}=$1 WHERE id=$2`, [value, recruiter]);
+      const rows = (
+        await pool.query(
+          'SELECT revoked_at FROM app.recruiter_sessions WHERE session_id_hash IN ($1,$2)',
+          [hash(tenant, a.sessionId), hash(tenant, b.sessionId)],
+        )
+      ).rows;
+      expect(rows).toHaveLength(2);
+      expect(rows.every((row) => row.revoked_at !== null)).toBe(true);
+    } finally {
+      await pool.query(`UPDATE app.recruiters SET ${field}=$1 WHERE id=$2`, [original, recruiter]);
+    }
+  });
+  it('reenabling an account never restores its old sessions', async () => {
+    const store = createSessionStore(pool, hash),
+      k = key();
+    await store.create(k);
+    await pool.query("UPDATE app.recruiters SET status='disabled' WHERE id=$1", [recruiter]);
+    await pool.query("UPDATE app.recruiters SET status='active' WHERE id=$1", [recruiter]);
+    expect(await store.renew(k)).toBeNull();
+  });
+  it('cosmetic and no-op security updates preserve sessions', async () => {
+    const store = createSessionStore(pool, hash),
+      k = key();
+    await store.create(k);
+    await pool.query(
+      "UPDATE app.recruiters SET name='Cosmetic',last_login_at=now(),password_hash=password_hash,status=status,email=email,external_sso_id=external_sso_id,tenant_id=tenant_id,auth_source=auth_source WHERE id=$1",
+      [recruiter],
+    );
+    expect(await store.renew(k)).not.toBeNull();
+  });
+  it('rejects a security change when RLS would hide sessions from the invoker', async () => {
+    const role = `session_rls_${randomUUID().replaceAll('-', '')}`;
+    await pool.query(
+      `CREATE ROLE ${role}; GRANT USAGE ON SCHEMA app TO ${role}; GRANT SELECT,UPDATE ON app.recruiters,app.recruiter_sessions TO ${role}`,
+    );
+    const c = await pool.connect();
+    try {
+      await c.query('BEGIN');
+      await c.query('ALTER TABLE app.recruiter_sessions ENABLE ROW LEVEL SECURITY');
+      await c.query(`SET LOCAL ROLE ${role}`);
+      await expect(
+        c.query("UPDATE app.recruiters SET email='hidden@example.test' WHERE id=$1", [recruiter]),
+      ).rejects.toMatchObject({ code: '42501' });
+    } finally {
+      await c.query('ROLLBACK');
+      c.release();
+      await pool.query(`DROP OWNED BY ${role}; DROP ROLE ${role}`);
+    }
+  });
+  it('rolls back a security update if the caller cannot revoke sessions', async () => {
+    const role = `session_writer_${randomUUID().replaceAll('-', '')}`;
+    await pool.query(
+      `CREATE ROLE ${role}; GRANT USAGE ON SCHEMA app TO ${role}; GRANT SELECT,UPDATE ON app.recruiters TO ${role}`,
+    );
+    const before = (await pool.query('SELECT email FROM app.recruiters WHERE id=$1', [recruiter]))
+      .rows[0].email;
+    const c = await pool.connect();
+    try {
+      await c.query('BEGIN');
+      await c.query(`SET LOCAL ROLE ${role}`);
+      await expect(
+        c.query("UPDATE app.recruiters SET email='denied@example.test' WHERE id=$1", [recruiter]),
+      ).rejects.toMatchObject({ code: '42501' });
+    } finally {
+      await c.query('ROLLBACK');
+      c.release();
+    }
+    expect(
+      (await pool.query('SELECT email FROM app.recruiters WHERE id=$1', [recruiter])).rows[0].email,
+    ).toBe(before);
+    await pool.query(`DROP OWNED BY ${role}; DROP ROLE ${role}`);
   });
   it('stores a digest and renews the same identifier with fresh database identity', async () => {
     const s = createSessionStore(pool, hash),

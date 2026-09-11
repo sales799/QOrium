@@ -1,0 +1,11 @@
+# Session invalidation on recruiter security changes
+
+Migration0023 adds an atomic trigger for changes to password_hash,status,external_sso_id,email,tenant_id or auth_source. It revokes every still-unrevoked session bound to the old recruiter/tenant. No-op security updates and name/last-login changes preserve sessions. Re-enabling an account never un-revokes its old sessions. Recruiter deletion continues to use migration0017's existing session cascade.
+
+The function is SECURITY INVOKER with a fixed search_path and qualified table reference. It does not grant privileges. Missing revocation permissions abort the account update. If RLS is active for the invoker on recruiter_sessions, it rejects the update rather than silently missing hidden sessions. Deployment must verify that every legitimate account writer has full revocation visibility and permissions; future RLS changes require explicit integration. No deployment or grant change is included here.
+
+The migration takes bounded DDL locks and is registered as pending0023. Its commented rollback removes trigger/function while preserving all session data and revocation timestamps. It affects future account updates, not unknown historic changes. It needs migrations0004,0008 and0017. Review migration0023 on staging before enabling production acceptance claims.
+
+Eight pre-migration PostgreSQL regressions reproduced the gap. Ten new checks cover six sensitive fields, disable/re-enable, cosmetic/no-op updates, permission failure atomicity and RLS fail-closed behavior. The final backend suite passes692 tests/21 skipped;39 dedicated PostgreSQL cases include actual migration and rollback assertions. Marketing111 tests pass. The numbering script passes under the existing PostgreSQL image's Bash runtime with a read-only source mount; no host shell installation.
+
+Source audit found no connected SCIM lifecycle or password-reset HTTP endpoints in current services/apps source. The existing password write is invitation activation. This database protection does not claim SCIM provisioning or password-reset UX exists. The SSOv1 specification requires disable to revoke sessions; those missing HTTP capabilities remain backlog items. No real account,data,schema or service changed during this work.
