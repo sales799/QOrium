@@ -7,6 +7,7 @@ import { recordAuditEvent } from '@qorium/auth';
 import type { AuthenticatedRequest } from '@qorium/auth';
 import type { Config } from '../config.js';
 import { HttpProblem } from '../middleware/problem.js';
+import { requireJsonSessionWrite } from '../middleware/json-session-write.js';
 import {
   clearSessionCookie,
   issueSessionCookie,
@@ -75,6 +76,7 @@ export interface AuthRouterDeps {
 
 export function authRouter(deps: AuthRouterDeps): Router {
   const router = Router();
+  router.use('/auth', requireJsonSessionWrite);
   const auditEnabled = deps.audit ?? true;
   const cookieOptions = {
     jwtSecret: deps.config.jwtSecret as string,
