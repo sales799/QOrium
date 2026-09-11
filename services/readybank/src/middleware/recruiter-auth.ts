@@ -104,19 +104,21 @@ export async function revokeSessionCookie(
   req: Request,
   res: Response,
   options: RecruiterAuthOptions,
-): Promise<void> {
+): Promise<Awaited<ReturnType<ReturnType<typeof durableSessions>['revoke']>> | undefined> {
+  let identity: Awaited<ReturnType<ReturnType<typeof durableSessions>['revoke']>> | undefined;
   const token = (req as Request & { cookies?: Record<string, string> }).cookies?.[
     SESSION_COOKIE_NAME
   ];
   if (token) {
     try {
-      await sessions(options).revoke(token);
+      identity = await sessions(options).revoke(token);
     } catch (error) {
       // Invalid/legacy cookies cannot identify a durable session. Clear them idempotently.
       if (!(error instanceof InvalidRecruiterSession)) throw sessionProblem(error);
     }
   }
   clearSessionCookie(res, options);
+  return identity;
 }
 export function recruiterAuth(options: RecruiterAuthOptions): RequestHandler {
   return async (req, res, next) => {

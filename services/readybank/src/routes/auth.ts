@@ -241,9 +241,28 @@ export function authRouter(deps: AuthRouterDeps): Router {
 
   router.post('/auth/logout', async (req, res, next) => {
     try {
-      const recruiterId = (req as RecruiterRequest).recruiter?.id;
-      await revokeSessionCookie(req, res, cookieOptions);
-      audit(req, 'auth.logout', recruiterId);
+      const identity = await revokeSessionCookie(req, res, cookieOptions);
+      if (auditEnabled) {
+        // Recruiters are not app.users: actor_id has a foreign key to that separate table.
+        // Attribute only a verified cookie after durable revocation; never store its bearer or sid.
+        await recordAuditEvent({
+          pool: deps.pool,
+          event: {
+            actor_type: 'user',
+            actor_id: null,
+            tenant_id: identity?.tenantId ?? null,
+            event_type: 'auth.logout',
+            entity_type: 'recruiter',
+            ...(identity ? { entity_id: identity.recruiterId } : {}),
+            payload: identity
+              ? { recruiter_id: identity.recruiterId, auth_method: identity.method }
+              : { identity_verified: false },
+            ip_address: req.ip,
+            user_agent: req.get('user-agent') ?? undefined,
+          },
+          onError: () => req.log?.warn('logout audit write failed'),
+        });
+      }
       res.status(204).end();
     } catch (error) {
       next(error);

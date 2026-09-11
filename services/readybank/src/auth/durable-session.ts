@@ -64,6 +64,7 @@ export function durableSessions(
     async revoke(token: string) {
       const key = read(token, true);
       await backend(key.method).store.revoke(key);
+      return { tenantId: key.tenantId, recruiterId: key.recruiterId, method: key.method };
     },
   };
 }

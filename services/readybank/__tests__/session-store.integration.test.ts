@@ -76,6 +76,11 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
         expires_at timestamptz NOT NULL,revoked_at timestamptz,created_at timestamptz NOT NULL DEFAULT now(),last_seen_at timestamptz NOT NULL DEFAULT now());`);
     await pool.query(`CREATE TABLE app.saml_authn_request_state(request_id_hash bytea PRIMARY KEY,tenant_id uuid NOT NULL REFERENCES app.tenants(id),relay_state text NOT NULL,expires_at timestamptz NOT NULL,consumed_at timestamptz);
       CREATE TABLE app.saml_assertions_seen(assertion_id_hash bytea PRIMARY KEY,tenant_id uuid NOT NULL REFERENCES app.tenants(id),kind text NOT NULL,expires_at timestamptz NOT NULL);`);
+    await pool.query(`CREATE SCHEMA audit;
+      CREATE TABLE app.users(id uuid PRIMARY KEY);
+      CREATE TABLE audit.events(actor_type text, actor_id uuid REFERENCES app.users(id),
+        tenant_id uuid REFERENCES app.tenants(id), event_type text, entity_type text,
+        entity_id uuid, changes jsonb, payload jsonb, ip_address inet, user_agent text, hash_current text);`);
     {
       await pool.query(
         readFileSync(
@@ -146,7 +151,7 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
   });
   const httpSamlSecret = 'synthetic-cross-app-saml-secret-'.repeat(2);
   const httpSecret = 'synthetic-http-session-secret-'.repeat(2);
-  function httpApp(db = pool, surface = 'auth', samlEnabled = true) {
+  function httpApp(db = pool, surface = 'auth', samlEnabled = true, audit = false) {
     const app = express();
     app.use(express.json());
     app.use((req, _res, next) => {
@@ -169,7 +174,7 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
           cookieSecure: false,
           samlSessionSecret: samlEnabled ? httpSamlSecret : undefined,
         },
-        audit: false,
+        audit,
       }),
     );
     const deps = {
@@ -352,6 +357,88 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
       401,
     );
   });
+  it.each(['password', 'saml'] as const)(
+    'attributes %s logout without an app.users identity or session secret',
+    async (method) => {
+      const secret = method === 'password' ? httpSecret : httpSamlSecret;
+      const sid = randomUUID();
+      const token = jwt.sign(
+        {
+          sub: recruiter,
+          tenant_id: tenant,
+          sid,
+          auth_method: method,
+          email: 'synthetic@example.test',
+          name: 'Synthetic',
+          role: 'recruiter',
+        },
+        secret,
+        {
+          algorithm: 'HS256',
+          issuer: method === 'password' ? 'qorium-readybank' : 'qorium-saml',
+          audience: 'qorium-recruiter',
+          expiresIn: -1,
+        },
+      );
+      // Authentic expired cookies still identify the revocation request. No user row is invented.
+      const result = await request(httpApp(pool, 'auth', true, true))
+        .post('/v1/auth/logout')
+        .set('Cookie', `qor_session=${token}`)
+        .send({});
+      expect(result.status).toBe(204);
+      const rows = (
+        await pool.query(
+          "SELECT * FROM audit.events WHERE entity_id=$1 AND payload->>'auth_method'=$2",
+          [recruiter, method],
+        )
+      ).rows;
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        actor_id: null,
+        tenant_id: tenant,
+        entity_id: recruiter,
+        event_type: 'auth.logout',
+        payload: { recruiter_id: recruiter, auth_method: method },
+      });
+      expect(JSON.stringify(rows)).not.toContain(token);
+      expect(JSON.stringify(rows)).not.toContain(sid);
+      expect((await pool.query('SELECT * FROM app.users')).rows).toHaveLength(0);
+    },
+  );
+  it('does not attribute a forged logout cookie', async () => {
+    const result = await request(httpApp(pool, 'auth', true, true))
+      .post('/v1/auth/logout')
+      .set('Cookie', 'qor_session=forged')
+      .send({});
+    expect(result.status).toBe(204);
+    const rows = (await pool.query('SELECT * FROM audit.events WHERE entity_id IS NULL')).rows;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      actor_id: null,
+      tenant_id: null,
+      payload: { identity_verified: false },
+    });
+  });
+
+  it('preserves durable logout when optional audit storage fails', async () => {
+    const cookie = await login();
+    const brokenAuditPool = {
+      connect: pool.connect.bind(pool),
+      query: async () => {
+        throw new Error('synthetic audit outage');
+      },
+    } as unknown as Pool;
+    const result = await request(httpApp(brokenAuditPool, 'auth', true, true))
+      .post('/v1/auth/logout')
+      .set('Cookie', cookie)
+      .send({});
+    expect(result.status).toBe(204);
+    expect(result.headers['set-cookie']).toBeDefined();
+    expect((await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie)).status).toBe(
+      401,
+    );
+  });
+
   it('HTTP login/whoami/logout rejects both original and renewed copied cookies', async () => {
     const cookie = await login();
     const res = await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie);
