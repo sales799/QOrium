@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import { pino } from 'pino';
 import jwt from 'jsonwebtoken';
@@ -298,6 +298,8 @@ function recruiterCookie(opts: { sub?: string; tenantId?: string } = {}): string
       email: 'recruiter@qorium.test',
       name: 'Test Recruiter',
       role: 'recruiter',
+      sid: '00000000-0000-4000-8000-000000000099',
+      auth_method: 'password',
     },
     JWT_SECRET,
     {
@@ -608,4 +610,11 @@ describe('renderAuditEventsExport (formatter)', () => {
     const text = content.toString('utf8');
     expect(text.split('\r\n').filter((l) => l.length > 0)).toHaveLength(1);
   });
+});
+
+// Explicit active-session fixture: these tests retain business-route assertions.
+vi.mock('../src/auth/session-store.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/auth/session-store.js')>();
+  const { activeSessionStore } = await import('./helpers/active-session-store.js');
+  return { ...actual, createSessionStore: () => activeSessionStore('rec@example.com') };
 });

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
@@ -7,21 +7,33 @@ import { recruiterAuth, JWT_ISSUER, JWT_AUDIENCE } from '../src/middleware/recru
 import { authRouter } from '../src/routes/auth.js';
 import { loadConfig } from '../src/config.js';
 import { problemHandler } from '../src/middleware/problem.js';
-const secret = 'synthetic-session-json-secret';
+const secret = 'synthetic-session-json-secret-thirty-two-x';
 function app() {
   const a = express();
   a.use(express.json());
   a.use(express.urlencoded({ extended: false }));
   const token = jwt.sign(
-    { tenant_id: 'tenant1', email: 'test@example.invalid', name: 'Test', role: 'recruiter' },
+    {
+      tenant_id: '00000000-0000-4000-8000-000000000002',
+      email: 'test@example.invalid',
+      name: 'Test',
+      role: 'recruiter',
+      sid: '00000000-0000-4000-8000-000000000099',
+      auth_method: 'password',
+    },
     secret,
-    { subject: 'rec1', issuer: JWT_ISSUER, audience: JWT_AUDIENCE, expiresIn: '1h' },
+    {
+      subject: '00000000-0000-4000-8000-000000000001',
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+      expiresIn: '1h',
+    },
   );
   a.use((req, _res, next) => {
     Object.assign(req, { cookies: { qor_session: token } });
     next();
   });
-  a.use('/private', recruiterAuth({ jwtSecret: secret, cookieSecure: false }));
+  a.use('/private', recruiterAuth({ pool: {} as Pool, jwtSecret: secret, cookieSecure: false }));
   a.post('/private', (_req, res) => res.json({ changed: true }));
   a.get('/private', (_req, res) => res.json({ read: true }));
   const pool = {
@@ -69,4 +81,11 @@ describe('cookie-session JSON writes', () => {
     expect((await request(app()).post('/v1/auth/logout').send({})).status).toBe(204);
     expect((await request(app()).get('/private')).status).toBe(200);
   });
+});
+
+// Explicit active-session fixture: these tests retain business-route assertions.
+vi.mock('../src/auth/session-store.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/auth/session-store.js')>();
+  const { activeSessionStore } = await import('./helpers/active-session-store.js');
+  return { ...actual, createSessionStore: () => activeSessionStore('rec@example.com') };
 });

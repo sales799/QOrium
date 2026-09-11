@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { isUuid } from '@qorium/db';
-import { JWT_AUDIENCE, JWT_ISSUER } from '../middleware/recruiter-auth.js';
+import { JWT_AUDIENCE, JWT_ISSUER } from './session-constants.js';
 import type { SessionKey, StoredSession, createSessionStore } from './session-store.js';
 
 export class InvalidRecruiterSession extends Error {

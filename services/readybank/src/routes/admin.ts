@@ -203,6 +203,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
   const router = Router();
   const auth = [
     recruiterAuth({
+      pool: deps.pool,
       jwtSecret: deps.config.jwtSecret ?? '',
       cookieSecure: deps.config.cookieSecure,
     }),

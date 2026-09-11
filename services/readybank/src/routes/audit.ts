@@ -128,6 +128,7 @@ function jobStatusEnvelope(job: AuditExportJobRow): Record<string, unknown> {
 export function auditRouter(deps: AuditRouterDeps): Router {
   const router = Router();
   const auth = recruiterAuth({
+    pool: deps.pool,
     jwtSecret: deps.config.jwtSecret ?? '',
     cookieSecure: deps.config.cookieSecure,
   });

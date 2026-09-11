@@ -1,15 +1,19 @@
-# Durable recruiter session store (integration pending)
+# Durable recruiter password sessions
 
-createSessionStore is a persistence primitive, not an enabled login feature. No route currently calls it. It uses the existing migration0017 schema; verify migration/grants before adoption.
+Password login, whoami, recruiter, billing, audit and admin gates now use durableSessions and the existing migration0017 recruiter_sessions table. Logout revokes the stable session before clearing the cookie. An authentic expired token may revoke a newer copy of the same session. Invalid/legacy cookies can be cleared idempotently; legacy tokens cannot authenticate.
 
-The caller supplies a trusted 32-byte identifier digest function with no default secret. For SAML compatibility preserve HMAC-SHA256 over session:tenantId:sessionId using its configured replay pepper. No key rotation is included.
+Database create/renew requires an active recruiter in the same tenant and returns current identity plus expires_at. JWT expiry is floored to that stored deadline; the cookie uses the same absolute Expires value. Every request rechecks account/session state. Conditional renewal cannot revive a revoked session. Database errors return generic503, without issuing a replacement cookie; logout storage failure does not claim success or clear the cookie. JSON write requirements remain enforced.
 
-Create and renewal require a currently active recruiter in the same tenant and return database identity. Every operation binds tenant, recruiter, method and stable session ID. Renewal never recreates rows; revocation is idempotent and works for disabled/expired accounts. Transactions set tenant context and statement/lock timeouts (3s/1s). Pool acquisition bounds remain the caller's pool configuration responsibility. Provider/database failures throw generic SessionStoreUnavailable; callers must withhold issuance/renewal and never fall back to stateless authentication.
+The existing configured JWT secret must be at least32 UTF-8 bytes. Password session IDs use HMAC-SHA256 of password-session:tenantId:sessionId with that secret. There is no generated/default key, fallback to stateless sessions or automatic key rotation. SAML's separate replay-pepper hash and token format are not yet unified with this password flow.
 
-Next: wire password issuance, all recruiter gates and logout, retaining a stable session ID across renewal. Legacy JWTs need deliberate reauthentication; SAML format unification needs coordinated configuration and staging proof. This commit does not fix deployed logout or certify SSO.
+## Required release preparation
 
-Tests use QORIUM_SESSION_TEST_DATABASE_URL only for an authorized disposable PostgreSQL endpoint. They create/drop a random database and minimal fixture; not production migration or grants certification. Coverage includes lifecycle, tenant/recruiter/method isolation, expiry, disabled/deleted users, idempotent revocation, duplicate prevention, concurrent renewal/revocation, read-only failures and concealed dependency errors.
+Verify migration0017 and grants, connection/statement/lock timeout operation, sufficiently strong existing signing configuration and database availability in staging. Plan reauthentication: old JWTs lack stable IDs and will be rejected. No live migration, secret rotation or deployment is part of this change. A rollback to old source restores its old stateless behavior and must not be presented as preserving revocation.
 
-## Token lifecycle adapter (HTTP wiring still pending)
+Test the browser/proxy/cookie topology and SAML/IdP flow before production acceptance. SAML integration, password reset/session-wide invalidation policy and logout audit actor attribution remain separate review items. The original logout audit lacked a populated recruiter actor; this patch does not fabricate one. Requests already authorized before revocation may finish; subsequent gates reject the session.
 
-The store now returns expires_at from INSERT/UPDATE RETURNING. durableSessions issues password JWTs with an absolute expiry floored to that database deadline and a stable UUID sid. Renewal uses fresh database identity. Tokens without sid/auth_method are rejected; there is no legacy stateless fallback. A correctly signed expired token can revoke its stable session, so an older cookie can invalidate a newer copy. The adapter requires an explicit signing secret of at least32 UTF-8 bytes. Actual cookie attributes, HTTP error mapping, login/all-five-gate/logout wiring and production configuration verification are not included yet.
+## Local validation
+
+672 tests passed,21 skipped with dedicated disposable PostgreSQL enabled. Nineteen database tests include HTTP login→renew→logout→reject-original-and-copy, disabled-account rejection, failure withholding, and separate rejection through all five protected route groups. Unit tests cover signed claim validation and token lifecycles. Existing business-route suites use explicit active-session storage fixtures while retaining real signature/claim checks and business assertions; these fixtures do not claim revocation coverage. Only dedicated database tests provide that evidence. Cookie assertions now follow the intentional absolute deadline contract.
+
+The database fixture models relevant constraints; it does not certify full production migrations/RLS/grants. All disposable containers and volumes were removed. No live sessions or customer data were accessed.

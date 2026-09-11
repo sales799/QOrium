@@ -9,7 +9,7 @@ import type { Config } from '../config.js';
 import { HttpProblem } from '../middleware/problem.js';
 import { requireJsonSessionWrite } from '../middleware/json-session-write.js';
 import {
-  clearSessionCookie,
+  revokeSessionCookie,
   issueSessionCookie,
   recruiterAuth,
   type RecruiterIdentity,
@@ -79,6 +79,7 @@ export function authRouter(deps: AuthRouterDeps): Router {
   router.use('/auth', requireJsonSessionWrite);
   const auditEnabled = deps.audit ?? true;
   const cookieOptions = {
+    pool: deps.pool,
     jwtSecret: deps.config.jwtSecret as string,
     cookieSecure: deps.config.cookieSecure,
   };
@@ -213,14 +214,14 @@ export function authRouter(deps: AuthRouterDeps): Router {
 
       await deps.pool.query(RECORD_SUCCESS_SQL, [recruiter.id]);
 
-      const identity: RecruiterIdentity = {
+      let identity: RecruiterIdentity = {
         id: recruiter.id,
         tenantId: recruiter.tenant_id,
         email: recruiter.email,
         name: recruiter.name,
         role: 'recruiter',
       };
-      issueSessionCookie(res, identity, cookieOptions);
+      identity = await issueSessionCookie(res, identity, cookieOptions);
       audit(req, 'auth.login.success', recruiter.id);
 
       res.status(200).json({
@@ -237,11 +238,15 @@ export function authRouter(deps: AuthRouterDeps): Router {
     }
   });
 
-  router.post('/auth/logout', (req, res) => {
-    const recruiterId = (req as RecruiterRequest).recruiter?.id;
-    clearSessionCookie(res, cookieOptions);
-    audit(req, 'auth.logout', recruiterId);
-    res.status(204).end();
+  router.post('/auth/logout', async (req, res, next) => {
+    try {
+      const recruiterId = (req as RecruiterRequest).recruiter?.id;
+      await revokeSessionCookie(req, res, cookieOptions);
+      audit(req, 'auth.logout', recruiterId);
+      res.status(204).end();
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.get('/auth/whoami', recruiterAuth(cookieOptions), (req, res) => {

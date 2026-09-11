@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import { pino } from 'pino';
 import argon2 from 'argon2';
@@ -140,7 +140,7 @@ describe('POST /v1/auth/login', () => {
     expect(cookie).toContain('qor_session=');
     expect(cookie).toContain('HttpOnly');
     expect(cookie).toContain('SameSite=Lax');
-    expect(cookie).toContain('Max-Age=28800');
+    expect(cookie).toContain('Expires=');
   });
 
   it('returns 401 on wrong password and increments failed counter', async () => {
@@ -238,7 +238,7 @@ describe('GET /v1/auth/whoami', () => {
     expect(refreshed).toBeDefined();
     const refreshedCookie = Array.isArray(refreshed) ? refreshed[0] : refreshed;
     expect(refreshedCookie).toContain('qor_session=');
-    expect(refreshedCookie).toContain('Max-Age=28800');
+    expect(refreshedCookie).toContain('Expires=');
   });
 
   it('returns 401 with a bogus cookie', async () => {
@@ -260,4 +260,11 @@ describe('POST /v1/auth/logout', () => {
     expect(cookie).toContain('qor_session=;');
     expect(cookie).toMatch(/Expires=Thu, 01 Jan 1970/i);
   });
+});
+
+// Explicit active-session fixture: these tests retain business-route assertions.
+vi.mock('../src/auth/session-store.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/auth/session-store.js')>();
+  const { activeSessionStore } = await import('./helpers/active-session-store.js');
+  return { ...actual, createSessionStore: () => activeSessionStore('recruiter@example.com') };
 });

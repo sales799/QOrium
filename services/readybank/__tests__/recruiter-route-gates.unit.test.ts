@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
@@ -101,6 +101,8 @@ function validSessionToken(): string {
       email: 'rec@example.com',
       name: 'Test Recruiter',
       role: 'recruiter',
+      sid: '00000000-0000-4000-8000-000000000099',
+      auth_method: 'password',
     },
     TEST_JWT_SECRET,
     {
@@ -224,4 +226,11 @@ describe('recruiter read endpoints -- UUID gate (authed, no DB)', () => {
     expect(res.headers['content-type']).toContain('application/problem+json');
     expect(res.body.status).toBe(400);
   });
+});
+
+// Explicit active-session fixture: these tests retain business-route assertions.
+vi.mock('../src/auth/session-store.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/auth/session-store.js')>();
+  const { activeSessionStore } = await import('./helpers/active-session-store.js');
+  return { ...actual, createSessionStore: () => activeSessionStore('rec@example.com') };
 });

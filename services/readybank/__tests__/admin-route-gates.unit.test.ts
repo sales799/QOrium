@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
@@ -46,7 +46,7 @@ import type { Config } from '../src/config.js';
  * (PRs #200/#202/#206/#207).
  */
 
-const TEST_JWT_SECRET = 'route-gate-test-secret-admin';
+const TEST_JWT_SECRET = 'route-gate-test-secret-admin-thirty-two-x';
 
 const ADMIN_TENANT_ID = '00000000-0000-4000-8000-0000000000b1';
 
@@ -123,6 +123,8 @@ function validSessionToken(): string {
       email: 'admin@example.com',
       name: 'Test Admin',
       role: 'recruiter',
+      sid: '00000000-0000-4000-8000-000000000099',
+      auth_method: 'password',
     },
     TEST_JWT_SECRET,
     {
@@ -256,4 +258,11 @@ describe('POST /v1/admin/panel-tokens -- body validation gate (authed, no DB)', 
     expect(res.headers['content-type']).toContain('application/problem+json');
     expect(res.body.status).toBe(400);
   });
+});
+
+// Explicit active-session fixture: these tests retain business-route assertions.
+vi.mock('../src/auth/session-store.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/auth/session-store.js')>();
+  const { activeSessionStore } = await import('./helpers/active-session-store.js');
+  return { ...actual, createSessionStore: () => activeSessionStore('rec@example.com') };
 });

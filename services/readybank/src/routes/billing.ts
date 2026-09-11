@@ -27,6 +27,7 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
   router.use(
     '/recruiter',
     recruiterAuth({
+      pool: deps.pool,
       jwtSecret: deps.config.jwtSecret as string,
       cookieSecure: deps.config.cookieSecure,
     }),

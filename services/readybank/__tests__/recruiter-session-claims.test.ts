@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import type { Pool } from '@qorium/db';
+import { describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
@@ -11,11 +12,13 @@ import {
 import { problemHandler } from '../src/middleware/problem.js';
 const secret = 'synthetic-recruiter-session-test-secret-only';
 const good = () => ({
-  sub: 'recruiter-1',
-  tenant_id: 'tenant-1',
+  sub: '00000000-0000-4000-8000-000000000001',
+  tenant_id: '00000000-0000-4000-8000-000000000002',
   email: 'test@example.invalid',
   name: 'Test',
   role: 'recruiter',
+  sid: '00000000-0000-4000-8000-000000000099',
+  auth_method: 'password',
   exp: Math.floor(Date.now() / 1000) + 300,
   iss: JWT_ISSUER,
   aud: JWT_AUDIENCE,
@@ -26,7 +29,7 @@ function appFor(token: string) {
     Object.assign(req, { cookies: { [SESSION_COOKIE_NAME]: token } });
     next();
   });
-  app.use(recruiterAuth({ jwtSecret: secret, cookieSecure: false }));
+  app.use(recruiterAuth({ pool: {} as Pool, jwtSecret: secret, cookieSecure: false }));
   app.get('/', (_req, res) => res.json({ allowed: true }));
   app.use(problemHandler());
   return app;
@@ -52,11 +55,18 @@ describe('recruiter session claim contract', () => {
     expect(res.status).toBe(401);
     expect(res.body).not.toHaveProperty('allowed');
     const cookies = res.headers['set-cookie'] ?? [];
-    expect(cookies.join(';')).not.toContain('Max-Age=28800');
+    expect(cookies.join(';')).toContain('qor_session=;');
   });
-  it('accepts the existing valid shape and renews its cookie', async () => {
+  it('accepts a durable session shape and renews its cookie', async () => {
     const res = await request(appFor(jwt.sign(good(), secret, { algorithm: 'HS256' }))).get('/');
     expect(res.status).toBe(200);
-    expect(res.headers['set-cookie'].join(';')).toContain('Max-Age=28800');
+    expect(res.headers['set-cookie'].join(';')).toContain('Expires=');
   });
+});
+
+// Explicit active-session fixture: these tests retain business-route assertions.
+vi.mock('../src/auth/session-store.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/auth/session-store.js')>();
+  const { activeSessionStore } = await import('./helpers/active-session-store.js');
+  return { ...actual, createSessionStore: () => activeSessionStore('rec@example.com') };
 });
