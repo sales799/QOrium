@@ -40,9 +40,38 @@ export function createLogger(config: Config): Logger {
   });
 }
 
+/** Strip query data and bearer path segments from the log copy only. */
+function logRequestPath(url: string | undefined): string {
+  if (!url) return '[unavailable]';
+  let path: string;
+  try {
+    path = decodeURIComponent(url.split(/[?#]/, 1)[0]!);
+  } catch {
+    return '[unparseable]';
+  }
+  const bearerRoute = /^\/v1\/(invitations|proof)\//i.exec(path);
+  if (bearerRoute) {
+    const resource = bearerRoute[1]!.toLowerCase();
+    // Unknown trailing segments may also contain credentials: omit them.
+    const suffix =
+      resource === 'invitations'
+        ? /\/(start|proctoring)\/?$/i.exec(path)?.[1]
+        : /\/(view|badge\.svg)\/?$/i.exec(path)?.[1];
+    return `/v1/${resource}/[REDACTED]${suffix ? `/${suffix.toLowerCase()}` : ''}`;
+  }
+  return path;
+}
+
 export function createHttpLogger(logger: Logger) {
   return pinoHttp({
     logger,
+    // Allowlist the HTTP envelope. Headers can carry tokens in Referer,
+    // Location and Set-Cookie as well as Authorization; do not log them.
+    // pino-http supplies wrapped standard serializers; never mutate req.raw.
+    serializers: {
+      req: (req) => ({ id: req.id, method: req.method, url: logRequestPath(req.url) }),
+      res: (res) => ({ statusCode: res.statusCode }),
+    },
     genReqId: (req, res) => {
       const incoming = req.headers['x-request-id'];
       if (typeof incoming === 'string' && incoming.length > 0 && incoming.length <= 128) {
