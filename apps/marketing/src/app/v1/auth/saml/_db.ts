@@ -10,8 +10,12 @@ export function getOptionalSamlPool(): Pool | null {
   if (process.env.NODE_ENV === 'test' && process.env.QORIUM_SAML_TEST_DATABASE !== '1') {
     return null;
   }
-  if (pool !== undefined) return pool;
-  pool = hasDatabaseEnv() ? createPool({ applicationName: 'qorium-marketing-saml' }) : null;
+  if (pool === undefined) {
+    pool = hasDatabaseEnv() ? createPool({ applicationName: 'qorium-marketing-saml' }) : null;
+  }
+  if (!pool && process.env.NODE_ENV === 'production') {
+    throw new Error('SAML persistence unavailable');
+  }
   return pool;
 }
 
