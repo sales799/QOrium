@@ -81,7 +81,7 @@ export async function getAttemptForToken(
     `SELECT ${selectAttempt('a')}
        FROM content.attempts a
        JOIN content.invitations i ON i.id = a.invitation_id
-      WHERE a.id = $1 AND i.token = $2`,
+      WHERE a.id = $1 AND i.token = $2 AND i.expires_at > now()`,
     [attemptId, token],
   );
   return r.rows[0] ?? null;
