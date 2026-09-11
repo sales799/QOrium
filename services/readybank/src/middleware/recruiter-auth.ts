@@ -2,6 +2,7 @@ import type { Request, RequestHandler, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import type { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { HttpProblem } from './problem.js';
+import { jsonSessionWriteProblem } from './json-session-write.js';
 
 export const SESSION_COOKIE_NAME = 'qor_session';
 export const SESSION_TTL_SECONDS = 8 * 60 * 60; // 8h sliding window
@@ -95,6 +96,12 @@ export function recruiterAuth(options: RecruiterAuthOptions): RequestHandler {
           detail: 'Session cookie missing. Sign in at /login.html.',
         }),
       );
+      return;
+    }
+
+    const writeProblem = jsonSessionWriteProblem(req);
+    if (writeProblem) {
+      next(writeProblem);
       return;
     }
 

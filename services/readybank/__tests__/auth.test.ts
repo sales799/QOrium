@@ -253,7 +253,7 @@ describe('GET /v1/auth/whoami', () => {
 describe('POST /v1/auth/logout', () => {
   it('returns 204 and clears the session cookie', async () => {
     const { app } = await buildApp({ password: 'right' });
-    const res = await request(app).post('/v1/auth/logout');
+    const res = await request(app).post('/v1/auth/logout').send({});
     expect(res.status).toBe(204);
     const setCookie = res.headers['set-cookie'];
     const cookie = Array.isArray(setCookie) ? setCookie[0] : setCookie;
