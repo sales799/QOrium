@@ -1,3 +1,6 @@
+import { syntheticIdp } from '../../../packages/saml/__tests__/helpers/signed-assertion';
+import { POST as samlAcs } from '../../../apps/marketing/src/app/v1/auth/saml/acs/route';
+import { GET as samlLogin } from '../../../apps/marketing/src/app/v1/auth/saml/login/route';
 import { createSamlSession } from '../../../apps/marketing/src/app/v1/auth/saml/_session';
 import { recordSamlSession } from '../../../apps/marketing/src/app/v1/auth/saml/_recruiter-session';
 import { getOptionalSamlPool } from '../../../apps/marketing/src/app/v1/auth/saml/_db';
@@ -26,6 +29,9 @@ const url = process.env.QORIUM_SESSION_TEST_DATABASE_URL;
 describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
   let admin: Pool, pool: Pool, readonlyPool: Pool;
   let created = false;
+  let idp: ReturnType<typeof syntheticIdp>;
+  const proofTenant = getSamlProofTenant('acme')!;
+  const originalProofConfig = { ...proofTenant.config };
   const database = `qorium_sessions_${randomUUID().replaceAll('-', '')}`;
   const tenant = randomUUID(),
     other = randomUUID(),
@@ -39,6 +45,12 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     method: 'password',
   });
   beforeAll(async () => {
+    idp = syntheticIdp();
+    Object.assign(proofTenant.config, {
+      tenantId: tenant,
+      idpEntityId: 'urn:qorium:synthetic:idp',
+      idpSigningCert: idp.certificate,
+    });
     admin = createPool({ connectionString: url!, max: 1 });
     await admin.query(`CREATE DATABASE ${database}`);
     created = true;
@@ -54,12 +66,14 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     // Minimal schema reproducing migration0017 session constraints, not a migration certification.
     await pool.query(`CREATE SCHEMA app;
       CREATE TABLE app.tenants(id uuid PRIMARY KEY);
-      CREATE TABLE app.recruiters(id uuid PRIMARY KEY,tenant_id uuid REFERENCES app.tenants(id),email text,name text,status text,password_hash text,failed_login_count integer DEFAULT 0,locked_until timestamptz,last_login_at timestamptz,external_sso_id text DEFAULT 'synthetic-subject');
+      CREATE TABLE app.recruiters(id uuid PRIMARY KEY,tenant_id uuid REFERENCES app.tenants(id),email text,name text,status text,password_hash text,failed_login_count integer DEFAULT 0,locked_until timestamptz,last_login_at timestamptz,external_sso_id text DEFAULT 'synthetic-subject',auth_source text DEFAULT 'saml-jit');
       CREATE TABLE app.recruiter_sessions(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         tenant_id uuid NOT NULL REFERENCES app.tenants(id) ON DELETE CASCADE,
         recruiter_id uuid NOT NULL REFERENCES app.recruiters(id) ON DELETE CASCADE,
         session_id_hash bytea NOT NULL UNIQUE,assertion_hash bytea,auth_method varchar(32) NOT NULL CHECK(auth_method IN ('password','saml','oidc','admin')),
         expires_at timestamptz NOT NULL,revoked_at timestamptz,created_at timestamptz NOT NULL DEFAULT now(),last_seen_at timestamptz NOT NULL DEFAULT now());`);
+    await pool.query(`CREATE TABLE app.saml_authn_request_state(request_id_hash bytea PRIMARY KEY,tenant_id uuid NOT NULL REFERENCES app.tenants(id),relay_state text NOT NULL,expires_at timestamptz NOT NULL,consumed_at timestamptz);
+      CREATE TABLE app.saml_assertions_seen(assertion_id_hash bytea PRIMARY KEY,tenant_id uuid NOT NULL REFERENCES app.tenants(id),kind text NOT NULL,expires_at timestamptz NOT NULL);`);
     await pool.query('INSERT INTO app.tenants VALUES($1),($2)', [tenant, other]);
     await pool.query(
       "INSERT INTO app.recruiters(id,tenant_id,email,name,status) VALUES($1,$2,'synthetic@example.test','Synthetic','active')",
@@ -67,6 +81,7 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     );
   });
   afterAll(async () => {
+    Object.assign(proofTenant.config, originalProofConfig);
     if (created) {
       const samlPool = getOptionalSamlPool();
       if (samlPool) await samlPool.end();
@@ -75,7 +90,7 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     if (readonlyPool) await readonlyPool.end();
     if (pool) await pool.end();
     if (admin) {
-      if (created) await admin.query(`DROP DATABASE ${database} WITH (FORCE)`);
+      if (created) await admin.query(`DROP DATABASE ${database}`);
       await admin.end();
     }
   });
@@ -134,6 +149,100 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     expect(res.status).toBe(200);
     return res.headers['set-cookie'][0].split(';')[0] as string;
   }
+  async function signedResponse(overrides: Partial<Parameters<typeof idp.sign>[0]> = {}) {
+    const loginResponse = await samlLogin(
+      new Request('https://qorium.test/v1/auth/saml/login?tenant=acme'),
+    );
+    expect(loginResponse.status).toBe(302);
+    return idp.sign({
+      requestId: loginResponse.headers.get('x-qorium-saml-request-id')!,
+      issuer: proofTenant.config.idpEntityId!,
+      audience: proofTenant.spEntityId,
+      recipient: proofTenant.spAcsUrl,
+      ...overrides,
+    });
+  }
+  function postXml(xml: string) {
+    return samlAcs(
+      new Request(proofTenant.spAcsUrl, {
+        method: 'POST',
+        body: new URLSearchParams({ SAMLResponse: Buffer.from(xml).toString('base64') }),
+      }),
+    );
+  }
+  async function sessionCount() {
+    return Number((await pool.query('SELECT count(*) FROM app.recruiter_sessions')).rows[0].count);
+  }
+  it('signed XML ACS creates a durable API session, rejects replay and revokes on logout', async () => {
+    const xml = await signedResponse(),
+      before = await sessionCount();
+    const response = await postXml(xml);
+    expect(response.status).toBe(200);
+    expect(await sessionCount()).toBe(before + 1);
+    const cookie = response.headers.get('set-cookie')!.split(';')[0];
+    expect((await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie)).status).toBe(
+      200,
+    );
+    const replay = await postXml(xml);
+    expect(replay.status).toBe(401);
+    expect(replay.headers.get('set-cookie')).toBeNull();
+    expect(await sessionCount()).toBe(before + 1);
+    expect(
+      (await request(httpApp()).post('/v1/auth/logout').set('Cookie', cookie).send({})).status,
+    ).toBe(204);
+    expect((await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie)).status).toBe(
+      401,
+    );
+  });
+  it.each(['issuer', 'audience', 'recipient'] as const)(
+    'signed XML rejects wrong %s without creating a session',
+    async (field) => {
+      const xml = await signedResponse({ [field]: 'urn:qorium:wrong-target' }),
+        before = await sessionCount();
+      const response = await postXml(xml);
+      expect(response.status).toBe(403);
+      expect(response.headers.get('set-cookie')).toBeNull();
+      expect(await sessionCount()).toBe(before);
+    },
+  );
+  it('signed XML rejects post-signature tampering', async () => {
+    const xml = (await signedResponse()).replace('synthetic@example.test', 'tampered@example.test'),
+      before = await sessionCount();
+    const response = await postXml(xml);
+    expect(response.status).toBe(401);
+    expect(response.headers.get('set-cookie')).toBeNull();
+    expect(await sessionCount()).toBe(before);
+  });
+  it('signed XML rejects an untrusted signing certificate', async () => {
+    const loginResponse = await samlLogin(
+      new Request('https://qorium.test/v1/auth/saml/login?tenant=acme'),
+    );
+    expect(loginResponse.status).toBe(302);
+    const xml = syntheticIdp().sign({
+      requestId: loginResponse.headers.get('x-qorium-saml-request-id')!,
+      issuer: proofTenant.config.idpEntityId!,
+      audience: proofTenant.spEntityId,
+      recipient: proofTenant.spAcsUrl,
+    });
+    const before = await sessionCount(),
+      response = await postXml(xml);
+    expect(response.status).toBe(401);
+    expect(response.headers.get('set-cookie')).toBeNull();
+    expect(await sessionCount()).toBe(before);
+  });
+  it('signed XML cannot consume request state from a different tenant', async () => {
+    const xml = await signedResponse(),
+      before = await sessionCount();
+    proofTenant.config.tenantId = other;
+    try {
+      const response = await postXml(xml);
+      expect(response.status).toBe(401);
+      expect(response.headers.get('set-cookie')).toBeNull();
+      expect(await sessionCount()).toBe(before);
+    } finally {
+      proofTenant.config.tenantId = tenant;
+    }
+  });
   async function samlCookie() {
     const configured = getSamlProofTenant('acme')!;
     const samlTenant = { ...configured, config: { ...configured.config, tenantId: tenant } };
