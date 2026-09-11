@@ -20,3 +20,18 @@ export type { RateLimitConfig, RateLimiterAbstract, RateLimiterRes } from './rat
 export { apiKeyAuth } from './middleware.js';
 export type { ApiKeyAuthOptions } from './middleware.js';
 export type { AuthContext, AuthenticatedRequest } from './types.js';
+
+export {
+  verifyRecruiterToken,
+  signRecruiterToken,
+  hashRecruiterSessionId,
+  InvalidRecruiterSession,
+  RECRUITER_AUDIENCE,
+  PASSWORD_ISSUER,
+  SAML_ISSUER,
+} from './recruiter-session.js';
+export type {
+  RecruiterMethod,
+  RecruiterTokenClaims,
+  RecruiterSigningKeys,
+} from './recruiter-session.js';

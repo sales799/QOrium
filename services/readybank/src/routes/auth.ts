@@ -82,6 +82,7 @@ export function authRouter(deps: AuthRouterDeps): Router {
     pool: deps.pool,
     jwtSecret: deps.config.jwtSecret as string,
     cookieSecure: deps.config.cookieSecure,
+    samlSessionSecret: deps.config.samlSessionSecret,
   };
 
   function audit(req: RecruiterRequest, event: string, recruiterId?: string): void {

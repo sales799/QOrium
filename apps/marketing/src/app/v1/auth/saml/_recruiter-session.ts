@@ -1,3 +1,5 @@
+import { hashRecruiterSessionId } from '@qorium/auth';
+import { sessionSecret } from './_session';
 import type { ParsedSamlAssertion } from '@qorium/saml';
 
 import { getOptionalSamlPool, hmacSamlIdentifier } from './_db';
@@ -169,7 +171,12 @@ export async function recordSamlSession(input: {
     [
       input.tenant.config.tenantId,
       input.session.recruiterId,
-      hmacSamlIdentifier('session', input.tenant.config.tenantId, input.session.sid),
+      hashRecruiterSessionId(
+        'saml',
+        input.tenant.config.tenantId,
+        input.session.sid,
+        sessionSecret(),
+      ),
       hmacSamlIdentifier('assertion', input.tenant.config.tenantId, input.assertion.id),
       new Date(input.session.exp),
       input.assertion.nameId,

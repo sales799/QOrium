@@ -83,6 +83,9 @@ importers:
       '@number-flow/react':
         specifier: ^0.6.0
         version: 0.6.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@qorium/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@qorium/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -265,6 +268,9 @@ importers:
       ioredis:
         specifier: ^5.4.1
         version: 5.10.1
+      jsonwebtoken:
+        specifier: ^9.0.3
+        version: 9.0.3
       rate-limiter-flexible:
         specifier: ^5.0.4
         version: 5.0.5
@@ -272,6 +278,9 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
+      '@types/jsonwebtoken':
+        specifier: ^9.0.10
+        version: 9.0.10
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3

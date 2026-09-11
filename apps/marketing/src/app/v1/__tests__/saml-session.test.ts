@@ -15,8 +15,9 @@ describe('SAML session cookie', () => {
 
     const session = createSamlSession({
       tenant,
+      recruiterId: '00000000-0000-4000-8000-000000000001',
       email: 'qorium-saml-sandbox@example.com',
-      secret: 'test-secret',
+      secret: 'synthetic-saml-signing-secret-thirty-two',
       now: new Date(),
       assertion: {
         id: 'assertion-1',
@@ -30,15 +31,18 @@ describe('SAML session cookie', () => {
         attributes: { qorium_roles: ['admin', 'recruiter'] },
       },
     });
-    const cookie = samlSessionCookie(session.token, session.maxAgeSeconds, true);
-    const verified = verifySessionToken(session.token, 'test-secret');
+    const cookie = samlSessionCookie(session.token, new Date(session.payload.exp), true);
+    const verified = verifySessionToken(session.token, 'synthetic-saml-signing-secret-thirty-two');
 
     expect(verified.email).toBe('qorium-saml-sandbox@example.com');
-    expect(verified.roles).toEqual(['admin', 'recruiter']);
+    expect(verified.role).toBe('recruiter');
+    expect(verified.auth_method).toBe('saml');
     expect(cookie).toContain(`${SAML_SESSION_COOKIE}=`);
     expect(cookie).toContain('HttpOnly');
     expect(cookie).toContain('SameSite=Strict');
     expect(cookie).toContain('Secure');
+    expect(cookie).toContain(`Expires=${new Date(verified.exp * 1000).toUTCString()}`);
+    expect(cookie).not.toContain('Max-Age');
   });
 
   it('rejects a session token with a malformed signature', () => {
@@ -47,8 +51,9 @@ describe('SAML session cookie', () => {
 
     const session = createSamlSession({
       tenant,
+      recruiterId: '00000000-0000-4000-8000-000000000001',
       email: 'qorium-saml-sandbox@example.com',
-      secret: 'test-secret',
+      secret: 'synthetic-saml-signing-secret-thirty-two',
       now: new Date(),
       assertion: {
         id: 'assertion-1',
@@ -64,8 +69,8 @@ describe('SAML session cookie', () => {
     });
     const [body] = session.token.split('.');
 
-    expect(() => verifySessionToken(`${body}.x`, 'test-secret')).toThrow(
-      'Invalid session token signature',
-    );
+    expect(() =>
+      verifySessionToken(`${body}.x`, 'synthetic-saml-signing-secret-thirty-two'),
+    ).toThrow('Session is invalid or expired');
   });
 });

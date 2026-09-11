@@ -131,6 +131,7 @@ export function auditRouter(deps: AuditRouterDeps): Router {
     pool: deps.pool,
     jwtSecret: deps.config.jwtSecret ?? '',
     cookieSecure: deps.config.cookieSecure,
+    samlSessionSecret: deps.config.samlSessionSecret,
   });
 
   // GET /v1/audit/events ────────────────────────────────────────────

@@ -19,6 +19,8 @@ export interface Config {
   redisUrl: string | undefined;
   /** HS256 secret for recruiter session JWTs. Required when auth routes are enabled. */
   jwtSecret: string | undefined;
+  /** Explicit trusted SAML issuer key; absence disables SAML API sessions. */
+  samlSessionSecret?: string | undefined;
   /** Set Secure flag on recruiter cookies. Defaults to true outside dev/test. */
   cookieSecure: boolean;
   /** Minutes a recruiter is locked out after repeated failed logins. */
@@ -98,6 +100,7 @@ export function loadConfig(): Config {
     apiKeyPepper: process.env.API_KEY_PEPPER,
     redisUrl: process.env.REDIS_URL,
     jwtSecret: process.env.JWT_SECRET,
+    samlSessionSecret: process.env.QORIUM_SESSION_SIGNING_SECRET,
     cookieSecure: nodeEnv !== 'development' && nodeEnv !== 'test',
     recruiterLockoutMinutes: parseLockoutMinutes(process.env.RECRUITER_LOCKOUT_MINUTES),
     mailerDriver: parseMailerDriver(process.env.MAILER_DRIVER),

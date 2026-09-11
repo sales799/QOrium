@@ -1,4 +1,5 @@
-import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+import { signRecruiterToken, verifyRecruiterToken } from '@qorium/auth';
 
 import type { ParsedSamlAssertion } from '@qorium/saml';
 
@@ -46,7 +47,7 @@ export function createSamlSession(input: CreateSamlSessionInput): {
     tenantId: input.tenant.config.tenantId,
     recruiterId: input.recruiterId ?? `saml:${input.tenant.slug}:${input.email}`,
     email: input.email,
-    roles: sessionRoles(input.assertion),
+    roles: ['recruiter'],
     authSource: input.authSource ?? 'saml-jit',
     iat: nowMs,
     exp: nowMs + SESSION_TTL_SECONDS * 1000,
@@ -59,54 +60,37 @@ export function createSamlSession(input: CreateSamlSessionInput): {
 }
 
 export function signSessionPayload(payload: SamlSessionPayload, secret = sessionSecret()): string {
-  const body = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
-  const signature = createHmac('sha256', secret).update(body).digest('base64url');
-  return `${body}.${signature}`;
+  return signRecruiterToken({
+    recruiterId: payload.recruiterId,
+    tenantId: payload.tenantId,
+    sessionId: payload.sid,
+    email: payload.email,
+    name: payload.email,
+    method: 'saml',
+    expiresAt: new Date(payload.exp),
+    secret,
+  });
 }
 
-export function verifySessionToken(token: string, secret = sessionSecret()): SamlSessionPayload {
-  const [body, signature] = token.split('.');
-  if (!body || !signature) throw new Error('Malformed session token');
-  const expected = createHmac('sha256', secret).update(body).digest('base64url');
-  const suppliedSignature = Buffer.from(signature);
-  const expectedSignature = Buffer.from(expected);
-  if (
-    suppliedSignature.length !== expectedSignature.length ||
-    !timingSafeEqual(suppliedSignature, expectedSignature)
-  ) {
-    throw new Error('Invalid session token signature');
-  }
-  const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as SamlSessionPayload;
-  if (payload.typ !== 'saml' || payload.v !== 1 || payload.exp < Date.now()) {
-    throw new Error('Invalid or expired session token');
-  }
-  return payload;
+export function verifySessionToken(token: string, secret = sessionSecret()) {
+  return verifyRecruiterToken(token, { password: '', saml: secret });
 }
 
-export function samlSessionCookie(token: string, maxAgeSeconds: number, secure: boolean): string {
+export function samlSessionCookie(token: string, expiresAt: Date, secure: boolean): string {
   return [
     `${SAML_SESSION_COOKIE}=${token}`,
     'Path=/',
     'HttpOnly',
     'SameSite=Strict',
     secure ? 'Secure' : '',
-    `Max-Age=${maxAgeSeconds}`,
+    `Expires=${new Date(Math.floor(expiresAt.getTime() / 1000) * 1000).toUTCString()}`,
   ]
     .filter(Boolean)
     .join('; ');
 }
 
-function sessionRoles(assertion: ParsedSamlAssertion): string[] {
-  const roles = assertion.attributes['qorium_roles'] ?? assertion.attributes['roles'] ?? [];
-  const cleaned = roles.map((role) => role.trim()).filter(Boolean);
-  return cleaned.length > 0 ? cleaned : ['recruiter'];
-}
-
-function sessionSecret(): string {
-  const secret =
-    process.env.QORIUM_SESSION_SIGNING_SECRET ??
-    process.env.QORIUM_RECRUITER_JWT_SECRET ??
-    process.env.QORIUM_SIGNING_SECRET;
+export function sessionSecret(): string {
+  const secret = process.env.QORIUM_SESSION_SIGNING_SECRET;
   if (secret) {
     if (
       process.env.NODE_ENV === 'production' &&
@@ -119,5 +103,5 @@ function sessionSecret(): string {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('QORIUM_SESSION_SIGNING_SECRET is required in production');
   }
-  return 'dev-only-change-me';
+  return 'dev-only-saml-session-secret-change-me';
 }

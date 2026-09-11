@@ -1,4 +1,4 @@
-import { createHmac } from 'node:crypto';
+import { hashRecruiterSessionId } from '@qorium/auth';
 import type { Request, RequestHandler, Response } from 'express';
 import type { Pool } from '@qorium/db';
 import { durableSessions, InvalidRecruiterSession } from '../auth/durable-session.js';
@@ -25,6 +25,7 @@ export interface RecruiterRequest extends Request {
 export interface RecruiterAuthOptions {
   jwtSecret: string;
   cookieSecure: boolean;
+  samlSessionSecret?: string | undefined;
   /** Required for live authentication. Omission fails closed. */
   pool?: Pool;
 }
@@ -32,9 +33,18 @@ function sessions(options: RecruiterAuthOptions) {
   if (!options.pool || !options.jwtSecret || Buffer.byteLength(options.jwtSecret, 'utf8') < 32)
     throw new SessionStoreUnavailable();
   const store = createSessionStore(options.pool, (tenant, sid) =>
-    createHmac('sha256', options.jwtSecret).update(`password-session:${tenant}:${sid}`).digest(),
+    hashRecruiterSessionId('password', tenant, sid, options.jwtSecret),
   );
-  return durableSessions(store, options.jwtSecret);
+  const saml =
+    options.samlSessionSecret && Buffer.byteLength(options.samlSessionSecret, 'utf8') >= 32
+      ? {
+          secret: options.samlSessionSecret,
+          store: createSessionStore(options.pool, (tenant, sid) =>
+            hashRecruiterSessionId('saml', tenant, sid, options.samlSessionSecret!),
+          ),
+        }
+      : undefined;
+  return durableSessions(store, options.jwtSecret, saml);
 }
 type Issued = Awaited<ReturnType<ReturnType<typeof durableSessions>['start']>>;
 function writeCookie(

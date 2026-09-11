@@ -1,3 +1,7 @@
+import { createSamlSession } from '../../../apps/marketing/src/app/v1/auth/saml/_session';
+import { recordSamlSession } from '../../../apps/marketing/src/app/v1/auth/saml/_recruiter-session';
+import { getOptionalSamlPool } from '../../../apps/marketing/src/app/v1/auth/saml/_db';
+import { getSamlProofTenant } from '../../../apps/marketing/src/app/v1/auth/saml/_config';
 import { recruiterPortalRouter } from '../src/routes/recruiter.js';
 import { adminRouter } from '../src/routes/admin.js';
 import { auditRouter } from '../src/routes/audit.js';
@@ -11,7 +15,7 @@ import { loadConfig } from '../src/config.js';
 import { durableSessions, InvalidRecruiterSession } from '../src/auth/durable-session.js';
 import jwt from 'jsonwebtoken';
 import { createHmac, randomUUID } from 'node:crypto';
-import { beforeAll, afterAll, describe, it, expect } from 'vitest';
+import { beforeAll, afterAll, describe, it, expect, vi } from 'vitest';
 import { createPool, type Pool } from '@qorium/db';
 import {
   createSessionStore,
@@ -41,16 +45,20 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     const target = new URL(url!);
     target.pathname = `/${database}`;
     pool = createPool({ connectionString: target.toString(), max: 4 });
+    vi.stubEnv('DATABASE_URL', target.toString());
+    vi.stubEnv('QORIUM_SAML_TEST_DATABASE', '1');
+    vi.stubEnv('QORIUM_SESSION_SIGNING_SECRET', httpSamlSecret);
+    vi.stubEnv('QORIUM_SAML_REPLAY_PEPPER', 'synthetic-cross-app-replay-pepper-'.repeat(2));
     target.searchParams.set('options', '-c default_transaction_read_only=on');
     readonlyPool = createPool({ connectionString: target.toString(), max: 1 });
     // Minimal schema reproducing migration0017 session constraints, not a migration certification.
     await pool.query(`CREATE SCHEMA app;
       CREATE TABLE app.tenants(id uuid PRIMARY KEY);
-      CREATE TABLE app.recruiters(id uuid PRIMARY KEY,tenant_id uuid REFERENCES app.tenants(id),email text,name text,status text,password_hash text,failed_login_count integer DEFAULT 0,locked_until timestamptz,last_login_at timestamptz);
+      CREATE TABLE app.recruiters(id uuid PRIMARY KEY,tenant_id uuid REFERENCES app.tenants(id),email text,name text,status text,password_hash text,failed_login_count integer DEFAULT 0,locked_until timestamptz,last_login_at timestamptz,external_sso_id text DEFAULT 'synthetic-subject');
       CREATE TABLE app.recruiter_sessions(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         tenant_id uuid NOT NULL REFERENCES app.tenants(id) ON DELETE CASCADE,
         recruiter_id uuid NOT NULL REFERENCES app.recruiters(id) ON DELETE CASCADE,
-        session_id_hash bytea NOT NULL UNIQUE,auth_method varchar(32) NOT NULL CHECK(auth_method IN ('password','saml','oidc','admin')),
+        session_id_hash bytea NOT NULL UNIQUE,assertion_hash bytea,auth_method varchar(32) NOT NULL CHECK(auth_method IN ('password','saml','oidc','admin')),
         expires_at timestamptz NOT NULL,revoked_at timestamptz,created_at timestamptz NOT NULL DEFAULT now(),last_seen_at timestamptz NOT NULL DEFAULT now());`);
     await pool.query('INSERT INTO app.tenants VALUES($1),($2)', [tenant, other]);
     await pool.query(
@@ -59,6 +67,11 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     );
   });
   afterAll(async () => {
+    if (created) {
+      const samlPool = getOptionalSamlPool();
+      if (samlPool) await samlPool.end();
+    }
+    vi.unstubAllEnvs();
     if (readonlyPool) await readonlyPool.end();
     if (pool) await pool.end();
     if (admin) {
@@ -66,8 +79,9 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
       await admin.end();
     }
   });
+  const httpSamlSecret = 'synthetic-cross-app-saml-secret-'.repeat(2);
   const httpSecret = 'synthetic-http-session-secret-'.repeat(2);
-  function httpApp(db = pool, surface = 'auth') {
+  function httpApp(db = pool, surface = 'auth', samlEnabled = true) {
     const app = express();
     app.use(express.json());
     app.use((req, _res, next) => {
@@ -84,13 +98,23 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
       '/v1',
       authRouter({
         pool: db,
-        config: { ...loadConfig(), jwtSecret: httpSecret, cookieSecure: false },
+        config: {
+          ...loadConfig(),
+          jwtSecret: httpSecret,
+          cookieSecure: false,
+          samlSessionSecret: samlEnabled ? httpSamlSecret : undefined,
+        },
         audit: false,
       }),
     );
     const deps = {
       pool: db,
-      config: { ...loadConfig(), jwtSecret: httpSecret, cookieSecure: false },
+      config: {
+        ...loadConfig(),
+        jwtSecret: httpSecret,
+        cookieSecure: false,
+        samlSessionSecret: samlEnabled ? httpSamlSecret : undefined,
+      },
     };
     if (surface === 'recruiter') app.use('/v1', recruiterPortalRouter(deps));
     if (surface === 'billing') app.use('/v1', billingRecruiterRouter(deps));
@@ -110,6 +134,65 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
     expect(res.status).toBe(200);
     return res.headers['set-cookie'][0].split(';')[0] as string;
   }
+  async function samlCookie() {
+    const configured = getSamlProofTenant('acme')!;
+    const samlTenant = { ...configured, config: { ...configured.config, tenantId: tenant } };
+    // Parsed assertion fixture: XML/signature validation is separately covered by @qorium/saml.
+    const assertion = {
+      id: randomUUID(),
+      issuer: 'synthetic-idp',
+      nameId: 'synthetic-subject',
+      nameIdFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+      audience: samlTenant.spEntityId,
+      recipient: samlTenant.spAcsUrl,
+      notBefore: new Date(),
+      notOnOrAfter: new Date(Date.now() + 60000),
+      attributes: { roles: ['admin'] },
+    };
+    const issued = createSamlSession({
+      tenant: samlTenant,
+      assertion,
+      email: 'synthetic@example.test',
+      recruiterId: recruiter,
+    });
+    await recordSamlSession({ tenant: samlTenant, assertion, session: issued.payload });
+    return `qor_session=${issued.token}`;
+  }
+  it('marketing SAML issuance persists a session the API renews and revokes', async () => {
+    const cookie = await samlCookie();
+    const response = await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.recruiter.role).toBe('recruiter');
+    const renewed = response.headers['set-cookie'][0].split(';')[0];
+    const claims = jwt.decode(renewed.slice('qor_session='.length)) as jwt.JwtPayload;
+    expect(claims.auth_method).toBe('saml');
+    expect(claims.iss).toBe('qorium-saml');
+    expect(
+      (await request(httpApp()).post('/v1/auth/logout').set('Cookie', cookie).send({})).status,
+    ).toBe(204);
+    expect((await request(httpApp()).get('/v1/auth/whoami').set('Cookie', renewed)).status).toBe(
+      401,
+    );
+  });
+  it('API rejects a stored SAML session without an explicitly trusted SAML key', async () => {
+    const cookie = await samlCookie();
+    expect(
+      (
+        await request(httpApp(pool, 'auth', false))
+          .get('/v1/auth/whoami')
+          .set('Cookie', cookie)
+      ).status,
+    ).toBe(401);
+  });
+  it('API rejects a SAML token when its stored authentication method differs', async () => {
+    const cookie = await samlCookie();
+    await pool.query(
+      "UPDATE app.recruiter_sessions SET auth_method='password' WHERE auth_method='saml'",
+    );
+    expect((await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie)).status).toBe(
+      401,
+    );
+  });
   it('HTTP login/whoami/logout rejects both original and renewed copied cookies', async () => {
     const cookie = await login();
     const res = await request(httpApp()).get('/v1/auth/whoami').set('Cookie', cookie);

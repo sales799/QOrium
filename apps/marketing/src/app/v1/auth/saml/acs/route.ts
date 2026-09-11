@@ -143,14 +143,15 @@ export async function POST(request: Request) {
     return samlProblem(recruiter.status, recruiter.title, recruiter.message);
   }
 
-  const session = createSamlSession({
-    tenant: matched.tenant,
-    assertion: validation.assertion,
-    email,
-    recruiterId: recruiter.recruiterId,
-    authSource: recruiter.authSource,
-  });
+  let session: ReturnType<typeof createSamlSession>;
   try {
+    session = createSamlSession({
+      tenant: matched.tenant,
+      assertion: validation.assertion,
+      email,
+      recruiterId: recruiter.recruiterId,
+      authSource: recruiter.authSource,
+    });
     await recordSamlSession({
       tenant: matched.tenant,
       assertion: validation.assertion,
@@ -189,7 +190,7 @@ export async function POST(request: Request) {
   );
   response.headers.set(
     'Set-Cookie',
-    samlSessionCookie(session.token, session.maxAgeSeconds, isSecureRequest(request)),
+    samlSessionCookie(session.token, new Date(session.payload.exp), isSecureRequest(request)),
   );
   return response;
 }

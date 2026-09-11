@@ -20,6 +20,7 @@ describe.skipIf(!url)('SAML issuance on isolated PostgreSQL', () => {
     const target = new URL(url!);
     target.pathname = `/${database}`;
     pool = createPool({ connectionString: target.toString(), max: 2 });
+    vi.stubEnv('QORIUM_SESSION_SIGNING_SECRET', 'synthetic-saml-issuance-secret-thirty-two');
     vi.stubEnv('DATABASE_URL', target.toString());
     vi.stubEnv('QORIUM_SAML_TEST_DATABASE', '1');
     vi.stubEnv('QORIUM_SAML_REPLAY_PEPPER', 'synthetic-saml-replay-pepper-'.repeat(2));

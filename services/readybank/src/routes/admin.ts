@@ -206,6 +206,7 @@ export function adminRouter(deps: AdminRouterDeps): Router {
       pool: deps.pool,
       jwtSecret: deps.config.jwtSecret ?? '',
       cookieSecure: deps.config.cookieSecure,
+      samlSessionSecret: deps.config.samlSessionSecret,
     }),
     internalTenantAdminAuth(deps.pool),
   ] as const;

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "API key authentication + Redis-backed rate limiting per CTO Architecture §6.1/§6.2 + D3 internal API key spec.",
+  "description": "API key authentication + Redis-backed rate limiting per CTO Architecture \u00a76.1/\u00a76.2 + D3 internal API key spec.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -21,7 +21,8 @@
   "dependencies": {
     "@qorium/db": "workspace:*",
     "ioredis": "^5.4.1",
-    "rate-limiter-flexible": "^5.0.4"
+    "rate-limiter-flexible": "^5.0.4",
+    "jsonwebtoken": "^9.0.3"
   },
   "peerDependencies": {
     "express": "^5.0.0"
@@ -32,6 +33,7 @@
     "express": "^5.0.1",
     "supertest": "^7.0.0",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.4",
+    "@types/jsonwebtoken": "^9.0.10"
   }
 }

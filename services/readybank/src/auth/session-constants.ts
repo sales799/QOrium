@@ -1,4 +1,3 @@
 export const SESSION_COOKIE_NAME = 'qor_session';
 export const SESSION_TTL_SECONDS = 8 * 60 * 60;
-export const JWT_ISSUER = 'qorium-readybank';
-export const JWT_AUDIENCE = 'qorium-recruiter';
+export { PASSWORD_ISSUER as JWT_ISSUER, RECRUITER_AUDIENCE as JWT_AUDIENCE } from '@qorium/auth';

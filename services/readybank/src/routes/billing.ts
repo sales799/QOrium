@@ -30,6 +30,7 @@ export function billingRecruiterRouter(deps: BillingRouterDeps): Router {
       pool: deps.pool,
       jwtSecret: deps.config.jwtSecret as string,
       cookieSecure: deps.config.cookieSecure,
+      samlSessionSecret: deps.config.samlSessionSecret,
     }),
   );
   const rec = (req: Request) => (req as RecruiterRequest).recruiter!;
