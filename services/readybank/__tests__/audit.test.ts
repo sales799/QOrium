@@ -283,6 +283,7 @@ function recruiterCookie(opts: { sub?: string; tenantId?: string } = {}): string
       tenant_id: opts.tenantId ?? TENANT_A,
       email: 'recruiter@qorium.test',
       name: 'Test Recruiter',
+      role: 'recruiter',
     },
     JWT_SECRET,
     {
