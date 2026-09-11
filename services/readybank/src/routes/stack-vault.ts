@@ -12,6 +12,8 @@
  */
 
 import { Router } from 'express';
+import { createHash } from 'node:crypto';
+import { recordAuditEvent } from '@qorium/auth';
 import { z } from 'zod';
 import type { Pool } from '@qorium/db';
 import { HttpProblem } from '../middleware/problem.js';
@@ -146,6 +148,39 @@ export function stackVaultRouter(deps: StackVaultRouterDeps): Router {
       const stegoBody = applyHomoglyphStego(row.body_md, wm.signature);
       const renderedBody = applyVisibleFooter(stegoBody, wm.visibleFooter);
 
+      // Record preparation before releasing content; this is not proof of delivery.
+      await recordAuditEvent({
+        pool: deps.pool,
+        event: {
+          actor_type: 'api_key',
+          // audit.actor_id references app.users; retain API-key identity in payload.
+          actor_id: null,
+          tenant_id: vault.tenantId,
+          event_type: 'stack_vault.question.render_prepared',
+          entity_type: 'question',
+          entity_id: row.uuid,
+          changes: {},
+          payload: {
+            version: 1,
+            api_key_id: req.auth?.apiKeyId,
+            render_id: wm.renderId,
+            footer: wm.visibleFooter,
+            signature: wm.signature,
+            content_sha256: createHash('sha256')
+              .update(JSON.stringify({ body_md: renderedBody, body_json: row.body_json }))
+              .digest('hex'),
+          },
+        },
+        // The generic helper suppresses failures unless onError propagates them.
+        onError: () => {
+          throw new HttpProblem({
+            status: 503,
+            title: 'Service Unavailable',
+            detail: 'Watermark audit persistence unavailable',
+          });
+        },
+      });
+
       res.status(200).json({
         uuid: row.uuid,
         qor_id: row.qor_id,
@@ -157,8 +192,7 @@ export function stackVaultRouter(deps: StackVaultRouterDeps): Router {
         watermark: {
           render_id: wm.renderId,
           footer: wm.visibleFooter,
-          // signature returned only to caller; persisted server-side
-          // via audit log (not implemented in this alpha — add in beta).
+          // Full signature retained only in the tenant-scoped audit record.
         },
         created_at: row.created_at,
       });
