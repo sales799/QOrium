@@ -148,7 +148,7 @@ export async function recordSamlSession(input: {
   const pool = getOptionalSamlPool();
   if (!pool) return;
 
-  await pool.query(
+  const inserted = await pool.query(
     `
       INSERT INTO app.recruiter_sessions (
         tenant_id,
@@ -158,7 +158,13 @@ export async function recordSamlSession(input: {
         assertion_hash,
         expires_at
       )
-      VALUES ($1, $2, $3, 'saml', $4, $5)
+      SELECT $1, $2, $3, 'saml', $4, $5
+        FROM app.recruiters
+       WHERE id = $2 AND tenant_id = $1
+         AND status = 'active' AND external_sso_id = $6
+         AND $5::timestamptz > clock_timestamp()
+       FOR SHARE
+      RETURNING id
     `,
     [
       input.tenant.config.tenantId,
@@ -166,8 +172,10 @@ export async function recordSamlSession(input: {
       hmacSamlIdentifier('session', input.tenant.config.tenantId, input.session.sid),
       hmacSamlIdentifier('assertion', input.tenant.config.tenantId, input.assertion.id),
       new Date(input.session.exp),
+      input.assertion.nameId,
     ],
   );
+  if (inserted.rows.length !== 1) throw new Error('SAML session issuance rejected');
 }
 
 function displayNameForAssertion(assertion: ParsedSamlAssertion, email: string): string {
