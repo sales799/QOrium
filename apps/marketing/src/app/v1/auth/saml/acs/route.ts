@@ -1,3 +1,4 @@
+import { getOptionalSamlPool } from '../_db';
 import {
   extractStableEmail,
   validateAssertion,
@@ -29,6 +30,17 @@ interface VerifiedTenantResponse {
 export async function POST(request: Request) {
   const limited = rateLimitResponse(request, 'saml-acs-minute', { max: 30, windowMs: 60 * 1000 });
   if (limited) return limited;
+
+  // Production must not fall back to process-local replay state or unsaved sessions.
+  try {
+    getOptionalSamlPool();
+  } catch {
+    return samlProblem(
+      503,
+      'Service Unavailable',
+      'SAML persistence unavailable. Try again later.',
+    );
+  }
 
   const form = await readSamlForm(request);
   if (!form.ok) return samlProblem(400, 'Invalid SAML ACS request', form.message);

@@ -1,3 +1,4 @@
+import { getOptionalSamlPool } from '../_db';
 import { createSamlAuthnRequest } from '@qorium/saml';
 import { NextResponse } from 'next/server';
 
@@ -12,6 +13,17 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const limited = rateLimitResponse(request, 'saml-login-minute', { max: 20, windowMs: 60 * 1000 });
   if (limited) return limited;
+
+  // Production must not fall back to process-local replay state or unsaved sessions.
+  try {
+    getOptionalSamlPool();
+  } catch {
+    return samlProblem(
+      503,
+      'Service Unavailable',
+      'SAML persistence unavailable. Try again later.',
+    );
+  }
 
   const url = new URL(request.url);
   const tenant = getSamlProofTenant(url.searchParams.get('tenant'));
