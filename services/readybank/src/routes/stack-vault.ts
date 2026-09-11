@@ -67,10 +67,11 @@ export interface StackVaultRouterDeps extends TenantIsolationDeps {
 
 export function stackVaultRouter(deps: StackVaultRouterDeps): Router {
   const router = Router();
-  const vaultGuard = requireActiveVault(deps);
+  const readGuard = requireActiveVault({ ...deps, requiredScope: 'stack-vault:read' });
+  const writeGuard = requireActiveVault({ ...deps, requiredScope: 'stack-vault:write' });
 
   // GET /v1/stack-vault/questions — list this tenant's vault questions.
-  router.get('/stack-vault/questions', vaultGuard, async (req: VaultedRequest, res, next) => {
+  router.get('/stack-vault/questions', readGuard, async (req: VaultedRequest, res, next) => {
     let parsed;
     try {
       parsed = ListQuerySchema.parse(req.query);
@@ -114,7 +115,7 @@ export function stackVaultRouter(deps: StackVaultRouterDeps): Router {
   });
 
   // GET /v1/stack-vault/questions/:uuid — fetch + render with double watermark.
-  router.get('/stack-vault/questions/:uuid', vaultGuard, async (req: VaultedRequest, res, next) => {
+  router.get('/stack-vault/questions/:uuid', readGuard, async (req: VaultedRequest, res, next) => {
     const uuidRaw = req.params['uuid'];
     const uuid = typeof uuidRaw === 'string' ? uuidRaw : '';
     if (!UUID_PATTERN.test(uuid)) {
@@ -168,7 +169,7 @@ export function stackVaultRouter(deps: StackVaultRouterDeps): Router {
   });
 
   // POST /v1/stack-vault/questions — author a new question into this tenant's vault.
-  router.post('/stack-vault/questions', vaultGuard, async (req: VaultedRequest, res, next) => {
+  router.post('/stack-vault/questions', writeGuard, async (req: VaultedRequest, res, next) => {
     let body;
     try {
       body = CreateBodySchema.parse(req.body);

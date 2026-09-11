@@ -44,6 +44,8 @@ interface VaultRow {
 
 export interface TenantIsolationDeps {
   pool: Pool;
+  /** Operation-specific permission, checked before any vault lookup. */
+  requiredScope?: 'stack-vault:read' | 'stack-vault:write';
   /**
    * Decrypts the at-rest watermark_pepper_enc. Default identity (assumes
    * raw text already in dev). In production a Vault-backed AES-GCM
@@ -89,6 +91,17 @@ export function requireActiveVault(deps: TenantIsolationDeps) {
           title: 'Forbidden',
           detail:
             'export:stack-vault scope is reserved per SO-10 and cannot be used on this endpoint',
+        }),
+      );
+      return;
+    }
+
+    if (deps.requiredScope && !auth.scopes.includes(deps.requiredScope)) {
+      next(
+        new HttpProblem({
+          status: 403,
+          title: 'Forbidden',
+          detail: `Missing required scope: ${deps.requiredScope}`,
         }),
       );
       return;
