@@ -13,6 +13,9 @@ export interface SessionRecruiter {
   email: string;
   name: string;
 }
+export interface StoredSession extends SessionRecruiter {
+  expires_at: Date;
+}
 export class SessionStoreUnavailable extends Error {
   constructor() {
     super('Session storage unavailable');
@@ -64,31 +67,34 @@ export function createSessionStore(
     return rows[0] ?? null;
   }
   return {
-    async create(key: SessionKey): Promise<SessionRecruiter | null> {
+    async create(key: SessionKey): Promise<StoredSession | null> {
       return transaction(key, async (c, digest) => {
         const recruiter = await active(c, key);
         if (!recruiter) return null;
         // No upsert: an existing or revoked identifier must never be resurrected.
-        await c.query(
+        const result = await c.query<{ expires_at: Date }>(
           `INSERT INTO app.recruiter_sessions(tenant_id,recruiter_id,session_id_hash,auth_method,expires_at)
-           VALUES($1,$2,$3,$4,clock_timestamp()+interval '8 hours')`,
+           VALUES($1,$2,$3,$4,clock_timestamp()+interval '8 hours') RETURNING expires_at`,
           [key.tenantId, key.recruiterId, digest, key.method],
         );
-        return recruiter;
+        const stored = result.rows[0];
+        if (!stored) throw new SessionStoreUnavailable();
+        return { ...recruiter, expires_at: stored.expires_at };
       });
     },
-    async renew(key: SessionKey): Promise<SessionRecruiter | null> {
+    async renew(key: SessionKey): Promise<StoredSession | null> {
       return transaction(key, async (c, digest) => {
         const recruiter = await active(c, key);
         if (!recruiter) return null;
-        const result = await c.query(
+        const result = await c.query<{ expires_at: Date }>(
           `UPDATE app.recruiter_sessions SET last_seen_at=clock_timestamp(),
              expires_at=clock_timestamp()+interval '8 hours'
            WHERE tenant_id=$1 AND recruiter_id=$2 AND session_id_hash=$3 AND auth_method=$4
-             AND revoked_at IS NULL AND expires_at>clock_timestamp() RETURNING id`,
+             AND revoked_at IS NULL AND expires_at>clock_timestamp() RETURNING expires_at`,
           [key.tenantId, key.recruiterId, digest, key.method],
         );
-        return result.rows.length === 1 ? recruiter : null;
+        const stored = result.rows[0];
+        return stored ? { ...recruiter, expires_at: stored.expires_at } : null;
       });
     },
     async revoke(key: SessionKey): Promise<void> {

@@ -1,3 +1,5 @@
+import { durableSessions, InvalidRecruiterSession } from '../src/auth/durable-session.js';
+import jwt from 'jsonwebtoken';
 import { createHmac, randomUUID } from 'node:crypto';
 import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 import { createPool, type Pool } from '@qorium/db';
@@ -54,17 +56,40 @@ describe.skipIf(!url)('durable sessions on isolated PostgreSQL', () => {
       await admin.end();
     }
   });
+  it('issues, renews and rejects a copied token after durable revocation', async () => {
+    const service = durableSessions(
+      createSessionStore(pool, hash),
+      'synthetic-integration-secret-'.repeat(2),
+    );
+    const issued = await service.start(tenant, recruiter);
+    const renewed = await service.renew(issued.token);
+    expect(renewed.sessionId).toBe(issued.sessionId);
+    const row = (
+      await pool.query('SELECT expires_at FROM app.recruiter_sessions WHERE session_id_hash=$1', [
+        hash(tenant, issued.sessionId),
+      ])
+    ).rows[0];
+    expect((jwt.decode(renewed.token) as jwt.JwtPayload).exp! * 1000).toBeLessThanOrEqual(
+      row.expires_at.getTime(),
+    );
+    await service.revoke(issued.token);
+    await expect(service.renew(renewed.token)).rejects.toBeInstanceOf(InvalidRecruiterSession);
+  });
   it('stores a digest and renews the same identifier with fresh database identity', async () => {
     const s = createSessionStore(pool, hash),
       k = key();
-    expect((await s.create(k))?.id).toBe(recruiter);
+    const issued = await s.create(k);
+    expect(issued?.id).toBe(recruiter);
+    expect(issued?.expires_at).toBeInstanceOf(Date);
     await pool.query("UPDATE app.recruiters SET name='Updated' WHERE id=$1", [recruiter]);
-    expect((await s.renew(k))?.name).toBe('Updated');
+    const renewed = await s.renew(k);
+    expect(renewed?.name).toBe('Updated');
     const { rows } = await pool.query(
       'SELECT * FROM app.recruiter_sessions WHERE session_id_hash=$1',
       [hash(tenant, k.sessionId)],
     );
     expect(rows).toHaveLength(1);
+    expect(renewed?.expires_at).toEqual(rows[0].expires_at);
     expect(rows[0].session_id_hash).toEqual(hash(tenant, k.sessionId));
     expect(rows[0].expires_at.getTime()).toBeGreaterThan(Date.now() + 7 * 3600000);
   });
