@@ -44,10 +44,11 @@ interface VaultRow {
 
 export interface TenantIsolationDeps {
   pool: Pool;
+  /** Explicit service environment; unknown/unset values fail closed. */
+  nodeEnv?: string;
   /**
-   * Decrypts the at-rest watermark_pepper_enc. Default identity (assumes
-   * raw text already in dev). In production a Vault-backed AES-GCM
-   * decryptor is wired in via DI.
+   * Decrypts watermark_pepper_enc using the verified storage format.
+   * Required outside explicit development/test; no production identity fallback.
    */
   decryptVaultPepper?: (encrypted: string) => string;
   /** Inject `now()` for deterministic tests. */
@@ -61,7 +62,9 @@ const DEFAULT_DECRYPT = (s: string): string => s;
  * active vault, 503 if vault has no pepper configured.
  */
 export function requireActiveVault(deps: TenantIsolationDeps) {
-  const decrypt = deps.decryptVaultPepper ?? DEFAULT_DECRYPT;
+  const environment = deps.nodeEnv ?? process.env.NODE_ENV;
+  const allowPlaintext = environment === 'development' || environment === 'test';
+  const decrypt = deps.decryptVaultPepper ?? (allowPlaintext ? DEFAULT_DECRYPT : undefined);
   const now = deps.now ?? ((): Date => new Date());
 
   return async function vaultMiddleware(
@@ -89,6 +92,17 @@ export function requireActiveVault(deps: TenantIsolationDeps) {
           title: 'Forbidden',
           detail:
             'export:stack-vault scope is reserved per SO-10 and cannot be used on this endpoint',
+        }),
+      );
+      return;
+    }
+
+    if (!decrypt) {
+      next(
+        new HttpProblem({
+          status: 503,
+          title: 'Service Unavailable',
+          detail: 'Vault watermark decryption is not configured',
         }),
       );
       return;
@@ -132,12 +146,30 @@ export function requireActiveVault(deps: TenantIsolationDeps) {
       return;
     }
 
+    let watermarkPepper: string;
+    try {
+      watermarkPepper = decrypt(row.watermark_pepper_enc);
+      if (typeof watermarkPepper !== 'string' || !watermarkPepper.trim()) {
+        throw new Error('Invalid decrypted pepper');
+      }
+    } catch {
+      // Provider errors can contain ciphertext, key material or secret paths.
+      next(
+        new HttpProblem({
+          status: 503,
+          title: 'Service Unavailable',
+          detail: 'Vault watermark decryption unavailable',
+        }),
+      );
+      return;
+    }
+
     req.vault = {
       tenantId: row.tenant_id,
       tier: row.tier,
       annualFloorPaise: BigInt(row.annual_floor_paise),
       contractExpiresAt: row.contract_expires_at,
-      watermarkPepper: decrypt(row.watermark_pepper_enc),
+      watermarkPepper,
     };
     next();
   };

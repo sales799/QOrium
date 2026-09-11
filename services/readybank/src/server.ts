@@ -29,6 +29,8 @@ import type { Logger } from 'pino';
 export interface ServerDeps {
   config: Config;
   pool?: Pool;
+  /** Verified decryptor for stored Stack-Vault watermark peppers. */
+  decryptVaultPepper?: (encrypted: string) => string;
   /** Override for tests; injects a pre-built logger so test output stays quiet. */
   logger?: Logger;
   /** Optional mailer for invitation routes; production index builds it when DB exists. */
@@ -104,7 +106,11 @@ export function createServer(deps: ServerDeps): ServerHandle {
       auth,
       questionsRouter({ pool: deps.pool }),
       packsRouter({ pool: deps.pool }),
-      stackVaultRouter({ pool: deps.pool }),
+      stackVaultRouter({
+        pool: deps.pool,
+        nodeEnv: deps.config.nodeEnv,
+        ...(deps.decryptVaultPepper ? { decryptVaultPepper: deps.decryptVaultPepper } : {}),
+      }),
       assessmentsRouter(
         deps.mailer ? { pool: deps.pool, mailer: deps.mailer } : { pool: deps.pool },
       ),
