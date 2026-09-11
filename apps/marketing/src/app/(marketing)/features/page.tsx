@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Database, Sparkles, ShieldCheck } from 'lucide-react';
@@ -11,11 +12,11 @@ import { featureIndex } from '@/content/copy/features';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Features',
   description: 'Three SKUs, one library: ReadyBank, JD-Forge, Stack-Vault.',
   alternates: { canonical: '/features' },
-};
+});
 
 const ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   readybank: Database,

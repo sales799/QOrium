@@ -1,12 +1,13 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { LegalShell, LegalSection } from '@/components/site/LegalShell';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Terms of Service',
   description: `Terms of Service for ${siteConfig.name}.`,
   alternates: { canonical: '/terms' },
-};
+});
 
 export default function TermsPage() {
   return (

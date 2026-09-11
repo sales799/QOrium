@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Download, Mail, ExternalLink } from 'lucide-react';
@@ -12,11 +13,11 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Press kit',
   description: 'Brand assets, boilerplate, founder note. Everything you need to mention us.',
   alternates: { canonical: '/press-kit' },
-};
+});
 
 // SOURCE: Constitution §1.1 — locked USP, verbatim
 const LOCKED_USP =

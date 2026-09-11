@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -13,11 +14,11 @@ import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'About',
   description: "QOrium's mission, founder note, and why we're based in India.",
   alternates: { canonical: '/about' },
-};
+});
 
 // SOURCE: 04-Blueprint §1 (vision/mission), governance/Investor-Brief §1 (founder voice)
 const PARAGRAPHS = [

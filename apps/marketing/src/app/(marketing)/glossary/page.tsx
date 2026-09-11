@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -47,12 +48,12 @@ const TERMS = [
   },
 ] as const;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Glossary',
   description:
     'Plain-English QOrium glossary for assessment science, anti-leak operations, role-graph taxonomy, and evidence-gated trust terms.',
   alternates: { canonical: '/glossary' },
-};
+});
 
 export default function GlossaryPage() {
   return (

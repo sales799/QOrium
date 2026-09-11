@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -33,11 +34,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const job = getJob(slug);
   if (!job) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: `${job.title} Job Description`,
     description: `Hiring template for a ${job.title}: responsibilities, requirements, skills checklist, and QOrium assessment links.`,
     alternates: { canonical: `/resources/job-descriptions/${slug}` },
-  };
+  });
 }
 
 export default async function JobDescriptionPage({ params }: Props) {

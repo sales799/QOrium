@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { CheckCircle2 } from 'lucide-react';
 
@@ -13,11 +14,11 @@ import { siteConfig } from '@/content/site.config';
 
 const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL ?? '';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Book a demo',
   description: 'A 30-minute walk-through of the platform, the three SKUs, and one of your JDs.',
   alternates: { canonical: '/demo' },
-};
+});
 
 const AGENDA = [
   'Walkthrough: the 7-stage Content Engine and how it flexes per SKU.',

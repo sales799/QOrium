@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { GradedAnswerViewer } from '@/components/interactive-proof/GradedAnswerViewer';
@@ -5,12 +6,12 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Reveal } from '@/components/motion/Reveal';
 import { MaxWidth } from '@/components/site/MaxWidth';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Try Graded Answer Viewer',
   description:
     'Inspect a real QOrium grader exemplar with rubric, score breakdown, and audit metadata.',
   alternates: { canonical: '/try/graded-answer' },
-};
+});
 
 export default function TryGradedAnswerPage() {
   return (

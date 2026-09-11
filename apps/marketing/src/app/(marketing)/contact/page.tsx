@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { Mail, MapPin, Clock } from 'lucide-react';
 
@@ -10,11 +11,11 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Contact',
   description: 'Send us a note. We respond within one business day.',
   alternates: { canonical: '/contact' },
-};
+});
 
 export default function ContactPage() {
   return (

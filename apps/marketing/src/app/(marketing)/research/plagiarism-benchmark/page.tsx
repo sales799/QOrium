@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -22,12 +23,12 @@ const benchmarkFaqs = [
   },
 ];
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'AI Plagiarism Benchmark Protocol',
   description:
     'QOrium public protocol for benchmarking AI plagiarism detection before any Pro-tier customer claim.',
   alternates: { canonical: '/research/plagiarism-benchmark' },
-};
+});
 
 export default function PlagiarismBenchmarkPage() {
   return (

@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { BuyerSolutionPage } from '@/components/marketing/PhaseTwoPages';
@@ -6,11 +7,11 @@ import { solutionBuyerPages } from '@/content/copy/phase2';
 
 const solution = solutionBuyerPages['assessment-platforms'];
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'QOrium for Assessment Platforms',
   description: solution.description,
   alternates: { canonical: solution.route },
-};
+});
 
 export default function AssessmentPlatformsSolutionPage() {
   return (

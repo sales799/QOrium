@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -16,11 +17,11 @@ export async function generateSolutionMetadata({ params }: Props): Promise<Metad
   const { slug } = await params;
   const page = solutionPages.find((item) => item.slug === slug);
   if (!page) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: page.title,
     description: page.audience,
     alternates: { canonical: `/solutions/${page.axis}/${page.slug}` },
-  };
+  });
 }
 
 export default async function SolutionDetailPage({ params }: Props) {

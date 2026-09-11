@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -9,11 +10,11 @@ import {
 import { rolePages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Role Solutions',
   description: 'Role-specific QOrium assessment batteries mapped to skills, stacks, and seniority.',
   alternates: { canonical: '/solutions/role' },
-};
+});
 
 export default function RoleHubPage() {
   return (

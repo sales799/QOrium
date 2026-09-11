@@ -1,15 +1,16 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Research — QOrium benchmarks and methodology',
   description:
     'Published QOrium research: anti-leak detection benchmarks, IRT calibration methodology, and bias-audit results. Every testable claim is backed by a published study.',
   alternates: { canonical: '/research' },
-};
+});
 
 const RESEARCH_ENTRIES = [
   {

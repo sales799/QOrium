@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -30,11 +31,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const stack = getStackPage(slug);
   if (!stack) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: `${stack.name} Assessment Modules`,
     description: `${stack.description} View QOrium roles, skills, workflow, and India-enterprise context for ${stack.name}.`,
     alternates: { canonical: stack.path },
-  };
+  });
 }
 
 export default async function StackPage({ params }: Props) {

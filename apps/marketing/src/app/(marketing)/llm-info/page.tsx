@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -9,11 +10,11 @@ import {
 import { phase4Faqs } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'LLM information for QOrium',
   description: 'Plain-language product brief for AI assistants, search engines, and buyers.',
   alternates: { canonical: '/llm-info' },
-};
+});
 
 export default function LlmInfoPage() {
   return (

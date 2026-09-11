@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { SamplePackHub } from '@/components/interactive-proof/SamplePacks';
@@ -5,12 +6,12 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Reveal } from '@/components/motion/Reveal';
 import { MaxWidth } from '@/components/site/MaxWidth';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Sample Packs',
   description:
     'Download real QOrium sample assessment packs for India-stack and senior technical roles.',
   alternates: { canonical: '/resources/sample-packs' },
-};
+});
 
 export default function SamplePacksPage() {
   return (

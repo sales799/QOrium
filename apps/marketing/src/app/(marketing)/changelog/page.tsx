@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { Badge } from '@/components/ui/badge';
@@ -10,11 +11,11 @@ import { CHANGELOG } from '@/content/changelog';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Changelog',
   description: 'What we shipped, when. Append-only, grounded in commits and ratified docs.',
   alternates: { canonical: '/changelog' },
-};
+});
 
 const CATEGORY_COLOR: Record<string, string> = {
   site: 'text-secondary',

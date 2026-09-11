@@ -1,13 +1,14 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { jobDescriptions, slugify } from '@/content/phase4';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Job Description Library',
   description: 'QOrium role templates with skills checklists and assessment links.',
   alternates: { canonical: '/resources/job-descriptions' },
-};
+});
 
 export default function JobDescriptionsIndexPage() {
   return (

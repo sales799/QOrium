@@ -1,12 +1,13 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { LegalShell, LegalSection } from '@/components/site/LegalShell';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Data Processing Addendum',
   description: `Data Processing Addendum for ${siteConfig.name}.`,
   alternates: { canonical: '/dpa' },
-};
+});
 
 export default function DpaPage() {
   return (

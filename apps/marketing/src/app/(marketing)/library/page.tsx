@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -5,12 +6,12 @@ import { BreadcrumbJsonLd, ItemListJsonLd, ProductJsonLd } from '@/components/se
 import { IRT_LABEL, librarySkills } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Assessment Library',
   description:
     'Browse QOrium skill assessments with role mapping, stack mapping, sample questions, and explicit calibration status.',
   alternates: { canonical: '/library' },
-};
+});
 
 export default function LibraryHubPage() {
   const featured = librarySkills;

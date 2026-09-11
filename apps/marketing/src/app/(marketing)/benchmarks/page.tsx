@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { BarChart3, FileSearch, ShieldCheck, type LucideIcon } from 'lucide-react';
 
@@ -28,12 +29,12 @@ const CLAIM_POSTURE: Array<{ label: string; icon: LucideIcon }> = [
   { label: 'Source notes before proof modules', icon: FileSearch },
 ];
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Benchmarks & Reports',
   description:
     'QOrium benchmark and report index for anti-leak, responsible AI, assessment science, and evidence-gated trust proof.',
   alternates: { canonical: '/benchmarks' },
-};
+});
 
 export default function BenchmarksPage() {
   return (

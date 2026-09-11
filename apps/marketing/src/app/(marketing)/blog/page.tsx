@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Calendar, ArrowRight } from 'lucide-react';
@@ -11,11 +12,11 @@ import { listBlogPosts } from '@/lib/blog';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Blog',
   description: 'Field notes from building the assessment-content layer.',
   alternates: { canonical: '/blog' },
-};
+});
 
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {

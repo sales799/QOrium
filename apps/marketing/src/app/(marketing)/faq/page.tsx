@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import {
   Accordion,
@@ -69,11 +70,11 @@ const PRICING_FAQ = [
 
 const ALL_FAQ = [...GENERAL_FAQ, ...PRICING_FAQ];
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'FAQ',
   description: `Frequently asked questions about ${siteConfig.name} — the world's first Question-Bank-as-a-Service for technical hiring.`,
   alternates: { canonical: '/faq' },
-};
+});
 
 export default function FAQPage() {
   return (

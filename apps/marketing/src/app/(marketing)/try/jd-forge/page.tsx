@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { JdForgeDemo } from '@/components/interactive-proof/JdForgeDemo';
@@ -5,11 +6,11 @@ import { FadeIn } from '@/components/motion/FadeIn';
 import { Reveal } from '@/components/motion/Reveal';
 import { MaxWidth } from '@/components/site/MaxWidth';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Try JD-Forge',
   description: 'Paste a job description and see QOrium map it into a defensible assessment plan.',
   alternates: { canonical: '/try/jd-forge' },
-};
+});
 
 export default function TryJdForgePage() {
   return (

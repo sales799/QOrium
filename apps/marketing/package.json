@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "clean": "rm -rf .next out node_modules/.cache"
+    "clean": "rm -rf .next out node_modules/.cache",
+    "test:metadata-html": "node scripts/check-built-metadata.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

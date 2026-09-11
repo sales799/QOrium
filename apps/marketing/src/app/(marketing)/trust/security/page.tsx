@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import {
@@ -10,12 +11,12 @@ import {
 import { BreadcrumbJsonLd, WebPageJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Security & data residency',
   description:
     'QOrium candidate data is stored in India (Mumbai region). Verified data residency, data-flow, and the controls behind defensible assessment scoring.',
   alternates: { canonical: '/trust/security' },
-};
+});
 
 export default function TrustSecurityPage() {
   return (

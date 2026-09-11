@@ -1,13 +1,14 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { EmailText } from '@/components/site/EmailText';
 import { LegalShell, LegalSection } from '@/components/site/LegalShell';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Privacy Policy',
   description: `Privacy Policy for ${siteConfig.name}.`,
   alternates: { canonical: '/privacy' },
-};
+});
 
 export default function PrivacyPage() {
   return (

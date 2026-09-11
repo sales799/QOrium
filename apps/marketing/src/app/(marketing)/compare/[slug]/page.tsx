@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -28,11 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const competitorSlug = legacyCompareSlugToVsSlug(slug);
   const page = getCompetitorPage(competitorSlug);
   if (!page) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: `QOrium vs ${page.competitor}`,
     description: `${page.summary} Review an honesty-led comparison with visible proof rules.`,
     alternates: { canonical: page.path },
-  };
+  });
 }
 
 export default async function ComparePage({ params }: Props) {

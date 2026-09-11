@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import {
@@ -17,12 +18,12 @@ import { phase4Faqs } from '@/content/phase4';
 import { siteConfig } from '@/content/site.config';
 import { analyticsEvents } from '@/lib/analytics';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Pricing',
   description:
     'QOrium pricing: Customer-Zero free forever, Growth ₹4,999/mo, Scale ₹19,999/mo, Enterprise custom. Transparent INR pricing for India-first skills assessment.',
   alternates: { canonical: '/pricing' },
-};
+});
 
 const tiers = [
   [

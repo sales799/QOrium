@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -30,11 +31,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const role = getRolePage(slug);
   if (!role) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: `${role.name} Assessment Battery`,
     description: `${role.name} hiring battery with core skills, recommended skills, stack context, evidence rules, and a sample QOrium assessment flow.`,
     alternates: { canonical: role.path },
-  };
+  });
 }
 
 export default async function RolePage({ params }: Props) {

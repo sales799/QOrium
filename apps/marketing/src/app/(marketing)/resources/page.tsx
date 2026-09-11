@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -5,11 +6,11 @@ import { guides, jobDescriptions, slugify } from '@/content/phase4';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Resources',
   description: 'QOrium hiring resources, guides, job descriptions, and assessment templates.',
   alternates: { canonical: '/resources' },
-};
+});
 
 export default function ResourcesPage() {
   return (

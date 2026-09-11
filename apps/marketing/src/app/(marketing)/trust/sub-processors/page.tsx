@@ -1,15 +1,16 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { BreadcrumbJsonLd, WebPageJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Sub-processors',
   description:
     'QOrium sub-processor list: the third parties that process data on our behalf, their purpose, and region posture. India-resident candidate data by default.',
   alternates: { canonical: '/trust/sub-processors' },
-};
+});
 
 type SubProcessor = {
   name: string;

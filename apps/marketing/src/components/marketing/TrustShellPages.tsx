@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -414,9 +415,9 @@ export function TrustDetailPage({ page }: { page: TrustPageContent }) {
 }
 
 export function getTrustPageMeta(page: TrustPageContent) {
-  return {
+  return withCanonicalOpenGraph({
     title: page.title,
     description: page.description,
     alternates: { canonical: page.route },
-  };
+  });
 }

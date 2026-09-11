@@ -1,14 +1,15 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { ShieldCheck, Lock } from 'lucide-react';
 import { FeaturePageLayout } from '@/components/site/FeaturePageLayout';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { stackvaultCopy } from '@/content/copy/features';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Stack-Vault — customer-exclusive, watermarked private library',
   description: stackvaultCopy.hero.sub,
   alternates: { canonical: '/features/stack-vault' },
-};
+});
 
 export default function StackVaultPage() {
   return (

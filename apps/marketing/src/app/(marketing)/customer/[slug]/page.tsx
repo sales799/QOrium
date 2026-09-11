@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -14,11 +15,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   if (slug !== 'talpro-india') return {};
-  return {
+  return withCanonicalOpenGraph({
     title: 'Talpro India Customer Story',
     description: 'Customer-zero story for QOrium and Talpro India.',
     alternates: { canonical: '/customer/talpro-india' },
-  };
+  });
 }
 
 export default async function CustomerStoryPage({ params }: Props) {

@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { TrustHubPage } from '@/components/marketing/TrustShellPages';
@@ -6,11 +7,11 @@ import { ProofDatasetJsonLd } from '@/components/seo/ProofDatasetJsonLd';
 import { siteConfig } from '@/content/site.config';
 import { trustHub } from '@/content/trust';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: trustHub.title,
   description: trustHub.description,
   alternates: { canonical: '/trust' },
-};
+});
 
 // Render at request time, not build time. The ProofDatasetJsonLd children
 // below each perform a build-unsafe live fetch() to the QOrium proof API;

@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -20,11 +21,11 @@ export async function generateMetadata({ params }: SamplePackPageProps): Promise
   const pack = getSamplePack(slug);
   if (!pack) return {};
 
-  return {
+  return withCanonicalOpenGraph({
     title: pack.title,
     description: pack.summary,
     alternates: { canonical: `/resources/sample-packs/${pack.slug}` },
-  };
+  });
 }
 
 export default async function SamplePackDetailPage({ params }: SamplePackPageProps) {

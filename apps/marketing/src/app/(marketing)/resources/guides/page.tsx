@@ -1,14 +1,15 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 import { guides } from '@/content/phase4';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Hiring Guides',
   description:
     'QOrium guides for skills testing, DPDP-aware vendor evaluation, and hiring operations.',
   alternates: { canonical: '/resources/guides' },
-};
+});
 
 export default function GuidesIndexPage() {
   return (

@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Braces, KeyRound, ShieldCheck, Webhook } from 'lucide-react';
@@ -7,12 +8,12 @@ import { BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { publicApiBaseUrl, publicApiDocsUpdated, publicApiGroups } from '@/content/api-docs';
 import { phase4Faqs } from '@/content/phase4';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'QOrium API Documentation',
   description:
     'Public-preview QOrium API documentation with OpenAPI 3.1 contracts for live proof and demo endpoints.',
   alternates: { canonical: '/resources/docs' },
-};
+});
 
 export default function ApiDocsPage() {
   return (

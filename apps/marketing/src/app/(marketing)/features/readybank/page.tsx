@@ -1,13 +1,14 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { FeaturePageLayout } from '@/components/site/FeaturePageLayout';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { readybankCopy } from '@/content/copy/features';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'ReadyBank — shared, IRT-calibrated, anti-leak-rotated',
   description: readybankCopy.hero.sub,
   alternates: { canonical: '/features/readybank' },
-};
+});
 
 const SAMPLE_RESPONSE = `{
   "pack_id": "rb_pkg_01HXY7Z3K9V",

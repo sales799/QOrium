@@ -1,14 +1,15 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { SolutionPageLayout } from '@/components/site/SolutionPageLayout';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { Globe } from '@/components/magicui/Globe';
 import { platformsCopy } from '@/content/copy/solutions';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'For assessment platforms',
   description: platformsCopy.hero.sub,
   alternates: { canonical: '/solutions/platforms' },
-};
+});
 
 export default function PlatformsPage() {
   return (

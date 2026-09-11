@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -29,11 +30,11 @@ export async function generateMetadata({ params }: LibraryPageProps): Promise<Me
   const skill = getLibrarySkill(slug);
   if (!skill) return {};
 
-  return {
+  return withCanonicalOpenGraph({
     title: `${skill.name} Assessment Library`,
     description: `QOrium ${skill.name} assessment page with honest calibration status and graded-answer examples.`,
     alternates: { canonical: skill.path },
-  };
+  });
 }
 
 export default async function LibrarySkillPage({ params }: LibraryPageProps) {

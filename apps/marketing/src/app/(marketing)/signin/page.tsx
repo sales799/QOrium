@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { KeyRound, ShieldCheck } from 'lucide-react';
@@ -7,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import { MaxWidth } from '@/components/site/MaxWidth';
 import { FadeIn } from '@/components/motion/FadeIn';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Sign in',
   description: 'Workspace access for QOrium customers and pilots.',
   alternates: { canonical: '/signin' },
-};
+});
 
 export default function SignInPage() {
   return (

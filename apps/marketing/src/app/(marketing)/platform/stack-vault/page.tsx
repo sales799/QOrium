@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { PlatformProductPage } from '@/components/marketing/PhaseTwoPages';
@@ -5,11 +6,11 @@ import { BreadcrumbJsonLd, FAQPageJsonLd, ProductJsonLd } from '@/components/seo
 import { stackVaultProduct } from '@/content/copy/phase2';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Stack-Vault - Your private assessment vault',
   description: stackVaultProduct.description,
   alternates: { canonical: stackVaultProduct.route },
-};
+});
 
 export default function StackVaultPlatformPage() {
   return (

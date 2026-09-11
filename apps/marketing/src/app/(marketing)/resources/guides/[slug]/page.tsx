@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -16,11 +17,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const guide = guides.find((item) => item.slug === slug);
   if (!guide) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: guide.title,
     description: guide.summary,
     alternates: { canonical: `/resources/guides/${slug}` },
-  };
+  });
 }
 
 export default async function GuidePage({ params }: Props) {

@@ -1,13 +1,14 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Try QOrium — interactive proof surfaces',
   description:
     'Hands-on QOrium demos: JD-Forge maps a job description into a calibrated assessment plan, and the graded-answer viewer shows AI grading with full reasoning trace. No sales call required.',
   alternates: { canonical: '/try' },
-};
+});
 
 const TRY_PAGES = [
   {

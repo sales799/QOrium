@@ -1,13 +1,14 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { SolutionPageLayout } from '@/components/site/SolutionPageLayout';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { staffingCopy } from '@/content/copy/solutions';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'For staffing firms',
   description: staffingCopy.hero.sub,
   alternates: { canonical: '/solutions/staffing' },
-};
+});
 
 export default function StaffingPage() {
   return (

@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const skill = getSkill(slug);
   if (!skill) return {};
-  return {
+  return withCanonicalOpenGraph({
     title: `${skill.name} Assessment`,
     description: `Preview the QOrium ${skill.name} assessment: skills measured, sample questions, calibration status, and matching roles.`,
     alternates: { canonical: `/skill/${slug}` },
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: `${skill.category} assessment for ${skill.roles.join(', ')} roles.`,
       url: `${siteConfig.url}/skill/${slug}`,
     },
-  };
+  });
 }
 
 export default async function SkillPage({ params }: Props) {

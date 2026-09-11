@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -11,11 +12,11 @@ import { Spotlight } from '@/components/aceternity/Spotlight';
 import { WebPageJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Customers',
   description: 'How our Day-0 cohort uses QOrium today, and where we go next.',
   alternates: { canonical: '/customers' },
-};
+});
 
 // SOURCE: Constitution SO-1 (Talpro Customer Zero Mandate) — non-negotiable.
 const CZ_FACTS = [

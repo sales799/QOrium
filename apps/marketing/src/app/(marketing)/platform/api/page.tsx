@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import {
@@ -12,12 +13,12 @@ import {
 import { BreadcrumbJsonLd, FAQPageJsonLd } from '@/components/seo/JsonLd';
 import { phase4Faqs } from '@/content/phase4';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'QOrium Platform API',
   description:
     'API access for QOrium is in beta. Request access for assessment-library and hiring workflow integrations.',
   alternates: { canonical: '/platform/api' },
-};
+});
 
 export default function PlatformApiPage() {
   return (

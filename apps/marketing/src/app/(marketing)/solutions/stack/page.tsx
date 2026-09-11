@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import { CardGrid, PageHero, SectionBand, SurfaceCard } from '@/components/phase4/MarketingSurface';
@@ -9,12 +10,12 @@ import {
 import { stackPages } from '@/content/seo-graph';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Stack Solutions',
   description:
     'India-enterprise stack assessment pages for SAP, Oracle, BFSI, embedded, and legacy systems.',
   alternates: { canonical: '/solutions/stack' },
-};
+});
 
 export default function StackHubPage() {
   return (

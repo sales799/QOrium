@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const post = getBlogPost(slug);
   if (!post) return { title: 'Not found' };
-  return {
+  return withCanonicalOpenGraph({
     title: post.title,
     description: post.description,
     alternates: { canonical: `/blog/${slug}` },
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       authors: [post.author],
       tags: post.tags,
     },
-  };
+  });
 }
 
 function fmtDate(iso: string): string {

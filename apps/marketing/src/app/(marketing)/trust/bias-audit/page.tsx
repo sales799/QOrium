@@ -1,3 +1,4 @@
+import { withCanonicalOpenGraph } from '@/lib/page-metadata';
 import type { Metadata } from 'next';
 
 import {
@@ -10,12 +11,12 @@ import {
 import { BreadcrumbJsonLd, WebPageJsonLd } from '@/components/seo/JsonLd';
 import { siteConfig } from '@/content/site.config';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonicalOpenGraph({
   title: 'Bias-audit methodology',
   description:
     'QOrium publishes its adverse-impact methodology and commits to an independent Indian bias audit. Status: methodology published; independent audit scheduled.',
   alternates: { canonical: '/trust/bias-audit' },
-};
+});
 
 export default function BiasAuditPage() {
   return (
